@@ -128,6 +128,21 @@ class ThingsBoardApi {
   uploadWidgetsBundle(bundle) {
     return this.request('POST', '/api/widgetsBundle', bundle);
   }
+
+  async getDashboards() {
+    const response = await this.request('GET', '/api/tenant/dashboards?pageSize=1000&page=0');
+    return response.data || response || [];
+  }
+
+  async getRuleChains() {
+    const response = await this.request('GET', '/api/ruleChains?pageSize=1000&page=0');
+    return response.data || response || [];
+  }
+
+  async getWidgetsBundles() {
+    const response = await this.request('GET', '/api/widgetsBundles?pageSize=1000&page=0');
+    return response.data || response || [];
+  }
 }
 
 function decodeJwtExp(token) {

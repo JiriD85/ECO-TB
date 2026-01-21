@@ -58,9 +58,7 @@ async function syncCommand(args) {
   await api.login();
 
   if (selections.dashboards) {
-    await syncDir(api, SOURCE_DIRS.dashboards, 'dashboard', (payload) =>
-      api.uploadDashboard(payload)
-    );
+    await syncDashboards(api);
   }
 
   if (selections.rulechains) {
@@ -77,6 +75,61 @@ async function syncCommand(args) {
 
   await recordSync();
   logger.log('Sync completed');
+}
+
+async function syncDashboards(api) {
+  const dirPath = path.join(process.cwd(), SOURCE_DIRS.dashboards);
+  let files;
+  try {
+    files = await readJsonFiles(dirPath);
+  } catch (err) {
+    logger.warn(`Skipping dashboards: ${err.message}`);
+    return;
+  }
+
+  if (!files.length) {
+    logger.warn('No dashboards found');
+    return;
+  }
+
+  // Get existing dashboards from server
+  logger.log('Fetching existing dashboards from server...');
+  const existingDashboards = await api.getDashboards();
+
+  // Create lookup by title
+  const dashboardsByTitle = new Map();
+  for (const d of existingDashboards) {
+    const title = d.title || d.name;
+    if (!dashboardsByTitle.has(title)) {
+      dashboardsByTitle.set(title, d);
+    }
+  }
+  logger.log(`Found ${existingDashboards.length} existing dashboards`);
+
+  for (const file of files) {
+    const payload = await loadJson(file);
+    const title = payload.title || payload.name;
+
+    // Check if dashboard already exists
+    const existing = dashboardsByTitle.get(title);
+
+    if (existing) {
+      // Update existing dashboard - add the ID
+      payload.id = existing.id;
+      logger.log(`Updating dashboard: ${title} (ID: ${existing.id.id})`);
+    } else {
+      // New dashboard - remove any ID to create new
+      delete payload.id;
+      logger.log(`Creating new dashboard: ${title}`);
+    }
+
+    try {
+      await api.uploadDashboard(payload);
+      logger.log(`Synced dashboard: ${path.basename(file)}`);
+    } catch (err) {
+      logger.error(`Failed dashboard sync (${path.basename(file)}): ${err.message}`);
+    }
+  }
 }
 
 async function syncDir(api, dirName, label, uploader) {

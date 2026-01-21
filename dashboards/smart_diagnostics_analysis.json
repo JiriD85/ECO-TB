@@ -7,41 +7,49 @@
     "description": "",
     "widgets": {
       "hello-world-widget": {
-        "typeFullFqn": "system.html_card",
+        "typeFullFqn": "system.cards.html_card",
         "type": "static",
-        "sizeX": 6,
+        "sizeX": 7.5,
         "sizeY": 3,
         "config": {
-          "datasources": [],
+          "datasources": [
+            {
+              "type": "static",
+              "name": "function",
+              "dataKeys": [
+                {
+                  "name": "f(x)",
+                  "type": "function",
+                  "label": "Random",
+                  "color": "#2196f3",
+                  "settings": {},
+                  "_hash": 0.15479322438769105,
+                  "funcBody": "return 1;"
+                }
+              ]
+            }
+          ],
           "timewindow": {
             "realtime": {
               "timewindowMs": 60000
             }
           },
-          "showTitle": true,
-          "backgroundColor": "#ffffff",
+          "showTitle": false,
+          "backgroundColor": "rgb(255, 255, 255)",
           "color": "rgba(0, 0, 0, 0.87)",
-          "padding": "16px",
+          "padding": "8px",
           "settings": {
-            "html": "<div style=\"display: flex; justify-content: center; align-items: center; height: 100%; font-size: 24px; font-weight: bold; color: #1976d2;\">Hello World</div>",
-            "css": ""
+            "cardHtml": "<div class='hello-world'>Hello World</div>",
+            "cardCss": ".hello-world {\n    font-weight: bold;\n    font-size: 32px;\n    color: #1976d2;\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}"
           },
-          "title": "Hello World Widget",
-          "showTitleIcon": false,
-          "titleIcon": "",
-          "iconColor": "rgba(0, 0, 0, 0.87)",
-          "iconSize": "24px",
-          "titleTooltip": "",
+          "title": "HTML Card",
           "dropShadow": true,
-          "enableFullscreen": true,
+          "enableFullscreen": false,
+          "borderRadius": "8px",
           "widgetStyle": {},
-          "titleStyle": {
-            "fontSize": "16px",
-            "fontWeight": 400
-          },
-          "units": "",
-          "decimals": 2,
-          "actions": {}
+          "widgetCss": "",
+          "pageSize": 1024,
+          "noDataDisplayMessage": ""
         },
         "row": 0,
         "col": 0
@@ -55,7 +63,7 @@
           "main": {
             "widgets": {
               "hello-world-widget": {
-                "sizeX": 6,
+                "sizeX": 7.5,
                 "sizeY": 3,
                 "row": 0,
                 "col": 0
