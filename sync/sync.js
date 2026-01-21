@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-const fs = require('fs/promises');
+const fs = require('fs').promises;
 const path = require('path');
 
 const { loadConfig } = require('./config');
 const { ThingsBoardApi } = require('./api');
 const {
-  createBackup,
+  backupFiles,
   listBackups,
   restoreLatestBackup,
   readStatus,
@@ -25,6 +25,15 @@ async function readJsonFiles(dirPath) {
   return entries
     .filter((entry) => entry.isFile() && entry.name.endsWith('.json'))
     .map((entry) => path.join(dirPath, entry.name));
+}
+
+async function getJsonFiles(dirName) {
+  const dirPath = path.join(process.cwd(), dirName);
+  try {
+    return await readJsonFiles(dirPath);
+  } catch (err) {
+    return [];
+  }
 }
 
 async function loadJson(filePath) {
@@ -51,7 +60,26 @@ async function syncCommand(args) {
     selections.widgets = true;
   }
 
-  await createBackup(logger);
+  // Collect files to sync first, then backup only those files
+  const filesToSync = [];
+
+  if (selections.dashboards) {
+    const dashboardFiles = await getJsonFiles(SOURCE_DIRS.dashboards);
+    filesToSync.push(...dashboardFiles);
+  }
+  if (selections.rulechains) {
+    const rulechainFiles = await getJsonFiles(SOURCE_DIRS.rulechains);
+    filesToSync.push(...rulechainFiles);
+  }
+  if (selections.widgets) {
+    const widgetFiles = await getJsonFiles(SOURCE_DIRS.widgets);
+    filesToSync.push(...widgetFiles);
+  }
+
+  // Backup only the files that will be synced
+  if (filesToSync.length > 0) {
+    await backupFiles(logger, filesToSync);
+  }
 
   const config = loadConfig();
   const api = new ThingsBoardApi({ ...config, logger });
@@ -173,6 +201,7 @@ async function statusCommand() {
   logger.log('Status:');
   logger.log(`Last backup: ${status.lastBackup || 'n/a'}`);
   logger.log(`Last sync: ${status.lastSync || 'n/a'}`);
+  logger.log(`Last pull: ${status.lastPull || 'n/a'}`);
   logger.log(`Last rollback: ${status.lastRollback || 'n/a'}`);
   logger.log(`Backups: ${backups.length}`);
   if (backups.length) {
@@ -180,23 +209,149 @@ async function statusCommand() {
   }
 }
 
+function sanitizeFilename(name) {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9äöüß]+/gi, '_')
+    .replace(/^_+|_+$/g, '');
+}
+
+async function pullCommand(args) {
+  const config = loadConfig();
+  const api = new ThingsBoardApi({ ...config, logger });
+  await api.login();
+
+  // Parse arguments: can be dashboard titles or --all
+  const flags = new Set(args.filter((arg) => arg.startsWith('--')));
+  const titles = args.filter((arg) => !arg.startsWith('--'));
+
+  logger.log('Fetching dashboards from server...');
+  const allDashboards = await api.getDashboards();
+  logger.log(`Found ${allDashboards.length} dashboards on server`);
+
+  let dashboardsToPull = [];
+
+  if (flags.has('--all') || titles.length === 0) {
+    // Pull all dashboards
+    dashboardsToPull = allDashboards;
+  } else {
+    // Pull specific dashboards by title (partial match)
+    for (const d of allDashboards) {
+      const title = (d.title || d.name || '').toLowerCase();
+      for (const search of titles) {
+        if (title.includes(search.toLowerCase())) {
+          dashboardsToPull.push(d);
+          break;
+        }
+      }
+    }
+  }
+
+  if (dashboardsToPull.length === 0) {
+    logger.warn('No matching dashboards found');
+    return;
+  }
+
+  // Ensure dashboards directory exists
+  const dashboardDir = path.join(process.cwd(), SOURCE_DIRS.dashboards);
+  await fs.mkdir(dashboardDir, { recursive: true });
+
+  // Backup existing files before overwriting
+  const existingFiles = await getJsonFiles(SOURCE_DIRS.dashboards);
+  if (existingFiles.length > 0) {
+    await backupFiles(logger, existingFiles);
+  }
+
+  // Download and save each dashboard
+  for (const d of dashboardsToPull) {
+    const dashboardId = d.id.id;
+    const title = d.title || d.name;
+
+    try {
+      logger.log(`Downloading: ${title}`);
+      const fullDashboard = await api.getDashboard(dashboardId);
+
+      // Generate filename from title
+      const filename = sanitizeFilename(title) + '.json';
+      const filePath = path.join(dashboardDir, filename);
+
+      // Write formatted JSON
+      await fs.writeFile(filePath, JSON.stringify(fullDashboard, null, 2));
+      logger.log(`Saved: ${filename}`);
+    } catch (err) {
+      logger.error(`Failed to download ${title}: ${err.message}`);
+    }
+  }
+
+  // Update status
+  const { updateStatus } = require('./backup');
+  await updateStatus({ lastPull: new Date().toISOString().replace('T', '_').substring(0, 19) });
+
+  logger.log(`Pull completed: ${dashboardsToPull.length} dashboard(s)`);
+}
+
+async function listCommand() {
+  const config = loadConfig();
+  const api = new ThingsBoardApi({ ...config, logger });
+  await api.login();
+
+  logger.log('Fetching dashboards from server...');
+  const dashboards = await api.getDashboards();
+
+  logger.log(`\nFound ${dashboards.length} dashboards:\n`);
+  for (const d of dashboards) {
+    const title = d.title || d.name;
+    const id = d.id.id;
+    logger.log(`  ${title}`);
+    logger.log(`    ID: ${id}`);
+  }
+}
+
 function printUsage() {
   logger.log('Usage: node sync/sync.js <command> [options]');
-  logger.log('Commands: sync, backup, rollback, status');
-  logger.log('Sync options: --dashboards --rulechains --widgets --all');
+  logger.log('');
+  logger.log('Commands:');
+  logger.log('  sync [options]     Push local dashboards to ThingsBoard');
+  logger.log('  pull [titles...]   Download dashboards from ThingsBoard');
+  logger.log('  list               List all dashboards on server');
+  logger.log('  backup             Create a backup of local files');
+  logger.log('  rollback           Restore from latest backup');
+  logger.log('  status             Show sync status');
+  logger.log('');
+  logger.log('Sync options:');
+  logger.log('  --dashboards       Sync only dashboards');
+  logger.log('  --rulechains       Sync only rule chains');
+  logger.log('  --widgets          Sync only widgets');
+  logger.log('  --all              Sync everything (default)');
+  logger.log('');
+  logger.log('Pull options:');
+  logger.log('  --all              Download all dashboards');
+  logger.log('  <title>            Download dashboards matching title (partial match)');
+  logger.log('');
+  logger.log('Examples:');
+  logger.log('  node sync/sync.js sync --dashboards');
+  logger.log('  node sync/sync.js pull "Smart Diagnostics"');
+  logger.log('  node sync/sync.js pull --all');
+  logger.log('  node sync/sync.js list');
 }
 
 async function main() {
   const [, , command, ...args] = process.argv;
-  if (!command) {
+  if (!command || command === '--help' || command === '-h') {
     printUsage();
-    process.exit(1);
+    process.exit(command ? 0 : 1);
   }
 
   try {
     switch (command) {
       case 'sync':
         await syncCommand(args);
+        break;
+      case 'pull':
+        await pullCommand(args);
+        break;
+      case 'list':
+        await listCommand();
         break;
       case 'backup':
         await backupCommand();
@@ -208,6 +363,7 @@ async function main() {
         await statusCommand();
         break;
       default:
+        logger.error(`Unknown command: ${command}`);
         printUsage();
         process.exit(1);
     }

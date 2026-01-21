@@ -134,6 +134,10 @@ class ThingsBoardApi {
     return response.data || response || [];
   }
 
+  async getDashboard(dashboardId) {
+    return this.request('GET', `/api/dashboard/${dashboardId}`);
+  }
+
   async getRuleChains() {
     const response = await this.request('GET', '/api/ruleChains?pageSize=1000&page=0');
     return response.data || response || [];
