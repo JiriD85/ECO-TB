@@ -1,0 +1,29 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "78d7f8c0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667764812,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "cards.qr_code",
+  "name": "QR Code",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/qr_code_system_widget_image.png",
+  "description": "Displays the QR code. The code is calculated using a configured pattern or function based on the values of the selected entity attributes or the latest telemetry data.",
+  "tags": null,
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7cdf0210-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Cards"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "fqn": "home_page_widgets.quick_links",
+  "name": "Quick links",
+  "deprecated": false,
+  "image": "tb-image;/api/images/system/quick_links_system_widget_image.png",
+  "description": "Configure and display quick links to the platform's UI components.",
+  "descriptor": {
+    "type": "static",
+    "sizeX": 7.5,
+    "sizeY": 3,
+    "resources": [],
+    "templateHtml": "<tb-quick-links-widget\n    [ctx]=\"ctx\">\n</tb-quick-links-widget>\n",
+    "templateCss": "",
+    "controllerScript": "self.onInit = function() {\n}",
+    "settingsSchema": "",
+    "dataKeySettingsSchema": "",
+    "settingsDirective": "tb-quick-links-widget-settings",
+    "defaultConfig": "{\"showTitle\":false,\"backgroundColor\":\"rgb(255, 255, 255)\",\"color\":\"rgba(0, 0, 0, 0.87)\",\"padding\":\"8px\",\"settings\":{\"columns\":3},\"title\":\"Quick links\",\"dropShadow\":true,\"enableFullscreen\":false,\"widgetStyle\":{},\"widgetCss\":\"\",\"pageSize\":1024,\"noDataDisplayMessage\":\"\",\"showLegend\":false}"
+  },
+  "externalId": null,
+  "resources": null,
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7abce560-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667767990,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "scada": false,
+  "version": 1,
+  "tags": null
+}

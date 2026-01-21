@@ -1,0 +1,29 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "797daea0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667765898,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "charts.polar_area_chart_js",
+  "name": "Polar Area",
+  "deprecated": true,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/polar_area_system_widget_image.png",
+  "description": "Displays the latest values of the attributes or time series data for multiple entities in a polar area chart. Supports numeric values only.",
+  "tags": null,
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7c3c5970-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Charts"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "796a9bd0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667765773,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "charts.timeseries_bars_flot",
+  "name": "Timeseries Bar Chart",
+  "deprecated": true,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/timeseries_bar_chart_system_widget_image.png",
+  "description": "Displays changes to time series data over time—for example, daily water consumption for the last month.",
+  "tags": null,
+  "widgetType": "timeseries",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7c3c5970-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Charts"
+    }
+  ]
+}

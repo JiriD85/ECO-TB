@@ -1,0 +1,1766 @@
+[
+  {
+    "fqn": "gateway_widgets.gateway_connectors2",
+    "name": "Gateway connectors",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "gateway_widgets.config_form_latest2",
+    "name": "Gateway configuration (Single device)",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "gateway_widgets.gateway_general_configuration2",
+    "name": "Gateway general configuration",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "gateway_widgets.gateway_status2",
+    "name": "Gateway status",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "digital_gauges.simple_gauge_justgage",
+    "name": "Simple gauge",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "maps_v2.image_map",
+    "name": "Image Map",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "pm2_5_card_with_background",
+    "name": "PM2.5 card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "humidity_card_with_background",
+    "name": "Humidity card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "efficiency_progress_bar_with_background",
+    "name": "Efficiency progress bar with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_horizontal_pm10_card_with_background",
+    "name": "Indoor horizontal PM10 card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_leaf_wetness_card_with_background",
+    "name": "Horizontal leaf wetness card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_radon_level_card",
+    "name": "Horizontal radon level card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "ground_temperature_card",
+    "name": "Ground temperature card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "illuminance_progress_bar",
+    "name": "Illuminance progress bar",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "entity_count",
+    "name": "Entity count",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "input_widgets.update_shared_integer_attribute",
+    "name": "Update shared integer attribute",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "leaf_wetness_card",
+    "name": "Leaf wetness card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "analogue_gauges.radial_gauge_canvas_gauges",
+    "name": "Radial gauge",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_horizontal_illuminance_card",
+    "name": "Indoor horizontal illuminance card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_flooding_level_card",
+    "name": "Horizontal flooding level card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_pump_vibration_card",
+    "name": "Horizontal vibration card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_pm10_card_with_background",
+    "name": "Indoor PM10 card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "digital_gauges.lcd_bar_gauge",
+    "name": "LCD bar gauge",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "efficiency_card_with_background",
+    "name": "Efficiency card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_humidity_card_with_background",
+    "name": "Indoor humidity card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_illuminance_progress_bar_with_background",
+    "name": "Indoor illuminance progress bar with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "vertical_oval_tank",
+    "name": "Vertical oval tank",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "input_widgets.update_multiple_attributes",
+    "name": "Update Multiple Attributes",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "progress_bar",
+    "name": "Progress bar",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_wind_speed_card_with_background",
+    "name": "Horizontal wind speed card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "cards.qr_code",
+    "name": "QR Code",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "flow_rate_progress_bar_with_background",
+    "name": "Flow rate progress bar with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "maps_v2.openstreetmap",
+    "name": "OpenStreet Map",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "input_widgets.update_double_timeseries",
+    "name": "Update double timeseries",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "pm10_card_with_background",
+    "name": "PM10 card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "cards.value_card",
+    "name": "Value card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "humidity_progress_bar_with_background",
+    "name": "Humidity progress bar with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "pressure_card_with_background",
+    "name": "Pressure card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "snow_depth_card_with_background",
+    "name": "Snow depth card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_sulfur_dioxide_so2_card_with_background",
+    "name": "Horizontal sulfur dioxide (SO2) card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "vertical_capsule_tank",
+    "name": "Vertical capsule tank",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "two_segment_button",
+    "name": "Two-segment button",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_fluid_pressure_card",
+    "name": "Horizontal pressure card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "rotational_speed_progress_bar_with_background",
+    "name": "Rotational speed progress bar with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "polar_area",
+    "name": "Polar area",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "humidity_progress_bar",
+    "name": "Humidity progress bar",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "charts.radar_chart_js",
+    "name": "Radar",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_carbon_monoxide_co_card",
+    "name": "Horizontal carbon monoxide (CO) card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "cards.label_widget",
+    "name": "Label widget",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_co2_card_with_background",
+    "name": "Indoor CO2 card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "carbon_monoxide_co_card_with_background",
+    "name": "Carbon monoxide (CO) card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "ozone_o3_card_with_background",
+    "name": "Ozone (O3) card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "vibration_card_with_background",
+    "name": "Vibration card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_efficiency_card",
+    "name": "Horizontal efficiency card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "input_widgets.update_server_string_attribute",
+    "name": "Update server string attribute",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "soil_moisture_card_with_background",
+    "name": "Soil moisture card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "charts.pie",
+    "name": "Pie - Flot",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_ground_temperature_card",
+    "name": "Horizontal ground temperature card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_rainfall_card_with_background",
+    "name": "Horizontal rainfall card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_co2_card",
+    "name": "Indoor CO2 card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_oval_tank",
+    "name": "Horizontal oval tank",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "input_widgets.update_shared_image_attribute",
+    "name": "Update shared image attribute",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "input_widgets.update_integer_timeseries",
+    "name": "Update integer timeseries",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "entity_admin_widgets.device_admin_table",
+    "name": "Device admin table",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_pm2_5_card_with_background",
+    "name": "Indoor PM2.5 card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "gpio_widgets.gpio_panel",
+    "name": "Basic GPIO Panel",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "ground_temperature_card_with_background",
+    "name": "Ground temperature card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "flooding_level_progress_bar_with_background",
+    "name": "Flooding level progress bar with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_solar_radiation_card",
+    "name": "Horizontal solar radiation card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "ozone_o3_card",
+    "name": "Ozone (O3) card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "flow_rate_card_with_background",
+    "name": "Flow rate card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "illuminance_card_with_background",
+    "name": "Illuminance card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_air_quality_card_with_background",
+    "name": "Horizontal air quality index card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "analogue_gauges.temperature_gauge_canvas_gauges",
+    "name": "Thermometer scale",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "volatile_organic_compounds_card",
+    "name": "Volatile organic compounds card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_visibility_card",
+    "name": "Horizontal visibility card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "pressure_progress_bar",
+    "name": "Pressure progress bar",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "volatile_organic_compounds_card_with_background",
+    "name": "Volatile organic compounds card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_power_consumption_card_with_background",
+    "name": "Horizontal power consumption card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_rotational_speed_card_with_background",
+    "name": "Horizontal rotational speed card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "radar",
+    "name": "Radar",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "gateway_widgets.config_form_latest",
+    "name": "Gateway configuration (Single device)",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "pm2_5_card",
+    "name": "PM2.5 card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "maps_v2.here_map",
+    "name": "HERE Map",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_pm2_5_card",
+    "name": "Indoor PM2.5 card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_illuminance_card_with_background",
+    "name": "Horizontal illuminance card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "rainfall_card",
+    "name": "Rainfall card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_flooding_level_card_with_background",
+    "name": "Horizontal flooding level card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_temperature_progress_bar_with_background",
+    "name": "Indoor temperature progress bar with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "leaf_wetness_progress_bar_with_background",
+    "name": "Leaf wetness progress bar with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "charts.polar_area_chart_js",
+    "name": "Polar Area",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "fluid_pressure_card",
+    "name": "Pressure card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_visibility_card_with_background",
+    "name": "Horizontal visibility card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "illuminance_card",
+    "name": "Illuminance card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_pm10_card",
+    "name": "Horizontal PM10 card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_leaf_wetness_card",
+    "name": "Horizontal leaf wetness card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "rotational_speed_gauge",
+    "name": "Rotational speed gauge",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_ground_temperature_card_with_background",
+    "name": "Horizontal ground temperature card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "flow_rate_progress_bar",
+    "name": "Flow rate progress bar",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_ellipse_tank",
+    "name": "Horizontal ellipse tank",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_snow_depth_card_with_background",
+    "name": "Horizontal snow depth card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "leaf_wetness_card_with_background",
+    "name": "Leaf wetness card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "carbon_monoxide_co_card",
+    "name": "Carbon monoxide (CO) card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_horizontal_co2_card",
+    "name": "Indoor horizontal CO2 card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "fluid_pressure_gauge",
+    "name": "Pressure gauge",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "digital_gauges.gauge_justgage",
+    "name": "Gauge",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "digital_gauges.digital_thermometer",
+    "name": "Digital thermometer",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_pressure_card",
+    "name": "Horizontal pressure card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "flow_rate_gauge",
+    "name": "Flow rate gauge",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "vertical_cylinder_tank",
+    "name": "Vertical cylinder tank",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "vibration_card",
+    "name": "Vibration card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "temperature_card",
+    "name": "Temperature card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_horizontal_pm10_card",
+    "name": "Indoor horizontal PM10 card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_volatile_organic_compounds_card_with_background",
+    "name": "Horizontal volatile organic compounds card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_soil_moisture_card",
+    "name": "Horizontal soil moisture card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_dish_ends_tank",
+    "name": "Horizontal dish ends tank",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "wind_speed_and_direction_with_background",
+    "name": "Wind speed and direction with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_fluid_pressure_card_with_background",
+    "name": "Horizontal pressure card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_cylinder_tank",
+    "name": "Horizontal cylinder tank",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "individual_allergy_index_card",
+    "name": "Individual allergy index (IAI) card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_horizontal_humidity_card_with_background",
+    "name": "Indoor horizontal humidity card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "input_widgets.update_server_date_attribute",
+    "name": "Update server date attribute",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_individual_allergy_index_iai_card_with_background",
+    "name": "Horizontal individual allergy index (IAI) card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "co2_card",
+    "name": "CO2 card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "wind_speed_card",
+    "name": "Wind speed card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "maps_v2.tencent_maps",
+    "name": "Tencent Map",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_horizontal_temperature_card_with_background",
+    "name": "Indoor horizontal temperature card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_humidity_card",
+    "name": "Horizontal humidity card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_horizontal_humidity_card",
+    "name": "Indoor horizontal humidity card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "digital_gauges.mini_gauge_justgage",
+    "name": "Mini gauge",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_illuminance_progress_bar",
+    "name": "Indoor illuminance progress bar",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_efficiency_card_with_background",
+    "name": "Horizontal efficiency card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "digital_gauges.lcd_gauge",
+    "name": "LCD gauge",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_vibration_card_with_background",
+    "name": "Horizontal vibration card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "maps_v2.google_maps",
+    "name": "Google Map",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "input_widgets.update_server_location_attribute",
+    "name": "Update server location attribute",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "gateway_widgets.attributes_card",
+    "name": "Gateway events",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "pressure_progress_bar_with_background",
+    "name": "Pressure progress bar with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_radon_level_card_with_background",
+    "name": "Horizontal radon level card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_uv_index_card_with_background",
+    "name": "Horizontal UV Index card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_nitrogen_dioxide_no2_card_with_background",
+    "name": "Horizontal nitrogen dioxide (NO2) card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "soil_moisture_card",
+    "name": "Soil moisture card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "individual_allergy_index_card_with_background",
+    "name": "Individual allergy index (IAI) card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "cards.simple_card",
+    "name": "Simple card",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "snow_depth_card",
+    "name": "Snow depth card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "solar_radiation_card_with_background",
+    "name": "Solar radiation card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "charts.bars",
+    "name": "Bars",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "leaf_wetness_progress_bar",
+    "name": "Leaf wetness progress bar",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "bars",
+    "name": "Bars",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_horizontal_co2_card_with_background",
+    "name": "Indoor horizontal CO2 card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_illuminance_card",
+    "name": "Horizontal illuminance card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "signal_strength",
+    "name": "Signal strength",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_noise_level_card",
+    "name": "Horizontal noise level card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "pie",
+    "name": "Pie",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "action_button",
+    "name": "Action button",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_wind_speed_card",
+    "name": "Horizontal wind speed card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "cards.entities_table",
+    "name": "Entities table",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_carbon_monoxide_co_card_with_background",
+    "name": "Horizontal carbon monoxide (CO) card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_capsule_tank",
+    "name": "Horizontal capsule tank",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_pm2_5_card_with_background",
+    "name": "Horizontal PM2.5 card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_temperature_gauge",
+    "name": "Indoor temperature gauge",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_sulfur_dioxide_so2_card",
+    "name": "Horizontal sulfur dioxide (SO2) card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_co2_card_with_background",
+    "name": "Horizontal CO2 card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "fluid_pressure_progress_bar",
+    "name": "Pressure progress bar",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "digital_gauges.horizontal_bar_justgage",
+    "name": "Horizontal bar",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "sulfur_dioxide_so2_card",
+    "name": "Sulfur dioxide (SO2) card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_flow_rate_card_with_background",
+    "name": "Horizontal flow rate card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "pressure_card",
+    "name": "Pressure card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "input_widgets.markers_placement_openstreetmap",
+    "name": "Markers Placement - OpenStreetMap",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "digital_gauges.neon_gauge_justgage",
+    "name": "Neon gauge",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "gateway_widgets.gateway_connectors",
+    "name": "Gateway connectors",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "entity_admin_widgets.asset_admin_table",
+    "name": "Asset admin table",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "flooding_level_card",
+    "name": "Flooding level card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_temperature_card_with_background",
+    "name": "Indoor temperature card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "digital_gauges.simple_neon_gauge_justgage",
+    "name": "Simple neon gauge",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "input_widgets.update_shared_date_attribute",
+    "name": "Update shared date attribute",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_vibration_card",
+    "name": "Horizontal vibration card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_horizontal_illuminance_card_with_background",
+    "name": "Indoor horizontal illuminance card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_horizontal_pm2_5_card",
+    "name": "Indoor horizontal PM2.5 card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "flooding_level_card_with_background",
+    "name": "Flooding level card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "illuminance_progress_bar_with_background",
+    "name": "Illuminance progress bar with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "rectangle_tank",
+    "name": "Rectangle tank",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "input_widgets.markers_placement_image_map",
+    "name": "Markers Placement - Image Map",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "noise_level_card_with_background",
+    "name": "Noise level card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_rainfall_card",
+    "name": "Horizontal rainfall card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_temperature_progress_bar",
+    "name": "Indoor temperature progress bar",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "input_widgets.update_shared_double_attribute",
+    "name": "Update shared double attribute",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "cards.horizontal_value_card",
+    "name": "Horizontal value card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "gpio_widgets.raspberry_pi_gpio_panel",
+    "name": "Raspberry Pi GPIO Panel",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "map",
+    "name": "Map",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "wind_speed_card_with_background",
+    "name": "Wind speed card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_illuminance_card_with_background",
+    "name": "Indoor illuminance card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "temperature_card_with_background",
+    "name": "Temperature card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "pm10_card",
+    "name": "PM10 card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "digital_gauges.digital_vertical_bar",
+    "name": "Digital vertical bar",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "cards.html_value_card",
+    "name": "HTML Value Card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "input_widgets.update_shared_string_attribute",
+    "name": "Update shared string attribute",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "cards.entities_hierarchy",
+    "name": "Entities hierarchy",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "visibility_card",
+    "name": "Visibility card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_2_1_elliptical_tank",
+    "name": "Horizontal 2:1 elliptical tank",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "uv_index_card_with_background",
+    "name": "UV Index card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "battery_level",
+    "name": "Battery level",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_flow_rate_card",
+    "name": "Horizontal flow rate card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "gateway_widgets.gateway_general_configuration",
+    "name": "Gateway general configuration",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "image_map",
+    "name": "Image Map",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_pm2_5_card",
+    "name": "Horizontal PM2.5 card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "humidity_card",
+    "name": "Humidity card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_humidity_progress_bar_with_background",
+    "name": "Indoor humidity progress bar with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "flow_rate_card",
+    "name": "Flow rate card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_nitrogen_dioxide_no2_card",
+    "name": "Horizontal nitrogen dioxide (NO2) card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_ozone_o3_card",
+    "name": "Horizontal ozone (O3) card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "wind_speed_and_direction",
+    "name": "Wind speed and direction",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "uv_index_card",
+    "name": "UV Index card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "nitrogen_dioxide_no2_card_with_background",
+    "name": "Nitrogen dioxide (NO2) card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "input_widgets.markers_placement_google_maps",
+    "name": "Markers Placement - Google Maps",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_illuminance_card",
+    "name": "Indoor illuminance card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_temperature_card_with_background",
+    "name": "Horizontal temperature card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_humidity_card",
+    "name": "Indoor humidity card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "analogue_gauges.analogue_compass",
+    "name": "Compass",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "flooding_level_progress_bar",
+    "name": "Flooding level progress bar",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_horizontal_temperature_card",
+    "name": "Indoor horizontal temperature card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "digital_gauges.digital_speedometer",
+    "name": "Digital speedometer",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "charts.pie_chart_js",
+    "name": "Pie - Chart.js",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "pump_vibration_card_with_background",
+    "name": "Vibration card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "cards.markdown_card",
+    "name": "Markdown/HTML Card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "input_widgets.update_server_integer_attribute",
+    "name": "Update server integer attribute",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "power_consumption_card",
+    "name": "Power consumption card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_rotational_speed_card",
+    "name": "Horizontal rotational speed card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_pm10_card_with_background",
+    "name": "Horizontal PM10 card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_humidity_card_with_background",
+    "name": "Horizontal humidity card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_uv_index_card",
+    "name": "Horizontal UV Index card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_snow_depth_card",
+    "name": "Horizontal snow depth card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "temperature_gauge",
+    "name": "Temperature gauge",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "charts.doughnut_chart_js",
+    "name": "Doughnut",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_doughnut",
+    "name": "Horizontal doughnut",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_ozone_o3_card_with_background",
+    "name": "Horizontal ozone (O3) card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "input_widgets.update_boolean_timeseries",
+    "name": "Update boolean timeseries",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "input_widgets.update_server_image_attribute",
+    "name": "Update server image attribute",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "input_widgets.update_server_boolean_attribute",
+    "name": "Update server boolean attribute",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "cards.attributes_card",
+    "name": "Attributes card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "power_consumption_card_with_background",
+    "name": "Power consumption card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "rotational_speed_card",
+    "name": "Rotational speed card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "fluid_pressure_progress_bar_with_background",
+    "name": "Pressure progress bar with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_air_quality_card",
+    "name": "Horizontal air quality index card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "rainfall_card_with_background",
+    "name": "Rainfall card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "air_quality_card",
+    "name": "Air quality index card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "input_widgets.update_json_attribute",
+    "name": "Update JSON attribute",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "noise_level_card",
+    "name": "Noise level card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "input_widgets.web_camera_input",
+    "name": "Photo camera input",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "label_value_card",
+    "name": "Label & value card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "air_quality_card_with_background",
+    "name": "Air quality index card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_co2_card",
+    "name": "Horizontal CO2 card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "input_widgets.update_string_timeseries",
+    "name": "Update string timeseries",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_individual_allergy_index_iai_card",
+    "name": "Horizontal individual allergy index (IAI) card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "solar_radiation_card",
+    "name": "Solar radiation card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_power_consumption_card",
+    "name": "Horizontal power consumption card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_noise_level_card_with_background",
+    "name": "Horizontal noise level card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "gateway_widgets.gateway_status",
+    "name": "Gateway status",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "radon_level_card",
+    "name": "Radon level card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "co2_card_with_background",
+    "name": "CO2 card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "input_widgets.update_shared_location_attribute",
+    "name": "Update shared location attribute",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "input_widgets.update_server_double_attribute",
+    "name": "Update server double attribute",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "alarm_count",
+    "name": "Alarm count",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_soil_moisture_card_with_background",
+    "name": "Horizontal soil moisture card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "digital_gauges.vertical_bar_justgage",
+    "name": "Vertical bar",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_pump_vibration_card_with_background",
+    "name": "Horizontal vibration card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "visibility_card_with_background",
+    "name": "Visibility card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "fluid_pressure_card_with_background",
+    "name": "Pressure card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "efficiency_card",
+    "name": "Efficiency card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "soil_moisture_progress_bar",
+    "name": "Soil moisture progress bar",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_solar_radiation_card_with_background",
+    "name": "Horizontal solar radiation card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "analogue_gauges.temperature_radial_gauge_canvas_gauges",
+    "name": "Temperature radial gauge",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "input_widgets.update_shared_boolean_attribute",
+    "name": "Update shared boolean attribute",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_pressure_card_with_background",
+    "name": "Horizontal pressure card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "efficiency_progress_bar",
+    "name": "Efficiency progress bar",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_humidity_progress_bar",
+    "name": "Indoor humidity progress bar",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_horizontal_pm2_5_card_with_background",
+    "name": "Indoor horizontal PM2.5 card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "input_widgets.update_location_timeseries",
+    "name": "Update location timeseries",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_pm10_card",
+    "name": "Indoor PM10 card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "digital_gauges.digital_bar",
+    "name": "Digital horizontal bar",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "pump_vibration_card",
+    "name": "Vibration card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_temperature_card",
+    "name": "Indoor temperature card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "soil_moisture_progress_bar_with_background",
+    "name": "Soil moisture progress bar with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "edge_widgets.edges_overview",
+    "name": "Edge Quick Overview",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "nitrogen_dioxide_no2_card",
+    "name": "Nitrogen dioxide (NO2) card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "sulfur_dioxide_so2_card_with_background",
+    "name": "Sulfur dioxide (SO2) card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "doughnut",
+    "name": "Doughnut",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_volatile_organic_compounds_card",
+    "name": "Horizontal volatile organic compounds card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "analogue_gauges.speed_gauge_canvas_gauges",
+    "name": "Speed gauge",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "rotational_speed_card_with_background",
+    "name": "Rotational speed card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "radon_level_card_with_background",
+    "name": "Radon level card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "rotational_speed_progress_bar",
+    "name": "Rotational speed progress bar",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "horizontal_temperature_card",
+    "name": "Horizontal temperature card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "trendz_bundle.trendz_view_latest",
+    "name": "Trendz View Latest",
+    "deprecated": false,
+    "scada": false
+  }
+]

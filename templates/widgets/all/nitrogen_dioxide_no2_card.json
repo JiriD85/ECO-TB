@@ -1,0 +1,42 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7b650c40-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667769092,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "nitrogen_dioxide_no2_card",
+  "name": "Nitrogen dioxide (NO2) card",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/NO2-value-card.svg",
+  "description": "A gas produced from vehicle emissions and the burning of fossil fuels.",
+  "tags": [
+    "enviroment",
+    "particulate",
+    "matter",
+    "air",
+    "coarse particulates",
+    "coarse particles",
+    "inhalable particles",
+    "larger particulates",
+    "dust",
+    "airborne coarse particles",
+    "nitrogen",
+    "nitrogen dioxide"
+  ],
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7c5c3d80-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Air quality"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7b14f070-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667768567,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "input_widgets.update_json_attribute",
+  "name": "Update JSON attribute",
+  "deprecated": true,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/update_json_attribute_system_widget_image.png",
+  "description": "Simple form to input new JSON value for pre-defined attribute/time series key.\nThe widget is deprecated. Use \"Update Multiple Attributes\" widget. JSON value type can be selected in widgets data key configuration.",
+  "tags": null,
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d4d7b50-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Input widgets"
+    }
+  ]
+}

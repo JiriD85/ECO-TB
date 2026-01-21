@@ -1,0 +1,39 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "79e019f0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667766543,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "fluid_pressure_chart_card",
+  "name": "Pressure chart card",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/pressure_chart_card.svg",
+  "description": "Displays fluid pressure data by combining the latest and aggregated values with an optional simplified chart.",
+  "tags": [
+    "fluid pressure",
+    "liquid pressure",
+    "pump pressure",
+    "hydraulic",
+    "pump",
+    "compressibility",
+    "compressive stress",
+    "pipe",
+    "pipeline"
+  ],
+  "widgetType": "timeseries",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7cb2e900-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Industrial widgets"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7affe1d0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667768429,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "charts.doughnut_chart_js",
+  "name": "Doughnut",
+  "deprecated": true,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/doughnut_system_widget_image_(1).png",
+  "description": "Displays the latest values of the attributes or time series data for multiple entities in a doughnut chart. Supports numeric values only.",
+  "tags": [
+    "ring",
+    "circle",
+    "pie chart"
+  ],
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7c3c5970-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Charts"
+    }
+  ]
+}

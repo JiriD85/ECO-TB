@@ -1,0 +1,35 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7a4c9760-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667767254,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "rotational_speed_chart_card_with_background",
+  "name": "Rotational speed chart card with background",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/rotational_speed_chart_card_with_background.svg",
+  "description": "Displays rotational speed data by combining the latest and aggregated values with the background image and optional simplified chart.",
+  "tags": [
+    "angular speed",
+    "spin rate",
+    "revolutions",
+    "rotational frequency",
+    "spin motion"
+  ],
+  "widgetType": "timeseries",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7cb2e900-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Industrial widgets"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7a7e55c0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667767580,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "control_widgets.round_switch",
+  "name": "Round switch",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/round_switch_system_widget_image.png",
+  "description": "Sends the RPC call to the device when the user toggles the switch. Appearance settings will enable you to configure how to fetch the initial value of the switch.",
+  "tags": null,
+  "widgetType": "rpc",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7cff0d30-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Control widgets"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "fqn": "home_page_widgets.getting_started",
+  "name": "Getting started",
+  "deprecated": false,
+  "image": "tb-image;/api/images/system/getting_started_system_widget_image.png",
+  "description": "Displays the getting started instructions.",
+  "descriptor": {
+    "type": "static",
+    "sizeX": 7.5,
+    "sizeY": 6.5,
+    "resources": [],
+    "templateHtml": "<tb-getting-started-widget\n    [ctx]=\"ctx\">\n</tb-getting-started-widget>\n",
+    "templateCss": "",
+    "controllerScript": "self.onInit = function() {\n}",
+    "settingsSchema": "",
+    "dataKeySettingsSchema": "",
+    "settingsDirective": "",
+    "defaultConfig": "{\"showTitle\":false,\"backgroundColor\":\"rgb(255, 255, 255)\",\"color\":\"rgba(0, 0, 0, 0.87)\",\"padding\":\"8px\",\"settings\":{},\"title\":\"Getting started\",\"dropShadow\":true}"
+  },
+  "externalId": null,
+  "resources": null,
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7ab173b0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667767915,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "scada": false,
+  "version": 1,
+  "tags": [
+    "hello world",
+    "beginning",
+    "kickoff",
+    "tutorial"
+  ]
+}

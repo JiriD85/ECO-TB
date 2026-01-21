@@ -1,0 +1,34 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "790d3990-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667765161,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "cards.label_widget",
+  "name": "Label widget",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/label_widget_system_widget_image.png",
+  "description": "Displays attributes or the latest telemetry values as an overlay on the configured image. The position of the values is configurable using appearance settings.",
+  "tags": [
+    "tag",
+    "sticker",
+    "marker",
+    "badge"
+  ],
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7cdf0210-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Cards"
+    }
+  ]
+}

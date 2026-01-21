@@ -1,0 +1,32 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "79fe7760-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667766742,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "status_widget",
+  "name": "Status widget",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/status-widget.svg",
+  "description": "Displays current status.",
+  "tags": [
+    "status",
+    "status widget"
+  ],
+  "widgetType": "rpc",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d19e830-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Status indicators"
+    }
+  ]
+}

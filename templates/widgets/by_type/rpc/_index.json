@@ -1,0 +1,1100 @@
+[
+  {
+    "fqn": "gateway_widgets.service_rpc2",
+    "name": "Service RPC",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "hp_circuit_breaker2",
+    "name": "HP Circuit breaker",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "control_widgets.persistent_table",
+    "name": "Persistent RPC table",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "gpio_widgets.raspberry_pi_gpio_control",
+    "name": "Raspberry Pi GPIO Control",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "scada_symbol",
+    "name": "SCADA symbol",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "control_widgets.switch_control",
+    "name": "Switch Control",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "control_widgets.slide_toggle_control",
+    "name": "Slide Toggle Control",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "power_button",
+    "name": "Power button",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "status_widget",
+    "name": "Status widget",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "control_widgets.rpc_debug_terminal",
+    "name": "RPC debug terminal",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "control_widgets.knob_control",
+    "name": "Knob Control",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "command_button",
+    "name": "Command button",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "control_widgets.round_switch",
+    "name": "Round switch",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "gateway_widgets.service_rpc",
+    "name": "Service RPC",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "control_widgets.rpcbutton",
+    "name": "RPC Button",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "control_widgets.rpc_remote_shell",
+    "name": "RPC remote shell",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "control_widgets.update_attributes",
+    "name": "Update device attribute",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "value_stepper",
+    "name": "Value stepper",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "control_widgets.led_indicator",
+    "name": "Led indicator",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "gpio_widgets.basic_gpio_control",
+    "name": "Basic GPIO Control",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "slider",
+    "name": "Slider",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "toggle_button",
+    "name": "Toggle button",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "single_switch",
+    "name": "Single Switch",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "hp_preventer",
+    "name": "HP Preventer",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "right_motor_pump",
+    "name": "Right motor pump",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_large_vertical_separator_with_connector",
+    "name": "HP Large vertical separator with connector",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "small_right_motor_pump",
+    "name": "Small right motor pump",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_four_rate_energy_meter",
+    "name": "HP Four-rate energy meter",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "vertical_tank",
+    "name": "Vertical tank",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_heat_exchanger",
+    "name": "HP Heat exchanger",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_right_tee_connector",
+    "name": "HP Right tee connector",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_stand_solar_panel",
+    "name": "HP Stand solar panel",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "sand_filter",
+    "name": "Sand filter",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "stand_vertical_tank",
+    "name": "Stand vertical tank",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "meter",
+    "name": "Meter",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "right_analog_water_level_meter",
+    "name": "Right analog water level meter",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_horizontal_energy_systems_controller",
+    "name": "HP Horizontal energy systems controller",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "stand_vertical_short_tank",
+    "name": "Stand vertical short tank",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_industrial_fuel_generator",
+    "name": "HP Industrial fuel generator",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_apartments",
+    "name": "HP Apartments",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_top_light_bulb",
+    "name": "HP Top light bulb",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_dynamic_vertical_scale",
+    "name": "HP Dynamic vertical scale",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "long_vertical_pipe",
+    "name": "Long vertical pipe",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "leak_sensor",
+    "name": "Leak sensor",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_crane",
+    "name": "HP Crane",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_electrical_distribution_board",
+    "name": "HP Electrical distribution board",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "long_horizontal_broken_pipe",
+    "name": "Long horizontal broken pipe",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_house",
+    "name": "HP House",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "left_bottom_elbow_pipe",
+    "name": "Left bottom elbow pipe",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_filter",
+    "name": "HP Filter",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "left_flow_meter",
+    "name": "Left flow meter",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "small_left_motor_pump",
+    "name": "Small left motor pump",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_wind_turbine_cluster",
+    "name": "HP Wind turbine cluster",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_energy_meter",
+    "name": "HP Energy meter",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_platform",
+    "name": "HP Platform",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_horizontal_valve",
+    "name": "HP Horizontal valve",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_power_transformer",
+    "name": "HP Power transformer",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_high_voltage_tower",
+    "name": "HP High voltage tower",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "left_top_elbow_pipe",
+    "name": "Left top elbow pipe",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_bottom_right_elbow_connector",
+    "name": "HP Bottom right elbow connector",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "large_stand_vertical_tank",
+    "name": "Large stand vertical tank",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_pool",
+    "name": "HP Pool",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "long_horizontal_pipe",
+    "name": "Long horizontal pipe",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "short_right_drain_pipe",
+    "name": "Short right drain pipe",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "vertical_broken_pipe",
+    "name": "Vertical broken pipe",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_horizontal_circuit_breaker",
+    "name": "HP Horizontal circuit breaker",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "vertical_ball_valve",
+    "name": "Vertical ball valve",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_drawwork",
+    "name": "HP Drawwork",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "stand_horizontal_tank",
+    "name": "Stand horizontal tank",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "short_left_drain_pipe",
+    "name": "Short left drain pipe",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_voltage_relay",
+    "name": "HP Voltage relay",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_left_top_elbow_connector",
+    "name": "HP Left top elbow connector",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_low_voltage_tower",
+    "name": "HP Low voltage tower",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_simple_vertical_scale",
+    "name": "HP Simple vertical scale",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_large_vertical_separator",
+    "name": "HP Large vertical separator",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "large_vertical_tank",
+    "name": "Large vertical tank",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "extra_long_vertical_pipe",
+    "name": "Extra long vertical pipe",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_large_horizontal_separator_with_connector",
+    "name": "HP Large horizontal separator with connector",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "short_bottom_filter",
+    "name": "Short bottom filter",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "water_stop",
+    "name": "Water stop",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_battery",
+    "name": "HP Battery",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_gas_wellhead",
+    "name": "HP Gas wellhead",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_horizontal_tank",
+    "name": "HP Horizontal tank",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_dynamic_horizontal_scale",
+    "name": "HP Dynamic horizontal scale",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_hook",
+    "name": "HP Hook",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "vertical_inline_flow_meter",
+    "name": "Vertical inline flow meter",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "stand_cylindrical_tank",
+    "name": "Stand cylindrical tank",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "top_flow_meter",
+    "name": "Top flow meter",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "small_left_meter",
+    "name": "Small left meter",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_circuit_breaker",
+    "name": "HP Circuit breaker",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_rotor",
+    "name": "HP Rotor",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_horizontal_connector",
+    "name": "HP Horizontal connector",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "large_conical_tank",
+    "name": "Large conical tank",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_turbine",
+    "name": "HP Turbine",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_single_key_switch",
+    "name": "HP Single-key switch",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_bottom_light_bulb",
+    "name": "HP Bottom light bulb",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "top_right_elbow_pipe",
+    "name": "Top right elbow pipe",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "bottom_tee_pipe",
+    "name": "Bottom tee pipe",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_large_inverter",
+    "name": "HP Large inverter",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_heat_pump",
+    "name": "HP Heat pump",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_vertical_tank",
+    "name": "HP Vertical tank",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "small_right_meter",
+    "name": "Small right meter",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "cross_pipe",
+    "name": "Cross pipe",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "horizontal_tank",
+    "name": "Horizontal tank",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "left_elbow_drain_pipe",
+    "name": "Left elbow drain pipe",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "horizontal_inline_flow_meter",
+    "name": "Horizontal inline flow meter",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "long_bottom_filter",
+    "name": "Long bottom filter",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "left_analog_water_level_meter",
+    "name": "Left analog water level meter",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "horizontal_pipe",
+    "name": "Horizontal pipe",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_large_horizontal_separator",
+    "name": "HP Large horizontal separator",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_small_power_transformer",
+    "name": "HP Small power transformer",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_top_right_elbow_connector",
+    "name": "HP Top right elbow connector",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "top_tee_pipe",
+    "name": "Top tee pipe",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "right_heat_pump",
+    "name": "Right heat pump",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_vertical_valve",
+    "name": "HP Vertical valve",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_drill",
+    "name": "HP Drill",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_centrifugal_pump",
+    "name": "HP Centrifugal pump",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "conical_tank",
+    "name": "Conical tank",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_drilling_line",
+    "name": "HP Drilling line",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_wind_turbine",
+    "name": "HP Wind turbine",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "large_cylindrical_tank",
+    "name": "Large cylindrical tank",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_cross_connector",
+    "name": "HP Cross connector",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_oil_pump",
+    "name": "HP Oil pump",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_voltage_stabilizer",
+    "name": "HP Voltage stabilizer",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "left_heat_pump",
+    "name": "Left heat pump",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_two_key_switch",
+    "name": "HP Two-key switch",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_three_rate_energy_meter",
+    "name": "HP Three-rate energy meter",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_bottom_tee_connector",
+    "name": "HP Bottom tee connector",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "horizontal_broken_pipe",
+    "name": "Horizontal broken pipe",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "vertical_pipe",
+    "name": "Vertical pipe",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "large_stand_cylindrical_tank",
+    "name": "Large stand cylindrical tank",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_consumers",
+    "name": "HP Consumers",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_3_phase_voltage_relay",
+    "name": "HP 3 phase voltage relay",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "small_spherical_tank",
+    "name": "Small spherical tank",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_long_horizontal_connector",
+    "name": "HP Long horizontal connector",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_vertical_energy_systems_controller",
+    "name": "HP Vertical energy systems controller",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_gas_preventer",
+    "name": "HP Gas preventer",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_solar_panel",
+    "name": "HP Solar panel",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "left_drain_pipe",
+    "name": "Left drain pipe",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "pool",
+    "name": "Pool",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "spherical_tank",
+    "name": "Spherical tank",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "right_drain_pipe",
+    "name": "Right drain pipe",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "small_cylindrical_tank",
+    "name": "Small cylindrical tank",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "long_top_filter",
+    "name": "Long top filter",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_small_vertical_separator",
+    "name": "HP Small vertical separator",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_low_voltage_transformer_tower",
+    "name": "HP Low voltage transformer tower",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "vertical_wheel_valve",
+    "name": "Vertical wheel valve",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "left_tee_pipe",
+    "name": "Left tee pipe",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_sand_filter",
+    "name": "HP Sand filter",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "elevated_tank",
+    "name": "Elevated tank",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "bottom_flow_meter",
+    "name": "Bottom flow meter",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_small_horizontal_separator",
+    "name": "HP Small horizontal separator",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_small_vertical_separator_with_connector",
+    "name": "HP Small vertical separator with connector",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_manufacture",
+    "name": "HP Manufacture",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "short_top_filter",
+    "name": "Short top filter",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_power_socket",
+    "name": "HP Power socket",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "horizontal_ball_valve",
+    "name": "Horizontal ball valve",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_top_tee_connector",
+    "name": "HP Top tee connector",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_inverter",
+    "name": "HP Inverter",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "right_flow_meter",
+    "name": "Right flow meter",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "centrifugal_pump",
+    "name": "Centrifugal pump",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "bottom_right_elbow_pipe",
+    "name": "Bottom right elbow pipe",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_left_bottom_elbow_connector",
+    "name": "HP Left bottom elbow connector",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "small_meter",
+    "name": "Small meter",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_vertical_connector",
+    "name": "HP Vertical connector",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "vertical_short_tank",
+    "name": "Vertical short tank",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "left_motor_pump",
+    "name": "Left motor pump",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_fuel_generator",
+    "name": "HP Fuel generator",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "cylindrical_tank",
+    "name": "Cylindrical tank",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_short_vertical_tank",
+    "name": "HP Short vertical tank",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_two_rate_energy_meter",
+    "name": "HP Two-rate energy meter",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_left_tee_connector",
+    "name": "HP Left tee connector",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "right_elbow_drain_pipe",
+    "name": "Right elbow drain pipe",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "long_vertical_broken_pipe",
+    "name": "Long vertical broken pipe",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "horizontal_wheel_valve",
+    "name": "Horizontal wheel valve",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_small_horizontal_separator_with_connector",
+    "name": "HP Small horizontal separator with connector",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_long_vertical_connector",
+    "name": "HP Long vertical connector",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "extra_long_horizontal_pipe",
+    "name": "Extra long horizontal pipe",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_drilling_rig",
+    "name": "HP Drilling rig",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_control_panel",
+    "name": "HP Control panel",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "right_tee_pipe",
+    "name": "Right tee pipe",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_simple_horizontal_scale",
+    "name": "HP Simple horizontal scale",
+    "deprecated": false,
+    "scada": true
+  },
+  {
+    "fqn": "hp_electrical_engine",
+    "name": "HP Electrical engine",
+    "deprecated": false,
+    "scada": true
+  }
+]

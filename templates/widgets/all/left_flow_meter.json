@@ -1,0 +1,32 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7b9766e0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667769422,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "left_flow_meter",
+  "name": "Left flow meter",
+  "deprecated": false,
+  "scada": true,
+  "version": 1,
+  "image": "tb-image;/api/images/system/left-flow-meter.svg",
+  "description": "Left flow meter component used to display flow related value and render various states. Includes pipe fluid and leak visualizations.",
+  "tags": [
+    "meter",
+    "flow meter"
+  ],
+  "widgetType": "rpc",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7e136360-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Traditional SCADA fluid system"
+    }
+  ]
+}

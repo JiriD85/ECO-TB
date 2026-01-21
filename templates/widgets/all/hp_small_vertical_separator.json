@@ -1,0 +1,31 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7c0d3320-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667770194,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "hp_small_vertical_separator",
+  "name": "HP Small vertical separator",
+  "deprecated": false,
+  "scada": true,
+  "version": 1,
+  "image": "tb-image;/api/images/system/small-vertical-separator-hp.svg",
+  "description": "Small vertical separator with various states.",
+  "tags": [
+    "extraction"
+  ],
+  "widgetType": "rpc",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7c9a7f00-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "High-performance SCADA oil & gas"
+    }
+  ]
+}

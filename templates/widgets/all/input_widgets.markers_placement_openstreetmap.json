@@ -1,0 +1,43 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7a7aac40-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667767556,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "input_widgets.markers_placement_openstreetmap",
+  "name": "Markers Placement - OpenStreetMap",
+  "deprecated": true,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/markers_placement_openstreetmap_system_widget_image.png",
+  "description": "Allows configuring the location of the selected entities on OpenStreetMap. By default, store the location using 'latitude' and 'longitude' server-side attributes.",
+  "tags": [
+    "mapping",
+    "gps",
+    "navigation",
+    "geolocation",
+    "satellite",
+    "directions"
+  ],
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d4d7b50-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Input widgets"
+    },
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d400dd0-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Maps"
+    }
+  ]
+}

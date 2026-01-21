@@ -1,0 +1,35 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7b4a7f60-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667768918,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "solar_radiation_chart_card",
+  "name": "Solar radiation chart card",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/solar_radiation_chart_card_system_widget_image.png",
+  "description": "Displays a solar radiation data by combining the latest and aggregated values with an optional simplified chart.",
+  "tags": [
+    "weather",
+    "environment",
+    "solar",
+    "radiation",
+    "sunlight"
+  ],
+  "widgetType": "timeseries",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7dae38f0-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Outdoor Environment"
+    }
+  ]
+}

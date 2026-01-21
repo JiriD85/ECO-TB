@@ -1,0 +1,36 @@
+{
+  "fqn": "home_page_widgets.usage_info",
+  "name": "Usage info",
+  "deprecated": false,
+  "image": "tb-image;/api/images/system/usage_info_system_widget_image.png",
+  "description": "Display statistics about the number of entities and API usage.",
+  "descriptor": {
+    "type": "static",
+    "sizeX": 7.5,
+    "sizeY": 6.5,
+    "resources": [],
+    "templateHtml": "<tb-usage-info-widget\n    [ctx]=\"ctx\">\n</tb-usage-info-widget>\n",
+    "templateCss": "",
+    "controllerScript": "self.onInit = function() {\n}",
+    "settingsSchema": "",
+    "dataKeySettingsSchema": "",
+    "settingsDirective": "",
+    "defaultConfig": "{\"showTitle\":false,\"backgroundColor\":\"rgb(255, 255, 255)\",\"color\":\"rgba(0, 0, 0, 0.87)\",\"padding\":\"8px\",\"settings\":{},\"title\":\"Usage info\",\"dropShadow\":true,\"enableFullscreen\":false,\"widgetStyle\":{},\"widgetCss\":\"\",\"pageSize\":1024,\"noDataDisplayMessage\":\"\",\"showLegend\":false}"
+  },
+  "externalId": null,
+  "resources": null,
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "78c904a0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667764714,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "scada": false,
+  "version": 1,
+  "tags": [
+    "limits"
+  ]
+}

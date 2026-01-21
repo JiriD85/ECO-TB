@@ -1,0 +1,53 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "78dfc0f0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667764863,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "trip_map",
+  "name": "Trip Map",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/trip-map-widget.png",
+  "description": "Displays an entity's trip on various map providers, allowing scrolling and animated movement. Supports custom markers, marker tooltips, widget actions, polygons, and circles for enhanced spatial representation.",
+  "tags": [
+    "trip",
+    "route",
+    "movement",
+    "tracking",
+    "path",
+    "point",
+    "timeline",
+    "marker",
+    "location",
+    "satellite",
+    "directions",
+    "placement",
+    "polygon",
+    "circle",
+    "layer",
+    "openstreet",
+    "google",
+    "tiles",
+    "roadmap",
+    "mapping",
+    "gps",
+    "navigation",
+    "geolocation"
+  ],
+  "widgetType": "timeseries",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d400dd0-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Maps"
+    }
+  ]
+}

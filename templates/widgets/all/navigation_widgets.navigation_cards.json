@@ -1,0 +1,29 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7a659da0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667767418,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "navigation_widgets.navigation_cards",
+  "name": "Navigation cards",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/navigation_cards_system_widget_image.png",
+  "description": "Displays multiple links to the platform page as separate buttons. The link is configured as the relative path in the appearance settings of the widget.",
+  "tags": null,
+  "widgetType": "static",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7da908d0-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Navigation widgets"
+    }
+  ]
+}

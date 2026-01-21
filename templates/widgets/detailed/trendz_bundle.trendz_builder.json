@@ -1,0 +1,33 @@
+{
+  "fqn": "trendz_bundle.trendz_builder",
+  "name": "Trendz Builder (Deprecated)",
+  "deprecated": false,
+  "image": "tb-image;/api/images/tenant/trendz_builder_deprecated_widget_image.png",
+  "description": "Trendz Visualization Builder for providing self-service interface to your end-users, so they can create their own analysis using ThingsBoard dashboard.",
+  "descriptor": {
+    "type": "static",
+    "sizeX": 9.5,
+    "sizeY": 6.5,
+    "resources": [],
+    "templateHtml": "<iframe *ngIf=\"viewUrl\" class=\"iFrameWindo\"\n        style=\"border: 0; width: 100%; height: 100%\">\n    Your browser doesn't support iFrames.\n</iframe>\n\n<div *ngIf=\"!viewUrl\" class=\"center-scree\">Trendz View Builder widget</div>\n\n<div class=\"iFrameEdit\" *ngIf=\"ctx.isEdit\">\n    \n</div>",
+    "templateCss": ".iFrameWindo {\n    border: 0; \n    width: 100%; \n    height: 100%\n}\n\n.iFrameEdit {\n    border: 0; \n    width: 100%; \n    height: 100%;\n    position: absolute;\n    top: 0;\n    left: 0;\n}\n\n.center-scree {\n    width: 100%; \n    height: 100%;\n    border: 0; \n    text-align: center;\n    font-size: 40px;\n}",
+    "controllerScript": "let $scope;\nlet $sce;\nlet userService;\nlet settings;\n\nself.onInit = function() {\n    $scope = self.ctx.$scope;\n    $scope.ctx = self.ctx;\n    \n    $scope.tokenParam = getTokenUrlParams();\n    settings = JSON.parse(JSON.stringify(self.ctx.settings)) || {};\n    if(settings.viewUrl && settings.viewUrl !== 'http://localhost:4200') {\n        $scope.viewUrl = settings.viewUrl + '/?' + $scope.tokenParam;\n    }\n    \n    self.onResize();\n    \n    setTimeout(() => {\n        iframe = self.ctx.$container.find('iframe');\n            iframe.attr('src',$scope.viewUrl);\n    }, 0);\n}\n\nself.onDataUpdated = function() {\n    \n}\n\nself.onResize = function() {\n    \n}\n\nself.onDestroy = function() {\n}\n\nfunction getTokenUrlParams() {\n    let jwtToken = localStorage.getItem('jwt_token');\n    if(jwtToken) {\n        jwtToken = jwtToken.replaceAll('\"', \"\");\n    }\n    \n    let refrToekn = localStorage.getItem('refresh_token');\n    if(refrToekn) {\n        refrToekn = refrToekn.replaceAll('\"', \"\");\n    }\n    \n    return 'token=' + jwtToken + '&refreshToken=' + refrToekn;\n}",
+    "settingsSchema": "{\n    \"schema\": {\n        \"type\": \"object\",\n        \"title\": \"EntitiesTableSettings\",\n        \"properties\": {\n            \"viewUrl\": {\n                \"title\": \"View URL\",\n                \"type\": \"string\",\n                \"default\": \"http://localhost:4200\"\n            }\n        },\n        \"required\": []\n    },\n    \"form\": [\n        \"viewUrl\"\n    ]\n}",
+    "dataKeySettingsSchema": "{}\n",
+    "defaultConfig": "{\"datasources\":[{\"type\":\"static\",\"name\":\"function\",\"dataKeys\":[{\"name\":\"f(x)\",\"type\":\"function\",\"label\":\"Random\",\"color\":\"#2196f3\",\"settings\":{},\"_hash\":0.15479322438769105,\"funcBody\":\"var value = prevValue + Math.random() * 100 - 50;\\nvar multiplier = Math.pow(10, 2 || 0);\\nvar value = Math.round(value * multiplier) / multiplier;\\nif (value < -1000) {\\n\\tvalue = -1000;\\n} else if (value > 1000) {\\n\\tvalue = 1000;\\n}\\nreturn value;\"}]}],\"timewindow\":{\"realtime\":{\"timewindowMs\":60000}},\"showTitle\":true,\"backgroundColor\":\"#fff\",\"color\":\"rgba(0, 0, 0, 0.87)\",\"padding\":\"8px\",\"settings\":{},\"title\":\"Trendz Builder\"}"
+  },
+  "externalId": null,
+  "resources": null,
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "880b7d10-fc33-11ee-b9f4-c32eee94cc80"
+  },
+  "createdTime": 1713300875105,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "efb63c10-b576-11ee-a6c2-a149ed03c64d"
+  },
+  "scada": false,
+  "version": 1,
+  "tags": null
+}

@@ -1,0 +1,32 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7b9bfac0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667769452,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "hp_platform",
+  "name": "HP Platform",
+  "deprecated": false,
+  "scada": true,
+  "version": 1,
+  "image": "tb-image;/api/images/system/platform-hp.svg",
+  "description": "Platform with various states.",
+  "tags": [
+    "platform",
+    "drilling"
+  ],
+  "widgetType": "rpc",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7c9a7f00-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "High-performance SCADA oil & gas"
+    }
+  ]
+}

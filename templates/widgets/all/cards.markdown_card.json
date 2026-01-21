@@ -1,0 +1,39 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7af1ff20-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667768338,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "cards.markdown_card",
+  "name": "Markdown/HTML Card",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/markdown_html_card_system_widget_image.png",
+  "description": "Renders markdown/HTML using the configurable pattern or function with applied attributes or time series values.",
+  "tags": [
+    "web",
+    "markup"
+  ],
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7cdf0210-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Cards"
+    },
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d6c9c10-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "HTML widgets"
+    }
+  ]
+}

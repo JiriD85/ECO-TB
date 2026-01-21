@@ -1,0 +1,31 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7c370240-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667770468,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "hp_control_panel",
+  "name": "HP Control panel",
+  "deprecated": false,
+  "scada": true,
+  "version": 1,
+  "image": "tb-image;/api/images/system/control-panel-hp.svg",
+  "description": "Sends the command to the device or updates attribute/time series when the user pushes the button. Widget settings will enable you to configure behavior, how to fetch the initial state, and what to trigger when power on/off states.",
+  "tags": [
+    "control"
+  ],
+  "widgetType": "rpc",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7ce9d780-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "General high-performance SCADA symbols"
+    }
+  ]
+}

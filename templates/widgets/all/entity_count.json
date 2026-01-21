@@ -1,0 +1,39 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "78a5ec40-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667764484,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "entity_count",
+  "name": "Entity count",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/entity_count_system_widget_image.png",
+  "description": "Displays the number of entities based on the selected alias and optional filter. The number of entities refreshes periodically and not in real-time.",
+  "tags": [
+    "total",
+    "tally"
+  ],
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7e10cb50-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Count widgets"
+    },
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d3363a0-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Entity widgets"
+    }
+  ]
+}

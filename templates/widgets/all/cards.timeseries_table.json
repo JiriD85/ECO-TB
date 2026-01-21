@@ -1,0 +1,29 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "79b8bbd0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667766285,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "cards.timeseries_table",
+  "name": "Timeseries table",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/timeseries_table_system_widget_image.png",
+  "description": "Displays time series data for one or more entities. Data for each entity is displayed in a separate tab. Columns are configured to display entity fields, attributes, or telemetry data. Highly customizable via cell content functions and row style functions.",
+  "tags": null,
+  "widgetType": "timeseries",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7c578290-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Tables"
+    }
+  ]
+}

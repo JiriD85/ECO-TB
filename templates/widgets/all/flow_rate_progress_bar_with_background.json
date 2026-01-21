@@ -1,0 +1,37 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "78dba240-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667764836,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "flow_rate_progress_bar_with_background",
+  "name": "Flow rate progress bar with background",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/flow_rate_progress_bar_with_background.svg",
+  "description": "Displays flow rate reading as a horizontal progress bar with background. Allows to configure value range, bar colors, and other settings.",
+  "tags": [
+    "liquid",
+    "fluid",
+    "flow rate",
+    "fluid dynamics",
+    "velocity",
+    "mass flow",
+    "volume flow"
+  ],
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7cb2e900-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Industrial widgets"
+    }
+  ]
+}

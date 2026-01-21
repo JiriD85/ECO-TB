@@ -1,0 +1,32 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7c213050-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667770325,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "centrifugal_pump",
+  "name": "Centrifugal pump",
+  "deprecated": false,
+  "scada": true,
+  "version": 1,
+  "image": "tb-image;/api/images/system/centrifugal-pump.svg",
+  "description": "Centrifugal pump with configurable connectors, running animation and various states.",
+  "tags": [
+    "pump",
+    "centrifugal"
+  ],
+  "widgetType": "rpc",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7e136360-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Traditional SCADA fluid system"
+    }
+  ]
+}

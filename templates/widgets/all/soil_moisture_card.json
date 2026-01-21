@@ -1,0 +1,34 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7a1e0d50-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667766949,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "soil_moisture_card",
+  "name": "Soil moisture card",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/soil_moisture_card_system_widget_image.png",
+  "description": "Displays the latest soil moisture telemetry in a scalable rectangle card.",
+  "tags": [
+    "weather",
+    "environment",
+    "soil",
+    "moisture"
+  ],
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7dae38f0-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Outdoor Environment"
+    }
+  ]
+}

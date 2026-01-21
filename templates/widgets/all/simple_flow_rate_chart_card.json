@@ -1,0 +1,37 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "78f089d0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667764973,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "simple_flow_rate_chart_card",
+  "name": "Simple flow rate chart card",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/simple_flow_rate_chart_card_(1).svg",
+  "description": "Displays historical flow rate values as a simplified chart. Optionally may display the corresponding latest flow rate value.",
+  "tags": [
+    "liquid",
+    "fluid",
+    "flow rate",
+    "fluid dynamics",
+    "velocity",
+    "mass flow",
+    "volume flow"
+  ],
+  "widgetType": "timeseries",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7cb2e900-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Industrial widgets"
+    }
+  ]
+}

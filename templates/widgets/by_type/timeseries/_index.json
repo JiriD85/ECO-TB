@@ -1,0 +1,1202 @@
+[
+  {
+    "fqn": "chart_2",
+    "name": "Chart 2",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "synced_time_series_chart",
+    "name": "Synced Time Series Chart",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "gateway_widgets.gateway_logs2",
+    "name": "Gateway logs",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "gateway_widgets.gateway_general_chart_statistics2",
+    "name": "Gateway general chart statistics",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "gateway_widgets.gateway_custom_statistics2",
+    "name": "Gateway custom statistics",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "illuminance_chart_card",
+    "name": "Illuminance chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_radon_level_chart_card",
+    "name": "Simple radon level chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "leaf_wetness_chart_card",
+    "name": "Leaf wetness chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_power_consumption_chart_card_with_background",
+    "name": "Simple power consumption chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_nitrogen_dioxide_no2_chart_card",
+    "name": "Simple nitrogen dioxide (NO2) chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "volatile_organic_compounds_chart_card",
+    "name": "Volatile organic compounds chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_nitrogen_dioxide_no2_chart_card_with_background",
+    "name": "Simple nitrogen dioxide (NO2) chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "bar_chart_with_labels",
+    "name": "Bar chart with labels",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_simple_pm10_chart_card_with_background",
+    "name": "Indoor simple PM10 chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_sulfur_dioxide_so2_chart_card_with_background",
+    "name": "Simple sulfur dioxide (SO2) chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "individual_allergy_index_iai_chart_card_with_background",
+    "name": "Individual allergy index (IAI) chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_leaf_wetness_chart_card_with_background",
+    "name": "Simple leaf wetness chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_pressure_chart_card",
+    "name": "Simple pressure chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_ozone_o3_chart_card_with_background",
+    "name": "Simple ozone (O3) chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "time_series_chart",
+    "name": "Time series chart",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_noise_level_chart_card",
+    "name": "Simple noise level chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "trip_map",
+    "name": "Trip Map",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "visibility_chart_card_with_background",
+    "name": "Visibility chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_flow_rate_chart_card",
+    "name": "Simple flow rate chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "wind_speed_chart_card",
+    "name": "Wind speed chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_carbon_monoxide_co_chart_card_with_background",
+    "name": "Simple carbon monoxide (CO) chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "state_chart",
+    "name": "State chart",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_air_quality_chart_card",
+    "name": "Simple air quality index chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "maps_v2.route_map_tencent_maps",
+    "name": "Route Map - Tencent",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "soil_moisture_chart_card",
+    "name": "Soil moisture chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "pump_vibration_range_chart_with_background",
+    "name": "Vibration range chart with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "rainfall_chart_card",
+    "name": "Rainfall chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "vibration_chart_card",
+    "name": "Vibration chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_pm10_chart_card_with_background",
+    "name": "Indoor PM10 chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_pm2_5_chart_card",
+    "name": "Indoor PM2.5 chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_co2_chart_card_with_background",
+    "name": "Simple CO2 chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "air_quality_chart_card",
+    "name": "Air quality index chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_volatile_organic_compounds_chart_card_with_background",
+    "name": "Simple volatile organic compounds chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "fluid_pressure_chart_card_with_background",
+    "name": "Pressure chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_ground_temperature_chart_card",
+    "name": "Simple ground temperature chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "noise_level_chart_card_with_background",
+    "name": "Noise level chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_snow_depth_chart_card",
+    "name": "Simple snow depth chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_value_and_chart_card",
+    "name": "Simple Value and chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_snow_depth_chart_card_with_background",
+    "name": "Simple snow depth chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_simple_humidity_chart_card_with_background",
+    "name": "Indoor simple humidity chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_wind_speed_chart_card",
+    "name": "Simple wind speed chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "flow_rate_chart_card",
+    "name": "Flow rate chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_pump_vibration_chart_card",
+    "name": "Simple vibration chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "charts.timeseries_bars_flot",
+    "name": "Timeseries Bar Chart",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "simple_vibration_chart_card",
+    "name": "Simple vibration chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_temperature_chart_card",
+    "name": "Indoor temperature chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "flow_rate_range_chart_with_background",
+    "name": "Flow rate range chart with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_vibration_chart_card_with_background",
+    "name": "Simple vibration chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_flooding_level_chart_card",
+    "name": "Simple flooding level chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_pm10_chart_card_with_background",
+    "name": "Simple PM10 chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_efficiency_chart_card",
+    "name": "Simple efficiency chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_rotational_speed_chart_card",
+    "name": "Simple rotational speed chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "snow_depth_chart_card_with_background",
+    "name": "Snow depth chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "flow_rate_range_chart",
+    "name": "Flow rate range chart",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "volatile_organic_compounds_chart_card_with_background",
+    "name": "Volatile organic compounds chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "sulfur_dioxide_so2_chart_card_with_background",
+    "name": "Sulfur dioxide (SO2) chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "air_quality_chart_card_with_background",
+    "name": "Air quality index chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_pump_vibration_chart_card_with_background",
+    "name": "Simple vibration chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_humidity_chart_card",
+    "name": "Simple humidity chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_soil_moisture_chart_card",
+    "name": "Simple soil moisture chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_humidity_chart_card",
+    "name": "Indoor humidity chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "wind_speed_chart_card_with_background",
+    "name": "Wind speed chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_visibility_chart_card",
+    "name": "Simple visibility chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "temperature_range_chart",
+    "name": "Temperature range chart",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "cards.timeseries_table",
+    "name": "Timeseries table",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "gateway_widgets.gateway_custom_statistics",
+    "name": "Gateway custom statistics",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_pressure_chart_card_with_background",
+    "name": "Simple pressure chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_fluid_pressure_chart_card_with_background",
+    "name": "Simple pressure chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "humidity_chart_card",
+    "name": "Humidity chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "ground_temperature_chart_card",
+    "name": "Ground temperature chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_volatile_organic_compounds_chart_card",
+    "name": "Simple volatile organic compounds chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_illuminance_chart_card",
+    "name": "Simple illuminance chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_temperature_range_chart_with_background",
+    "name": "Indoor temperature range chart with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_solar_radiation_chart_card_with_background",
+    "name": "Simple solar radiation chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "nitrogen_dioxide_no2_chart_card_with_background",
+    "name": "Nitrogen dioxide (NO2) chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "charts.basic_timeseries",
+    "name": "Timeseries Line Chart",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "fluid_pressure_chart_card",
+    "name": "Pressure chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_individual_allergy_index_iai_chart_card",
+    "name": "Simple individual allergy index (IAI) chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "nitrogen_dioxide_no2_chart_card",
+    "name": "Nitrogen dioxide (NO2) chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "temperature_chart_card_with_background",
+    "name": "Temperature chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_carbon_monoxide_co_chart_card",
+    "name": "Simple carbon monoxide (CO) chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "pressure_chart_card_with_background",
+    "name": "Pressure chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_temperature_chart_card_with_background",
+    "name": "Indoor temperature chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_individual_allergy_index_iai_chart_card_with_background2",
+    "name": "Simple individual allergy index (IAI) chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_pm10_chart_card",
+    "name": "Indoor PM10 chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "flooding_level_chart_card_with_background",
+    "name": "Flooding level chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_wind_speed_chart_card_with_background",
+    "name": "Simple wind speed chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "pressure_chart_card",
+    "name": "Pressure chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_ozone_o3_chart_card",
+    "name": "Simple ozone (O3) chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "solar_radiation_chart_card_with_background",
+    "name": "Solar radiation chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_visibility_chart_card_with_background",
+    "name": "Simple visibility chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "maps_v2.route_map",
+    "name": "Route Map - Google",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "simple_uv_index_chart_card",
+    "name": "Simple UV Index chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "flooding_level_chart_card",
+    "name": "Flooding level chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "point_chart",
+    "name": "Point chart",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "efficiency_range_chart",
+    "name": "Efficiency range chart",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_simple_temperature_chart_card_with_background",
+    "name": "Indoor simple temperature chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_pm2_5_chart_card",
+    "name": "Simple PM2.5 chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_illuminance_chart_card_with_background",
+    "name": "Indoor illuminance chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "range_chart",
+    "name": "Range chart",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "power_consumption_chart_card_with_background",
+    "name": "Power consumption chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "pm10_chart_card",
+    "name": "PM10 chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "visibility_chart_card",
+    "name": "Visibility chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "individual_allergy_index_iai_chart_card",
+    "name": "Individual allergy index (IAI) chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "illuminance_chart_card_with_background",
+    "name": "Illuminance chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_soil_moisture_chart_card_with_background",
+    "name": "Simple soil moisture chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "rotational_speed_range_chart_with_background",
+    "name": "Rotational speed range chart with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_temperature_range_chart",
+    "name": "Indoor temperature range chart",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_air_quality_chart_card_with_background",
+    "name": "Simple air quality index chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_temperature_chart_card",
+    "name": "Simple temperature chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_leaf_wetness_chart_card",
+    "name": "Simple leaf wetness chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_efficiency_chart_card_with_background",
+    "name": "Simple efficiency chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "rotational_speed_chart_card_with_background",
+    "name": "Rotational speed chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "pump_vibration_chart_card_with_background",
+    "name": "Vibration chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "co2_chart_card_with_background",
+    "name": "CO2 chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "pm2_5_chart_card",
+    "name": "PM2.5 chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "uv_index_chart_card",
+    "name": "UV Index chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_pm2_5_chart_card_with_background",
+    "name": "Indoor PM2.5 chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_simple_humidity_chart_card",
+    "name": "Indoor simple humidity chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "soil_moisture_chart_card_with_background",
+    "name": "Soil moisture chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_simple_illuminance_chart_card",
+    "name": "Indoor simple illuminance chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_co2_chart_card_with_background",
+    "name": "Indoor CO2 chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "fluid_pressure_range_chart_with_background",
+    "name": "Pressure range chart with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_simple_pm2_5_chart_card",
+    "name": "Indoor simple PM2.5 chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "rotational_speed_chart_card",
+    "name": "Rotational speed chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_simple_co2_chart_card_with_background",
+    "name": "Indoor simple CO2 chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_power_consumption_chart_card",
+    "name": "Simple power consumption chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "pump_vibration_chart_card",
+    "name": "Vibration chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_solar_radiation_chart_card",
+    "name": "Simple solar radiation chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "efficiency_range_chart_with_background",
+    "name": "Efficiency range chart with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "route_map",
+    "name": "Route Map",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_rotational_speed_chart_card_with_background",
+    "name": "Simple rotational speed chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "line_chart",
+    "name": "Line chart",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "bar_chart",
+    "name": "Bar chart",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "maps_v2.test",
+    "name": "Trip Animation",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "fluid_pressure_range_chart",
+    "name": "Pressure range chart",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "ground_temperature_chart_card_with_background",
+    "name": "Ground temperature chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_radon_level_chart_card_with_background",
+    "name": "Simple radon level chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_rainfall_chart_card_with_background",
+    "name": "Simple rainfall chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "carbon_monoxide_co_chart_card",
+    "name": "Carbon monoxide (CO) chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "efficiency_chart_card",
+    "name": "Efficiency chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_ground_temperature_chart_card_with_background",
+    "name": "Simple ground temperature chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_humidity_chart_card_with_background",
+    "name": "Simple humidity chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "ozone_o3_chart_card",
+    "name": "Ozone (O3) chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "flow_rate_chart_card_with_background",
+    "name": "Flow rate chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "humidity_chart_card_with_background",
+    "name": "Humidity chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "radon_level_chart_card",
+    "name": "Radon level chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "co2_chart_card",
+    "name": "CO2 chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "gateway_widgets.gateway_general_chart_statistics",
+    "name": "Gateway general chart statistics",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_simple_pm10_chart_card",
+    "name": "Indoor simple PM10 chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "power_consumption_range_chart_with_background",
+    "name": "Power consumption range chart with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "sulfur_dioxide_so2_chart_card",
+    "name": "Sulfur dioxide (SO2) chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_rainfall_chart_card",
+    "name": "Simple rainfall chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_co2_chart_card",
+    "name": "Indoor CO2 chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_simple_illuminance_chart_card_with_background",
+    "name": "Indoor simple illuminance chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "leaf_wetness_chart_card_with_background",
+    "name": "Leaf wetness chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "noise_level_chart_card",
+    "name": "Noise level chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "carbon_monoxide_co_chart_card_with_background",
+    "name": "Carbon monoxide (CO) chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_pm2_5_chart_card_with_background",
+    "name": "Simple PM2.5 chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "ozone_o3_chart_card_with_background",
+    "name": "Ozone (O3) chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "power_consumption_range_chart",
+    "name": "Power consumption range chart",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "power_consumption_chart_card",
+    "name": "Power consumption chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_co2_chart_card",
+    "name": "Simple CO2 chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_temperature_chart_card_with_background",
+    "name": "Simple temperature chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "radon_level_chart_card_with_background",
+    "name": "Radon level chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "efficiency_chart_card_with_background",
+    "name": "Efficiency chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "cards.aggregated_value_card",
+    "name": "Value and chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "maps_v2.route_map_openstreetmap",
+    "name": "Route Map - OpenStreet",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "rotational_speed_range_chart",
+    "name": "Rotational speed range chart",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_flow_rate_chart_card_with_background",
+    "name": "Simple flow rate chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_humidity_chart_card_with_background",
+    "name": "Indoor humidity chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "pump_vibration_range_chart",
+    "name": "Vibration range chart",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_pm10_chart_card",
+    "name": "Simple PM10 chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "pm2_5_chart_card_with_background",
+    "name": "PM2.5 chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "pm10_chart_card_with_background",
+    "name": "PM10 chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_illuminance_chart_card_with_background",
+    "name": "Simple illuminance chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "snow_depth_chart_card",
+    "name": "Snow depth chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "vibration_chart_card_with_background",
+    "name": "Vibration chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_noise_level_chart_card_with_background",
+    "name": "Simple noise level chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_simple_co2_chart_card",
+    "name": "Indoor simple CO2 chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "gateway_widgets.gateway_logs",
+    "name": "Gateway logs",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "solar_radiation_chart_card",
+    "name": "Solar radiation chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_uv_index_chart_card_with_background",
+    "name": "Simple UV Index chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "uv_index_chart_card_with_background",
+    "name": "UV Index chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_fluid_pressure_chart_card",
+    "name": "Simple pressure chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_flooding_level_chart_card_with_background",
+    "name": "Simple flooding level chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "temperature_range_chart_with_background",
+    "name": "Temperature range chart with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "temperature_chart_card",
+    "name": "Temperature chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_simple_pm2_5_chart_card_with_background",
+    "name": "Indoor simple PM2.5 chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "charts.state_chart",
+    "name": "State Chart",
+    "deprecated": true,
+    "scada": false
+  },
+  {
+    "fqn": "rainfall_chart_card_with_background",
+    "name": "Rainfall chart card with background",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "simple_sulfur_dioxide_so2_chart_card",
+    "name": "Simple sulfur dioxide (SO2) chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_illuminance_chart_card",
+    "name": "Indoor illuminance chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "indoor_simple_temperature_chart_card",
+    "name": "Indoor simple temperature chart card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "custom_time_series_chart_editable_zoom",
+    "name": "Custom Time Series Chart (Editable Zoom)",
+    "deprecated": false,
+    "scada": false
+  }
+]

@@ -1,0 +1,29 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7b5a36d0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667769021,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "charts.state_chart",
+  "name": "State Chart",
+  "deprecated": true,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/state_chart_system_widget_image.png",
+  "description": "Displays changes to the state of the entity over time. For example, online and offline.",
+  "tags": null,
+  "widgetType": "timeseries",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7c3c5970-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Charts"
+    }
+  ]
+}

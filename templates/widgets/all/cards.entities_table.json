@@ -1,0 +1,39 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7a43e4d0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667767197,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "cards.entities_table",
+  "name": "Entities table",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/entities_table_system_widget_image.png",
+  "description": "Displays a list of entities that match the selected alias and optional filter. Provides the ability for full-text search and pagination, except for columns with post-processing or cell content functions. Highly customizable using widget styles, data source keys, and widget actions.",
+  "tags": [
+    "administration",
+    "management"
+  ],
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d3363a0-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Entity widgets"
+    },
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7c578290-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Tables"
+    }
+  ]
+}

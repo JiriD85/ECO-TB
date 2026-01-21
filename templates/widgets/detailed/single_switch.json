@@ -1,0 +1,51 @@
+{
+  "fqn": "single_switch",
+  "name": "Single Switch",
+  "deprecated": false,
+  "image": "tb-image;/api/images/system/single-switch_(1).svg",
+  "description": "Allows users to toggle a slider to send commands to devices or update attributes/time series data. Configurable settings let users define how to retrieve the initial state and specify actions for the on/off toggle.",
+  "descriptor": {
+    "type": "rpc",
+    "sizeX": 3.5,
+    "sizeY": 1,
+    "resources": [],
+    "templateHtml": "<tb-single-switch-widget\n    [ctx]='ctx'\n    [widgetTitlePanel]=\"widgetTitlePanel\">\n</tb-single-switch-widget>",
+    "templateCss": "",
+    "controllerScript": "self.onInit = function() {\n    self.ctx.$scope.actionWidget.onInit();\n}\n\nself.typeParameters = function() {\n    return {\n        previewWidth: '280px',\n        previewHeight: '80px',\n        embedTitlePanel: true,\n        displayRpcMessageToast: false\n    };\n};\n\nself.onDestroy = function() {\n}\n",
+    "settingsSchema": "",
+    "dataKeySettingsSchema": "{}\n",
+    "settingsDirective": "tb-single-switch-widget-settings",
+    "hasBasicMode": true,
+    "basicModeDirective": "tb-single-switch-basic-config",
+    "defaultConfig": "{\"showTitle\":false,\"backgroundColor\":\"#ffffff\",\"color\":\"rgba(0, 0, 0, 0.87)\",\"padding\":\"0px\",\"settings\":{},\"title\":\"Single Switch\",\"dropShadow\":true,\"enableFullscreen\":false,\"widgetStyle\":{},\"actions\":{},\"widgetCss\":\"\",\"noDataDisplayMessage\":\"\",\"titleFont\":{\"size\":12,\"sizeUnit\":\"px\",\"family\":null,\"weight\":null,\"style\":null,\"lineHeight\":\"1.6\"},\"showTitleIcon\":false,\"titleTooltip\":\"\",\"titleStyle\":{\"fontSize\":\"16px\",\"fontWeight\":400},\"pageSize\":1024,\"titleIcon\":\"\",\"iconColor\":\"rgba(0, 0, 0, 0.87)\",\"iconSize\":\"14px\",\"configMode\":\"basic\"}"
+  },
+  "externalId": null,
+  "resources": null,
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7b38cc20-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667768802,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "scada": false,
+  "version": 1,
+  "tags": [
+    "command",
+    "downlink",
+    "device configuration",
+    "device control",
+    "invocation",
+    "remote method",
+    "remote function",
+    "interface",
+    "subroutine call",
+    "inter-process communication",
+    "server request",
+    "update attribute",
+    "set attribute",
+    "add time-series"
+  ]
+}

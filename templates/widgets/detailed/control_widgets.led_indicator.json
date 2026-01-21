@@ -1,0 +1,34 @@
+{
+  "fqn": "control_widgets.led_indicator",
+  "name": "Led indicator",
+  "deprecated": false,
+  "image": "tb-image;/api/images/system/led_indicator_system_widget_image.png",
+  "description": "Visualize the state of the device. Fetches the value from the device from the attribute or using RPC.",
+  "descriptor": {
+    "type": "rpc",
+    "sizeX": 2.5,
+    "sizeY": 2.5,
+    "resources": [],
+    "templateHtml": "<tb-led-indicator [ctx]='ctx'></tb-led-indicator>",
+    "templateCss": "",
+    "controllerScript": "self.onInit = function() {\n}\n\nself.onResize = function() {\n}\n\nself.onDestroy = function() {\n}\n",
+    "settingsSchema": "",
+    "dataKeySettingsSchema": "{}\n",
+    "settingsDirective": "tb-led-indicator-widget-settings",
+    "defaultConfig": "{\"targetDeviceAliases\":[],\"showTitle\":false,\"backgroundColor\":\"#e6e7e8\",\"color\":\"rgba(0, 0, 0, 0.87)\",\"padding\":\"0px\",\"settings\":{\"requestTimeout\":500,\"initialValue\":true,\"title\":\"Led indicator\",\"ledColor\":\"#4caf50\",\"valueAttribute\":\"value\",\"retrieveValueMethod\":\"attribute\",\"parseValueFunction\":\"return data ? true : false;\",\"performCheckStatus\":true,\"checkStatusMethod\":\"checkStatus\"},\"title\":\"Led indicator\",\"dropShadow\":true,\"enableFullscreen\":false,\"widgetStyle\":{},\"titleStyle\":{\"fontSize\":\"16px\",\"fontWeight\":400},\"useDashboardTimewindow\":true,\"showLegend\":false,\"actions\":{},\"decimals\":2}"
+  },
+  "externalId": null,
+  "resources": null,
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7ade01f0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667768207,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "scada": false,
+  "version": 1,
+  "tags": null
+}

@@ -5,14 +5,62 @@
   "mobileOrder": null,
   "configuration": {
     "description": "",
-    "widgets": {},
+    "widgets": {
+      "hello-world-widget": {
+        "typeFullFqn": "system.html_card",
+        "type": "static",
+        "sizeX": 6,
+        "sizeY": 3,
+        "config": {
+          "datasources": [],
+          "timewindow": {
+            "realtime": {
+              "timewindowMs": 60000
+            }
+          },
+          "showTitle": true,
+          "backgroundColor": "#ffffff",
+          "color": "rgba(0, 0, 0, 0.87)",
+          "padding": "16px",
+          "settings": {
+            "html": "<div style=\"display: flex; justify-content: center; align-items: center; height: 100%; font-size: 24px; font-weight: bold; color: #1976d2;\">Hello World</div>",
+            "css": ""
+          },
+          "title": "Hello World Widget",
+          "showTitleIcon": false,
+          "titleIcon": "",
+          "iconColor": "rgba(0, 0, 0, 0.87)",
+          "iconSize": "24px",
+          "titleTooltip": "",
+          "dropShadow": true,
+          "enableFullscreen": true,
+          "widgetStyle": {},
+          "titleStyle": {
+            "fontSize": "16px",
+            "fontWeight": 400
+          },
+          "units": "",
+          "decimals": 2,
+          "actions": {}
+        },
+        "row": 0,
+        "col": 0
+      }
+    },
     "states": {
       "default": {
         "name": "Smart Diagnostics Analysis",
         "root": true,
         "layouts": {
           "main": {
-            "widgets": {},
+            "widgets": {
+              "hello-world-widget": {
+                "sizeX": 6,
+                "sizeY": 3,
+                "row": 0,
+                "col": 0
+              }
+            },
             "gridSettings": {
               "layoutType": "default",
               "backgroundColor": "#eeeeee",

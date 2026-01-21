@@ -1,0 +1,34 @@
+{
+  "fqn": "control_widgets.round_switch",
+  "name": "Round switch",
+  "deprecated": false,
+  "image": "tb-image;/api/images/system/round_switch_system_widget_image.png",
+  "description": "Sends the RPC call to the device when the user toggles the switch. Appearance settings will enable you to configure how to fetch the initial value of the switch.",
+  "descriptor": {
+    "type": "rpc",
+    "sizeX": 2.5,
+    "sizeY": 2,
+    "resources": [],
+    "templateHtml": "<tb-round-switch [ctx]='ctx'></tb-round-switch>",
+    "templateCss": "",
+    "controllerScript": "self.onInit = function() {\n}\n\nself.onResize = function() {\n}\n\nself.onDestroy = function() {\n}\n",
+    "settingsSchema": "",
+    "dataKeySettingsSchema": "{}\n",
+    "settingsDirective": "tb-round-switch-widget-settings",
+    "defaultConfig": "{\"targetDeviceAliases\":[],\"showTitle\":false,\"backgroundColor\":\"#e6e7e8\",\"color\":\"rgba(0, 0, 0, 0.87)\",\"padding\":\"0px\",\"settings\":{\"requestTimeout\":500,\"initialValue\":false,\"getValueMethod\":\"getValue\",\"setValueMethod\":\"setValue\",\"title\":\"Round switch\",\"retrieveValueMethod\":\"rpc\",\"valueKey\":\"value\",\"parseValueFunction\":\"return data ? true : false;\",\"convertValueFunction\":\"return value;\"},\"title\":\"Round switch\",\"dropShadow\":true,\"enableFullscreen\":false,\"widgetStyle\":{},\"titleStyle\":{\"fontSize\":\"16px\",\"fontWeight\":400},\"useDashboardTimewindow\":true,\"showLegend\":false,\"actions\":{},\"decimals\":2}"
+  },
+  "externalId": null,
+  "resources": null,
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7a7e55c0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667767580,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "scada": false,
+  "version": 1,
+  "tags": null
+}

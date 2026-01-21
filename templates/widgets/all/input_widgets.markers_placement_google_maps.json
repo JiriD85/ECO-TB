@@ -1,0 +1,43 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7ad99520-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667768178,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "input_widgets.markers_placement_google_maps",
+  "name": "Markers Placement - Google Maps",
+  "deprecated": true,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/markers_placement_google_maps_system_widget_image.png",
+  "description": "Allows configuring the location of the selected entities on Google Maps. By default, store the location using 'latitude' and 'longitude' server-side attributes.",
+  "tags": [
+    "mapping",
+    "gps",
+    "navigation",
+    "geolocation",
+    "satellite",
+    "directions"
+  ],
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d4d7b50-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Input widgets"
+    },
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d400dd0-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Maps"
+    }
+  ]
+}

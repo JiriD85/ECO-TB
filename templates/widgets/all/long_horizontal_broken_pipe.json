@@ -1,0 +1,33 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7b920fb0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667769387,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "long_horizontal_broken_pipe",
+  "name": "Long horizontal broken pipe",
+  "deprecated": false,
+  "scada": true,
+  "version": 1,
+  "image": "tb-image;/api/images/system/long-horizontal-broken-pipe.svg",
+  "description": "Long horizontal broken pipe.",
+  "tags": [
+    "long pipe",
+    "horizontal pipe",
+    "broken pipe"
+  ],
+  "widgetType": "rpc",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7e136360-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Traditional SCADA fluid system"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7ab4cf10-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667767937,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "efficiency_chart_card",
+  "name": "Efficiency chart card",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/efficiency_chart_card.svg",
+  "description": "Displays efficiency data by combining the latest and aggregated values with an optional simplified chart.",
+  "tags": [
+    "productivity",
+    "effectiveness",
+    "performance",
+    "capability"
+  ],
+  "widgetType": "timeseries",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7cb2e900-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Industrial widgets"
+    }
+  ]
+}

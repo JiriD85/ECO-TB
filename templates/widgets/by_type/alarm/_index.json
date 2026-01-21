@@ -1,0 +1,8 @@
+[
+  {
+    "fqn": "alarm_widgets.alarms_table",
+    "name": "Alarms table",
+    "deprecated": false,
+    "scada": false
+  }
+]

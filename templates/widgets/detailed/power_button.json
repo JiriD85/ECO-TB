@@ -1,0 +1,49 @@
+{
+  "fqn": "power_button",
+  "name": "Power button",
+  "deprecated": false,
+  "image": "tb-image;/api/images/system/power-button.svg",
+  "description": "Sends the command to the device or updates attribute/time series when the user pushes the button. Widget settings will enable you to configure behavior how to fetch the initial state and what to trigger when power on/off states.",
+  "descriptor": {
+    "type": "rpc",
+    "sizeX": 3.5,
+    "sizeY": 3.5,
+    "resources": [],
+    "templateHtml": "<tb-power-button-widget\n    [ctx]='ctx'\n    [widgetTitlePanel]=\"widgetTitlePanel\">\n</tb-power-button-widget>",
+    "templateCss": "",
+    "controllerScript": "self.onInit = function() {\n    self.ctx.$scope.actionWidget.onInit();\n}\n\nself.typeParameters = function() {\n    return {\n        previewWidth: '280px',\n        previewHeight: '280px',\n        embedTitlePanel: true,\n        overflowVisible: true,\n        displayRpcMessageToast: false\n    };\n};\n\nself.onDestroy = function() {\n}\n",
+    "settingsSchema": "",
+    "dataKeySettingsSchema": "{}\n",
+    "settingsDirective": "tb-power-button-widget-settings",
+    "hasBasicMode": true,
+    "basicModeDirective": "tb-power-button-basic-config",
+    "defaultConfig": "{\"showTitle\":true,\"backgroundColor\":\"#ffffff\",\"color\":\"rgba(0, 0, 0, 0.87)\",\"padding\":\"0px\",\"settings\":{},\"title\":\"Power\",\"dropShadow\":true,\"enableFullscreen\":false,\"widgetStyle\":{},\"actions\":{},\"widgetCss\":\"\",\"noDataDisplayMessage\":\"\",\"titleFont\":{\"size\":16,\"sizeUnit\":\"px\",\"family\":\"Roboto\",\"weight\":\"500\",\"style\":null,\"lineHeight\":\"1.6\"},\"showTitleIcon\":false,\"titleTooltip\":\"\",\"titleStyle\":{\"fontSize\":\"16px\",\"fontWeight\":400},\"pageSize\":1024,\"titleIcon\":\"mdi:lightbulb-outline\",\"iconColor\":\"rgba(0, 0, 0, 0.87)\",\"iconSize\":\"24px\",\"configMode\":\"basic\",\"targetDevice\":null,\"titleColor\":null,\"borderRadius\":null}"
+  },
+  "externalId": null,
+  "resources": null,
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "79f59dc0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667766684,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "scada": false,
+  "version": 1,
+  "tags": [
+    "command",
+    "downlink",
+    "device configuration",
+    "device control",
+    "invocation",
+    "remote method",
+    "remote function",
+    "interface",
+    "subroutine call",
+    "inter-process communication",
+    "server request",
+    "power"
+  ]
+}

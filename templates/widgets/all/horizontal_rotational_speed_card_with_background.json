@@ -1,0 +1,35 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "79614d00-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667765712,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "horizontal_rotational_speed_card_with_background",
+  "name": "Horizontal rotational speed card with background",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/horizontal_rotational_speed_card_with_background.svg",
+  "description": "Displays the latest rotational speed telemetry in a scalable horizontal layout with the background image.",
+  "tags": [
+    "angular speed",
+    "spin rate",
+    "revolutions",
+    "rotational frequency",
+    "spin motion"
+  ],
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7cb2e900-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Industrial widgets"
+    }
+  ]
+}

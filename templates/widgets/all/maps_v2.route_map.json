@@ -1,0 +1,36 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7a0fdc80-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667766856,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "maps_v2.route_map",
+  "name": "Route Map - Google",
+  "deprecated": true,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/route_map_google_system_widget_image.png",
+  "description": "Visualize the entity trip on Google Maps. Allows to visualize location history. Use the Trip Animation widget for advanced features.",
+  "tags": [
+    "mapping",
+    "gps",
+    "navigation",
+    "geolocation",
+    "satellite",
+    "directions"
+  ],
+  "widgetType": "timeseries",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d400dd0-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Maps"
+    }
+  ]
+}

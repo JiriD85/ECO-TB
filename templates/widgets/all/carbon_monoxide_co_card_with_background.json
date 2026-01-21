@@ -1,0 +1,42 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "79106de0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667765182,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "carbon_monoxide_co_card_with_background",
+  "name": "Carbon monoxide (CO) card with background",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/CO-value-card-with-background.svg",
+  "description": "A colorless and odorless gas resulting from incomplete combustion, particularly in motor vehicles.",
+  "tags": [
+    "enviroment",
+    "particulate",
+    "matter",
+    "air",
+    "coarse particulates",
+    "coarse particles",
+    "inhalable particles",
+    "larger particulates",
+    "dust",
+    "airborne coarse particles",
+    "carbon monoxide",
+    "CO"
+  ],
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7c5c3d80-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Air quality"
+    }
+  ]
+}

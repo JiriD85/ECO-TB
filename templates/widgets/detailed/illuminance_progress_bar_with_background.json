@@ -1,0 +1,49 @@
+{
+  "fqn": "illuminance_progress_bar_with_background",
+  "name": "Illuminance progress bar with background",
+  "deprecated": false,
+  "image": "tb-image;/api/images/system/illuminance_progress_bar_with_background_system_widget_image.png",
+  "description": "Displays illuminance reading as a horizontal progress bar with background. Allows to configure value range, bar colors, and other settings.",
+  "descriptor": {
+    "type": "latest",
+    "sizeX": 3,
+    "sizeY": 2,
+    "resources": [],
+    "templateHtml": "<tb-progress-bar-widget \n    [ctx]=\"ctx\"\n    [widgetTitlePanel]=\"widgetTitlePanel\">\n</tb-progress-bar-widget>",
+    "templateCss": "",
+    "controllerScript": "self.onInit = function() {\n    self.ctx.$scope.progressBarWidget.onInit();\n};\n\nself.onDataUpdated = function() {\n    self.ctx.$scope.progressBarWidget.onDataUpdated();\n};\n\nself.typeParameters = function() {\n    return {\n        maxDatasources: 1,\n        maxDataKeys: 1,\n        singleEntity: true,\n        previewWidth: '280px',\n        previewHeight: '180px',\n        embedTitlePanel: true,\n        supportsUnitConversion: true,\n        defaultDataKeysFunction: function() {\n            return [{ name: 'illuminance', label: 'Illuminance', type: 'timeseries' }];\n        }\n    };\n};\n\n\nself.onDestroy = function() {\n};\n",
+    "settingsForm": [],
+    "dataKeySettingsForm": [],
+    "settingsDirective": "tb-progress-bar-widget-settings",
+    "hasBasicMode": true,
+    "basicModeDirective": "tb-progress-bar-basic-config",
+    "defaultConfig": "{\"datasources\":[{\"type\":\"function\",\"name\":\"function\",\"dataKeys\":[{\"name\":\"f(x)\",\"type\":\"function\",\"label\":\"Illuminance\",\"color\":\"#2196f3\",\"settings\":{},\"_hash\":0.2392660816082064,\"funcBody\":\"var value = prevValue + Math.random() * 7;\\nif (value < 0) {\\n\\tvalue = 0;\\n} else if (value > 100) {\\n\\tvalue = 0;\\n}\\nreturn value;\",\"aggregationType\":null,\"units\":null,\"decimals\":null,\"usePostProcessing\":null,\"postFuncBody\":null}],\"alarmFilterConfig\":{\"statusList\":[\"ACTIVE\"]}}],\"timewindow\":{\"realtime\":{\"timewindowMs\":60000}},\"showTitle\":true,\"backgroundColor\":\"rgba(0, 0, 0, 0)\",\"color\":\"rgba(0, 0, 0, 0.87)\",\"padding\":\"0px\",\"settings\":{\"layout\":\"default\",\"autoScale\":true,\"showValue\":true,\"valueFont\":{\"family\":\"Roboto\",\"size\":24,\"sizeUnit\":\"px\",\"style\":\"normal\",\"weight\":\"500\",\"lineHeight\":\"32px\"},\"valueColor\":{\"type\":\"range\",\"color\":\"rgba(0, 0, 0, 0.87)\",\"rangeList\":[{\"from\":null,\"to\":1,\"color\":\"rgba(0, 0, 0, 0.76)\"},{\"from\":1,\"to\":5,\"color\":\"#F89E0D\"},{\"from\":5,\"to\":20,\"color\":\"#F77410\"},{\"from\":20,\"to\":50,\"color\":\"#F04022\"},{\"from\":50,\"to\":null,\"color\":\"#DE2343\"}],\"colorFunction\":\"var temperature = value;\\nif (typeof temperature !== undefined) {\\n  var percent = (temperature + 60)/120 * 100;\\n  return tinycolor.mix('blue', 'red', percent).toHexString();\\n}\\nreturn 'blue';\"},\"tickMin\":0,\"tickMax\":100,\"showTicks\":true,\"ticksFont\":{\"family\":\"Roboto\",\"size\":11,\"sizeUnit\":\"px\",\"style\":\"normal\",\"weight\":\"400\",\"lineHeight\":\"16px\"},\"ticksColor\":\"rgba(0,0,0,0.54)\",\"background\":{\"type\":\"image\",\"imageBase64\":\"tb-image;/api/images/system/illuminance_progress_bar_with_background_system_widget_background.png\",\"imageUrl\":null,\"color\":\"#fff\",\"overlay\":{\"enabled\":true,\"color\":\"rgba(255,255,255,0.72)\",\"blur\":3}},\"barColor\":{\"type\":\"range\",\"color\":\"rgba(0, 0, 0, 0.87)\",\"colorFunction\":\"var temperature = value;\\nif (typeof temperature !== undefined) {\\n  var percent = (temperature + 60)/120 * 100;\\n  return tinycolor.mix('blue', 'red', percent).toHexString();\\n}\\nreturn 'blue';\",\"rangeList\":[{\"from\":null,\"to\":1,\"color\":\"rgba(0, 0, 0, 0.76)\"},{\"from\":1,\"to\":5,\"color\":\"#F89E0D\"},{\"from\":5,\"to\":20,\"color\":\"#F77410\"},{\"from\":20,\"to\":50,\"color\":\"#F04022\"},{\"from\":50,\"to\":null,\"color\":\"#DE2343\"}]},\"barBackground\":\"rgba(0, 0, 0, 0.04)\"},\"title\":\"Illuminance\",\"dropShadow\":true,\"enableFullscreen\":false,\"titleStyle\":{\"fontSize\":\"16px\",\"fontWeight\":400},\"units\":\"lx\",\"decimals\":0,\"useDashboardTimewindow\":true,\"showLegend\":false,\"widgetStyle\":{},\"actions\":{},\"configMode\":\"basic\",\"displayTimewindow\":true,\"margin\":\"0px\",\"borderRadius\":\"0px\",\"widgetCss\":\"\",\"pageSize\":1024,\"noDataDisplayMessage\":\"\",\"showTitleIcon\":false,\"titleTooltip\":\"\",\"titleFont\":{\"size\":16,\"sizeUnit\":\"px\",\"family\":\"Roboto\",\"weight\":\"500\",\"style\":\"normal\",\"lineHeight\":\"24px\"},\"titleIcon\":\"mdi:lightbulb-on\",\"iconColor\":\"rgba(0, 0, 0, 0.87)\",\"iconSize\":\"18px\",\"timewindowStyle\":{\"showIcon\":true,\"iconSize\":\"14px\",\"icon\":\"query_builder\",\"iconPosition\":\"left\",\"font\":{\"size\":12,\"sizeUnit\":\"px\",\"family\":null,\"weight\":null,\"style\":null,\"lineHeight\":\"1\"},\"color\":null},\"titleColor\":\"rgba(0, 0, 0, 0.87)\",\"enableDataExport\":false}"
+  },
+  "externalId": null,
+  "resources": null,
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7a903010-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667767697,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "scada": false,
+  "version": 1,
+  "tags": [
+    "progress",
+    "weather",
+    "environment",
+    "brightness",
+    "luminance",
+    "luminosity",
+    "light",
+    "light level",
+    "light intensity",
+    "lux",
+    "candela",
+    "foot-candle"
+  ]
+}

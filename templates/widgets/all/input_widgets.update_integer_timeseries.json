@@ -1,0 +1,29 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7937f310-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667765440,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "input_widgets.update_integer_timeseries",
+  "name": "Update integer timeseries",
+  "deprecated": true,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/update_integer_timeseries_system_widget_image.png",
+  "description": "Simple form to input new integer value for pre-defined timeseries key.\nThe widget is deprecated. Use \"Update Multiple Attributes\" widget. Timeseries key type and integer value type can be selected in widgets data key configuration.",
+  "tags": null,
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d4d7b50-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Input widgets"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7a273510-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667767009,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "snow_depth_card",
+  "name": "Snow depth card",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/snow_depth_card_system_widget_image.png",
+  "description": "Displays the latest snow depth telemetry in a scalable rectangle card.",
+  "tags": [
+    "weather",
+    "environment",
+    "snow",
+    "snowfall",
+    "flurry",
+    "blizzard",
+    "snowstorm",
+    "snowflake",
+    "sleet",
+    "whiteout",
+    "snowdrift"
+  ],
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7dae38f0-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Outdoor Environment"
+    }
+  ]
+}

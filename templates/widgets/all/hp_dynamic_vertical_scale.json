@@ -1,0 +1,31 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7b8c6a60-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667769350,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "hp_dynamic_vertical_scale",
+  "name": "HP Dynamic vertical scale",
+  "deprecated": false,
+  "scada": true,
+  "version": 1,
+  "image": "tb-image;/api/images/system/dynamic-vertical-scale-hp.svg",
+  "description": "Dynamic vertical scale with current volume value and dynamically configurable warning and critical scale.",
+  "tags": [
+    "scale"
+  ],
+  "widgetType": "rpc",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7ce9d780-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "General high-performance SCADA symbols"
+    }
+  ]
+}

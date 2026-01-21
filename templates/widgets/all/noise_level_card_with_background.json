@@ -1,0 +1,47 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7a9a6940-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667767764,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "noise_level_card_with_background",
+  "name": "Noise level card with background",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/noise_level_card_with_background_system_widget_image.png",
+  "description": "Displays the latest noise level telemetry in a scalable rectangle card with the background image.",
+  "tags": [
+    "weather",
+    "environment",
+    "sound level",
+    "acoustic level",
+    "decibel level",
+    "volume",
+    "loudness",
+    "ambient noise",
+    "sound intensity",
+    "acoustic intensity"
+  ],
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d799460-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Indoor Environment"
+    },
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7dae38f0-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Outdoor Environment"
+    }
+  ]
+}

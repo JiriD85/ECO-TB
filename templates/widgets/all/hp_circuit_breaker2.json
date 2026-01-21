@@ -1,0 +1,26 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "741427a0-5b4e-11f0-85ff-8dfdcf4539fb"
+  },
+  "createdTime": 1751905296154,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "hp_circuit_breaker2",
+  "name": "HP Circuit breaker",
+  "deprecated": false,
+  "scada": true,
+  "version": 1,
+  "image": "tb-image;/api/images/system/curcuit-breaker-hp.svg",
+  "description": "Circuit breaker with various states.",
+  "tags": [
+    "energy",
+    "power",
+    "ev",
+    "switch"
+  ],
+  "widgetType": "rpc",
+  "bundles": []
+}

@@ -1,0 +1,49 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7957fe30-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667765651,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "volatile_organic_compounds_card_with_background",
+  "name": "Volatile organic compounds card with background",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/volatile_organic_compounds_card_with_background_system_widget_image.png",
+  "description": "Displays the latest volatile organic compounds (VOCs) telemetry in a scalable rectangle card with the background image.",
+  "tags": [
+    "environment",
+    "indoor",
+    "air",
+    "vocs",
+    "voc",
+    "organic solvents",
+    "hydrocarbons",
+    "emissions",
+    "fumes",
+    "gaseous organics",
+    "contaminants",
+    "air pollutants"
+  ],
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7c5c3d80-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Air quality"
+    },
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d799460-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Indoor Environment"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7ba808b0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667769531,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "vertical_broken_pipe",
+  "name": "Vertical broken pipe",
+  "deprecated": false,
+  "scada": true,
+  "version": 1,
+  "image": "tb-image;/api/images/system/vertical-broken-pipe.svg",
+  "description": "Vertical broken pipe.",
+  "tags": [
+    "pipe",
+    "vertical pipe",
+    "broken pipe"
+  ],
+  "widgetType": "rpc",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7e136360-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Traditional SCADA fluid system"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "fe72cbd0-d75a-11f0-adcd-fbd962729c18"
+  },
+  "createdTime": 1765544626445,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "efb63c10-b576-11ee-a6c2-a149ed03c64d"
+  },
+  "fqn": "custom_time_series_chart_editable_zoom",
+  "name": "Custom Time Series Chart (Editable Zoom)",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/chart.svg",
+  "description": "Custom time series chart with embedded, editable zoom selector code. Displays changes to time series data over time with a fully customizable bottom zoom window.",
+  "tags": [
+    "chart",
+    "time series",
+    "custom",
+    "zoom",
+    "editable"
+  ],
+  "widgetType": "timeseries",
+  "bundles": []
+}

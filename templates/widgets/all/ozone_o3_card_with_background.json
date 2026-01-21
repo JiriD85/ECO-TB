@@ -1,0 +1,42 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "79135410-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667765201,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "ozone_o3_card_with_background",
+  "name": "Ozone (O3) card with background",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/ozone-value-card-with-background.svg",
+  "description": "A beneficial layer in the upper atmosphere, but harmful when present near ground level. Results mainly from vehicle exhaust and industrial emissions.",
+  "tags": [
+    "environment",
+    "particulate",
+    "matter",
+    "air",
+    "coarse particulates",
+    "coarse particles",
+    "inhalable particles",
+    "larger particulates",
+    "dust",
+    "airborne coarse particles",
+    "O3",
+    "ozone"
+  ],
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7c5c3d80-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Air quality"
+    }
+  ]
+}

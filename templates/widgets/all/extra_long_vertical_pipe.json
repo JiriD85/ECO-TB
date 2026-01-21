@@ -1,0 +1,33 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7bb79910-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667769633,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "extra_long_vertical_pipe",
+  "name": "Extra long vertical pipe",
+  "deprecated": false,
+  "scada": true,
+  "version": 1,
+  "image": "tb-image;/api/images/system/extra-long-vertical-pipe.svg",
+  "description": "Extra long vertical pipe with fluid and leak visualizations.",
+  "tags": [
+    "pipe",
+    "vertical pipe",
+    "long pipe"
+  ],
+  "widgetType": "rpc",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7e136360-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Traditional SCADA fluid system"
+    }
+  ]
+}

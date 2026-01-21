@@ -1,0 +1,36 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7a0b6fb0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667766827,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "maps_v2.google_maps",
+  "name": "Google Map",
+  "deprecated": true,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/google_map_system_widget_image.png",
+  "description": "Displays the location of the entities on Google Maps. Requires the Google map key to work properly. Highly customizable via custom markers, marker tooltips, and widget actions.",
+  "tags": [
+    "mapping",
+    "gps",
+    "navigation",
+    "geolocation",
+    "satellite",
+    "directions"
+  ],
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d400dd0-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Maps"
+    }
+  ]
+}

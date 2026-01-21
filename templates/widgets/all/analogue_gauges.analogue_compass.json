@@ -1,0 +1,40 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7ae18460-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667768230,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "analogue_gauges.analogue_compass",
+  "name": "Compass",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/compass_system_widget_image.png",
+  "description": "Displays latest value of the attribute or time series data on the compass. Expects value to be in range of 0 to 360.",
+  "tags": [
+    "direction finder",
+    "magnetic needle",
+    "navigator tool",
+    "orienting device",
+    "gyrocompass",
+    "course plotter",
+    "bearing pointer",
+    "directional guide",
+    "north pointer",
+    "magnetometer"
+  ],
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d0ec4a0-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Analogue gauges"
+    }
+  ]
+}

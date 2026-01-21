@@ -1,0 +1,21 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "186a98c0-d750-11f0-915d-39f188b2fdb7"
+  },
+  "createdTime": 1765539945548,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "efb63c10-b576-11ee-a6c2-a149ed03c64d"
+  },
+  "fqn": "chart_2",
+  "name": "Chart 2",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": null,
+  "description": null,
+  "tags": null,
+  "widgetType": "timeseries",
+  "bundles": []
+}

@@ -1,0 +1,32 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7beb0520-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667769970,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "hp_drill",
+  "name": "HP Drill",
+  "deprecated": false,
+  "scada": true,
+  "version": 1,
+  "image": "tb-image;/api/images/system/drill-hp.svg",
+  "description": "Drill with various states.",
+  "tags": [
+    "drill",
+    "drilling"
+  ],
+  "widgetType": "rpc",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7c9a7f00-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "High-performance SCADA oil & gas"
+    }
+  ]
+}

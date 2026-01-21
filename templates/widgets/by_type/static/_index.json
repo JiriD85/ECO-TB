@@ -1,0 +1,140 @@
+[
+  {
+    "fqn": "gateway_widgets.gateway_configuration2",
+    "name": "Gateway Configuration",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "label_card",
+    "name": "Label card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "unread_notifications",
+    "name": "Unread notifications",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "home_page_widgets.usage_info",
+    "name": "Usage info",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "date.date_range_navigator",
+    "name": "Date-range-navigator",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "files.files",
+    "name": "Files",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "files.reports",
+    "name": "Dashboard reports",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "home_page_widgets.dashboards",
+    "name": "Dashboards",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "gateway_widgets.gateway_configuration",
+    "name": "Gateway Configuration",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "cards.dashboard_state_widget",
+    "name": "Dashboard state widget",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "mobile_app_qr_code",
+    "name": "Mobile app QR code",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "home_page_widgets.solution_templates",
+    "name": "Solution templates",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "navigation_widgets.navigation_cards",
+    "name": "Navigation cards",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "scheduling.reports_schedule",
+    "name": "Reports schedule",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "home_page_widgets.getting_started",
+    "name": "Getting started",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "home_page_widgets.quick_links",
+    "name": "Quick links",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "scheduling.scheduler_events",
+    "name": "Scheduler events",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "home_page_widgets.documentation_links",
+    "name": "Documentation links",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "cards.html_card",
+    "name": "HTML Card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "navigation_widgets.navigation_card",
+    "name": "Navigation card",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "input_widgets.device_claiming_widget",
+    "name": "Device claiming widget",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "trendz_bundle.trendz_view_static",
+    "name": "Trendz View Static",
+    "deprecated": false,
+    "scada": false
+  },
+  {
+    "fqn": "trendz_bundle.trendz_builder",
+    "name": "Trendz Builder (Deprecated)",
+    "deprecated": false,
+    "scada": false
+  }
+]

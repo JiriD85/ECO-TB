@@ -1,0 +1,29 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7be5d500-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667769936,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "hp_top_right_elbow_connector",
+  "name": "HP Top right elbow connector",
+  "deprecated": false,
+  "scada": true,
+  "version": 1,
+  "image": "tb-image;/api/images/system/top-right-elbow-connector-hp.svg",
+  "description": "Top right elbow connector",
+  "tags": [],
+  "widgetType": "rpc",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7ce9d780-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "General high-performance SCADA symbols"
+    }
+  ]
+}

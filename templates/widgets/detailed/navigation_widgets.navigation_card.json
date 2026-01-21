@@ -1,0 +1,34 @@
+{
+  "fqn": "navigation_widgets.navigation_card",
+  "name": "Navigation card",
+  "deprecated": false,
+  "image": "tb-image;/api/images/system/navigation_card_system_widget_image.png",
+  "description": "Displays the link to the platform page as a button. The link is configured as the relative path in the appearance settings of the widget.",
+  "descriptor": {
+    "type": "static",
+    "sizeX": 2.5,
+    "sizeY": 2,
+    "resources": [],
+    "templateHtml": "<tb-navigation-card-widget [ctx]=\"ctx\"></tb-navigation-card-widget>",
+    "templateCss": "",
+    "controllerScript": "self.onInit = function() {\n\n}\n\n\nself.onDestroy = function() {\n}\n",
+    "settingsSchema": "",
+    "dataKeySettingsSchema": "{}\n",
+    "settingsDirective": "tb-navigation-card-widget-settings",
+    "defaultConfig": "{\"datasources\":[{\"type\":\"static\",\"name\":\"function\",\"dataKeys\":[{\"name\":\"f(x)\",\"type\":\"function\",\"label\":\"Random\",\"color\":\"#2196f3\",\"settings\":{},\"_hash\":0.15479322438769105,\"funcBody\":\"var value = prevValue + Math.random() * 100 - 50;\\nvar multiplier = Math.pow(10, 2 || 0);\\nvar value = Math.round(value * multiplier) / multiplier;\\nif (value < -1000) {\\n\\tvalue = -1000;\\n} else if (value > 1000) {\\n\\tvalue = 1000;\\n}\\nreturn value;\"}]}],\"timewindow\":{\"realtime\":{\"timewindowMs\":60000}},\"showTitle\":false,\"backgroundColor\":\"rgba(255,255,255,0)\",\"color\":\"rgba(255,255,255,0.87)\",\"padding\":\"8px\",\"settings\":{\"name\":\"{i18n:device.devices}\",\"icon\":\"devices_other\",\"path\":\"/devices\"},\"title\":\"Navigation card\",\"dropShadow\":false,\"showTitleIcon\":false,\"iconColor\":\"rgba(0, 0, 0, 0.87)\",\"iconSize\":\"24px\",\"titleTooltip\":\"\",\"enableFullscreen\":false,\"widgetStyle\":{},\"titleStyle\":{\"fontSize\":\"16px\",\"fontWeight\":400},\"showLegend\":false}"
+  },
+  "externalId": null,
+  "resources": null,
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7b317920-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667768754,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "scada": false,
+  "version": 1,
+  "tags": null
+}

@@ -1,0 +1,34 @@
+{
+  "fqn": "home_page_widgets.solution_templates",
+  "name": "Solution templates",
+  "deprecated": false,
+  "image": "tb-image;/api/images/system/solution_templates_system_widget_image.png",
+  "description": "Preview solution templates with the ability to navigate to solution template details.",
+  "descriptor": {
+    "type": "static",
+    "sizeX": 7.5,
+    "sizeY": 3,
+    "resources": [],
+    "templateHtml": "<tb-solution-templates-widget\n    [ctx]=\"ctx\">\n</tb-solution-templates-widget>\n",
+    "templateCss": "",
+    "controllerScript": "self.onInit = function() {\n}",
+    "settingsSchema": "",
+    "dataKeySettingsSchema": "",
+    "settingsDirective": "",
+    "defaultConfig": "{\"showTitle\":false,\"backgroundColor\":\"rgb(255, 255, 255)\",\"color\":\"rgba(0, 0, 0, 0.87)\",\"padding\":\"8px\",\"settings\":{\"columns\":3},\"title\":\"Solution templates\",\"dropShadow\":true,\"enableFullscreen\":false,\"widgetStyle\":{},\"widgetCss\":\"\",\"pageSize\":1024,\"noDataDisplayMessage\":\"\",\"showLegend\":false,\"enableDataExport\":true}"
+  },
+  "externalId": null,
+  "resources": null,
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "79cbcea0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667766410,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "scada": false,
+  "version": 1,
+  "tags": null
+}

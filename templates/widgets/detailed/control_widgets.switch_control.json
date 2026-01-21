@@ -1,0 +1,46 @@
+{
+  "fqn": "control_widgets.switch_control",
+  "name": "Switch Control",
+  "deprecated": false,
+  "image": "tb-image;/api/images/system/switch_control_system_widget_image.png",
+  "description": "Sends the RPC call to the device when the user toggles the switch. Appearance widget settings will enable you to configure how to fetch the initial value of the switch.",
+  "descriptor": {
+    "type": "rpc",
+    "sizeX": 4,
+    "sizeY": 2.5,
+    "resources": [],
+    "templateHtml": "<tb-switch [ctx]='ctx'></tb-switch>",
+    "templateCss": "",
+    "controllerScript": "self.onInit = function() {\n}\n\nself.onResize = function() {\n}\n\nself.onDestroy = function() {\n}\n",
+    "settingsSchema": "",
+    "dataKeySettingsSchema": "{}\n",
+    "settingsDirective": "tb-switch-control-widget-settings",
+    "defaultConfig": "{\"targetDeviceAliases\":[],\"showTitle\":false,\"backgroundColor\":\"#e6e7e8\",\"color\":\"rgba(0, 0, 0, 0.87)\",\"padding\":\"0px\",\"settings\":{\"requestTimeout\":500,\"initialValue\":false,\"getValueMethod\":\"getValue\",\"setValueMethod\":\"setValue\",\"showOnOffLabels\":true,\"title\":\"Switch control\"},\"title\":\"Switch Control\",\"dropShadow\":true,\"enableFullscreen\":false,\"widgetStyle\":{},\"titleStyle\":{\"fontSize\":\"16px\",\"fontWeight\":400},\"useDashboardTimewindow\":true,\"showLegend\":false,\"actions\":{},\"decimals\":2}"
+  },
+  "externalId": null,
+  "resources": null,
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "792ef260-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667765382,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "scada": false,
+  "version": 1,
+  "tags": [
+    "command",
+    "downlink",
+    "device configuration",
+    "device control",
+    "invocation",
+    "remote method",
+    "remote function",
+    "interface",
+    "subroutine call",
+    "inter-process communication",
+    "server request"
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7a231660-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667766982,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "cards.simple_card",
+  "name": "Simple card",
+  "deprecated": true,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/simple_card_system_widget_image.png",
+  "description": "Designed to display single value of the selected attribute or timeseries data. Widget styles are customizable.\nWidget is deprecated. Use \"Value card\" widget.",
+  "tags": null,
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7cdf0210-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Cards"
+    }
+  ]
+}

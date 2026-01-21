@@ -1,0 +1,32 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "79625e70-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667765719,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "files.reports",
+  "name": "Dashboard reports",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/reports_system_widget_image.png",
+  "description": "Display the list of pdf dashboard reports as a table. Allows to download and delete the report.",
+  "tags": [
+    "pdf",
+    "export"
+  ],
+  "widgetType": "static",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d4ae340-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Files"
+    }
+  ]
+}

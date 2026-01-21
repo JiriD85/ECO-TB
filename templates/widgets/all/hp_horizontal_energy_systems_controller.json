@@ -1,0 +1,33 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7b858c90-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667769305,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "hp_horizontal_energy_systems_controller",
+  "name": "HP Horizontal energy systems controller",
+  "deprecated": false,
+  "scada": true,
+  "version": 1,
+  "image": "tb-image;/api/images/system/horizontal-energy-system-controller-hp.svg",
+  "description": "Horizontal energy systems controller with various states.",
+  "tags": [
+    "energy",
+    "power",
+    "monitoring"
+  ],
+  "widgetType": "rpc",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d1e06e0-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "High-performance SCADA energy system"
+    }
+  ]
+}

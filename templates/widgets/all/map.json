@@ -1,0 +1,48 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7aa4f090-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667767833,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "map",
+  "name": "Map",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/map-widget.png",
+  "description": "Displays the location of the entities on Map. Allows to choose among existing tile providers or configure own server. Supports markers, marker tooltips, widget actions, polygons, and circles for enhanced spatial representation.",
+  "tags": [
+    "markers",
+    "polygon",
+    "circle",
+    "navigation",
+    "position",
+    "sensor",
+    "geolocation",
+    "satellite",
+    "roadmap",
+    "directions",
+    "placement",
+    "layer",
+    "openstreet",
+    "google",
+    "tiles",
+    "location",
+    "mapping",
+    "gps"
+  ],
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d400dd0-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Maps"
+    }
+  ]
+}

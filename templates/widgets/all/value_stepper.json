@@ -1,0 +1,51 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7ad79950-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667768165,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "value_stepper",
+  "name": "Value stepper",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/value-stepper-widget.svg",
+  "description": "Allows users to click the buttons to send commands to devices or update attributes/time series data. Configurable settings let users define how to retrieve the initial state and specify actions for each button.",
+  "tags": [
+    "command",
+    "downlink",
+    "device configuration",
+    "device control",
+    "invocation",
+    "remote method",
+    "remote function",
+    "interface",
+    "subroutine call",
+    "inter-process communication",
+    "server request",
+    "update attribute",
+    "set attribute",
+    "add time-series"
+  ],
+  "widgetType": "rpc",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d62b100-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Buttons"
+    },
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7cff0d30-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Control widgets"
+    }
+  ]
+}

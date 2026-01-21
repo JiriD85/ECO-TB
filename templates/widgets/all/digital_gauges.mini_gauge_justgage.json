@@ -1,0 +1,29 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "79f79990-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667766697,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "digital_gauges.mini_gauge_justgage",
+  "name": "Mini gauge",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/mini_gauge_system_widget_image.png",
+  "description": "Preconfigured gauge to display any value reading as a circle. Allows to configure value range, gradient colors, and other settings.",
+  "tags": null,
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7e3d3280-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Digital gauges"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7bee3970-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667769991,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "hp_drilling_line",
+  "name": "HP Drilling line",
+  "deprecated": false,
+  "scada": true,
+  "version": 1,
+  "image": "tb-image;/api/images/system/drilling-line-hp.svg",
+  "description": "Drilling line with various states.",
+  "tags": [
+    "drilling line"
+  ],
+  "widgetType": "rpc",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7c9a7f00-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "High-performance SCADA oil & gas"
+    }
+  ]
+}

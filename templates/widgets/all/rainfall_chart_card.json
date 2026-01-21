@@ -1,0 +1,40 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7911a660-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667765190,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "rainfall_chart_card",
+  "name": "Rainfall chart card",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/rainfall_chart_card_system_widget_image.png",
+  "description": "Displays a rainfall data by combining the latest and aggregated values with an optional simplified chart.",
+  "tags": [
+    "weather",
+    "environment",
+    "rain",
+    "precipitation",
+    "downpour",
+    "rain shower",
+    "drizzle",
+    "raindrop",
+    "cloudburst",
+    "rainwater"
+  ],
+  "widgetType": "timeseries",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7dae38f0-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Outdoor Environment"
+    }
+  ]
+}

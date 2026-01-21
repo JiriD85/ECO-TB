@@ -1,0 +1,38 @@
+{
+  "fqn": "hp_simple_vertical_scale",
+  "name": "HP Simple vertical scale",
+  "deprecated": false,
+  "image": "tb-image;/api/images/system/simple-vertical-scale-hp.svg",
+  "description": "Simple vertical scale with current volume value and configurable warning and critical scale.",
+  "descriptor": {
+    "type": "rpc",
+    "sizeX": 2,
+    "sizeY": 4,
+    "resources": [],
+    "templateHtml": "<tb-scada-symbol-widget\n    [ctx]='ctx'\n    [widgetTitlePanel]=\"widgetTitlePanel\">\n</tb-scada-symbol-widget>",
+    "templateCss": "",
+    "controllerScript": "self.onInit = function() {\n    self.ctx.$scope.actionWidget.onInit();\n}\n\nself.typeParameters = function() {\n    return {\n        previewWidth: '200px',\n        previewHeight: '420px',\n        embedTitlePanel: true,\n        targetDeviceOptional: true,\n        displayRpcMessageToast: false\n    };\n};\n\nself.onDestroy = function() {\n}\n",
+    "settingsSchema": "",
+    "dataKeySettingsSchema": "{}\n",
+    "settingsDirective": "tb-scada-symbol-widget-settings",
+    "hasBasicMode": true,
+    "basicModeDirective": "tb-scada-symbol-basic-config",
+    "defaultConfig": "{\"showTitle\":true,\"backgroundColor\":\"rgba(0, 0, 0, 0)\",\"color\":\"rgba(0, 0, 0, 0.87)\",\"padding\":\"0px\",\"settings\":{\"background\":{\"type\":\"color\",\"imageUrl\":null,\"color\":\"rgb(255, 255, 255)\",\"overlay\":{\"enabled\":false,\"color\":\"rgba(255,255,255,0.72)\",\"blur\":3}},\"padding\":\"12px\",\"scadaSymbolUrl\":\"tb-image;/api/images/system/simple-vertical-scale-hp.svg\",\"scadaSymbolObjectSettings\":{\"behavior\":{},\"properties\":{}}},\"title\":\"HP Simple vertical scale\",\"dropShadow\":true,\"enableFullscreen\":false,\"widgetStyle\":{},\"actions\":{},\"widgetCss\":\"\",\"noDataDisplayMessage\":\"\",\"titleFont\":{\"size\":16,\"sizeUnit\":\"px\",\"family\":\"Roboto\",\"weight\":\"500\",\"style\":null,\"lineHeight\":\"1.6\"},\"showTitleIcon\":false,\"titleTooltip\":\"\",\"titleStyle\":null,\"pageSize\":1024,\"titleIcon\":\"mdi:lightbulb-outline\",\"iconColor\":\"rgba(0, 0, 0, 0.87)\",\"iconSize\":\"24px\",\"configMode\":\"basic\",\"targetDevice\":null,\"titleColor\":null,\"borderRadius\":\"0px\",\"margin\":\"0px\"}"
+  },
+  "externalId": null,
+  "resources": null,
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7bb37a60-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667769606,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "scada": true,
+  "version": 1,
+  "tags": [
+    "scale"
+  ]
+}

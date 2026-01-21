@@ -1,0 +1,31 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7bf0aa70-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667770007,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "large_cylindrical_tank",
+  "name": "Large cylindrical tank",
+  "deprecated": false,
+  "scada": true,
+  "version": 1,
+  "image": "tb-image;/api/images/system/large-cylindrical-tank.svg",
+  "description": " Large cylindrical tank with current volume value and level visualizations.",
+  "tags": [
+    "tank"
+  ],
+  "widgetType": "rpc",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7e136360-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Traditional SCADA fluid system"
+    }
+  ]
+}

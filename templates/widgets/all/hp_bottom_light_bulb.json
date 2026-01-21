@@ -1,0 +1,31 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7bce7c70-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667769783,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "hp_bottom_light_bulb",
+  "name": "HP Bottom light bulb",
+  "deprecated": false,
+  "scada": true,
+  "version": 1,
+  "image": "tb-image;/api/images/system/bottom-light-bulb-hp.svg",
+  "description": "Bottom light bulb with various states.",
+  "tags": [
+    "energy"
+  ],
+  "widgetType": "rpc",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d1e06e0-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "High-performance SCADA energy system"
+    }
+  ]
+}

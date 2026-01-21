@@ -1,0 +1,49 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7a986d70-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667767751,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "input_widgets.markers_placement_image_map",
+  "name": "Markers Placement - Image Map",
+  "deprecated": true,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/markers_placement_image_map_system_widget_image.png",
+  "description": "Allows configuring the location of the selected entities on the Image map. By default, store the location using 'xPos' and 'yPos' server-side attributes with values of 0.0 to 1.0.",
+  "tags": [
+    "building",
+    "interior",
+    "venue",
+    "inside",
+    "room",
+    "office",
+    "manufacturing",
+    "floor",
+    "plant",
+    "storage",
+    "warehouse",
+    "depot"
+  ],
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d4d7b50-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Input widgets"
+    },
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d400dd0-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Maps"
+    }
+  ]
+}

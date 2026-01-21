@@ -1,0 +1,39 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "71410a70-5b4e-11f0-85ff-8dfdcf4539fb"
+  },
+  "createdTime": 1751905291415,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "gateway_widgets.gateway_general_configuration2",
+  "name": "Gateway general configuration",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/gateway_general_configuration_system_widget_image.png",
+  "description": "Allows to create or edit general gateway configuration.",
+  "tags": [
+    "router",
+    "bridge",
+    "hub",
+    "access point",
+    "relay",
+    "opc ua",
+    "opc-ua",
+    "modbus",
+    "bacnet",
+    "odbc",
+    "ftp",
+    "snmp",
+    "mqtt",
+    "xmpp",
+    "ocpp",
+    "ble",
+    "bluetooth"
+  ],
+  "widgetType": "latest",
+  "bundles": []
+}

@@ -1,0 +1,42 @@
+{
+  "fqn": "home_page_widgets.dashboards",
+  "name": "Dashboards",
+  "deprecated": false,
+  "image": "tb-image;/api/images/system/dashboards_system_widget_image.png",
+  "description": "Display and manage the 'last viewed' or 'starred' dashboard lists.",
+  "descriptor": {
+    "type": "static",
+    "sizeX": 7.5,
+    "sizeY": 6.5,
+    "resources": [],
+    "templateHtml": "<tb-recent-dashboards-widget\n    [ctx]=\"ctx\">\n</tb-recent-dashboards-widget>\n",
+    "templateCss": "",
+    "controllerScript": "self.onInit = function() {\n}",
+    "settingsSchema": "",
+    "dataKeySettingsSchema": "",
+    "settingsDirective": "",
+    "defaultConfig": "{\"showTitle\":false,\"backgroundColor\":\"rgb(255, 255, 255)\",\"color\":\"rgba(0, 0, 0, 0.87)\",\"padding\":\"8px\",\"settings\":{},\"title\":\"Dashboards\",\"dropShadow\":true,\"enableFullscreen\":false,\"widgetStyle\":{},\"widgetCss\":\"\",\"pageSize\":1024,\"noDataDisplayMessage\":\"\",\"showLegend\":false}"
+  },
+  "externalId": null,
+  "resources": null,
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7980bbe0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667765918,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "scada": false,
+  "version": 1,
+  "tags": [
+    "weather",
+    "environment",
+    "air",
+    "aqi",
+    "pollution",
+    "emission",
+    "smog"
+  ]
+}

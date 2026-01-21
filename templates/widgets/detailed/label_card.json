@@ -1,0 +1,38 @@
+{
+  "fqn": "label_card",
+  "name": "Label card",
+  "deprecated": false,
+  "image": "tb-image;/api/images/system/labelCard.svg",
+  "description": "Displays a single label with optional icon.",
+  "descriptor": {
+    "type": "static",
+    "sizeX": 4.5,
+    "sizeY": 1,
+    "resources": [],
+    "templateHtml": "<tb-label-card-widget \n    [ctx]=\"ctx\"\n    [widgetTitlePanel]=\"widgetTitlePanel\">\n</tb-label-card-widget>",
+    "templateCss": "",
+    "controllerScript": "self.onInit = function() {\n    self.ctx.$scope.labelCardWidget.onInit();\n};\n\n\nself.typeParameters = function() {\n    return {\n        previewWidth: '280px',\n        previewHeight: '80px',\n        embedTitlePanel: true\n    };\n};\n\nself.actionSources = function() {\n    return {\n        'cardClick': {\n            name: 'widget-action.card-click',\n            multiple: false\n        }\n    };\n}\n\nself.onDestroy = function() {\n};\n",
+    "settingsSchema": "",
+    "dataKeySettingsSchema": "",
+    "settingsDirective": "tb-label-card-widget-settings",
+    "hasBasicMode": true,
+    "basicModeDirective": "tb-label-card-basic-config",
+    "defaultConfig": "{\"showTitle\":false,\"backgroundColor\":\"rgba(0, 0, 0, 0)\",\"color\":\"rgba(0, 0, 0, 0.87)\",\"padding\":\"0px\",\"settings\":{},\"title\":\"Label card\",\"dropShadow\":true,\"enableFullscreen\":false,\"titleStyle\":{\"fontSize\":\"16px\",\"fontWeight\":400},\"widgetStyle\":{},\"actions\":{},\"configMode\":\"basic\",\"margin\":\"0px\",\"borderRadius\":\"0px\",\"widgetCss\":\"\",\"noDataDisplayMessage\":\"\",\"showTitleIcon\":false,\"titleTooltip\":\"\",\"titleFont\":{\"size\":12,\"sizeUnit\":\"px\",\"family\":null,\"weight\":null,\"style\":null,\"lineHeight\":\"1.6\"},\"titleIcon\":\"\",\"iconColor\":\"rgba(0, 0, 0, 0.87)\",\"iconSize\":\"14px\"}"
+  },
+  "externalId": null,
+  "resources": null,
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7885e120-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667764274,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "scada": false,
+  "version": 1,
+  "tags": [
+    "label"
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "fqn": "control_widgets.persistent_table",
+  "name": "Persistent RPC table",
+  "deprecated": false,
+  "image": "tb-image;/api/images/system/persistent_rpc_table_system_widget_image.png",
+  "description": "Displays Persistent RPC requests based on entity alias and optional filter with the ability of pagination. It also allows to resend or delete selected RPC requests.",
+  "descriptor": {
+    "type": "rpc",
+    "sizeX": 7.5,
+    "sizeY": 4,
+    "resources": [],
+    "templateHtml": "<tb-persistent-table-widget [ctx]='ctx'></tb-persistent-table-widget>",
+    "templateCss": "",
+    "controllerScript": "self.onInit = function() {\n}\n\nself.onResize = function() {\n}\n\nself.onDestroy = function() {\n}\n",
+    "settingsSchema": "",
+    "dataKeySettingsSchema": "{}\n",
+    "settingsDirective": "tb-persistent-table-widget-settings",
+    "defaultConfig": "{\"showTitle\":true,\"backgroundColor\":\"#fff\",\"color\":\"rgba(0, 0, 0, 0.87)\",\"padding\":\"8px\",\"settings\":{\"enableStickyAction\":true,\"enableFilter\":true,\"displayPagination\":true,\"defaultPageSize\":10,\"enableStickyHeader\":true,\"displayColumns\":[\"rpcId\",\"messageType\",\"status\",\"method\",\"createdTime\",\"expirationTime\"],\"displayDetails\":true,\"defaultSortOrder\":\"-createdTime\",\"allowSendRequest\":true,\"allowDelete\":true},\"title\":\"Persistent RPC table\",\"titleStyle\":{\"fontSize\":\"16px\",\"fontWeight\":400,\"padding\":\"5px 10px\"}}"
+  },
+  "externalId": null,
+  "resources": null,
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "78845a80-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667764264,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "scada": false,
+  "version": 1,
+  "tags": [
+    "command",
+    "downlink",
+    "device configuration",
+    "device control",
+    "invocation",
+    "remote method",
+    "remote function",
+    "interface",
+    "subroutine call",
+    "inter-process communication",
+    "server request"
+  ]
+}

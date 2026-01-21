@@ -1,0 +1,47 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7b46aed0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667768893,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "gateway_widgets.gateway_logs",
+  "name": "Gateway logs",
+  "deprecated": false,
+  "scada": false,
+  "version": 45,
+  "image": "tb-image;/api/images/system/gateway_logs_system_widget_image.png",
+  "description": "Allows to monitor and analyze the gateway logs.",
+  "tags": [
+    "router",
+    "bridge",
+    "hub",
+    "access point",
+    "relay",
+    "opc ua",
+    "opc-ua",
+    "modbus",
+    "bacnet",
+    "odbc",
+    "ftp",
+    "snmp",
+    "mqtt",
+    "xmpp",
+    "ocpp",
+    "ble",
+    "bluetooth"
+  ],
+  "widgetType": "timeseries",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d38e1e0-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Gateway widgets"
+    }
+  ]
+}

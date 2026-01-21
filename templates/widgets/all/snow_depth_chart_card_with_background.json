@@ -1,0 +1,41 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7988f940-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667765972,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "snow_depth_chart_card_with_background",
+  "name": "Snow depth chart card with background",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/snow_depth_chart_card_with_background_system_widget_image.png",
+  "description": "Displays a snow depth data by combining the latest and aggregated values with the background image and optional simplified chart.",
+  "tags": [
+    "weather",
+    "environment",
+    "snow",
+    "snowfall",
+    "flurry",
+    "blizzard",
+    "snowstorm",
+    "snowflake",
+    "sleet",
+    "whiteout",
+    "snowdrift"
+  ],
+  "widgetType": "timeseries",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7dae38f0-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Outdoor Environment"
+    }
+  ]
+}

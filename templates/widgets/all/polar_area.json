@@ -1,0 +1,34 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7901c7e0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667765086,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "polar_area",
+  "name": "Polar area",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/polar-area.svg",
+  "description": "Displays the latest values of the attributes or time series data in a polar area chart. Supports numeric values only.",
+  "tags": [
+    "polar",
+    "polar area",
+    "bars",
+    "polar area chart"
+  ],
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7c3c5970-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Charts"
+    }
+  ]
+}

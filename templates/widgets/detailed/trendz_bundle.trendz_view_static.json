@@ -1,0 +1,38 @@
+{
+  "fqn": "trendz_bundle.trendz_view_static",
+  "name": "Trendz View Static",
+  "deprecated": false,
+  "image": "tb-image;/api/images/tenant/trendz_view_static_widget_image.png",
+  "description": "Displays saved Trendz visualizations.",
+  "descriptor": {
+    "type": "static",
+    "sizeX": 7.5,
+    "sizeY": 3,
+    "resources": [
+      {
+        "url": "https://cloud.pke-iot.expert/trendz/bundle/trendz-tb-lib.js",
+        "isModule": true
+      }
+    ],
+    "templateHtml": "<div *ngIf=\"!inited\" class=\"center-scree\">Native Static Trendz View</div>\n<div *ngIf=\"jwt\" (click)=\"onClick($event)\">\n  <tb-example\n    [jwt]=\"getJwtToken()\"\n    [jwtRefresh]=\"getRefreshToken()\"\n    [ctx]=\"ctx\"\n    [isInEditMode]=\"ctx.isEdit\"\n    [isViewMode]=\"true\"\n    (dataChannel)=\"onDataChannleInit($event)\"\n  ></tb-example>\n</div>\n",
+    "templateCss": ".center-scree {\n    width: 100%; \n    height: 100%;\n    border: 0; \n    text-align: center;\n    font-size: 40px;\n}",
+    "controllerScript": "let $scope;\n\nself.actionSources = function () {\n  return {\n    'rowClick': {\n      name: 'widget-action.row-click',\n      multiple: false\n    },\n    'dateSelected': {\n      name: 'date-selected',\n      multiple: false\n    },\n    'changedRadioButton': {\n      name: 'changed-radio-button',\n      multiple: false\n    },\n     'elementClick': {\n        name: 'widget-action.element-click',\n        multiple: true\n    }\n  };\n}\n\nself.onInit = function () { \n  $scope = self.ctx.$scope;\n  $scope.ctx = self.ctx;\n  $scope.jwt = self.getJwtToken();\n  $scope.jwtRefresh = self.getRefreshToken();\n  $scope.inited = false;\n\n  $scope.getJwtToken = self.getJwtToken;\n  $scope.ctx.getJwtToken = self.getJwtToken;\n\n  $scope.getRefreshToken = self.getRefreshToken;\n  $scope.ctx.getRefreshToken = self.getRefreshToken;\n\n  $scope.onDataChannleInit = self.onDataChannleInit;\n  $scope.ctx.onDataChannleInit = self.onDataChannleInit;\n\n  self.ctx.jwt = $scope.jwt;\n  \n  settings = JSON.parse(JSON.stringify($scope.ctx.settings)) || {};\n  if(!settings.viewUrl || settings.viewUrl === 'http://localhost:4200/viewMode/{id}/') {\n      $scope.inited = false;\n  } else {\n      $scope.inited = true;\n  }\n  \n  // new CODE for widget ckick\n    self.ctx.$scope.onClick = function(e) {\n        if (e.target.className.includes('mat-menu-trigger')\n            || e.target.className.includes('mat-button-wrapper')\n        ) {\n            return;\n        }\n        console.dir(e.target.className);\n        let descriptors = self.ctx.$scope.ctx\n            .actionsApi.getActionDescriptors(\n                'elementClick');\n        let actionEvent;\n        if (descriptors.length) {\n            actionEvent = descriptors[0];\n        \n          setTimeout(() => {\n            self.ctx.$scope.ctx.actionsApi\n                .handleWidgetAction(null,\n                    actionEvent);\n          }, 0);\n        }\n\n    }\n}\n\nself.onDataUpdated = function() {\n\n}\n\nself.onDestroy = function () {\n}\n\nself.onEditModeChanged = function (e) {\n}\n\nself.onResize = function () {\n  if ($scope.subscriptionService) {\n    $scope.subscriptionService.emit('parentResize', 'tb_dashboard', 'onResizeEvent');\n  }\n}\n\nself.onDataChannleInit = function (subscriptionService) {\n  $scope.subscriptionService = subscriptionService;\n}\n\n\nself.getRefreshToken = function () {\n  let jwtToken = localStorage.getItem('refresh_token');\n  if (jwtToken) {\n    jwtToken = jwtToken.replaceAll('\"', \"\");\n    // console.log('tbwdgt refresh!', jwtToken);\n    return jwtToken;\n  }\n\n  return 'unknwown';\n}\n\nself.getJwtToken = function () {\n  let jwtToken = localStorage.getItem('jwt_token');\n  if (jwtToken) {\n    jwtToken = jwtToken.replaceAll('\"', \"\");\n    // console.log('tbwdgt jwt!', jwtToken);\n    return jwtToken;\n  }\n\n  return 'unknwown';\n}\n",
+    "settingsSchema": "{\n    \"schema\": {\n        \"type\": \"object\",\n        \"title\": \"EntitiesTableSettings\",\n        \"properties\": {\n            \"viewUrl\": {\n                \"title\": \"View URL\",\n                \"type\": \"string\",\n                \"default\": \"http://localhost:4200/viewMode/{id}/\"\n            },\n            \"useDashboardTimeWindow\": {\n                \"title\": \"Use Dashboard Time Window\",\n                \"type\": \"boolean\",\n                \"default\": false\n            },\n            \"canCancelViewLoading\": {\n                \"title\": \"Show button for cancel view loading\",\n                \"type\": \"boolean\",\n                \"default\": false\n            },\n             \"isFiltersBroadcasting\": {\n                \"title\": \"Broadcast filter change event\",\n                \"type\": \"boolean\",\n                \"default\": false\n            },\n             \"isFiltersListen\": {\n                \"title\": \"Listen filter change event\",\n                \"type\": \"boolean\",\n                \"default\": false\n            },\n            \"channelName\": {\n                \"title\": \"Filter change event name\",\n                \"type\": \"string\",\n                \"default\": \"trendz-filter\"\n            },\n            \"isSaveFilters\": {\n                \"title\": \"Save filters selection\",\n                \"type\": \"boolean\",\n                \"default\": false\n            },\n            \"enableViewCaching\": {\n                \"title\": \"Enable view caching\",\n                \"type\": \"boolean\",\n                \"default\": true\n            }\n      },\n            \"required\": []\n    },\n    \"form\": [\n        \"viewUrl\",\n        \"useDashboardTimeWindow\",\n        \"enableViewCaching\",\n        \"canCancelViewLoading\",\n        \"isFiltersBroadcasting\",\n        \"isFiltersListen\",\n        \"channelName\",\n        \"isSaveFilters\"\n     ]\n}",
+    "dataKeySettingsSchema": "{}\n",
+    "defaultConfig": "{\"datasources\":[{\"type\":\"static\",\"name\":\"function\",\"dataKeys\":[{\"name\":\"f(x)\",\"type\":\"function\",\"label\":\"Random\",\"color\":\"#2196f3\",\"settings\":{},\"_hash\":0.15479322438769105,\"funcBody\":\"var value = prevValue + Math.random() * 100 - 50;\\nvar multiplier = Math.pow(10, 2 || 0);\\nvar value = Math.round(value * multiplier) / multiplier;\\nif (value < -1000) {\\n\\tvalue = -1000;\\n} else if (value > 1000) {\\n\\tvalue = 1000;\\n}\\nreturn value;\"}]}],\"timewindow\":{\"realtime\":{\"timewindowMs\":60000}},\"showTitle\":false,\"backgroundColor\":\"rgb(255, 255, 255)\",\"color\":\"rgba(0, 0, 0, 0.87)\",\"padding\":\"8px\",\"settings\":{\"viewUrl\":\"http://localhost:4200/viewMode/{id}/\",\"useDashboardTimeWindow\":false},\"title\":\"tmp-native-trndz\",\"dropShadow\":true}"
+  },
+  "externalId": null,
+  "resources": null,
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "88033fb0-fc33-11ee-8ae6-15c9324f2128"
+  },
+  "createdTime": 1713300875051,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "efb63c10-b576-11ee-a6c2-a149ed03c64d"
+  },
+  "scada": false,
+  "version": 1,
+  "tags": null
+}

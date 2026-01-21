@@ -1,0 +1,42 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7a8afff0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667767663,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "indoor_horizontal_illuminance_card_with_background",
+  "name": "Indoor horizontal illuminance card with background",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/indoor_horizontal_illuminance_card_with_background_system_widget_image.png",
+  "description": "Displays the latest indoor illuminance telemetry in a scalable horizontal layout with the background image.",
+  "tags": [
+    "environment",
+    "illuminance",
+    "indoor",
+    "brightness",
+    "luminance",
+    "luminosity",
+    "light",
+    "light level",
+    "light intensity",
+    "lux",
+    "candela",
+    "foot-candle"
+  ],
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d799460-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Indoor Environment"
+    }
+  ]
+}

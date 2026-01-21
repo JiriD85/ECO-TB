@@ -1,0 +1,33 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7bfdc9d0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667770093,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "hp_3_phase_voltage_relay",
+  "name": "HP 3 phase voltage relay",
+  "deprecated": false,
+  "scada": true,
+  "version": 1,
+  "image": "tb-image;/api/images/system/3-phase-voltage-relay-hp.svg",
+  "description": "Three phase voltage relay with various states and indications.",
+  "tags": [
+    "energy",
+    "power",
+    "protection"
+  ],
+  "widgetType": "rpc",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d1e06e0-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "High-performance SCADA energy system"
+    }
+  ]
+}

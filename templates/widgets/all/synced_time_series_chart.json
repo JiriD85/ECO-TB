@@ -1,0 +1,32 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "4963c640-d9bc-11f0-915d-39f188b2fdb7"
+  },
+  "createdTime": 1765806315684,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "efb63c10-b576-11ee-a6c2-a149ed03c64d"
+  },
+  "fqn": "synced_time_series_chart",
+  "name": "Synced Time Series Chart",
+  "deprecated": false,
+  "scada": false,
+  "version": 2,
+  "image": "tb-image;/api/images/system/chart.svg",
+  "description": "Time series chart with synchronized zoom across multiple widgets. When you zoom on one chart, all synced charts zoom together.",
+  "tags": [
+    "chart",
+    "time series",
+    "time-series",
+    "synced",
+    "synchronized",
+    "zoom",
+    "line",
+    "line chart",
+    "bar",
+    "bar chart"
+  ],
+  "widgetType": "timeseries",
+  "bundles": []
+}

@@ -1,0 +1,52 @@
+{
+  "fqn": "slider",
+  "name": "Slider",
+  "deprecated": false,
+  "image": "tb-image;/api/images/system/Horizontal slider.svg",
+  "description": "Allows users to move thumb of a slider to send commands to devices or update attributes/time series data. Configurable settings let users define how to retrieve the initial state and specify actions for the value change.",
+  "descriptor": {
+    "type": "rpc",
+    "sizeX": 5,
+    "sizeY": 3,
+    "resources": [],
+    "templateHtml": "<tb-slider-widget\n    [ctx]='ctx'\n    [widgetTitlePanel]=\"widgetTitlePanel\">\n</tb-slider-widget>",
+    "templateCss": "",
+    "controllerScript": "self.onInit = function() {\n    self.ctx.$scope.actionWidget.onInit();\n}\n\nself.typeParameters = function() {\n    return {\n        previewWidth: '360px',\n        previewHeight: '220px',\n        embedTitlePanel: true,\n        displayRpcMessageToast: false,\n        supportsUnitConversion: true\n    };\n};\n\nself.onDestroy = function() {\n}\n",
+    "settingsSchema": "",
+    "dataKeySettingsSchema": "{}\n",
+    "settingsDirective": "tb-slider-widget-settings",
+    "hasBasicMode": true,
+    "basicModeDirective": "tb-slider-basic-config",
+    "defaultConfig": "{\"showTitle\":true,\"backgroundColor\":\"#ffffff\",\"color\":\"rgba(0, 0, 0, 0.87)\",\"padding\":\"0px\",\"settings\":{},\"title\":\"Slider\",\"dropShadow\":true,\"enableFullscreen\":false,\"widgetStyle\":{},\"actions\":{},\"widgetCss\":\"\",\"noDataDisplayMessage\":\"\",\"titleFont\":{\"size\":16,\"sizeUnit\":\"px\",\"family\":null,\"weight\":\"500\",\"style\":null,\"lineHeight\":\"24px\"},\"showTitleIcon\":false,\"titleTooltip\":\"\",\"titleStyle\":{\"fontSize\":\"16px\",\"fontWeight\":400},\"pageSize\":1024,\"titleIcon\":\"\",\"iconColor\":\"rgba(0, 0, 0, 0.87)\",\"iconSize\":\"14px\",\"configMode\":\"basic\",\"titleColor\":\"rgba(0, 0, 0, 0.87)\"}"
+  },
+  "externalId": null,
+  "resources": null,
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7b259240-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667768676,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "scada": false,
+  "version": 1,
+  "tags": [
+    "command",
+    "downlink",
+    "device configuration",
+    "device control",
+    "invocation",
+    "remote method",
+    "remote function",
+    "interface",
+    "subroutine call",
+    "inter-process communication",
+    "server request",
+    "update attribute",
+    "set attribute",
+    "add time-series",
+    "slider"
+  ]
+}

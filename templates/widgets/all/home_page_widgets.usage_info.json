@@ -1,0 +1,31 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "78c904a0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667764714,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "home_page_widgets.usage_info",
+  "name": "Usage info",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/usage_info_system_widget_image.png",
+  "description": "Display statistics about the number of entities and API usage.",
+  "tags": [
+    "limits"
+  ],
+  "widgetType": "static",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d5e1d20-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Home page widgets"
+    }
+  ]
+}

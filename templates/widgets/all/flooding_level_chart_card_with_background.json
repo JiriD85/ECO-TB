@@ -1,0 +1,42 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "79f8f920-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667766706,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "flooding_level_chart_card_with_background",
+  "name": "Flooding level chart card with background",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/flooding_level_chart_card_with_background_system_widget_image.png",
+  "description": "Displays a flooding level data by combining the latest and aggregated values with the background image and optional simplified chart.",
+  "tags": [
+    "weather",
+    "environment",
+    "flood",
+    "flooding",
+    "water height",
+    "flood depth",
+    "flood stage",
+    "inundation level",
+    "water rise",
+    "overflow level",
+    "flood peak",
+    "high water mark"
+  ],
+  "widgetType": "timeseries",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7dae38f0-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Outdoor Environment"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "79a70890-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667766169,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "mobile_app_qr_code",
+  "name": "Mobile app QR code",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/mobile_app_qr_code_widget.svg",
+  "description": "Enables users to open the ThingsBoard mobile app by scanning the QR code from dashboard.",
+  "tags": [
+    "ios",
+    "android",
+    "qr code",
+    "mobile application"
+  ],
+  "widgetType": "static",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7cdf0210-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Cards"
+    }
+  ]
+}

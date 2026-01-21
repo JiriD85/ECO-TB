@@ -1,0 +1,32 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7c383ac0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667770476,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "right_tee_pipe",
+  "name": "Right tee pipe",
+  "deprecated": false,
+  "scada": true,
+  "version": 1,
+  "image": "tb-image;/api/images/system/right-tee-pipe.svg",
+  "description": "Right tee pipe with configurable right/top/bottom fluid and leak visualizations.",
+  "tags": [
+    "pipe",
+    "tee"
+  ],
+  "widgetType": "rpc",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7e136360-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Traditional SCADA fluid system"
+    }
+  ]
+}

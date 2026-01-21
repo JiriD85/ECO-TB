@@ -1,0 +1,218 @@
+[
+  {
+    "id": "76b4c320-5b4e-11f0-85ff-8dfdcf4539fb",
+    "alias": "gateway_widgets2",
+    "title": "Gateway widgets",
+    "description": "Widgets to manage ThingsBoard IoT Gateway instances."
+  },
+  {
+    "id": "7c3c5970-b418-11f0-b467-01a4a84a7779",
+    "alias": "charts",
+    "title": "Charts",
+    "description": "Display time series data using customizable line and bar charts. Use various pie charts to display the latest values."
+  },
+  {
+    "id": "7c578290-b418-11f0-b467-01a4a84a7779",
+    "alias": "tables",
+    "title": "Tables",
+    "description": "Contains tables to display alarms, entities, and their telemetry."
+  },
+  {
+    "id": "7c5c3d80-b418-11f0-b467-01a4a84a7779",
+    "alias": "air_quality",
+    "title": "Air quality",
+    "description": "Contains widgets displaying air quality telemetry."
+  },
+  {
+    "id": "7c9a7f00-b418-11f0-b467-01a4a84a7779",
+    "alias": "high_performance_scada_oil_gas",
+    "title": "High-performance SCADA oil & gas",
+    "description": "Bundle with high-performance SCADA symbols for oil and gas system"
+  },
+  {
+    "id": "7ca7c570-b418-11f0-b467-01a4a84a7779",
+    "alias": "high_performance_scada_fluid_system",
+    "title": "High-performance SCADA fluid system",
+    "description": "Bundle with high-performance SCADA symbols for fluid system"
+  },
+  {
+    "id": "7cb09f10-b418-11f0-b467-01a4a84a7779",
+    "alias": "scada_symbols",
+    "title": "SCADA symbols",
+    "description": "Bundle with SCADA symbols"
+  },
+  {
+    "id": "7cb2e900-b418-11f0-b467-01a4a84a7779",
+    "alias": "industrial_widgets",
+    "title": "Industrial widgets",
+    "description": "Contains widgets displaying industrial telemetry."
+  },
+  {
+    "id": "7cdf0210-b418-11f0-b467-01a4a84a7779",
+    "alias": "cards",
+    "title": "Cards",
+    "description": "Includes cards that display dynamic content based on data from one or more entities. It also includes static HTML cards."
+  },
+  {
+    "id": "7ce9d780-b418-11f0-b467-01a4a84a7779",
+    "alias": "general_high_performance_scada_symbol",
+    "title": "General high-performance SCADA symbols",
+    "description": "Bundle with high-performance SCADA symbols"
+  },
+  {
+    "id": "7cf98ef0-b418-11f0-b467-01a4a84a7779",
+    "alias": "gpio_widgets",
+    "title": "GPIO widgets",
+    "description": "Visualization and control of the state of the GPIO devices."
+  },
+  {
+    "id": "7cff0d30-b418-11f0-b467-01a4a84a7779",
+    "alias": "control_widgets",
+    "title": "Control widgets",
+    "description": "Various interactive widgets to control the behavior and state of the IoT devices."
+  },
+  {
+    "id": "7d0c2c90-b418-11f0-b467-01a4a84a7779",
+    "alias": "entity_admin_widgets",
+    "title": "Entity admin widgets",
+    "description": "Templates of complex widgets that allow to list and create/update/delete devices and assets."
+  },
+  {
+    "id": "7d0ec4a0-b418-11f0-b467-01a4a84a7779",
+    "alias": "analogue_gauges",
+    "title": "Analogue gauges",
+    "description": "Display temperature, humidity, speed, pressure, direction, and other values on analog-style gauges."
+  },
+  {
+    "id": "7d13f4c0-b418-11f0-b467-01a4a84a7779",
+    "alias": "alarm_widgets",
+    "title": "Alarm widgets",
+    "description": "Visualization of alarms for devices, assets, and other entities."
+  },
+  {
+    "id": "7d19e830-b418-11f0-b467-01a4a84a7779",
+    "alias": "status_indicators",
+    "title": "Status indicators",
+    "description": "Contains widgets displaying battery level and signal strength."
+  },
+  {
+    "id": "7d1e06e0-b418-11f0-b467-01a4a84a7779",
+    "alias": "high_performance_scada_energy_system",
+    "title": "High-performance SCADA energy system",
+    "description": "Bundle with high-performance SCADA symbols for energy system"
+  },
+  {
+    "id": "7d3363a0-b418-11f0-b467-01a4a84a7779",
+    "alias": "entity_widgets",
+    "title": "Entity widgets",
+    "description": "Visualize entity properties and hierarchy using table and tree widgets."
+  },
+  {
+    "id": "7d3697f0-b418-11f0-b467-01a4a84a7779",
+    "alias": "edge_widgets",
+    "title": "Edge widgets",
+    "description": "Widgets to manage ThingsBoard Edge instances and navigate through their entities."
+  },
+  {
+    "id": "7d38e1e0-b418-11f0-b467-01a4a84a7779",
+    "alias": "gateway_widgets",
+    "title": "Gateway widgets",
+    "description": "Widgets to manage ThingsBoard IoT Gateway instances."
+  },
+  {
+    "id": "7d400dd0-b418-11f0-b467-01a4a84a7779",
+    "alias": "maps_v2",
+    "title": "Maps",
+    "description": "Visualize the latest location or trip of devices and entities on indoor and outdoor maps using markers, polygons, and circles for enhanced spatial representation."
+  },
+  {
+    "id": "7d4ae340-b418-11f0-b467-01a4a84a7779",
+    "alias": "files",
+    "title": "Files",
+    "description": "Display files and report lists to manage them."
+  },
+  {
+    "id": "7d4d7b50-b418-11f0-b467-01a4a84a7779",
+    "alias": "input_widgets",
+    "title": "Input widgets",
+    "description": "Various input forms to set the location, image, and other configuration parameters of the device, asset, or other entity."
+  },
+  {
+    "id": "7d5e1d20-b418-11f0-b467-01a4a84a7779",
+    "alias": "home_page_widgets",
+    "title": "Home page widgets",
+    "description": "Contains useful widgets to design the user's home page."
+  },
+  {
+    "id": "7d62b100-b418-11f0-b467-01a4a84a7779",
+    "alias": "buttons",
+    "title": "Buttons",
+    "description": "Facilitates user interaction by enabling navigation between dashboard states, sending RPC commands to devices, and updating device attributes or time series data."
+  },
+  {
+    "id": "7d680830-b418-11f0-b467-01a4a84a7779",
+    "alias": "date",
+    "title": "Date",
+    "description": "Contains widgets to change the data range for other widgets on the dashboard."
+  },
+  {
+    "id": "7d6a0400-b418-11f0-b467-01a4a84a7779",
+    "alias": "scheduling",
+    "title": "Scheduling",
+    "description": "Display scheduled events and reports with the ability to manage them."
+  },
+  {
+    "id": "7d6c9c10-b418-11f0-b467-01a4a84a7779",
+    "alias": "html_widgets",
+    "title": "HTML widgets",
+    "description": "Visualize HTML based on a configurable template or function and device attributes or time series values."
+  },
+  {
+    "id": "7d6fd060-b418-11f0-b467-01a4a84a7779",
+    "alias": "liquid_level_tanks",
+    "title": "Liquid level",
+    "description": "Visualize the level of liquid inside the tank. Supports various tank shapes."
+  },
+  {
+    "id": "7d799460-b418-11f0-b467-01a4a84a7779",
+    "alias": "indoor_environment",
+    "title": "Indoor Environment",
+    "description": "Contains widgets displaying indoor environment telemetry."
+  },
+  {
+    "id": "7da908d0-b418-11f0-b467-01a4a84a7779",
+    "alias": "navigation_widgets",
+    "title": "Navigation widgets",
+    "description": "Contains widgets that enable navigation to other dashboards and menu items. Useful to define the home page or dashboard."
+  },
+  {
+    "id": "7dae38f0-b418-11f0-b467-01a4a84a7779",
+    "alias": "outdoor_environment",
+    "title": "Outdoor Environment",
+    "description": "Contains widgets displaying outdoor environment telemetry."
+  },
+  {
+    "id": "7e10cb50-b418-11f0-b467-01a4a84a7779",
+    "alias": "count_widgets",
+    "title": "Count widgets",
+    "description": "Cards to display the number of alarms or entities based on the selected filter."
+  },
+  {
+    "id": "7e136360-b418-11f0-b467-01a4a84a7779",
+    "alias": "scada_fluid_system",
+    "title": "Traditional SCADA fluid system",
+    "description": "Bundle with SCADA symbols for fluid system"
+  },
+  {
+    "id": "7e3d3280-b418-11f0-b467-01a4a84a7779",
+    "alias": "digital_gauges",
+    "title": "Digital gauges",
+    "description": "Display temperature, humidity, speed, pressure, and other values on digital-style gauges."
+  },
+  {
+    "id": "87d726a0-fc33-11ee-b9f4-c32eee94cc80",
+    "alias": "trendz_bundle",
+    "title": "Trendz Bundle",
+    "description": "Display views created in Trendz Analytics to share analysis results."
+  }
+]

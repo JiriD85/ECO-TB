@@ -1,0 +1,33 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "78a80f20-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667764498,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "bar_chart_with_labels",
+  "name": "Bar chart with labels",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/Bar-chart-with-labels.svg",
+  "description": "Displays changes to time series data over time visualized with value bars and labels — for example, daily water consumption for the last month.",
+  "tags": [
+    "bar chart",
+    "bar",
+    "bars"
+  ],
+  "widgetType": "timeseries",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7c3c5970-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Charts"
+    }
+  ]
+}

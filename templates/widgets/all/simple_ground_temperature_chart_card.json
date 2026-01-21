@@ -1,0 +1,42 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7936ba90-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667765433,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "simple_ground_temperature_chart_card",
+  "name": "Simple ground temperature chart card",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/simple_ground_temperature_chart_card_system_widget_image.png",
+  "description": "Displays historical ground temperature values as a simplified chart. Optionally may display the corresponding latest ground temperature value.",
+  "tags": [
+    "weather",
+    "environment",
+    "soil temperature",
+    "terrestrial temperature",
+    "subsurface temperature",
+    "earth temperature",
+    "below surface temperature",
+    "surface temp",
+    "soil warmth",
+    "land temperature",
+    "geothermal reading",
+    "ground warmth"
+  ],
+  "widgetType": "timeseries",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7dae38f0-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Outdoor Environment"
+    }
+  ]
+}

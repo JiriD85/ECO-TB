@@ -1,0 +1,34 @@
+{
+  "fqn": "input_widgets.web_camera_input",
+  "name": "Photo camera input",
+  "deprecated": false,
+  "image": "tb-image;/api/images/system/photo_camera_input_system_widget_image.png",
+  "description": "A simple form to take web camera images or upload photos. The taken picture is stored in a configurable format converted to Base64 data as the target entity's server-side attribute or telemetry value. ",
+  "descriptor": {
+    "type": "latest",
+    "sizeX": 7.5,
+    "sizeY": 3,
+    "resources": [],
+    "templateHtml": "<tb-photo-camera-widget \n    [ctx]=\"ctx\">\n</tb-photo-camera-widget>",
+    "templateCss": "",
+    "controllerScript": "self.onInit = function() {\n}\n\nself.onDataUpdated = function() {\n     self.ctx.$scope.photoCameraInputWidget.onDataUpdated();\n}\n\nself.typeParameters = function() {\n    return {\n        maxDatasources: 1,\n        maxDataKeys: 1,\n        singleEntity: true\n    }\n}\n\nself.onDestroy = function() {\n}\n",
+    "settingsSchema": "",
+    "dataKeySettingsSchema": "{}\n",
+    "settingsDirective": "tb-photo-camera-input-widget-settings",
+    "defaultConfig": "{\"datasources\":[{\"type\":\"function\",\"name\":\"function\",\"dataKeys\":[{\"name\":\"f(x)\",\"type\":\"function\",\"label\":\"Random\",\"color\":\"#2196f3\",\"settings\":{},\"_hash\":0.15479322438769105,\"funcBody\":\"var value = prevValue + Math.random() * 100 - 50;\\nvar multiplier = Math.pow(10, 2 || 0);\\nvar value = Math.round(value * multiplier) / multiplier;\\nif (value < -1000) {\\n\\tvalue = -1000;\\n} else if (value > 1000) {\\n\\tvalue = 1000;\\n}\\nreturn value;\"}]}],\"timewindow\":{\"realtime\":{\"timewindowMs\":60000}},\"showTitle\":true,\"backgroundColor\":\"#fff\",\"color\":\"rgba(0, 0, 0, 0.87)\",\"padding\":\"8px\",\"settings\":{},\"title\":\"Photo camera input\",\"showTitleIcon\":false,\"titleIcon\":\"more_horiz\",\"iconColor\":\"rgba(0, 0, 0, 0.87)\",\"iconSize\":\"24px\",\"titleTooltip\":\"\",\"dropShadow\":true,\"enableFullscreen\":false,\"widgetStyle\":{},\"titleStyle\":{\"fontSize\":\"16px\",\"fontWeight\":400},\"useDashboardTimewindow\":true,\"displayTimewindow\":true,\"showLegend\":false,\"actions\":{}}"
+  },
+  "externalId": null,
+  "resources": null,
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7b169e20-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667768578,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "scada": false,
+  "version": 1,
+  "tags": null
+}

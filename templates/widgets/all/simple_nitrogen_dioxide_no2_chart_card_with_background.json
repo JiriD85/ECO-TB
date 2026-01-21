@@ -1,0 +1,42 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "789f3580-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667764440,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "simple_nitrogen_dioxide_no2_chart_card_with_background",
+  "name": "Simple nitrogen dioxide (NO2) chart card with background",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/NO2-simple-chart-value-card-with-background.svg",
+  "description": "A gas produced from vehicle emissions and the burning of fossil fuels. Results displayed by combining the latest and aggregated values and optional simplified chart.",
+  "tags": [
+    "environment",
+    "particulate",
+    "matter",
+    "air",
+    "coarse particulates",
+    "coarse particles",
+    "inhalable particles",
+    "larger particulates",
+    "dust",
+    "airborne coarse particles",
+    "nitrogen",
+    "nitrogen dioxide"
+  ],
+  "widgetType": "timeseries",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7c5c3d80-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Air quality"
+    }
+  ]
+}

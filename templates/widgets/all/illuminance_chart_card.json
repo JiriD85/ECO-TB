@@ -1,0 +1,41 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "783bb8c0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667763785,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "illuminance_chart_card",
+  "name": "Illuminance chart card",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/illuminance_chart_card_system_widget_image.png",
+  "description": "Displays a illuminance data by combining the latest and aggregated values with an optional simplified chart.",
+  "tags": [
+    "weather",
+    "environment",
+    "brightness",
+    "luminance",
+    "luminosity",
+    "light",
+    "light level",
+    "light intensity",
+    "lux",
+    "candela",
+    "foot-candle"
+  ],
+  "widgetType": "timeseries",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7dae38f0-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Outdoor Environment"
+    }
+  ]
+}

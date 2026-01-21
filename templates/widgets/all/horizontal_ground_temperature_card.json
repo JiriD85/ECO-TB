@@ -1,0 +1,42 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "792bbe10-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667765361,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "horizontal_ground_temperature_card",
+  "name": "Horizontal ground temperature card",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/horizontal_ground_temperature_card_system_widget_image.png",
+  "description": "Displays the latest ground temperature telemetry in a scalable horizontal layout.",
+  "tags": [
+    "weather",
+    "environment",
+    "soil temperature",
+    "terrestrial temperature",
+    "subsurface temperature",
+    "earth temperature",
+    "below surface temperature",
+    "surface temp",
+    "soil warmth",
+    "land temperature",
+    "geothermal reading",
+    "ground warmth"
+  ],
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7dae38f0-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Outdoor Environment"
+    }
+  ]
+}

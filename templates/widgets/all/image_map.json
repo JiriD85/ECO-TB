@@ -1,0 +1,56 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "7ac83000-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667768064,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "image_map",
+  "name": "Image Map",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/image-map-widget.png",
+  "description": "Displays the indoor or relative location of entities on an image map, making it ideal for floor plans, smart parking, and more. Entity coordinates are expected to range from 0 to 1. Supports markers, marker tooltips, widget actions, polygons, and circles for enhanced spatial representation.",
+  "tags": [
+    "plan",
+    "zone",
+    "parking",
+    "location",
+    "coordinates",
+    "indoor",
+    "image",
+    "marker",
+    "geofence",
+    "placement",
+    "polygon",
+    "circle",
+    "layer",
+    "tiles",
+    "building",
+    "interior",
+    "venue",
+    "inside",
+    "room",
+    "office",
+    "manufacturing",
+    "floor",
+    "plant",
+    "storage",
+    "warehouse",
+    "depot"
+  ],
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7d400dd0-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Maps"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "id": {
+    "entityType": "WIDGET_TYPE",
+    "id": "79e263e0-b418-11f0-b467-01a4a84a7779"
+  },
+  "createdTime": 1761667766558,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "13814000-1dd2-11b2-8080-808080808080"
+  },
+  "fqn": "horizontal_individual_allergy_index_iai_card_with_background",
+  "name": "Horizontal individual allergy index (IAI) card with background",
+  "deprecated": false,
+  "scada": false,
+  "version": 1,
+  "image": "tb-image;/api/images/system/IAI-value-card-horizontal-with-background.svg",
+  "description": "Indicates the concentration of airborne allergens, including pollen and mold spores, which can trigger allergic reactions in sensitive individuals.",
+  "tags": [
+    "weather",
+    "environment",
+    "air",
+    "aqi",
+    "pollution",
+    "emission",
+    "smog"
+  ],
+  "widgetType": "latest",
+  "bundles": [
+    {
+      "id": {
+        "entityType": "WIDGETS_BUNDLE",
+        "id": "7c5c3d80-b418-11f0-b467-01a4a84a7779"
+      },
+      "name": "Air quality"
+    }
+  ]
+}
