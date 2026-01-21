@@ -1,0 +1,15 @@
+{
+  "name": "eco-tb-sync",
+  "version": "1.0.0",
+  "description": "ThingsBoard Sync Tool for ECO Diagnostics",
+  "main": "sync.js",
+  "scripts": {
+    "sync": "node sync.js sync",
+    "backup": "node sync.js backup",
+    "rollback": "node sync.js rollback",
+    "status": "node sync.js status"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1"
+  }
+}

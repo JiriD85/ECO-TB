@@ -23,7 +23,13 @@ Claude erstellt für jede Aufgabe eine Datei in `tasks/TASK_NAME.md` mit folgend
 
 Codex CLI führt die Implementierung durch basierend auf den Task-Spezifikationen.
 
-### Ausführung
+### Automatisierte Ausführung (durch Claude Code)
+Claude Code ruft Codex automatisch auf:
+```bash
+source ~/.nvm/nvm.sh && codex exec --approval-mode full-auto -q "Aufgabe"
+```
+
+### Manuelle Ausführung
 ```bash
 # Im Projektverzeichnis
 codex "Implementiere die Aufgabe gemäß tasks/TASK_NAME.md"
