@@ -1,0 +1,19 @@
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# Node (falls später benötigt)
+node_modules/
+
+# Local config
+.env
+.env.local

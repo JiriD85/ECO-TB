@@ -1,0 +1,799 @@
+{
+  "ruleChain": {
+    "name": "RESI Device",
+    "type": "CORE",
+    "firstRuleNodeId": null,
+    "root": false,
+    "debugMode": false,
+    "configuration": null,
+    "additionalInfo": {
+      "description": ""
+    }
+  },
+  "metadata": {
+    "version": 77,
+    "firstNodeIndex": 4,
+    "nodes": [
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbMsgTypeSwitchNode",
+        "name": "Post Telemetry",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 1740058536333
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "version": 0
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 574,
+          "layoutY": 316
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Process Meters",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 1765885204674
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "JS",
+          "jsScript": "// Define temperature pairs and their corresponding difference label\r\nvar temperaturePairs = [\r\n    {\r\n        flow: \"CHC_S_TemperatureFlow\",\r\n        return: \"CHC_S_TemperatureReturn\",\r\n        difference: \"CHC_S_TemperatureDiff\"\r\n    },\r\n    {\r\n        flow: \"H_S_TemperatureFlow\",\r\n        return: \"H_S_TemperatureReturn\",\r\n        difference: \"H_S_TemperatureDiff\"\r\n    }\r\n];\r\n\r\n// Function to calculate and add temperature differences to the message\r\nfunction addTemperatureDifferences(msg) {\r\n    // Check if msg contains \"values\" and if it is not empty\r\n    if (msg && msg.values) {\r\n        temperaturePairs.forEach(pair => {\r\n            // Check if both temperature readings are present in the message\r\n            if (msg.values.hasOwnProperty(pair.flow) && msg.values.hasOwnProperty(pair.return)) {\r\n                // Calculate the temperature difference\r\n                var flowTemp = msg.values[pair.flow];\r\n                var returnTemp = msg.values[pair.return];\r\n                var tempDifference = (flowTemp - returnTemp).toFixed(3); // Keeping the absolute value and rounding to 3 decimal places\r\n\r\n                // Add the calculated temperature difference to the message values\r\n                msg.values[pair.difference] = parseFloat(tempDifference);\r\n            }\r\n        });\r\n    }\r\n    // Forward the modified message\r\n    return msg;\r\n}\r\n\r\n// Function to split message into individual device messages and process temperature differences\r\nfunction splitMessage(msg, meterMetadata, msgType) {\r\n    const results = [];\r\n\r\n    for (const deviceName in msg) {\r\n        if (msg.hasOwnProperty(deviceName)) {\r\n            // Replace \"_LTE\" with \"_GW\" in the device name\r\n            const updatedDeviceName = deviceName.replace(/_LTE$/, \"_gw\");\r\n\r\n            msg[deviceName].forEach(record => {\r\n                const meterData = {\r\n                    ts: record.ts,\r\n                    values: record.values\r\n                };\r\n\r\n                // Process temperature differences for this record\r\n                const updatedMeterData = addTemperatureDifferences(meterData);\r\n\r\n                // Create a copy of the meterMetadata object\r\n                const metadata = { ...meterMetadata };\r\n\r\n                // Add deviceName and timestamps to metadata\r\n                metadata.deviceName = updatedDeviceName;\r\n                metadata.ts = record.ts;\r\n                metadata.ts_end = record.ts;\r\n                metadata.ts_start = metadata.ts_end - 1800000;\r\n\r\n                // Push the message with the updated meter data and metadata\r\n                results.push({ msg: updatedMeterData, metadata: metadata, msgType: msgType });\r\n            });\r\n        }\r\n    }\r\n    return results;\r\n}\r\n\r\n// Check if msg is null or undefined and process it\r\nif (msg) {\r\n    return splitMessage(msg, metadata, msgType);\r\n} else {\r\n    return { msg: \"Invalid message structure\", metadata: metadata, msgType: msgType };\r\n}\r\n",
+          "tbelScript": "return {msg: msg, metadata: metadata, msgType: msgType};"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 578,
+          "layoutY": 422
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbChangeOriginatorNode",
+        "name": "Change Device",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 0
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "originatorSource": "ENTITY",
+          "entityType": "DEVICE",
+          "entityNamePattern": "${deviceName}",
+          "relationsQuery": {
+            "direction": "FROM",
+            "maxLevel": 1,
+            "filters": [
+              {
+                "relationType": "Contains",
+                "entityTypes": []
+              }
+            ],
+            "fetchLastLevelOnly": false
+          },
+          "preserveOriginatorIfCustomer": true
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 581,
+          "layoutY": 574
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Process Datapoints Multi",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "JS",
+          "jsScript": "var data = msg.data;\r\nvar telemetryMessages = [];\r\n\r\n// Use an object to group data by T_MUC timestamp\r\nvar groupedByTimestamp = {};\r\n\r\n// Function to extract 'value' and 'tsLastDBEntry' from a JSON string in the metadata\r\nfunction extractMetadataValue(metadataField) {\r\n    if (!metadataField || metadataField.length === 0) {\r\n        return { value: null, tsLastDBEntry: null };\r\n    }\r\n    try {\r\n        // Parse the JSON string into an array\r\n        var parsedMetadata = JSON.parse(metadataField);\r\n        // Assuming the array is sorted and the first object is the one we're interested in\r\n        var firstEntry = parsedMetadata[0];\r\n        return {\r\n            value: firstEntry.value !== undefined ? parseFloat(firstEntry.value).toFixed(3) : null,\r\n            tsLastDBEntry: firstEntry.ts !== undefined ? firstEntry.ts : null\r\n        };\r\n    } catch (error) {\r\n        console.error(\"Error parsing metadata field:\", error);\r\n        return { value: null, tsLastDBEntry: null };\r\n    }\r\n}\r\n\r\n// Mapping of meter readings to their corresponding consumption calculation keys\r\nvar meterToConsumptionMapping = {\r\n    \"CHC_M_Energy_Cooling\": \"CHC_C_Energy_Cooling\",\r\n    \"CHC_M_Energy_Heating\": \"CHC_C_Energy_Heating\",\r\n    \"CHC_M_Volume\": \"CHC_C_Volume\",\r\n    \"H_M_Energy_Heating\": \"H_C_Energy_Heating\",\r\n    \"H_M_Volume\": \"H_C_Volume\",\r\n    \"E_M_ActiveEnergyTotal\": \"E_C_ActiveEnergyTotal\",\r\n    \"W_M_Volume\": \"W_C_Volume\",\r\n    \"WW_M_Volume\": \"WW_C_Volume\",\r\n    \"CW_M_Volume\": \"CW_C_Volume\",\r\n    \"G_M_Volume\": \"G_C_Volume\"\r\n};\r\n\r\nvar energyDatapoint = {\r\n    \"CHC_M_Energy_Cooling\": \"CHC_S_Power_Cooling\",\r\n    \"CHC_M_Energy_Heating\": \"CHC_S_Power_Heating\",\r\n    \"H_M_Energy_Heating\": \"H_S_Power\",\r\n    \"E_M_ActiveEnergyTotal\": \"E_S_Power\"\r\n}\r\n\r\n// Conversion factors based on the unit\r\nvar energyConversionFactors = {\r\n    \"Wh\": 0.001,\r\n    \"kJ\": 0.0002777777,\r\n    \"kWh\": 1,\r\n    \"GWh\": 1000\r\n};\r\n\r\n// Extract ss_energyUnit from metadata\r\nvar ss_energyUnit = metadata.ss_energyUnit || \"kWh\";\r\nvar conversionFactor = energyConversionFactors[ss_energyUnit] || 1;\r\n\r\n// Initialize previous values for all meter types using metadata, defaulting to null\r\nvar previousValues = {};\r\nObject.keys(meterToConsumptionMapping).forEach(meterKey => {\r\n    var metadataField = metadata[meterKey];\r\n    var { value, tsLastDBEntry } = extractMetadataValue(metadataField);\r\n    previousValues[meterKey] = { value, tsLastDBEntry };\r\n});\r\n\r\nif (Array.isArray(data)) {\r\n    data.forEach(dataItem => {\r\n        if (dataItem && dataItem.entry && Array.isArray(dataItem.entry)) {\r\n            var dataItemUser = dataItem.USER || dataItem.DESCRIPTION;\r\n\r\n            dataItem.entry.forEach(entry => {\r\n                var timestamp = entry.T_MUC * 1000; // Message timestamp\r\n                var value = parseFloat(entry.VAL) * dataItem.SCALE; // Parse as float\r\n\r\n                // Group by timestamp\r\n                if (!groupedByTimestamp[timestamp]) {\r\n                    groupedByTimestamp[timestamp] = {\r\n                        timestamp,\r\n                        values: {},\r\n                        metadata: JSON.parse(JSON.stringify(metadata))\r\n                    };\r\n                }\r\n                \r\n                // Apply conversion if the USER contains \"Energy\"\r\n                if (typeof dataItemUser === 'string' && dataItemUser.includes(\"Energy\")) {\r\n                    value *= conversionFactor;\r\n                }\r\n\r\n                // Store values by their USER or DESCRIPTION, formatted with three decimal places\r\n                groupedByTimestamp[timestamp].values[dataItemUser] = value.toFixed(3);\r\n            });\r\n        }\r\n    });\r\n\r\n    const sortedTimestamps = Object.keys(groupedByTimestamp).sort((a, b) => parseInt(a, 10) - parseInt(b, 10));\r\n\r\n    sortedTimestamps.forEach(timestamp => {\r\n        const group = groupedByTimestamp[timestamp];\r\n        var telemetryObject = {};\r\n    \r\n        Object.keys(group.values).forEach(meterKey => {\r\n            var meterValue = parseFloat(group.values[meterKey]);\r\n            // Always add the meter reading to the message\r\n            telemetryObject[meterKey] = meterValue;\r\n    \r\n            var consumptionKey = meterToConsumptionMapping[meterKey];\r\n            var powerKey = energyDatapoint[meterKey];\r\n            if (consumptionKey) {\r\n                var { value: previousValue, tsLastDBEntry } = previousValues[meterKey];\r\n    \r\n                // Initialize consumptionValue as 0\r\n                var consumptionValue = 0;\r\n                var timeDeltaHour = (parseInt(timestamp) - parseInt(tsLastDBEntry))/1000/3600;\r\n                var powerValue = 0;\r\n                // Calculate consumption only if tsLastDBEntry < current entry's timestamp\r\n                if (previousValue !== null && tsLastDBEntry < timestamp) {\r\n                    consumptionValue = meterValue - parseFloat(previousValue);\r\n                    if (typeof meterKey === 'string' && meterKey.toLowerCase().includes(\"energy\")) {\r\n                         powerValue = consumptionValue / timeDeltaHour;\r\n                    }\r\n                }\r\n                // Add the consumption calculation to the message, formatting to three decimal places\r\n                telemetryObject[consumptionKey] = parseFloat(consumptionValue.toFixed(3));\r\n                telemetryObject[powerKey] = parseFloat(powerValue.toFixed(3))\r\n    \r\n                // Update previous value and tsLastDBEntry for the meter type\r\n                previousValues[meterKey].value = meterValue.toFixed(3);\r\n                previousValues[meterKey].tsLastDBEntry = timestamp;\r\n            }\r\n        });\r\n    \r\n        group.metadata.ts = group.timestamp;\r\n        telemetryMessages.push({ msg: telemetryObject, metadata: group.metadata, msgType: msgType });\r\n    });\r\n\r\n    \r\n} else {\r\n    console.log(\"Error: 'data' is not an array.\");\r\n}\r\n\r\nreturn telemetryMessages;\r\n",
+          "tbelScript": "var dataPoints = msg[0][\"dataPoints\"];\r\nvar readings = [];\r\n\r\ndataPoints.forEach(dataPoint => {\r\n    var dataPointMetadata = {\r\n        description: dataPoint[\"DESCRIPTION\"],\r\n        unit: dataPoint[\"UNIT\"],\r\n        scale: dataPoint[\"SCALE\"],\r\n        user: dataPoint[\"USER\"] || msg[0][\"user\"]\r\n    };\r\n\r\n    dataPoint[\"entry\"].forEach(entry => {\r\n        var timestamp = entry[\"T\"] === 0 ? entry[\"T_MUC\"] : entry[\"T\"];\r\n        var value = entry[\"VAL\"] * dataPointMetadata.scale;\r\n        readings.push({ts: timestamp, values: {[dataPointMetadata.description]: value}});\r\n    });\r\n});\r\n\r\nreturn {msg: readings, metadata: metadata, msgType: msgType};\r\n"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1832,
+          "layoutY": 789
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.profile.TbDeviceProfileNode",
+        "name": "Device Profile",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "persistAlarmRulesState": false,
+          "fetchAlarmRulesStateOnStart": "false"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 274,
+          "layoutY": 191
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.action.TbCreateAlarmNode",
+        "name": "Create Inactivity Alarm",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "alarmDetailsBuildJs": "var details = {};\nif (metadata.prevAlarmDetails) {\n    details = JSON.parse(metadata.prevAlarmDetails);\n    //remove prevAlarmDetails from metadata\n    delete metadata.prevAlarmDetails;\n    //now metadata is the same as it comes IN this rule node\n}\n\n\nreturn details;",
+          "alarmDetailsBuildTbel": "var details = {};\nif (metadata.prevAlarmDetails != null) {\n    details = JSON.parse(metadata.prevAlarmDetails);\n    //remove prevAlarmDetails from metadata\n    metadata.remove('prevAlarmDetails');\n    //now metadata is the same as it comes IN this rule node\n}\n\n\nreturn details;",
+          "useMessageAlarmData": false,
+          "overwriteAlarmDetails": false,
+          "alarmType": "Inactivity Timeout",
+          "severity": "CRITICAL",
+          "propagate": false,
+          "relationTypes": [],
+          "propagateToOwner": false,
+          "propagateToOwnerHierarchy": false,
+          "propagateToTenant": false,
+          "dynamicSeverity": false
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 659,
+          "layoutY": 96
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.action.TbClearAlarmNode",
+        "name": "Clear Inactivity Alarm",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "alarmDetailsBuildJs": "var details = {};\nif (metadata.prevAlarmDetails) {\n    details = JSON.parse(metadata.prevAlarmDetails);\n    //remove prevAlarmDetails from metadata\n    delete metadata.prevAlarmDetails;\n    //now metadata is the same as it comes IN this rule node\n}\n\n\nreturn details;",
+          "alarmDetailsBuildTbel": "var details = {};\nif (metadata.prevAlarmDetails != null) {\n    details = JSON.parse(metadata.prevAlarmDetails);\n    //remove prevAlarmDetails from metadata\n    metadata.remove('prevAlarmDetails');\n    //now metadata is the same as it comes IN this rule node\n}\n\n\nreturn details;",
+          "alarmType": "Inactivity Timeout"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 822,
+          "layoutY": 167
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.metadata.TbGetTelemetryNode",
+        "name": "Get Last Meter Telemetry",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 2,
+        "configuration": {
+          "latestTsKeyNames": [
+            "CHC_M_Energy_Cooling",
+            "CHC_M_Energy_Heating",
+            "CHC_M_Volume",
+            "H_M_Energy_Heating",
+            "H_M_Volume",
+            "E_M_ActiveEnergyTotal",
+            "W_M_Volume",
+            "CW_M_Volume",
+            "WW_M_Volume",
+            "G_M_Volume"
+          ],
+          "aggregation": "NONE",
+          "fetchMode": "ALL",
+          "orderBy": "DESC",
+          "limit": 2,
+          "useMetadataIntervalPatterns": true,
+          "startIntervalPattern": "${ts_start}",
+          "endIntervalPattern": "${ts_end}",
+          "startInterval": 30,
+          "startIntervalTimeUnit": "MINUTES",
+          "endInterval": 1,
+          "endIntervalTimeUnit": "MILLISECONDS"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1836,
+          "layoutY": 678
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "Log RPC from Device",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return '\\nIncoming message:\\n' + JSON.stringify(msg) + '\\nIncoming metadata:\\n' + JSON.stringify(metadata);",
+          "tbelScript": "return '\\nIncoming message:\\n' + JSON.stringify(msg) + '\\nIncoming metadata:\\n' + JSON.stringify(metadata);"
+        },
+        "additionalInfo": {
+          "layoutX": 1235,
+          "layoutY": 158
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "Log Other",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return '\\nIncoming message:\\n' + JSON.stringify(msg) + '\\nIncoming metadata:\\n' + JSON.stringify(metadata);",
+          "tbelScript": "return '\\nIncoming message:\\n' + JSON.stringify(msg) + '\\nIncoming metadata:\\n' + JSON.stringify(metadata);"
+        },
+        "additionalInfo": {
+          "layoutX": 1234,
+          "layoutY": 219
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.rpc.TbSendRPCRequestNode",
+        "name": "RPC Call Request",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "timeoutInSeconds": 60
+        },
+        "additionalInfo": {
+          "layoutX": 1233,
+          "layoutY": 282
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbJsSwitchNode",
+        "name": "Check if msg empty",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 1740058529955
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "JS",
+          "jsScript": "// Check if msg is an empty object\r\nif (Object.keys(msg).length === 0) {\r\n    return [\"empty msg\"];\r\n}\r\n// Check if msg is not an empty object\r\nelse if (Object.keys(msg).length > 0) {\r\n    return [\"msg\"];\r\n} else {\r\n    return [\"other\"];\r\n}",
+          "tbelScript": "function nextRelation(metadata, msg) {\n    return ['one','nine'];\n}\nif(msgType == 'POST_TELEMETRY_REQUEST') {\n    return ['two'];\n}\nreturn nextRelation(metadata, msg);"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 312,
+          "layoutY": 424
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbChangeOriginatorNode",
+        "name": "Switch To Kit",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "originatorSource": "RELATED",
+          "preserveOriginatorIfCustomer": false,
+          "entityType": null,
+          "entityNamePattern": null,
+          "relationsQuery": {
+            "fetchLastLevelOnly": false,
+            "direction": "TO",
+            "maxLevel": 1,
+            "filters": [
+              {
+                "relationType": "Contains",
+                "entityTypes": [
+                  "ASSET"
+                ]
+              }
+            ]
+          }
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1584,
+          "layoutY": 688
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbChangeOriginatorNode",
+        "name": "Switch to Measurement",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "originatorSource": "RELATED",
+          "preserveOriginatorIfCustomer": false,
+          "entityType": null,
+          "entityNamePattern": null,
+          "relationsQuery": {
+            "fetchLastLevelOnly": false,
+            "direction": "TO",
+            "maxLevel": 1,
+            "filters": [
+              {
+                "relationType": "Owns",
+                "entityTypes": [
+                  "ASSET"
+                ]
+              }
+            ]
+          }
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1584,
+          "layoutY": 796
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.telemetry.TbMsgTimeseriesNode",
+        "name": "Save Timeseries",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "defaultTTL": 0,
+          "useServerTs": false,
+          "processingSettings": {
+            "type": "ON_EVERY_MESSAGE"
+          }
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 709,
+          "layoutY": 1036
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.telemetry.TbMsgTimeseriesNode",
+        "name": "Save Timeseries",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1741774520455
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "defaultTTL": 0,
+          "useServerTs": false,
+          "processingSettings": {
+            "type": "ON_EVERY_MESSAGE"
+          }
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 446,
+          "layoutY": 778
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbRenameKeysNode",
+        "name": "Rename Power Keys",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 1767799470750
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 2,
+        "configuration": {
+          "renameIn": "DATA",
+          "renameKeysMapping": {
+            "CHC_C_Power_Cooling": "CHC_S_Power_Cooling",
+            "CHC_C_Power_Heating": "CHC_S_Power_Heating"
+          }
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 199,
+          "layoutY": 657
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbChangeOriginatorNode",
+        "name": "Switch to Measurement",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 0
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "originatorSource": "RELATED",
+          "preserveOriginatorIfCustomer": false,
+          "entityType": null,
+          "entityNamePattern": null,
+          "relationsQuery": {
+            "fetchLastLevelOnly": false,
+            "direction": "TO",
+            "maxLevel": 1,
+            "filters": [
+              {
+                "relationType": "Measurement",
+                "entityTypes": [
+                  "ASSET"
+                ]
+              }
+            ]
+          }
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 708,
+          "layoutY": 944
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Rename Temperature Keys for TS1&TS2",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "JS",
+          "jsScript": "// Extend your code as follows:\r\nif (metadata.deviceName && metadata.deviceName.includes('_TS1')) {\r\n    if (msg.values && msg.values.hasOwnProperty('temperature')) {\r\n        msg.values.temperature1 = msg.values.temperature;\r\n        delete msg.values.temperature;\r\n    }\r\n} else if (metadata.deviceName && metadata.deviceName.includes('_TS2')) {\r\n    if (msg.values && msg.values.hasOwnProperty('temperature')) {\r\n        msg.values.temperature2 = msg.values.temperature;\r\n        delete msg.values.temperature;\r\n    }\r\n}\r\n\r\nreturn { \r\n    msg: msg, \r\n    metadata: metadata, \r\n    msgType: msgType \r\n};\r\n",
+          "tbelScript": "return {msg: msg, metadata: metadata, msgType: msgType};"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 706,
+          "layoutY": 850
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbChangeOriginatorNode",
+        "name": "Switch to Measurement VR Device",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 1746017500860
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "originatorSource": "RELATED",
+          "preserveOriginatorIfCustomer": false,
+          "entityType": null,
+          "entityNamePattern": null,
+          "relationsQuery": {
+            "fetchLastLevelOnly": false,
+            "direction": "TO",
+            "maxLevel": 1,
+            "filters": [
+              {
+                "relationType": "VR",
+                "entityTypes": [
+                  "DEVICE"
+                ]
+              }
+            ]
+          }
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 937,
+          "layoutY": 850
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.telemetry.TbMsgTimeseriesNode",
+        "name": "Save Timeseries",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 1746017633822
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "defaultTTL": 0,
+          "useServerTs": false,
+          "processingSettings": {
+            "type": "ON_EVERY_MESSAGE"
+          }
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 941,
+          "layoutY": 958
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbCheckRelationNode",
+        "name": "Check relation to Measurement",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 1741774487554
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "checkForSingleEntity": false,
+          "direction": "TO",
+          "entityType": "DEVICE",
+          "entityId": null,
+          "relationType": "VR"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 708,
+          "layoutY": 709
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.action.TbDeviceStateNode",
+        "name": "Set Activity",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "event": "ACTIVITY_EVENT"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1021,
+          "layoutY": 570
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Skip negative Consumption/Energy/Power",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 1767799666219
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return {msg: msg, metadata: metadata, msgType: msgType};",
+          "tbelScript": "return {msg: msg, metadata: metadata, msgType: msgType};"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 198,
+          "layoutY": 748
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbCheckRelationNode",
+        "name": "Check relation to Measurement",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 1768934443080
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "checkForSingleEntity": false,
+          "direction": "TO",
+          "relationType": "Measurement"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 708,
+          "layoutY": 648
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbChangeOriginatorNode",
+        "name": "Switch to Measurement",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 1768934718389
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "originatorSource": "RELATED",
+          "preserveOriginatorIfCustomer": false,
+          "entityType": null,
+          "entityNamePattern": null,
+          "relationsQuery": {
+            "fetchLastLevelOnly": false,
+            "direction": "TO",
+            "maxLevel": 1,
+            "filters": [
+              {
+                "relationType": "Measurement",
+                "entityTypes": [
+                  "ASSET"
+                ]
+              }
+            ]
+          }
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1230,
+          "layoutY": 851
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.telemetry.TbMsgTimeseriesNode",
+        "name": "Save Timeseries",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 0
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "defaultTTL": 0,
+          "useServerTs": false,
+          "processingSettings": {
+            "type": "ON_EVERY_MESSAGE"
+          }
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1232,
+          "layoutY": 956
+        }
+      }
+    ],
+    "connections": [
+      {
+        "fromIndex": 0,
+        "toIndex": 5,
+        "type": "Inactivity Event"
+      },
+      {
+        "fromIndex": 0,
+        "toIndex": 6,
+        "type": "Activity Event"
+      },
+      {
+        "fromIndex": 0,
+        "toIndex": 8,
+        "type": "RPC Request from Device"
+      },
+      {
+        "fromIndex": 0,
+        "toIndex": 9,
+        "type": "Other"
+      },
+      {
+        "fromIndex": 0,
+        "toIndex": 10,
+        "type": "RPC Request to Device"
+      },
+      {
+        "fromIndex": 0,
+        "toIndex": 11,
+        "type": "Post telemetry"
+      },
+      {
+        "fromIndex": 1,
+        "toIndex": 2,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 16,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 22,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 4,
+        "toIndex": 0,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 7,
+        "toIndex": 3,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 11,
+        "toIndex": 1,
+        "type": "msg"
+      },
+      {
+        "fromIndex": 12,
+        "toIndex": 13,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 15,
+        "toIndex": 21,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 15,
+        "toIndex": 24,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 16,
+        "toIndex": 23,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 17,
+        "toIndex": 14,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 18,
+        "toIndex": 17,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 19,
+        "toIndex": 20,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 21,
+        "toIndex": 18,
+        "type": "False"
+      },
+      {
+        "fromIndex": 21,
+        "toIndex": 19,
+        "type": "True"
+      },
+      {
+        "fromIndex": 23,
+        "toIndex": 15,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 24,
+        "toIndex": 25,
+        "type": "True"
+      },
+      {
+        "fromIndex": 25,
+        "toIndex": 26,
+        "type": "Success"
+      }
+    ],
+    "ruleChainConnections": null
+  }
+}

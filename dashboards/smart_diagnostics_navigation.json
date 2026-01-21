@@ -1,0 +1,1685 @@
+{
+  "title": "Smart Diagnostics Navigation",
+  "image": null,
+  "mobileHide": false,
+  "mobileOrder": null,
+  "configuration": {
+    "description": "",
+    "widgets": {
+      "1dd6b46f-3282-d932-e25d-d495ef9c2432": {
+        "typeFullFqn": "system.cards.markdown_card",
+        "type": "latest",
+        "sizeX": 5,
+        "sizeY": 3.5,
+        "config": {
+          "datasources": [
+            {
+              "type": "entity",
+              "name": "",
+              "entityAliasId": "62ceb79d-0f40-7f6b-ad01-f3d4b52d141a",
+              "dataKeys": [],
+              "alarmFilterConfig": {
+                "statusList": [
+                  "ACTIVE"
+                ]
+              }
+            }
+          ],
+          "timewindow": {
+            "displayValue": "",
+            "selectedTab": 0,
+            "realtime": {
+              "realtimeType": 1,
+              "interval": 1000,
+              "timewindowMs": 60000,
+              "quickInterval": "CURRENT_DAY",
+              "hideInterval": false,
+              "hideLastInterval": false,
+              "hideQuickInterval": false
+            },
+            "history": {
+              "historyType": 0,
+              "interval": 1000,
+              "timewindowMs": 60000,
+              "fixedTimewindow": {
+                "startTimeMs": 1765478816050,
+                "endTimeMs": 1765565216050
+              },
+              "quickInterval": "CURRENT_DAY",
+              "hideInterval": false,
+              "hideLastInterval": false,
+              "hideFixedInterval": false,
+              "hideQuickInterval": false
+            },
+            "aggregation": {
+              "type": "AVG",
+              "limit": 50000
+            }
+          },
+          "showTitle": false,
+          "backgroundColor": "#fff",
+          "color": "rgba(0, 0, 0, 0.87)",
+          "padding": "0px",
+          "settings": {
+            "useMarkdownTextFunction": true,
+            "markdownTextPattern": "### Markdown/HTML card\n - **Current entity**: ${entityName}.\n - **Current value**: ${Temperature}.",
+            "markdownTextFunction": "/*************************************************\n * mat-tab-group + tb-dashboard-state (works + visible)\n * Source of truth: stateParams.tabMode.entityName\n * Fix: enforce height on mat-tab body wrappers\n *************************************************/\n\nconst sc =\n  ctx.stateController ||\n  (ctx.$scope && (ctx.$scope.stateController || (ctx.$scope.$parent && ctx.$scope.$parent.stateController)));\n\nif (!sc || !ctx.$scope) {\n  return '<div style=\"padding:12px;color:#b00020;\">StateController / $scope nicht gefunden.</div>';\n}\n\nconst tabs = [\n  { id: 'home',        label: 'Home',        icon: 'home' },\n  { id: 'assessment',  label: 'Assessment',  icon: 'assignment_turned_in' },\n  { id: 'assetreport', label: 'Asset Report', icon: 'description' },\n  { id: 'measurement', label: 'Measurement', icon: 'straighten' },\n  { id: 'analysis',    label: 'Analysis',    icon: 'insights' },\n  { id: 'monitoring',  label: 'Monitoring',  icon: 'dashboard' },\n  { id: 'alarming',    label: 'Alarming',    icon: 'notifications' },\n  { id: 'administration',  label: 'Administration',  icon: 'settings' }\n];\n\n// Falls deine State IDs anders heißen, hier anpassen:\nconst tabToStateId = {\n  home: 'home',\n  assessment: 'assessment',\n  assetreport: 'assetreport',\n  measurement: 'measurement',\n  analysis: 'analysis',\n  monitoring: 'monitoring',\n  alarming: '',\n  administration: ''\n};\n\n// tabMode initialisieren\nconst params = (typeof sc.getStateParams === 'function' ? (sc.getStateParams() || {}) : {});\nlet tabMode;\n\nif (params.tabMode && params.tabMode.entityName) {\n  tabMode = String(params.tabMode.entityName);\n} else {\n  tabMode = 'home';\n  params.tabMode = { entityName: tabMode };\n  sc.updateState(null, params);\n}\n\nif (!tabs.some(t => t.id === tabMode)) tabMode = 'home';\n\n// selectedIndex ableiten\nlet selectedIndex = 0;\nfor (let i = 0; i < tabs.length; i++) {\n  if (tabs[i].id === tabMode) { selectedIndex = i; break; }\n}\n\n// Handler auf ctx (damit Angular ihn findet)\nctx.tbNavSelectedIndex = selectedIndex;\n\nctx.tbNavOnTabChange = function(ev) {\n  try {\n    const idx = ev && typeof ev.index === 'number' ? ev.index : 0;\n    const t = tabs[idx] || tabs[0];\n\n    ctx.tbNavSelectedIndex = idx;\n\n    // Merge: bestehende Params behalten\n    const current = (typeof sc.getStateParams === 'function' ? (sc.getStateParams() || {}) : {});\n    const p = Object.assign({}, current);\n    p.tabMode = { entityName: t.id };\n\n    sc.updateState(null, p);\n\n    if (ctx.$scope && typeof ctx.$scope.$applyAsync === 'function') ctx.$scope.$applyAsync();\n  } catch (e) {\n    console.error('tbNavOnTabChange error', e);\n  }\n};\n\n// Styles: nur das Nötige für Höhe + Label\n(function injectStyles() {\n  const styleId = 'tb-mat-tabs-height-fix-v1';\n  if (document.getElementById(styleId)) return;\n\n  const css = `\n    .tb-tabs-root{\n      width:100%;\n      height:100%;\n      display:flex;\n      flex-direction:column;\n      min-height:0;\n    }\n\n    .tb-tabs-root mat-tab-group{\n      flex:1 1 auto;\n      min-height:0;\n      height:100%;\n    }\n\n    /* Entscheidend: Tab-Body Wrapper braucht echte Höhe */\n    .tb-tabs-root .mat-mdc-tab-body-wrapper{\n      flex:1 1 auto;\n      min-height:0;\n      height:100%;\n    }\n    .tb-tabs-root .mat-mdc-tab-body{\n      height:100%;\n      min-height:0;\n    }\n    .tb-tabs-root .mat-mdc-tab-body-content{\n      height:100%;\n      min-height:0;\n      overflow:hidden;\n    }\n\n    .tb-tab-label{\n      display:inline-flex;\n      align-items:center;\n      gap:8px;\n    }\n    .tb-tab-label mat-icon{\n      font-size:18px;\n      width:18px;\n      height:18px;\n      line-height:18px;\n    }\n\n    .tb-tab-body{\n      width:100%;\n      height:100%;\n      display:block;\n    }\n  `;\n\n  const styleEl = document.createElement('style');\n  styleEl.id = styleId;\n  styleEl.type = 'text/css';\n  styleEl.appendChild(document.createTextNode(css));\n  document.head.appendChild(styleEl);\n})();\n\n// Tabs HTML (Lazy Content)\nlet tabsHtml = '';\nfor (let i = 0; i < tabs.length; i++) {\n  const t = tabs[i];\n  const stateId = tabToStateId[t.id] || t.id;\n\n  tabsHtml += ''\n    + '<mat-tab>'\n    +   '<ng-template mat-tab-label>'\n    +     '<span class=\"tb-tab-label\">'\n    +       '<mat-icon>' + t.icon + '</mat-icon>'\n    +       '<span>' + t.label + '</span>'\n    +     '</span>'\n    +   '</ng-template>'\n    +   '<ng-template matTabContent>'\n    +     '<tb-dashboard-state class=\"tb-tab-body\" style=\"width:100%;height:100%;\"'\n    +       ' [ctx]=\"ctx\" [syncParentStateParams]=\"true\" stateId=\"' + stateId + '\">'\n    +     '</tb-dashboard-state>'\n    +   '</ng-template>'\n    + '</mat-tab>';\n}\n\nreturn ''\n  + '<section class=\"tb-tabs-root\">'\n  +   '<mat-tab-group mat-stretch-tabs=\"false\"'\n  +     ' [selectedIndex]=\"ctx.tbNavSelectedIndex\"'\n  +     ' (selectedTabChange)=\"ctx.tbNavOnTabChange($event)\">'\n  +     tabsHtml\n  +   '</mat-tab-group>'\n  + '</section>';\n",
+            "applyDefaultMarkdownStyle": false,
+            "markdownCss": ""
+          },
+          "title": "Markdown/HTML Card",
+          "showTitleIcon": false,
+          "iconColor": "rgba(0, 0, 0, 0.87)",
+          "iconSize": "24px",
+          "titleTooltip": "",
+          "dropShadow": false,
+          "enableFullscreen": false,
+          "widgetStyle": {},
+          "titleStyle": {
+            "fontSize": "16px",
+            "fontWeight": 400
+          },
+          "showLegend": false,
+          "useDashboardTimewindow": true,
+          "displayTimewindow": true,
+          "enableDataExport": false,
+          "borderRadius": "8px",
+          "widgetCss": "",
+          "pageSize": 1024,
+          "noDataDisplayMessage": ""
+        },
+        "row": 0,
+        "col": 0,
+        "id": "1dd6b46f-3282-d932-e25d-d495ef9c2432"
+      },
+      "735b995c-b399-59c8-ff2b-1f4ddbc6ce75": {
+        "typeFullFqn": "system.cards.html_card",
+        "type": "static",
+        "sizeX": 7.5,
+        "sizeY": 3,
+        "config": {
+          "datasources": [
+            {
+              "type": "static",
+              "name": "function",
+              "dataKeys": [
+                {
+                  "name": "f(x)",
+                  "type": "function",
+                  "label": "Random",
+                  "color": "#2196f3",
+                  "settings": {},
+                  "_hash": 0.15479322438769105,
+                  "funcBody": "var value = prevValue + Math.random() * 100 - 50;\nvar multiplier = Math.pow(10, 2 || 0);\nvar value = Math.round(value * multiplier) / multiplier;\nif (value < -1000) {\n\tvalue = -1000;\n} else if (value > 1000) {\n\tvalue = 1000;\n}\nreturn value;"
+                }
+              ]
+            }
+          ],
+          "timewindow": {
+            "realtime": {
+              "timewindowMs": 60000
+            }
+          },
+          "showTitle": false,
+          "backgroundColor": "rgb(255, 255, 255)",
+          "color": "rgba(0, 0, 0, 0.87)",
+          "padding": "8px",
+          "settings": {
+            "cardHtml": "<div style=\"width:100%; height:100%;\">\n  <iframe\n    src=\"https://portal.retrofit.belimo.com/login\"\n    style=\"width:100%; height:100%; border:0;\"\n    loading=\"lazy\"\n    referrerpolicy=\"no-referrer\"\n    sandbox=\"allow-scripts allow-same-origin allow-forms allow-popups\">\n  </iframe>\n</div>\n",
+            "cardCss": ".card {\n    font-weight: bold;\n    font-size: 32px;\n    color: #999;\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}"
+          },
+          "title": "HTML Card",
+          "dropShadow": false,
+          "enableFullscreen": false,
+          "enableDataExport": true,
+          "borderRadius": "8px",
+          "widgetStyle": {},
+          "widgetCss": "",
+          "pageSize": 1024,
+          "noDataDisplayMessage": ""
+        },
+        "row": 0,
+        "col": 0,
+        "id": "735b995c-b399-59c8-ff2b-1f4ddbc6ce75"
+      },
+      "65942fd9-5b4f-cbd1-172d-99233158696c": {
+        "typeFullFqn": "system.cards.html_card",
+        "type": "static",
+        "sizeX": 7.5,
+        "sizeY": 3,
+        "config": {
+          "datasources": [
+            {
+              "type": "static",
+              "name": "function",
+              "dataKeys": [
+                {
+                  "name": "f(x)",
+                  "type": "function",
+                  "label": "Random",
+                  "color": "#2196f3",
+                  "settings": {},
+                  "_hash": 0.15479322438769105,
+                  "funcBody": "var value = prevValue + Math.random() * 100 - 50;\nvar multiplier = Math.pow(10, 2 || 0);\nvar value = Math.round(value * multiplier) / multiplier;\nif (value < -1000) {\n\tvalue = -1000;\n} else if (value > 1000) {\n\tvalue = 1000;\n}\nreturn value;"
+                }
+              ]
+            }
+          ],
+          "timewindow": {
+            "realtime": {
+              "timewindowMs": 60000
+            }
+          },
+          "showTitle": false,
+          "backgroundColor": "rgb(255, 255, 255)",
+          "color": "rgba(0, 0, 0, 0.87)",
+          "padding": "8px",
+          "settings": {
+            "cardHtml": "<div style=\"width:100%; height:100%;\">\n  <iframe\n    src=\"https://asset.ecoenergygroup.com/\"\n    style=\"width:100%; height:100%; border:0;\"\n    loading=\"lazy\"\n    referrerpolicy=\"no-referrer\"\n    sandbox=\"allow-scripts allow-same-origin allow-forms allow-popups\">\n  </iframe>\n</div>\n",
+            "cardCss": ".card {\n    font-weight: bold;\n    font-size: 32px;\n    color: #999;\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}"
+          },
+          "title": "HTML Card",
+          "dropShadow": false,
+          "enableFullscreen": false,
+          "enableDataExport": true,
+          "borderRadius": "8px",
+          "widgetStyle": {},
+          "widgetCss": "",
+          "pageSize": 1024,
+          "noDataDisplayMessage": ""
+        },
+        "row": 0,
+        "col": 0,
+        "id": "65942fd9-5b4f-cbd1-172d-99233158696c"
+      },
+      "c02e9712-3220-aaf0-60a7-fecd55515eb9": {
+        "typeFullFqn": "system.cards.html_card",
+        "type": "static",
+        "sizeX": 7.5,
+        "sizeY": 3,
+        "config": {
+          "datasources": [
+            {
+              "type": "static",
+              "name": "function",
+              "dataKeys": [
+                {
+                  "name": "f(x)",
+                  "type": "function",
+                  "label": "Random",
+                  "color": "#2196f3",
+                  "settings": {},
+                  "_hash": 0.15479322438769105,
+                  "funcBody": "var value = prevValue + Math.random() * 100 - 50;\nvar multiplier = Math.pow(10, 2 || 0);\nvar value = Math.round(value * multiplier) / multiplier;\nif (value < -1000) {\n\tvalue = -1000;\n} else if (value > 1000) {\n\tvalue = 1000;\n}\nreturn value;"
+                }
+              ]
+            }
+          ],
+          "timewindow": {
+            "realtime": {
+              "timewindowMs": 60000
+            }
+          },
+          "showTitle": false,
+          "backgroundColor": "rgb(255, 255, 255)",
+          "color": "rgba(0, 0, 0, 0.87)",
+          "padding": "8px",
+          "settings": {
+            "cardHtml": "<div style=\"width:100%; height:100%;\">\n  <iframe\n    src=\"https://www.ecoenergygroup.com\"\n    style=\"width:100%; height:100%; border:0;\"\n    loading=\"lazy\"\n    referrerpolicy=\"no-referrer\"\n    sandbox=\"allow-scripts allow-same-origin allow-forms allow-popups\">\n  </iframe>\n</div>\n",
+            "cardCss": ".card {\n    font-weight: bold;\n    font-size: 32px;\n    color: #999;\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}"
+          },
+          "title": "HTML Card",
+          "dropShadow": false,
+          "enableFullscreen": false,
+          "enableDataExport": true,
+          "borderRadius": "8px",
+          "widgetStyle": {},
+          "widgetCss": "",
+          "pageSize": 1024,
+          "noDataDisplayMessage": ""
+        },
+        "row": 0,
+        "col": 0,
+        "id": "c02e9712-3220-aaf0-60a7-fecd55515eb9"
+      },
+      "9094f048-ccc5-b9d7-9dd0-6ef0a20851c9": {
+        "typeFullFqn": "system.cards.markdown_card",
+        "type": "latest",
+        "sizeX": 5,
+        "sizeY": 3.5,
+        "config": {
+          "datasources": [
+            {
+              "type": "entity",
+              "name": "",
+              "dataKeys": [],
+              "alarmFilterConfig": {
+                "statusList": [
+                  "ACTIVE"
+                ]
+              }
+            }
+          ],
+          "timewindow": {
+            "displayValue": "",
+            "selectedTab": 0,
+            "realtime": {
+              "realtimeType": 1,
+              "interval": 1000,
+              "timewindowMs": 60000,
+              "quickInterval": "CURRENT_DAY",
+              "hideInterval": false,
+              "hideLastInterval": false,
+              "hideQuickInterval": false
+            },
+            "history": {
+              "historyType": 0,
+              "interval": 1000,
+              "timewindowMs": 60000,
+              "fixedTimewindow": {
+                "startTimeMs": 1765453220664,
+                "endTimeMs": 1765539620664
+              },
+              "quickInterval": "CURRENT_DAY",
+              "hideInterval": false,
+              "hideLastInterval": false,
+              "hideFixedInterval": false,
+              "hideQuickInterval": false
+            },
+            "aggregation": {
+              "type": "AVG",
+              "limit": 50000
+            }
+          },
+          "showTitle": false,
+          "backgroundColor": "#fff",
+          "color": "rgba(0, 0, 0, 0.87)",
+          "padding": "0px",
+          "settings": {
+            "useMarkdownTextFunction": true,
+            "markdownTextPattern": "### Markdown/HTML card\n - **Current entity**: ${entityName}.\n - **Current value**: ${Temperature}.",
+            "markdownTextFunction": "return `\r\n<div class=\"tile-container\">\r\n\r\n  <!-- Assessment -->\r\n  <div class=\"slider-card\">\r\n    <div class=\"slider-card_top\">\r\n      <div class=\"heading-style-h1-2 text-color-white\">01</div>\r\n      <h2 class=\"text-color-white\">RetroFIT+</h2>\r\n      <p class=\"text-color-white\">\r\n        BELIMO RetroFIT+ assessment tool\r\n      </p>\r\n    </div>\r\n    <div class=\"slider-card_bottom\">\r\n        <a id=\"assessment\" class=\"button text-color-white\" role=\"button\">\r\n          Mehr erfahren\r\n        </a>\r\n    </div>\r\n  </div>\r\n\r\n  <!-- Anlagenbericht -->\r\n  <div class=\"slider-card\">\r\n    <div class=\"slider-card_top\">\r\n      <div class=\"heading-style-h1-2 text-color-white\">02</div>\r\n        <h2 class=\"text-color-white\">Anlagenbericht</h2>\r\n        <p class=\"text-color-white\"> \r\n            Tool zur schematischen Erhebung der Technikanlage und Definition der Messpunkte.\r\n        </p>\r\n    </div>\r\n    <div class=\"slider-card_bottom\">\r\n        <a id=\"asset-report\" class=\"button text-color-white\" role=\"button\">\r\n          Mehr erfahren\r\n        </a>\r\n    </div>\r\n  </div>\r\n\r\n  <!-- Messung -->\r\n  <div class=\"slider-card\">\r\n    <div class=\"slider-card_top\">\r\n      <div class=\"heading-style-h1-2 text-color-white\">03</div>\r\n      <h2 class=\"text-color-white\">Messung</h2>\r\n      <p class=\"text-color-white\">\r\n        Live-Überwachung von Anlagen, Zählern und Sensorik.\r\n      </p>\r\n    </div>\r\n    <div class=\"slider-card_bottom\">\r\n        <a id=\"measurement\" class=\"button text-color-white\" role=\"button\">\r\n          Mehr erfahren\r\n        </a>\r\n    </div>\r\n  </div>\r\n  \r\n\r\n  <!-- Kachel 4 -->\r\n  <div class=\"slider-card\">\r\n    <div class=\"slider-card_top\">\r\n      <div class=\"heading-style-h1-2 text-color-white\">04</div>\r\n      <h2 class=\"text-color-white\">Analyse</h2>\r\n      <p class=\"text-color-white\">\r\n        Aufbereitung der Energiedaten für den Energiebericht.\r\n      </p>\r\n    </div>\r\n    <div class=\"slider-card_bottom\">\r\n        <a id=\"analysis\" class=\"button text-color-white\" role=\"button\">\r\n          Mehr erfahren\r\n        </a>\r\n    </div>\r\n  </div>\r\n\r\n  <!-- Kachel 5 -->\r\n  <div class=\"slider-card\">\r\n    <div class=\"slider-card_top\">\r\n      <div class=\"heading-style-h1-2 text-color-white\">05</div>\r\n      <h2 class=\"text-color-white\">Cockpit</h2>\r\n      <p class=\"text-color-white\">\r\n        Energiemonitoring und Energiemanagement.\r\n      </p>\r\n    </div>\r\n    <div class=\"slider-card_bottom\">\r\n        <a id=\"monitoring\" class=\"button text-color-white\" role=\"button\">\r\n          Mehr erfahren\r\n        </a>\r\n    </div>\r\n  </div>\r\n\r\n</div>\r\n`;",
+            "applyDefaultMarkdownStyle": true,
+            "markdownCss": "/* === ThingsBoard Widget Root === */\r\n/* notwendig, damit height:100% sauber funktioniert */\r\n:host {\r\n    display: block;\r\n    height: 100%;\r\n}\r\n\r\n/* === Container für externen Button === */\r\n.external-link-container {\r\n    position: absolute;\r\n    top: 1rem;\r\n    right: 1.5rem;\r\n    z-index: 10;\r\n}\r\n\r\n\r\n\r\n/* === Container für externen Button === */\r\n.external-link-container {\r\n    position: absolute;\r\n    top: 10px;      /* Mindestabstand nach oben */\r\n    right: 10px;    /* Mindestabstand nach rechts */\r\n    z-index: 20;\r\n}\r\n\r\n/* === Externer Button === */\r\n.external-button {\r\n    background-color: var(--tb-primary-500);\r\n    color: var(--tb-primary-contrast-500);\r\n\r\n    border: none;\r\n    border-radius: 4px;\r\n\r\n    font-size: 0.75rem;\r\n    padding: 0.45rem 1rem;\r\n\r\n    cursor: pointer;\r\n    transition: background-color 0.2s ease;\r\n}\r\n\r\n/* === Hover-State === */\r\n.external-button:hover {\r\n    background-color: var(--tb-accent-500);\r\n    color: var(--tb-primary-contrast-500);\r\n}\r\n\r\n\r\n/* === Kachel-Container === */\r\n/* Widget-Zentrierung */\r\n.tile-container {\r\n    display: flex;\r\n    gap: 1.5rem;\r\n\r\n    width: 100%;\r\n    height: 100%;\r\n\r\n    justify-content: center;   /* horizontal */\r\n    align-items: center;       /* vertikal */\r\n\r\n    box-sizing: border-box;\r\n}\r\n\r\n/* === Slider Card === */\r\n.slider-card {\r\n    background-color: var(--tb-primary-500);\r\n    border-radius: 5px;\r\n\r\n    display: flex;\r\n    flex-direction: column;\r\n    justify-content: space-between;\r\n    align-items: flex-start;\r\n    align-self: center;\r\n\r\n    width: 100%;\r\n    height: auto;\r\n    min-height: 25rem;\r\n    max-width: 260px;              /* NEU: saubere 5-Kachel-Optik */\r\n\r\n    padding: 1.75rem;\r\n    position: relative;\r\n}\r\n\r\n/* === Text Styles === */\r\n.heading-style-h1-2 {\r\n    font-size: 2rem;\r\n    font-weight: 700;\r\n    line-height: 1;\r\n}\r\n\r\n.text-color-white {\r\n    color: #ffffff;\r\n}\r\n\r\n.slider-card h2 {\r\n    margin: 0.5rem 0;\r\n    font-size: 1.125rem;\r\n    font-weight: 600;\r\n}\r\n\r\n.slider-card p {\r\n    font-size: 0.875rem;\r\n    line-height: 1.5;\r\n    opacity: 0.9;\r\n}\r\n\r\n/* === Button === */\r\n.slider-card_bottom {\r\n    margin-top: auto;\r\n}\r\n\r\n.button {\r\n    display: inline-block;\r\n    padding: 0.6rem 1.2rem;\r\n    border: 1px solid #ffffff;\r\n    border-radius: 4px;\r\n    text-decoration: none;\r\n    font-size: 0.875rem;\r\n    cursor: pointer;               /* NEU */\r\n    transition: background-color 0.2s ease, color 0.2s ease;\r\n}\r\n\r\n.button:hover {\r\n    background-color: #ffffff;\r\n    color: var(--tb-primary-500);\r\n}\r\n\r\n/* === Responsive Verhalten === */\r\n@media (max-width: 1200px) {\r\n    .tile-container {\r\n        flex-wrap: wrap;\r\n        justify-content: center;   /* NEU */\r\n    }\r\n\r\n    .slider-card {\r\n        flex: 1 1 calc(50% - 1.5rem);\r\n        max-width: unset;\r\n    }\r\n}\r\n\r\n@media (max-width: 600px) {\r\n    .slider-card {\r\n        flex: 1 1 100%;\r\n    }\r\n}\r\n"
+          },
+          "title": "Markdown/HTML Card",
+          "showTitleIcon": false,
+          "iconColor": "rgba(0, 0, 0, 0.87)",
+          "iconSize": "24px",
+          "titleTooltip": "",
+          "dropShadow": false,
+          "enableFullscreen": false,
+          "widgetStyle": {},
+          "titleStyle": {
+            "fontSize": "16px",
+            "fontWeight": 400
+          },
+          "showLegend": false,
+          "useDashboardTimewindow": true,
+          "displayTimewindow": true,
+          "actions": {
+            "elementClick": [
+              {
+                "name": "assessment",
+                "icon": "more_horiz",
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "type": "openDashboardState",
+                "targetDashboardStateId": "info-assessment",
+                "setEntityId": true,
+                "stateEntityParamName": null,
+                "openRightLayout": false,
+                "dialogTitle": "Belimo Retrofit+",
+                "dialogHideDashboardToolbar": true,
+                "dialogWidth": null,
+                "dialogHeight": null,
+                "openInSeparateDialog": true,
+                "openInPopover": false,
+                "id": "1d4e63e6-b09f-736c-90fd-cbaaeaa45d5b"
+              },
+              {
+                "name": "asset-report",
+                "icon": "more_horiz",
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "type": "openDashboardState",
+                "targetDashboardStateId": "info-assetreport",
+                "setEntityId": true,
+                "stateEntityParamName": null,
+                "openRightLayout": false,
+                "dialogTitle": "ECO Energy Asset Report",
+                "dialogHideDashboardToolbar": true,
+                "dialogWidth": null,
+                "dialogHeight": null,
+                "openInSeparateDialog": true,
+                "openInPopover": false,
+                "id": "61096b82-afda-1f0f-6f91-c2be587bad01"
+              },
+              {
+                "name": "measurement",
+                "icon": "more_horiz",
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "type": "openDashboardState",
+                "targetDashboardStateId": "info-measurement",
+                "setEntityId": true,
+                "stateEntityParamName": null,
+                "openRightLayout": false,
+                "dialogTitle": "Smart Measurement",
+                "dialogHideDashboardToolbar": true,
+                "dialogWidth": null,
+                "dialogHeight": null,
+                "openInSeparateDialog": true,
+                "openInPopover": false,
+                "id": "7a6fcd82-18c5-65a6-2fc9-204bd165c9c1"
+              },
+              {
+                "name": "analysis",
+                "icon": "more_horiz",
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "type": "openDashboardState",
+                "targetDashboardStateId": "info-analysis",
+                "setEntityId": true,
+                "stateEntityParamName": null,
+                "openRightLayout": false,
+                "dialogTitle": "Smart Analysis",
+                "dialogHideDashboardToolbar": true,
+                "dialogWidth": null,
+                "dialogHeight": null,
+                "openInSeparateDialog": true,
+                "openInPopover": false,
+                "id": "775e434a-dc0b-8897-11fe-4a2e53919dcd"
+              },
+              {
+                "name": "monitoring",
+                "icon": "more_horiz",
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "type": "openDashboardState",
+                "targetDashboardStateId": "info-monitoring",
+                "setEntityId": true,
+                "stateEntityParamName": null,
+                "openRightLayout": false,
+                "dialogTitle": "Smart Monitoring",
+                "dialogHideDashboardToolbar": true,
+                "dialogWidth": null,
+                "dialogHeight": null,
+                "openInSeparateDialog": true,
+                "openInPopover": false,
+                "id": "b10e2efa-5bb6-cbab-4a0e-5a9f839f829f"
+              }
+            ],
+            "headerButton": [
+              {
+                "name": "ECO Energy",
+                "buttonType": "raised",
+                "showIcon": true,
+                "icon": "language",
+                "buttonColor": "#ffffff",
+                "buttonFillColor": "var(--tb-primary-500)",
+                "customButtonStyle": {},
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "type": "openURL",
+                "openNewBrowserTab": true,
+                "url": "https://www.ecoenergygroup.com/",
+                "openInSeparateDialog": false,
+                "openInPopover": false,
+                "id": "2e77e6e0-f8c6-51a8-00c7-2003b07a5266"
+              },
+              {
+                "name": "Mobile App",
+                "buttonType": "raised",
+                "showIcon": true,
+                "icon": "devices_other",
+                "buttonColor": "#ffffff",
+                "buttonFillColor": "var(--tb-primary-500)",
+                "customButtonStyle": {},
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "type": "openDashboardState",
+                "targetDashboardStateId": "mobile-app",
+                "setEntityId": true,
+                "stateEntityParamName": null,
+                "openRightLayout": false,
+                "popoverPreferredPlacement": "top",
+                "popoverHideOnClickOutside": true,
+                "popoverHideDashboardToolbar": true,
+                "popoverWidth": "25vw",
+                "popoverHeight": "25vh",
+                "popoverStyle": {},
+                "openInSeparateDialog": false,
+                "openInPopover": true,
+                "id": "0a5b3ced-6633-bd4e-91ee-c26b6da8b58f"
+              }
+            ]
+          },
+          "enableDataExport": false,
+          "borderRadius": "8px",
+          "widgetCss": "",
+          "pageSize": 1024,
+          "noDataDisplayMessage": ""
+        },
+        "row": 0,
+        "col": 0,
+        "id": "9094f048-ccc5-b9d7-9dd0-6ef0a20851c9"
+      },
+      "978e4d0b-4d55-a5f6-8cf3-1e9ac9b3b6ce": {
+        "typeFullFqn": "system.mobile_app_qr_code",
+        "type": "static",
+        "sizeX": 7.5,
+        "sizeY": 4,
+        "config": {
+          "showTitle": true,
+          "backgroundColor": "rgb(255, 255, 255)",
+          "color": "rgba(0, 0, 0, 0.87)",
+          "padding": "0px",
+          "settings": {
+            "useSystemSettings": false,
+            "qrCodeConfig": {
+              "badgeEnabled": true,
+              "badgePosition": "RIGHT",
+              "qrCodeLabelEnabled": true,
+              "qrCodeLabel": "Scan to connect or download mobile app"
+            },
+            "background": {
+              "type": "color",
+              "color": "#fff",
+              "overlay": {
+                "enabled": false,
+                "color": "rgba(255,255,255,0.72)",
+                "blur": 3
+              }
+            },
+            "padding": "12px"
+          },
+          "title": "Download mobile app",
+          "dropShadow": false,
+          "showTitleIcon": false,
+          "titleTooltip": "",
+          "enableFullscreen": false,
+          "margin": "0px",
+          "borderRadius": "8px",
+          "widgetStyle": {},
+          "widgetCss": "",
+          "titleStyle": {
+            "fontSize": "16px",
+            "fontWeight": 400
+          },
+          "pageSize": 1024,
+          "noDataDisplayMessage": "",
+          "configMode": "advanced",
+          "titleFont": {
+            "size": 16,
+            "sizeUnit": "px",
+            "family": "Roboto",
+            "weight": "500",
+            "style": "normal",
+            "lineHeight": "1.5"
+          },
+          "titleColor": "#000000",
+          "iconSize": "26px",
+          "titleIcon": "qr_code",
+          "iconColor": "#000000",
+          "actions": {},
+          "enableDataExport": false,
+          "datasources": []
+        },
+        "row": 0,
+        "col": 0,
+        "id": "978e4d0b-4d55-a5f6-8cf3-1e9ac9b3b6ce"
+      },
+      "79029476-4566-98e9-5da8-27caeb565c2c": {
+        "typeFullFqn": "system.cards.html_card",
+        "type": "static",
+        "sizeX": 7.5,
+        "sizeY": 3,
+        "config": {
+          "datasources": [
+            {
+              "type": "static",
+              "name": "function",
+              "dataKeys": [
+                {
+                  "name": "f(x)",
+                  "type": "function",
+                  "label": "Random",
+                  "color": "#2196f3",
+                  "settings": {},
+                  "_hash": 0.15479322438769105,
+                  "funcBody": "var value = prevValue + Math.random() * 100 - 50;\nvar multiplier = Math.pow(10, 2 || 0);\nvar value = Math.round(value * multiplier) / multiplier;\nif (value < -1000) {\n\tvalue = -1000;\n} else if (value > 1000) {\n\tvalue = 1000;\n}\nreturn value;"
+                }
+              ]
+            }
+          ],
+          "timewindow": {
+            "realtime": {
+              "timewindowMs": 60000
+            }
+          },
+          "showTitle": false,
+          "backgroundColor": "rgb(255, 255, 255)",
+          "color": "rgba(0, 0, 0, 0.87)",
+          "padding": "8px",
+          "settings": {
+            "cardHtml": "<div class=\"belimo-ra\" id=\"belimoRaRoot\">\n  <div class=\"belimo-ra__header\">\n    <div class=\"belimo-ra__title\">Belimo Retrofit+ Assessment Report</div>\n    <div class=\"belimo-ra__subtitle\">Kurz erklärt – wozu der Report dient und warum ein Asset Report sinnvoll ist.</div>\n  </div>\n\n  <div class=\"belimo-ra__progress\" aria-label=\"Schrittanzeige\">\n    <button type=\"button\" class=\"belimo-ra__dot is-active\" data-step=\"0\" aria-label=\"Schritt 1\">1</button>\n    <div class=\"belimo-ra__line\" aria-hidden=\"true\"></div>\n    <button type=\"button\" class=\"belimo-ra__dot\" data-step=\"1\" aria-label=\"Schritt 2\">2</button>\n    <div class=\"belimo-ra__line\" aria-hidden=\"true\"></div>\n    <button type=\"button\" class=\"belimo-ra__dot\" data-step=\"2\" aria-label=\"Schritt 3\">3</button>\n    <div class=\"belimo-ra__line\" aria-hidden=\"true\"></div>\n    <button type=\"button\" class=\"belimo-ra__dot\" data-step=\"3\" aria-label=\"Schritt 4\">4</button>\n  </div>\n\n  <div class=\"belimo-ra__steps\">\n    <section class=\"belimo-ra__step is-active\" data-step=\"0\">\n      <h3>Was ist das?</h3>\n      <p>\n        Der <strong>Belimo Retrofit+ Assessment Report</strong> ist ein strukturierter Bericht, der den Zustand und die\n        Retrofit-Eignung von Antrieben/Armaturen bzw. relevanten HLK-Komponenten in einer Anlage bewertet.\n        Ziel ist eine fundierte Entscheidungsgrundlage für Austausch- und Optimierungsmaßnahmen.\n      </p>\n      <ul>\n        <li>Erfassung der vorhandenen Assets (Typen, Einbauort, Funktion, Zustand)</li>\n        <li>Bewertung der Retrofit-Möglichkeiten und Prioritäten</li>\n        <li>Transparente Grundlage für Planung, Budget und Umsetzung</li>\n      </ul>\n    </section>\n\n    <section class=\"belimo-ra__step\" data-step=\"1\">\n      <h3>Was bekommen Sie im Report?</h3>\n      <ul>\n        <li><strong>Asset-Übersicht</strong>: Inventarliste mit eindeutiger Zuordnung (Objekt/Zone/Anlagenteil)</li>\n        <li><strong>Bewertung</strong>: Dringlichkeit, technische Machbarkeit, Risiko-/Ausfallpotenzial</li>\n        <li><strong>Empfehlungen</strong>: sinnvolle Retrofit-Szenarien und mögliche nächste Schritte</li>\n        <li><strong>Nachvollziehbarkeit</strong>: dokumentierte Annahmen und Datenbasis</li>\n      </ul>\n      <p class=\"belimo-ra__hint\">\n        Hinweis: Inhalte und Detailtiefe hängen von der verfügbaren Bestandsdokumentation und der Vor-Ort-Erhebung ab.\n      </p>\n    </section>\n\n    <section class=\"belimo-ra__step\" data-step=\"2\">\n      <h3>Warum ein Asset Report?</h3>\n      <ul>\n        <li><strong>Richtige Investitionsentscheidungen</strong>: Priorisierung statt „alles auf einmal“.</li>\n        <li><strong>Weniger Risiko</strong>: Reduktion ungeplanter Ausfälle durch zustandsbasierte Maßnahmen.</li>\n        <li><strong>Bessere Energie- und Performance-Optimierung</strong>: Basis für Effizienzmaßnahmen und Monitoring.</li>\n        <li><strong>Transparenz für Betrieb &amp; ESG</strong>: belastbare Daten für interne Reports und Audits.</li>\n        <li><strong>Schnellere Umsetzung</strong>: klare Stücklisten/Handlungsfelder vereinfachen Planung und Vergabe.</li>\n      </ul>\n    </section>\n\n    <section class=\"belimo-ra__step\" data-step=\"3\">\n      <h3>So gehen Sie vor</h3>\n      <ol>\n        <li><strong>Bestand aufnehmen</strong>: relevante Assets, Standorte, Fotos/Typenschilder, Dokumente.</li>\n        <li><strong>Assessment durchführen</strong>: Daten prüfen, Lücken schließen, Empfehlungen ableiten.</li>\n        <li><strong>Maßnahmen planen</strong>: Prioritäten, Kosten, Zeitplan, Verantwortlichkeiten.</li>\n        <li><strong>Umsetzen &amp; nachverfolgen</strong>: Retrofit durchführen, Ergebnisse dokumentieren, Monitoring starten.</li>\n      </ol>\n\n      <div class=\"belimo-ra__cta\">\n        <a class=\"belimo-ra__link\" href=\"https://portal.retrofit.belimo.com/login\" target=\"_blank\" rel=\"noopener\">\n          Zum Belimo Retrofit+ Portal\n        </a>\n        <span class=\"belimo-ra__ctaNote\">Öffnet in neuem Tab.</span>\n      </div>\n    </section>\n  </div>\n\n  <div class=\"belimo-ra__nav\">\n    <button type=\"button\" class=\"belimo-ra__btn\" id=\"belimoPrev\" disabled>Zurück</button>\n    <div class=\"belimo-ra__navMeta\" id=\"belimoMeta\">Schritt 1 von 4</div>\n    <button type=\"button\" class=\"belimo-ra__btn belimo-ra__btn--primary\" id=\"belimoNext\">Weiter</button>\n  </div>\n\n  <script>\n    (function () {\n      var root = document.getElementById('belimoRaRoot');\n      if (!root) return;\n\n      var steps = Array.prototype.slice.call(root.querySelectorAll('.belimo-ra__step'));\n      var dots = Array.prototype.slice.call(root.querySelectorAll('.belimo-ra__dot'));\n      var prevBtn = root.querySelector('#belimoPrev');\n      var nextBtn = root.querySelector('#belimoNext');\n      var meta = root.querySelector('#belimoMeta');\n\n      var current = 0;\n\n      function setStep(idx) {\n        if (idx < 0) idx = 0;\n        if (idx > steps.length - 1) idx = steps.length - 1;\n        current = idx;\n\n        steps.forEach(function (s) {\n          s.classList.toggle('is-active', Number(s.getAttribute('data-step')) === current);\n        });\n\n        dots.forEach(function (d) {\n          d.classList.toggle('is-active', Number(d.getAttribute('data-step')) === current);\n          d.setAttribute('aria-current', Number(d.getAttribute('data-step')) === current ? 'step' : 'false');\n        });\n\n        if (meta) meta.textContent = 'Schritt ' + (current + 1) + ' von ' + steps.length;\n\n        if (prevBtn) prevBtn.disabled = current === 0;\n        if (nextBtn) {\n          nextBtn.textContent = (current === steps.length - 1) ? 'Fertig' : 'Weiter';\n        }\n      }\n\n      function go(delta) {\n        if (current === steps.length - 1 && delta > 0) {\n          // \"Fertig\" -> zurück zu Schritt 1\n          setStep(0);\n          return;\n        }\n        setStep(current + delta);\n      }\n\n      if (prevBtn) prevBtn.addEventListener('click', function () { go(-1); });\n      if (nextBtn) nextBtn.addEventListener('click', function () { go(1); });\n\n      dots.forEach(function (d) {\n        d.addEventListener('click', function () {\n          setStep(Number(d.getAttribute('data-step')));\n        });\n      });\n\n      setStep(0);\n    })();\n  </script>\n</div>\n",
+            "cardCss": ".belimo-ra{\n  width:100%;\n  height:100%;\n  box-sizing:border-box;\n  display:flex;\n  flex-direction:column;\n  gap:10px;\n  padding:12px;\n  border:1px solid rgba(0,0,0,0.08);\n  border-radius:12px;\n  background:#fff;\n  overflow:auto;\n  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Arial, sans-serif;\n  color: rgba(0,0,0,0.87);\n}\n\n.belimo-ra__header{ display:flex; flex-direction:column; gap:4px; }\n.belimo-ra__title{ font-size:16px; font-weight:700; line-height:1.2; }\n.belimo-ra__subtitle{ font-size:12px; color:rgba(0,0,0,0.62); line-height:1.3; }\n\n.belimo-ra__progress{\n  display:flex;\n  align-items:center;\n  gap:8px;\n  user-select:none;\n}\n\n.belimo-ra__dot{\n  width:28px; height:28px;\n  border-radius:999px;\n  border:1px solid rgba(0,0,0,0.18);\n  background:#fff;\n  font-size:12px;\n  font-weight:700;\n  cursor:pointer;\n  display:flex;\n  align-items:center;\n  justify-content:center;\n}\n\n.belimo-ra__dot.is-active{\n  border-color: rgba(33,150,243,0.9);\n  box-shadow: 0 0 0 3px rgba(33,150,243,0.15);\n}\n\n.belimo-ra__line{\n  height:2px;\n  flex:1;\n  background: rgba(0,0,0,0.10);\n  border-radius:999px;\n}\n\n.belimo-ra__steps{\n  flex:1;\n  min-height:0;\n}\n\n.belimo-ra__step{\n  display:none;\n}\n\n.belimo-ra__step.is-active{\n  display:block;\n}\n\n.belimo-ra__step h3{\n  margin:0 0 6px 0;\n  font-size:14px;\n  font-weight:700;\n}\n\n.belimo-ra__step p{\n  margin:0 0 8px 0;\n  font-size:12px;\n  line-height:1.45;\n}\n\n.belimo-ra__step ul, .belimo-ra__step ol{\n  margin:0;\n  padding-left:18px;\n  font-size:12px;\n  line-height:1.45;\n}\n\n.belimo-ra__hint{\n  margin-top:8px !important;\n  color: rgba(0,0,0,0.62);\n  font-size:11.5px;\n}\n\n.belimo-ra__cta{\n  margin-top:10px;\n  display:flex;\n  align-items:center;\n  gap:10px;\n  flex-wrap:wrap;\n  padding:10px;\n  border:1px solid rgba(0,0,0,0.08);\n  border-radius:10px;\n  background: rgba(0,0,0,0.02);\n}\n\n.belimo-ra__link{\n  display:inline-flex;\n  align-items:center;\n  justify-content:center;\n  padding:8px 10px;\n  border-radius:10px;\n  border:1px solid rgba(33,150,243,0.35);\n  text-decoration:none;\n  font-size:12px;\n  font-weight:700;\n  color: rgba(33,150,243,1);\n}\n\n.belimo-ra__link:hover{ background: rgba(33,150,243,0.06); }\n\n.belimo-ra__ctaNote{ font-size:11.5px; color:rgba(0,0,0,0.62); }\n\n.belimo-ra__nav{\n  display:flex;\n  align-items:center;\n  justify-content:space-between;\n  gap:10px;\n}\n\n.belimo-ra__navMeta{\n  font-size:12px;\n  color:rgba(0,0,0,0.62);\n  text-align:center;\n  flex:1;\n}\n\n.belimo-ra__btn{\n  padding:8px 10px;\n  border-radius:10px;\n  border:1px solid rgba(0,0,0,0.18);\n  background:#fff;\n  cursor:pointer;\n  font-size:12px;\n  font-weight:700;\n}\n\n.belimo-ra__btn:disabled{\n  opacity:0.45;\n  cursor:not-allowed;\n}\n\n.belimo-ra__btn--primary{\n  border-color: rgba(33,150,243,0.55);\n}\n"
+          },
+          "title": "HTML Card",
+          "dropShadow": false,
+          "enableFullscreen": false,
+          "enableDataExport": true,
+          "borderRadius": "8px",
+          "widgetStyle": {},
+          "widgetCss": "",
+          "pageSize": 1024,
+          "noDataDisplayMessage": ""
+        },
+        "row": 0,
+        "col": 0,
+        "id": "79029476-4566-98e9-5da8-27caeb565c2c"
+      },
+      "bdbf787e-094a-92e0-6df5-4b3969affe5f": {
+        "typeFullFqn": "system.cards.html_card",
+        "type": "static",
+        "sizeX": 7.5,
+        "sizeY": 3,
+        "config": {
+          "datasources": [
+            {
+              "type": "static",
+              "name": "function",
+              "dataKeys": [
+                {
+                  "name": "f(x)",
+                  "type": "function",
+                  "label": "Random",
+                  "color": "#2196f3",
+                  "settings": {},
+                  "_hash": 0.15479322438769105,
+                  "funcBody": "var value = prevValue + Math.random() * 100 - 50;\nvar multiplier = Math.pow(10, 2 || 0);\nvar value = Math.round(value * multiplier) / multiplier;\nif (value < -1000) {\n\tvalue = -1000;\n} else if (value > 1000) {\n\tvalue = 1000;\n}\nreturn value;"
+                }
+              ]
+            }
+          ],
+          "timewindow": {
+            "realtime": {
+              "timewindowMs": 60000
+            }
+          },
+          "showTitle": false,
+          "backgroundColor": "rgb(255, 255, 255)",
+          "color": "rgba(0, 0, 0, 0.87)",
+          "padding": "8px",
+          "settings": {
+            "cardHtml": "<div class=\"eco-ar\" id=\"ecoArRoot\">\n  <div class=\"eco-ar__header\">\n    <div class=\"eco-ar__title\">ECO Anlagenbericht</div>\n    <div class=\"eco-ar__subtitle\">Schematische Erhebung der Technikanlage, Messpunkte festlegen und Messkonzept sauber dokumentieren.</div>\n  </div>\n\n  <div class=\"eco-ar__progress\" aria-label=\"Schrittanzeige\">\n    <button type=\"button\" class=\"eco-ar__dot is-active\" data-step=\"0\" aria-label=\"Schritt 1\">1</button>\n    <div class=\"eco-ar__line\" aria-hidden=\"true\"></div>\n    <button type=\"button\" class=\"eco-ar__dot\" data-step=\"1\" aria-label=\"Schritt 2\">2</button>\n    <div class=\"eco-ar__line\" aria-hidden=\"true\"></div>\n    <button type=\"button\" class=\"eco-ar__dot\" data-step=\"2\" aria-label=\"Schritt 3\">3</button>\n    <div class=\"eco-ar__line\" aria-hidden=\"true\"></div>\n    <button type=\"button\" class=\"eco-ar__dot\" data-step=\"3\" aria-label=\"Schritt 4\">4</button>\n  </div>\n\n  <div class=\"eco-ar__steps\">\n    <section class=\"eco-ar__step is-active\" data-step=\"0\">\n      <h3>Was ist der Anlagenbericht?</h3>\n      <p>\n        Der <strong>ECO Anlagenbericht</strong> ist ein Tool zur <strong>schematischen Erhebung</strong> Ihrer Technikanlage.\n        Sie erfassen Erzeuger und Verbraucher, strukturieren Energieflüsse und legen die Grundlage für eine saubere\n        Dokumentation und spätere Auswertungen.\n      </p>\n      <ul>\n        <li><strong>Schema erstellen</strong>: Anlagenstruktur übersichtlich abbilden</li>\n        <li><strong>Messpunkte definieren</strong>: relevante Stellen für die Datenerfassung festlegen</li>\n        <li><strong>Messkonzept aufbereiten</strong>: klare Grundlage für Umsetzung und Betrieb</li>\n      </ul>\n    </section>\n\n    <section class=\"eco-ar__step\" data-step=\"1\">\n      <h3>Was wird erfasst?</h3>\n      <p>\n        Im Anlagenbericht werden neben Erzeugern und Verbrauchern auch wichtige technische Parameter strukturiert aufgenommen,\n        damit das spätere Monitoring belastbar wird.\n      </p>\n      <ul>\n        <li><strong>Erzeuger &amp; Verbraucher</strong>: z.&nbsp;B. Wärmeerzeugung, Kälte, Strom, Speicher, relevante Abgänge</li>\n        <li><strong>Hydraulik-Details</strong>: Rohrdimensionen sowie weitere technische Daten</li>\n        <li><strong>Systemgrenzen</strong>: klare Zuordnung von Teilanlagen, Zonen und Übergabepunkten</li>\n      </ul>\n      <p class=\"eco-ar__hint\">\n        Ziel ist ein konsistentes Anlagenbild, das von Planung bis Betrieb „durchgängig“ genutzt werden kann.\n      </p>\n    </section>\n\n    <section class=\"eco-ar__step\" data-step=\"2\">\n      <h3>Warum Messpunkte &amp; Messkonzept?</h3>\n      <p>\n        Ein sauberes Messkonzept stellt sicher, dass die richtigen Größen an den richtigen Stellen erfasst werden – ohne unnötige\n        Sensorik oder blinde Flecken.\n      </p>\n      <ul>\n        <li><strong>Rohdaten an der Quelle</strong>: ideale Messpunkte für die Rohdatenmessung identifizieren (Diagnostics Hardware)</li>\n        <li><strong>Vergleichbarkeit</strong>: einheitliche Datenbasis für Benchmarks, Optimierung und Reporting</li>\n        <li><strong>Schnellere Umsetzung</strong>: klare Vorgaben für Installation, Inbetriebnahme und Datenanbindung</li>\n        <li><strong>Weniger Risiko</strong>: Fehlmessungen und Nachrüstungen vermeiden</li>\n      </ul>\n    </section>\n\n    <section class=\"eco-ar__step\" data-step=\"3\">\n      <h3>Ergebnis &amp; nächste Schritte</h3>\n      <ol>\n        <li><strong>Schema finalisieren</strong>: die gesamte Anlage wird als Schema ausgegeben und beschrieben.</li>\n        <li><strong>Messpunkte übernehmen</strong>: Messstellen als Grundlage für weitere Messungen und Überlegungen nutzen.</li>\n        <li><strong>Umsetzung starten</strong>: Sensorik/Diagnostics Hardware installieren und Daten in die Plattform integrieren.</li>\n        <li><strong>Monitoring &amp; Optimierung</strong>: Datenqualität prüfen, KPIs ableiten und Maßnahmen umsetzen.</li>\n      </ol>\n\n      <div class=\"eco-ar__cta\">\n        <a class=\"eco-ar__link\" href=\"https://asset.ecoenergygroup.com/\" target=\"_blank\" rel=\"noopener\">\n          Zum ECO Anlagenbericht\n        </a>\n        <span class=\"eco-ar__ctaNote\">Öffnet in neuem Tab.</span>\n      </div>\n    </section>\n  </div>\n\n  <div class=\"eco-ar__nav\">\n    <button type=\"button\" class=\"eco-ar__btn eco-ar__btn--ghost\" id=\"ecoArPrev\">Zurück</button>\n    <div class=\"eco-ar__navMeta\" id=\"ecoArMeta\">Schritt 1 von 4</div>\n    <button type=\"button\" class=\"eco-ar__btn eco-ar__btn--primary\" id=\"ecoArNext\">Weiter</button>\n  </div>\n\n  <script>\n    (function () {\n      var root = document.getElementById('ecoArRoot');\n      if (!root) return;\n\n      var steps = Array.prototype.slice.call(root.querySelectorAll('.eco-ar__step'));\n      var dots = Array.prototype.slice.call(root.querySelectorAll('.eco-ar__dot'));\n      var prevBtn = root.querySelector('#ecoArPrev');\n      var nextBtn = root.querySelector('#ecoArNext');\n      var meta = root.querySelector('#ecoArMeta');\n\n      var current = 0;\n\n      function setStep(idx) {\n        if (idx < 0) idx = 0;\n        if (idx > steps.length - 1) idx = steps.length - 1;\n        current = idx;\n\n        steps.forEach(function (s) {\n          s.classList.toggle('is-active', Number(s.getAttribute('data-step')) === current);\n        });\n\n        dots.forEach(function (d) {\n          d.classList.toggle('is-active', Number(d.getAttribute('data-step')) === current);\n          d.setAttribute('aria-current', Number(d.getAttribute('data-step')) === current ? 'step' : 'false');\n        });\n\n        if (meta) meta.textContent = 'Schritt ' + (current + 1) + ' von ' + steps.length;\n\n        if (prevBtn) prevBtn.disabled = current === 0;\n        if (nextBtn) nextBtn.textContent = (current === steps.length - 1) ? 'Fertig' : 'Weiter';\n      }\n\n      function go(delta) {\n        if (current === steps.length - 1 && delta > 0) {\n          setStep(0);\n          return;\n        }\n        setStep(current + delta);\n      }\n\n      if (prevBtn) prevBtn.addEventListener('click', function () { go(-1); });\n      if (nextBtn) nextBtn.addEventListener('click', function () { go(1); });\n\n      dots.forEach(function (d) {\n        d.addEventListener('click', function () {\n          setStep(Number(d.getAttribute('data-step')));\n        });\n      });\n\n      setStep(0);\n    })();\n  </script>\n</div>\n",
+            "cardCss": ".eco-ar{\n  width:100%;\n  height:100%;\n  box-sizing:border-box;\n  display:flex;\n  flex-direction:column;\n  gap:10px;\n  padding:12px;\n  border:1px solid rgba(0,0,0,0.08);\n  border-radius:12px;\n  background:#fff;\n  overflow:auto;\n  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Arial, sans-serif;\n  color: rgba(0,0,0,0.87);\n}\n\n.eco-ar__header{ display:flex; flex-direction:column; gap:4px; }\n.eco-ar__title{ font-size:16px; font-weight:700; line-height:1.2; }\n.eco-ar__subtitle{ font-size:12px; color:rgba(0,0,0,0.62); line-height:1.3; }\n\n.eco-ar__progress{\n  display:flex;\n  align-items:center;\n  gap:8px;\n  user-select:none;\n}\n\n.eco-ar__dot{\n  width:28px; height:28px;\n  border-radius:999px;\n  border:1px solid rgba(0,0,0,0.18);\n  background:#fff;\n  font-size:12px;\n  font-weight:700;\n  cursor:pointer;\n  display:flex;\n  align-items:center;\n  justify-content:center;\n}\n\n.eco-ar__dot.is-active{\n  border-color: rgba(33,150,243,0.9);\n  box-shadow: 0 0 0 3px rgba(33,150,243,0.15);\n}\n\n.eco-ar__line{\n  height:2px;\n  flex:1;\n  background: rgba(0,0,0,0.10);\n  border-radius:999px;\n}\n\n.eco-ar__steps{\n  flex:1;\n  min-height:0;\n}\n\n.eco-ar__step{\n  display:none;\n}\n\n.eco-ar__step.is-active{\n  display:block;\n}\n\n.eco-ar__step h3{\n  margin:0 0 6px 0;\n  font-size:14px;\n  font-weight:700;\n}\n\n.eco-ar__step p{\n  margin:0 0 8px 0;\n  font-size:12px;\n  line-height:1.45;\n}\n\n.eco-ar__step ul, .eco-ar__step ol{\n  margin:0;\n  padding-left:18px;\n  font-size:12px;\n  line-height:1.45;\n}\n\n.eco-ar__hint{\n  margin-top:8px !important;\n  color: rgba(0,0,0,0.62);\n  font-size:11.5px;\n}\n\n.eco-ar__cta{\n  margin-top:10px;\n  display:flex;\n  align-items:center;\n  gap:10px;\n  flex-wrap:wrap;\n  padding:10px;\n  border:1px solid rgba(0,0,0,0.08);\n  border-radius:10px;\n  background: rgba(0,0,0,0.02);\n}\n\n.eco-ar__link{\n  display:inline-flex;\n  align-items:center;\n  justify-content:center;\n  padding:8px 10px;\n  border-radius:10px;\n  border:1px solid rgba(33,150,243,0.35);\n  text-decoration:none;\n  font-size:12px;\n  font-weight:700;\n  color: rgba(33,150,243,1);\n}\n\n.eco-ar__link:hover{ background: rgba(33,150,243,0.06); }\n\n.eco-ar__ctaNote{ font-size:11.5px; color:rgba(0,0,0,0.62); }\n\n.eco-ar__nav{\n  display:flex;\n  align-items:center;\n  justify-content:space-between;\n  gap:10px;\n}\n\n.eco-ar__navMeta{\n  font-size:12px;\n  color:rgba(0,0,0,0.62);\n  text-align:center;\n  flex:1;\n}\n\n.eco-ar__btn{\n  padding:8px 10px;\n  border-radius:10px;\n  border:1px solid rgba(0,0,0,0.18);\n  background:#fff;\n  cursor:pointer;\n  font-size:12px;\n  font-weight:700;\n}\n\n.eco-ar__btn:disabled{\n  opacity:0.45;\n  cursor:not-allowed;\n}\n\n.eco-ar__btn--primary{\n  border-color: rgba(33,150,243,0.55);\n}\n"
+          },
+          "title": "HTML Card",
+          "dropShadow": false,
+          "enableFullscreen": false,
+          "enableDataExport": true,
+          "borderRadius": "8px",
+          "widgetStyle": {},
+          "widgetCss": "",
+          "pageSize": 1024,
+          "noDataDisplayMessage": ""
+        },
+        "row": 0,
+        "col": 0,
+        "id": "bdbf787e-094a-92e0-6df5-4b3969affe5f"
+      },
+      "8840f0a9-1d9a-9649-79cd-0310c0cc567a": {
+        "typeFullFqn": "system.cards.html_card",
+        "type": "static",
+        "sizeX": 7.5,
+        "sizeY": 3,
+        "config": {
+          "datasources": [
+            {
+              "type": "static",
+              "name": "function",
+              "dataKeys": [
+                {
+                  "name": "f(x)",
+                  "type": "function",
+                  "label": "Random",
+                  "color": "#2196f3",
+                  "settings": {},
+                  "_hash": 0.15479322438769105,
+                  "funcBody": "var value = prevValue + Math.random() * 100 - 50;\nvar multiplier = Math.pow(10, 2 || 0);\nvar value = Math.round(value * multiplier) / multiplier;\nif (value < -1000) {\n\tvalue = -1000;\n} else if (value > 1000) {\n\tvalue = 1000;\n}\nreturn value;"
+                }
+              ]
+            }
+          ],
+          "timewindow": {
+            "realtime": {
+              "timewindowMs": 60000
+            }
+          },
+          "showTitle": false,
+          "backgroundColor": "rgb(255, 255, 255)",
+          "color": "rgba(0, 0, 0, 0.87)",
+          "padding": "8px",
+          "settings": {
+            "cardHtml": "<div class=\"eco-ar\" id=\"ecoMeasRoot\">\n  <div class=\"eco-ar__header\">\n    <div class=\"eco-ar__title\">ECO Messung &amp; Inbetriebnahme</div>\n    <div class=\"eco-ar__subtitle\">Hardware-Kits vorbereiten, Geräte zuordnen und Messung sauber starten – als Grundlage für die spätere Analyse.</div>\n  </div>\n\n  <div class=\"eco-ar__progress\" aria-label=\"Schrittanzeige\">\n    <button type=\"button\" class=\"eco-ar__dot is-active\" data-step=\"0\" aria-label=\"Schritt 1\">1</button>\n    <div class=\"eco-ar__line\" aria-hidden=\"true\"></div>\n    <button type=\"button\" class=\"eco-ar__dot\" data-step=\"1\" aria-label=\"Schritt 2\">2</button>\n    <div class=\"eco-ar__line\" aria-hidden=\"true\"></div>\n    <button type=\"button\" class=\"eco-ar__dot\" data-step=\"2\" aria-label=\"Schritt 3\">3</button>\n    <div class=\"eco-ar__line\" aria-hidden=\"true\"></div>\n    <button type=\"button\" class=\"eco-ar__dot\" data-step=\"3\" aria-label=\"Schritt 4\">4</button>\n    <div class=\"eco-ar__line\" aria-hidden=\"true\"></div>\n    <button type=\"button\" class=\"eco-ar__dot\" data-step=\"4\" aria-label=\"Schritt 5\">5</button>\n  </div>\n\n  <div class=\"eco-ar__steps\">\n    <section class=\"eco-ar__step is-active\" data-step=\"0\">\n      <h3>Worum geht es in diesem Schritt?</h3>\n      <p>\n        Nach Assessment &amp; Anlagenbericht folgt die <strong>Messung auf der Anlage</strong>.\n        Ziel ist eine <strong>saubere Inbetriebnahme</strong> der Diagnostics Hardware, damit Rohdaten konsistent erfasst und später zuverlässig analysiert werden können.\n      </p>\n\n      <ul>\n        <li><strong>Base Kit</strong> ist die Grundlage für Messung &amp; Datenübertragung.</li>\n        <li><strong>Extension Kits</strong> erweitern den Messumfang parallel.</li>\n        <li><strong>Room Kit</strong> ergänzt Referenzpunkte (z.&nbsp;B. CO₂/Temperatur/Feuchte).</li>\n      </ul>\n\n      <p class=\"eco-ar__hint\">\n        In der Diagnostics Plattform werden Geräte und Messungen verwaltet; Messwerte werden als Rohdaten in kurzen Intervallen gesammelt.\n      </p>\n\n      <div class=\"eco-ar__cta\">\n        <a class=\"eco-ar__link\" href=\"https://www.ecoenergygroup.com/analyse\" target=\"_blank\" rel=\"noopener\">\n          ECO Analyse – Übersicht\n        </a>\n        <span class=\"eco-ar__ctaNote\">Öffnet in neuem Tab.</span>\n      </div>\n    </section>\n\n    <section class=\"eco-ar__step\" data-step=\"1\">\n      <h3>Base Kit (Pflicht)</h3>\n      <p>\n        Der <strong>Base Kit</strong> ist die Basis für <strong>Messungen</strong> und <strong>Übertragungen</strong>.\n      </p>\n\n      <div class=\"eco-ar__grid\">\n        <div class=\"eco-ar__card\">\n          <div class=\"eco-ar__cardTitle\">Enthalten</div>\n          <ul>\n            <li>Controller</li>\n            <li>IoT Gateway + LTE SIM-Karte + externe Antenne</li>\n            <li>Ultraschallmessgerät inkl. Temperatur- und Volumenstromsensoren (Anlege- und Hufeisenmagnetfühler)</li>\n            <li>Internationales Stecker-Netzteil inkl. Kabel/Stecker</li>\n            <li>Stapelbarer Transportkoffer</li>\n          </ul>\n        </div>\n\n        <div class=\"eco-ar__card\">\n          <div class=\"eco-ar__cardTitle\">Skalierung</div>\n          <p class=\"eco-ar__small\">\n            Das Base Kit kann mit <strong>bis zu 3 Extension Kits</strong> kombiniert werden, um zusätzliche Messungen zeitgleich vorzunehmen.\n          </p>\n        </div>\n      </div>\n\n      <p class=\"eco-ar__hint\">\n        Praxistipp: Vor Ort zuerst Stromversorgung, Empfang (LTE/Netz) und Sensor-Montage prüfen – danach erst die Messung starten.\n      </p>\n    </section>\n\n    <section class=\"eco-ar__step\" data-step=\"2\">\n      <h3>Extension Kit (optional, bis zu 3×)</h3>\n      <p>\n        Mit dem <strong>Extension Kit</strong> erweitern Sie den Base Kit um <strong>weitere Ultraschallmessgeräte</strong>, um mehrere Kreise/Stränge parallel zu messen.\n      </p>\n\n      <div class=\"eco-ar__grid\">\n        <div class=\"eco-ar__card\">\n          <div class=\"eco-ar__cardTitle\">Enthalten</div>\n          <ul>\n            <li>Ultraschallmessgerät</li>\n            <li>Temperatur- und Volumenstromsensoren (Anlege- und Hufeisenmagnetfühler)</li>\n            <li>Internationales Stecker-Netzteil inkl. Kabel/Stecker</li>\n            <li>Stapelbarer Transportkoffer</li>\n          </ul>\n        </div>\n        <div class=\"eco-ar__card\">\n          <div class=\"eco-ar__cardTitle\">Wann sinnvoll?</div>\n          <ul>\n            <li>Mehrere Erzeuger-/Verbraucherstränge gleichzeitig</li>\n            <li>Vergleichsmessungen (z.&nbsp;B. Vor-/Rücklauf unterschiedlicher Abgänge)</li>\n            <li>Reduzierte Vor-Ort-Zeit durch Parallelisierung</li>\n          </ul>\n        </div>\n      </div>\n    </section>\n\n    <section class=\"eco-ar__step\" data-step=\"3\">\n      <h3>Room Kit (optional, Referenzpunkte)</h3>\n      <p>\n        Das <strong>Room Kit</strong> ergänzt Messungen um <strong>Referenzpunkte</strong> (Raumklima) – ideal, um Anlagenverhalten mit Nutzer-/Raumbedingungen zu korrelieren.\n      </p>\n\n      <div class=\"eco-ar__grid\">\n        <div class=\"eco-ar__card\">\n          <div class=\"eco-ar__cardTitle\">Enthalten</div>\n          <ul>\n            <li>Gateway mit Netzwerkanschluss und LTE SIM-Karten-Einschub</li>\n            <li>1× Kombi-Raumfühler (CO₂ / Temperatur / relative Feuchtigkeit)</li>\n            <li>USB-Netzteil</li>\n            <li>AA Lithium-Ionen Batteriepack</li>\n            <li>Stapelbarer Transportkoffer</li>\n          </ul>\n        </div>\n\n        <div class=\"eco-ar__card\">\n          <div class=\"eco-ar__cardTitle\">Erweiterung</div>\n          <p class=\"eco-ar__small\">\n            Durch Diagnostics Zubehör kann der <strong>LoRaWAN Kit</strong> auf bis zu <strong>6 Kombi-Raumfühler</strong> erweitert werden.\n          </p>\n        </div>\n      </div>\n    </section>\n\n    <section class=\"eco-ar__step\" data-step=\"4\">\n      <h3>Inbetriebnahme mit Mobile App (Ablauf)</h3>\n      <ol class=\"eco-ar__ol\">\n        <li><strong>Messplan laden:</strong> Messungen werden aus dem zuvor erstellten <strong>Anlagenbericht</strong> übernommen (Messpunkte &amp; Messkonzept).</li>\n        <li><strong>Hardware vorbereiten:</strong> Base Kit einschalten, Gateway verbinden (LTE/Netz), Sensoren montieren und Kabel sauber führen.</li>\n        <li><strong>Geräte zuweisen:</strong> Die Mobile App unterstützt den Techniker – per <strong>QR-Code Scan</strong> werden Geräte den richtigen Messungen zugeordnet.</li>\n        <li><strong>Messung starten:</strong> Plausibilitätscheck (Temperaturen/Volumenstrom), dann Messung aktivieren und Datenfluss prüfen.</li>\n        <li><strong>Kontext sichern:</strong> Anlageninfos aus <strong>Assessment</strong> und <strong>Anlagenbericht</strong> werden zur Messung hinterlegt und bilden zusammen mit den Daten die Grundlage für die spätere Analyse.</li>\n      </ol>\n\n      <div class=\"eco-ar__cta\">\n        <a class=\"eco-ar__link\" href=\"https://asset.ecoenergygroup.com/\" target=\"_blank\" rel=\"noopener\">\n          Zum ECO Asset Portal\n        </a>\n        <span class=\"eco-ar__ctaNote\">Öffnet in neuem Tab.</span>\n      </div>\n    </section>\n  </div>\n\n  <div class=\"eco-ar__nav\">\n    <button type=\"button\" class=\"eco-ar__btn eco-ar__btn--ghost\" id=\"ecoMeasPrev\">Zurück</button>\n    <div class=\"eco-ar__navMeta\" id=\"ecoMeasMeta\">Schritt 1 von 5</div>\n    <button type=\"button\" class=\"eco-ar__btn eco-ar__btn--primary\" id=\"ecoMeasNext\">Weiter</button>\n  </div>\n\n  <script>\n    (function () {\n      var root = document.getElementById('ecoMeasRoot');\n      if (!root) return;\n\n      var steps = Array.prototype.slice.call(root.querySelectorAll('.eco-ar__step'));\n      var dots = Array.prototype.slice.call(root.querySelectorAll('.eco-ar__dot'));\n      var prevBtn = root.querySelector('#ecoMeasPrev');\n      var nextBtn = root.querySelector('#ecoMeasNext');\n      var meta = root.querySelector('#ecoMeasMeta');\n\n      var current = 0;\n\n      function setStep(idx) {\n        if (idx < 0) idx = 0;\n        if (idx > steps.length - 1) idx = steps.length - 1;\n\n        current = idx;\n\n        steps.forEach(function (s) {\n          s.classList.toggle('is-active', Number(s.getAttribute('data-step')) === current);\n        });\n\n        dots.forEach(function (d) {\n          d.classList.toggle('is-active', Number(d.getAttribute('data-step')) === current);\n          d.setAttribute('aria-current', Number(d.getAttribute('data-step')) === current ? 'step' : 'false');\n        });\n\n        if (meta) meta.textContent = 'Schritt ' + (current + 1) + ' von ' + steps.length;\n\n        if (prevBtn) prevBtn.disabled = current === 0;\n        if (nextBtn) nextBtn.textContent = (current === steps.length - 1) ? 'Fertig' : 'Weiter';\n      }\n\n      function go(delta) {\n        setStep(current + delta);\n      }\n\n      if (prevBtn) prevBtn.addEventListener('click', function () { go(-1); });\n      if (nextBtn) nextBtn.addEventListener('click', function () { go(1); });\n\n      dots.forEach(function (d) {\n        d.addEventListener('click', function () {\n          setStep(Number(d.getAttribute('data-step')));\n        });\n      });\n\n      setStep(0);\n    })();\n  </script>\n</div>\n",
+            "cardCss": ".eco-ar{\n  width:100%;\n  height:100%;\n  box-sizing:border-box;\n  display:flex;\n  flex-direction:column;\n  gap:10px;\n  padding:12px;\n  border:1px solid rgba(0,0,0,0.08);\n  border-radius:12px;\n  background:#fff;\n  overflow:auto;\n  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Arial, sans-serif;\n  color: rgba(0,0,0,0.87);\n}\n\n.eco-ar__header{ display:flex; flex-direction:column; gap:4px; }\n.eco-ar__title{ font-size:16px; font-weight:700; line-height:1.2; }\n.eco-ar__subtitle{ font-size:12px; color:rgba(0,0,0,0.62); line-height:1.3; }\n\n.eco-ar__progress{\n  display:flex;\n  align-items:center;\n  gap:8px;\n  user-select:none;\n}\n\n.eco-ar__dot{\n  width:28px; height:28px;\n  border-radius:999px;\n  border:1px solid rgba(0,0,0,0.18);\n  background:#fff;\n  font-size:12px;\n  font-weight:700;\n  cursor:pointer;\n  display:flex;\n  align-items:center;\n  justify-content:center;\n}\n\n.eco-ar__dot.is-active{\n  border-color: rgba(33,150,243,0.9);\n  box-shadow: 0 0 0 3px rgba(33,150,243,0.15);\n}\n\n.eco-ar__line{\n  height:2px;\n  flex:1;\n  background: rgba(0,0,0,0.10);\n  border-radius:999px;\n}\n\n.eco-ar__steps{\n  flex:1;\n  min-height:0;\n}\n\n.eco-ar__step{\n  display:none;\n}\n\n.eco-ar__step.is-active{\n  display:block;\n}\n\n.eco-ar__step h3{\n  margin:0 0 6px 0;\n  font-size:14px;\n  font-weight:700;\n}\n\n.eco-ar__step p{\n  margin:0 0 8px 0;\n  font-size:12px;\n  line-height:1.45;\n}\n\n.eco-ar__step ul, .eco-ar__step ol{\n  margin:0;\n  padding-left:18px;\n  font-size:12px;\n  line-height:1.45;\n}\n\n.eco-ar__hint{\n  margin-top:8px !important;\n  color: rgba(0,0,0,0.62);\n  font-size:11.5px;\n}\n\n.eco-ar__cta{\n  margin-top:10px;\n  display:flex;\n  align-items:center;\n  gap:10px;\n  flex-wrap:wrap;\n  padding:10px;\n  border:1px solid rgba(0,0,0,0.08);\n  border-radius:10px;\n  background: rgba(0,0,0,0.02);\n}\n\n.eco-ar__link{\n  display:inline-flex;\n  align-items:center;\n  justify-content:center;\n  padding:8px 10px;\n  border-radius:10px;\n  border:1px solid rgba(33,150,243,0.35);\n  text-decoration:none;\n  font-size:12px;\n  font-weight:700;\n  color: rgba(33,150,243,1);\n}\n\n.eco-ar__link:hover{ background: rgba(33,150,243,0.06); }\n\n.eco-ar__ctaNote{ font-size:11.5px; color:rgba(0,0,0,0.62); }\n\n.eco-ar__nav{\n  display:flex;\n  align-items:center;\n  justify-content:space-between;\n  gap:10px;\n}\n\n.eco-ar__navMeta{\n  font-size:12px;\n  color:rgba(0,0,0,0.62);\n  text-align:center;\n  flex:1;\n}\n\n.eco-ar__btn{\n  padding:8px 10px;\n  border-radius:10px;\n  border:1px solid rgba(0,0,0,0.18);\n  background:#fff;\n  cursor:pointer;\n  font-size:12px;\n  font-weight:700;\n}\n\n.eco-ar__btn:disabled{\n  opacity:0.45;\n  cursor:not-allowed;\n}\n\n.eco-ar__btn--primary{\n  border-color: rgba(33,150,243,0.55);\n}\n"
+          },
+          "title": "HTML Card",
+          "dropShadow": false,
+          "enableFullscreen": false,
+          "enableDataExport": true,
+          "borderRadius": "8px",
+          "widgetStyle": {},
+          "widgetCss": "",
+          "pageSize": 1024,
+          "noDataDisplayMessage": ""
+        },
+        "row": 0,
+        "col": 0,
+        "id": "8840f0a9-1d9a-9649-79cd-0310c0cc567a"
+      },
+      "7d36dd75-f618-00e4-4ad7-e05a332e4404": {
+        "typeFullFqn": "system.cards.html_card",
+        "type": "static",
+        "sizeX": 7.5,
+        "sizeY": 3,
+        "config": {
+          "datasources": [
+            {
+              "type": "static",
+              "name": "function",
+              "dataKeys": [
+                {
+                  "name": "f(x)",
+                  "type": "function",
+                  "label": "Random",
+                  "color": "#2196f3",
+                  "settings": {},
+                  "_hash": 0.15479322438769105,
+                  "funcBody": "var value = prevValue + Math.random() * 100 - 50;\nvar multiplier = Math.pow(10, 2 || 0);\nvar value = Math.round(value * multiplier) / multiplier;\nif (value < -1000) {\n\tvalue = -1000;\n} else if (value > 1000) {\n\tvalue = 1000;\n}\nreturn value;"
+                }
+              ]
+            }
+          ],
+          "timewindow": {
+            "realtime": {
+              "timewindowMs": 60000
+            }
+          },
+          "showTitle": false,
+          "backgroundColor": "rgb(255, 255, 255)",
+          "color": "rgba(0, 0, 0, 0.87)",
+          "padding": "8px",
+          "settings": {
+            "cardHtml": "<div class=\"eco-ar\" id=\"ecoAnaRoot\">\n  <div class=\"eco-ar__header\">\n    <div class=\"eco-ar__title\">ECO Analyse &amp; Energiebericht</div>\n    <div class=\"eco-ar__subtitle\">Nach Abschluss der Messung werden Rohdaten ausgewertet, interpretiert und zu einem strukturierten Energiebericht mit konkreten Einsparpotenzialen verdichtet.</div>\n  </div>\n\n  <div class=\"eco-ar__progress\" aria-label=\"Schrittanzeige\">\n    <button type=\"button\" class=\"eco-ar__dot is-active\" data-step=\"0\" aria-label=\"Schritt 1\">1</button>\n    <div class=\"eco-ar__line\" aria-hidden=\"true\"></div>\n    <button type=\"button\" class=\"eco-ar__dot\" data-step=\"1\" aria-label=\"Schritt 2\">2</button>\n    <div class=\"eco-ar__line\" aria-hidden=\"true\"></div>\n    <button type=\"button\" class=\"eco-ar__dot\" data-step=\"2\" aria-label=\"Schritt 3\">3</button>\n    <div class=\"eco-ar__line\" aria-hidden=\"true\"></div>\n    <button type=\"button\" class=\"eco-ar__dot\" data-step=\"3\" aria-label=\"Schritt 4\">4</button>\n  </div>\n\n  <div class=\"eco-ar__steps\">\n    <section class=\"eco-ar__step is-active\" data-step=\"0\">\n      <h3>Worum geht es in diesem Schritt?</h3>\n      <p>\n        Nach der Inbetriebnahme und Messung auf der Anlage werden die Messwerte zentral gesammelt und\n        für die Analyse vorbereitet. Ziel ist eine belastbare Grundlage, um den Anlagenbetrieb transparent zu machen\n        und Optimierungsmaßnahmen fundiert abzuleiten.\n      </p>\n\n      <ul>\n        <li><strong>Rohdaten</strong> aus der Messung bilden die Basis.</li>\n        <li><strong>Anlagenkontext</strong> (Assessment &amp; Anlagenbericht) unterstützt die korrekte Interpretation.</li>\n        <li>Ergebnis ist ein <strong>Energiebericht</strong> als Entscheidungsgrundlage für Maßnahmen.</li>\n      </ul>\n\n      <p class=\"eco-ar__hint\">\n        Tipp: Messpunkte, Zeiträume und Anlagenkonfiguration konsistent halten – das beschleunigt Auswertung und Reporting.\n      </p>\n    </section>\n\n    <section class=\"eco-ar__step\" data-step=\"1\">\n      <h3>Datenaufbereitung &amp; Qualität</h3>\n      <p>\n        Damit die Auswertung belastbar ist, werden Messdaten strukturiert und geprüft. Messpunkte und Geräte werden eindeutig\n        zugeordnet – basierend auf dem zuvor erstellten Anlagenbericht.\n      </p>\n\n      <ul>\n        <li><strong>Zuordnung</strong> von Messungen zu Messpunkten (Schema &amp; Messkonzept).</li>\n        <li><strong>Plausibilisierung</strong> (Vollständigkeit, Zeitbezug, Sensorwerte).</li>\n        <li><strong>Hochrechnung</strong> auf relevante Zeiträume für Vergleichbarkeit und Potenzialberechnung.</li>\n      </ul>\n\n      <p class=\"eco-ar__hint\">\n        Je besser die Mess- und Anlageninformationen gepflegt sind, desto präziser sind Potenzialberechnung und Maßnahmenableitung.\n      </p>\n    </section>\n\n    <section class=\"eco-ar__step\" data-step=\"2\">\n      <h3>Energiebericht: Inhalte &amp; Aufbau</h3>\n      <p>\n        Der Energiebericht ist das zentrale Ergebnis: Er stellt Anlagen klar strukturiert dar, analysiert und interpretiert alle relevanten Daten\n        und rechnet diese hoch. Potenziale werden konkret berechnet und verständlich erklärt.\n      </p>\n\n      <ul>\n        <li><strong>Übersichtliche Zusammenfassung</strong> als Einstieg.</li>\n        <li><strong>Kategorien</strong> für einen logischen Aufbau (von Überblick bis Detail).</li>\n        <li><strong>Konkrete Potenziale</strong> inklusive Quantifizierung (z.&nbsp;B. Kosten, CO₂).</li>\n      </ul>\n\n      <p class=\"eco-ar__hint\">\n        Der Bericht ist so aufgebaut, dass sowohl Energieberater als auch nicht-technische Stakeholder die Ergebnisse nachvollziehen können.\n      </p>\n    </section>\n\n    <section class=\"eco-ar__step\" data-step=\"3\">\n      <h3>Von Analyse zur Umsetzung</h3>\n      <p>\n        Nach Abschluss der Analyse dient der Energiebericht als Arbeitsgrundlage für Betreiber, Eigentümer und Energieberater –\n        zur Priorisierung, Budgetierung und Umsetzung von Maßnahmen.\n      </p>\n\n      <ul>\n        <li><strong>Betreiber</strong>: Transparenz, Betriebspunkte, schnelle „Quick Wins“.</li>\n        <li><strong>Eigentümer</strong>: Entscheidungsgrundlage für Investitionen und Dekarbonisierung.</li>\n        <li><strong>Energieberater</strong>: Datenbasis für Konzepte, Nachweise und Umsetzungsplanung.</li>\n      </ul>\n\n      <div class=\"eco-ar__cta\">\n        <a class=\"eco-ar__link\" href=\"https://diagnostics.ecoenergygroup.com/dashboards/all/5392aff0-5ef7-11ef-a314-81782f443b0c\" target=\"_blank\" rel=\"noopener\">Diagnostics Dashboard öffnen</a>\n        <a class=\"eco-ar__link\" href=\"https://www.ecoenergygroup.com/analyse\" target=\"_blank\" rel=\"noopener\">Mehr zu ECO Diagnostics</a>\n        <span class=\"eco-ar__ctaNote\">Öffnet in neuem Tab.</span>\n      </div>\n\n      <p class=\"eco-ar__hint\">\n        Hinweis: Das Dashboard bietet den Überblick über Messungen und Ergebnisse – der Energiebericht liefert die strukturierte Ableitung der Potenziale.\n      </p>\n    </section>\n  </div>\n\n  <div class=\"eco-ar__nav\">\n    <button type=\"button\" class=\"eco-ar__btn eco-ar__btn--ghost\" id=\"ecoAnaPrev\">Zurück</button>\n    <div class=\"eco-ar__navMeta\" id=\"ecoAnaMeta\">Schritt 1 von 4</div>\n    <button type=\"button\" class=\"eco-ar__btn eco-ar__btn--primary\" id=\"ecoAnaNext\">Weiter</button>\n  </div>\n\n  <script>\n    (function () {\n      var root = document.getElementById('ecoAnaRoot');\n      if (!root) return;\n\n      var steps = Array.prototype.slice.call(root.querySelectorAll('.eco-ar__step'));\n      var dots = Array.prototype.slice.call(root.querySelectorAll('.eco-ar__dot'));\n      var prevBtn = root.querySelector('#ecoAnaPrev');\n      var nextBtn = root.querySelector('#ecoAnaNext');\n      var meta = root.querySelector('#ecoAnaMeta');\n\n      var current = 0;\n\n      function setStep(idx) {\n        if (idx < 0) idx = 0;\n        if (idx > steps.length - 1) idx = steps.length - 1;\n        current = idx;\n\n        steps.forEach(function (s) {\n          s.classList.toggle('is-active', Number(s.getAttribute('data-step')) === current);\n        });\n\n        dots.forEach(function (d) {\n          d.classList.toggle('is-active', Number(d.getAttribute('data-step')) === current);\n        });\n\n        if (meta) meta.textContent = 'Schritt ' + (current + 1) + ' von ' + steps.length;\n\n        if (prevBtn) prevBtn.disabled = current === 0;\n        if (nextBtn) nextBtn.textContent = (current === steps.length - 1) ? 'Fertig' : 'Weiter';\n      }\n\n      function go(delta) {\n        setStep(current + delta);\n      }\n\n      if (prevBtn) prevBtn.addEventListener('click', function () { go(-1); });\n      if (nextBtn) nextBtn.addEventListener('click', function () { go(1); });\n\n      dots.forEach(function (d) {\n        d.addEventListener('click', function () {\n          setStep(Number(d.getAttribute('data-step')));\n        });\n      });\n\n      setStep(0);\n    })();\n  </script>\n</div>\n",
+            "cardCss": ".eco-ar{\n  width:100%;\n  height:100%;\n  box-sizing:border-box;\n  display:flex;\n  flex-direction:column;\n  gap:10px;\n  padding:12px;\n  border:1px solid rgba(0,0,0,0.08);\n  border-radius:12px;\n  background:#fff;\n  overflow:auto;\n  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Arial, sans-serif;\n  color: rgba(0,0,0,0.87);\n}\n\n.eco-ar__header{ display:flex; flex-direction:column; gap:4px; }\n.eco-ar__title{ font-size:16px; font-weight:700; line-height:1.2; }\n.eco-ar__subtitle{ font-size:12px; color:rgba(0,0,0,0.62); line-height:1.3; }\n\n.eco-ar__progress{\n  display:flex;\n  align-items:center;\n  gap:8px;\n  user-select:none;\n}\n\n.eco-ar__dot{\n  width:28px; height:28px;\n  border-radius:999px;\n  border:1px solid rgba(0,0,0,0.18);\n  background:#fff;\n  font-size:12px;\n  font-weight:700;\n  cursor:pointer;\n  display:flex;\n  align-items:center;\n  justify-content:center;\n}\n\n.eco-ar__dot.is-active{\n  border-color: rgba(33,150,243,0.9);\n  box-shadow: 0 0 0 3px rgba(33,150,243,0.15);\n}\n\n.eco-ar__line{\n  height:2px;\n  flex:1;\n  background: rgba(0,0,0,0.10);\n  border-radius:999px;\n}\n\n.eco-ar__steps{\n  flex:1;\n  min-height:0;\n}\n\n.eco-ar__step{\n  display:none;\n}\n\n.eco-ar__step.is-active{\n  display:block;\n}\n\n.eco-ar__step h3{\n  margin:0 0 6px 0;\n  font-size:14px;\n  font-weight:700;\n}\n\n.eco-ar__step p{\n  margin:0 0 8px 0;\n  font-size:12px;\n  line-height:1.45;\n}\n\n.eco-ar__step ul, .eco-ar__step ol{\n  margin:0;\n  padding-left:18px;\n  font-size:12px;\n  line-height:1.45;\n}\n\n.eco-ar__hint{\n  margin-top:8px !important;\n  color: rgba(0,0,0,0.62);\n  font-size:11.5px;\n}\n\n.eco-ar__cta{\n  margin-top:10px;\n  display:flex;\n  align-items:center;\n  gap:10px;\n  flex-wrap:wrap;\n  padding:10px;\n  border:1px solid rgba(0,0,0,0.08);\n  border-radius:10px;\n  background: rgba(0,0,0,0.02);\n}\n\n.eco-ar__link{\n  display:inline-flex;\n  align-items:center;\n  justify-content:center;\n  padding:8px 10px;\n  border-radius:10px;\n  border:1px solid rgba(33,150,243,0.35);\n  text-decoration:none;\n  font-size:12px;\n  font-weight:700;\n  color: rgba(33,150,243,1);\n}\n\n.eco-ar__link:hover{ background: rgba(33,150,243,0.06); }\n\n.eco-ar__ctaNote{ font-size:11.5px; color:rgba(0,0,0,0.62); }\n\n.eco-ar__nav{\n  display:flex;\n  align-items:center;\n  justify-content:space-between;\n  gap:10px;\n}\n\n.eco-ar__navMeta{\n  font-size:12px;\n  color:rgba(0,0,0,0.62);\n  text-align:center;\n  flex:1;\n}\n\n.eco-ar__btn{\n  padding:8px 10px;\n  border-radius:10px;\n  border:1px solid rgba(0,0,0,0.18);\n  background:#fff;\n  cursor:pointer;\n  font-size:12px;\n  font-weight:700;\n}\n\n.eco-ar__btn:disabled{\n  opacity:0.45;\n  cursor:not-allowed;\n}\n\n.eco-ar__btn--primary{\n  border-color: rgba(33,150,243,0.55);\n}\n"
+          },
+          "title": "HTML Card",
+          "dropShadow": false,
+          "enableFullscreen": false,
+          "enableDataExport": true,
+          "borderRadius": "8px",
+          "widgetStyle": {},
+          "widgetCss": "",
+          "pageSize": 1024,
+          "noDataDisplayMessage": ""
+        },
+        "row": 0,
+        "col": 0,
+        "id": "7d36dd75-f618-00e4-4ad7-e05a332e4404"
+      },
+      "a678f68b-a9cc-db8c-1579-2794a0af750e": {
+        "typeFullFqn": "system.cards.html_card",
+        "type": "static",
+        "sizeX": 7.5,
+        "sizeY": 3,
+        "config": {
+          "datasources": [
+            {
+              "type": "static",
+              "name": "function",
+              "dataKeys": [
+                {
+                  "name": "f(x)",
+                  "type": "function",
+                  "label": "Random",
+                  "color": "#2196f3",
+                  "settings": {},
+                  "_hash": 0.15479322438769105,
+                  "funcBody": "var value = prevValue + Math.random() * 100 - 50;\nvar multiplier = Math.pow(10, 2 || 0);\nvar value = Math.round(value * multiplier) / multiplier;\nif (value < -1000) {\n\tvalue = -1000;\n} else if (value > 1000) {\n\tvalue = 1000;\n}\nreturn value;"
+                }
+              ]
+            }
+          ],
+          "timewindow": {
+            "realtime": {
+              "timewindowMs": 60000
+            }
+          },
+          "showTitle": false,
+          "backgroundColor": "rgb(255, 255, 255)",
+          "color": "rgba(0, 0, 0, 0.87)",
+          "padding": "8px",
+          "settings": {
+            "cardHtml": "<div class=\"eco-ar\" id=\"ecoMonRoot\">\n  <div class=\"eco-ar__header\">\n    <div class=\"eco-ar__title\">ECO Monitoring & Reporting</div>\n    <div class=\"eco-ar__subtitle\">Nach der Optimierung sorgt das Monitoring für laufende Analyse, Transparenz und kontinuierliche Optimierung im Betrieb.</div>\n  </div>\n\n  <div class=\"eco-ar__progress\" aria-label=\"Schrittanzeige\">\n    <button type=\"button\" class=\"eco-ar__dot is-active\" data-step=\"0\" aria-label=\"Schritt 1\">1</button>\n    <div class=\"eco-ar__line\" aria-hidden=\"true\"></div>\n    <button type=\"button\" class=\"eco-ar__dot\" data-step=\"1\" aria-label=\"Schritt 2\">2</button>\n    <div class=\"eco-ar__line\" aria-hidden=\"true\"></div>\n    <button type=\"button\" class=\"eco-ar__dot\" data-step=\"2\" aria-label=\"Schritt 3\">3</button>\n    <div class=\"eco-ar__line\" aria-hidden=\"true\"></div>\n    <button type=\"button\" class=\"eco-ar__dot\" data-step=\"3\" aria-label=\"Schritt 4\">4</button>\n  </div>\n\n  <div class=\"eco-ar__steps\">\n    <section class=\"eco-ar__step is-active\" data-step=\"0\">\n      <h3>Worum geht es in diesem Schritt?</h3>\n      <p>\n        Nach der Umsetzung von Optimierungsmaßnahmen stellt das Monitoring sicher, dass die Anlage dauerhaft effizient läuft:\n        Energieflüsse werden kontinuierlich beobachtet, Auffälligkeiten früh erkannt und Verbesserungen messbar gemacht.\n      </p>\n      <ul>\n        <li><strong>Transparenz im Betrieb:</strong> Live-Überblick über relevante Energieflüsse und Kennzahlen.</li>\n        <li><strong>Früherkennung:</strong> Abweichungen, Ausfälle oder Regelungsprobleme werden schneller sichtbar.</li>\n        <li><strong>Nachhaltige Wirkung:</strong> Maßnahmen werden verifiziert und dauerhaft abgesichert (Performance-Tracking).</li>\n      </ul>\n      <p class=\"eco-ar__hint\">\n        Tipp: Definieren Sie gemeinsam mit Betreiber/Energieberater die wichtigsten KPIs (z.&nbsp;B. kWh, kW, COP, Laufzeiten, Temperaturspreizungen) – diese steuern die Dashboard-Struktur.\n      </p>\n    </section>\n\n    <section class=\"eco-ar__step\" data-step=\"1\">\n      <h3>Standarddashboards: Alle Daten immer im Blick</h3>\n      <p>\n        Für jede Anlage stehen vorkonfigurierte Standarddashboards zur Verfügung. In ECO Energy Cockpit werden Energieflüsse zentral gebündelt; \n        individuelle Dashboards und automatisierte Berichte erleichtern die Auswertung und sorgen für schnelle Orientierung.\n      </p>\n      <ul>\n        <li><strong>Echtzeit-Transparenz:</strong> Standardreports geben einen strukturierten Überblick über relevante Energieflüsse.</li>\n        <li><strong>Automatisierte Updates:</strong> Regelmäßige Berichte unterstützen Benchmarking und den Vergleich über Anlagen hinweg.</li>\n        <li><strong>Einfach konsumierbar:</strong> Datenanalyse wird für unterschiedliche Zielgruppen nachvollziehbar.</li>\n      </ul>\n      <p class=\"eco-ar__hint\">\n        Tipp: Standarddashboards sind ein guter Startpunkt – Ergänzungen erfolgen später über individuelle Dashboards/Reports.\n      </p>\n    </section>\n\n    <section class=\"eco-ar__step\" data-step=\"2\">\n      <h3>Anbindung: Schnittstellen &amp; Datenquellen</h3>\n      <p>\n        Damit Monitoring und Reporting vollständig werden, können Gebäude und Geräte über zahlreiche Schnittstellen angebunden werden.\n        Dadurch lassen sich Messpunkte, Zähler, Sensoren und Anlagenzustände in ein konsistentes Bild überführen.\n      </p>\n      <ul>\n        <li><strong>Typische Protokolle:</strong> BACnet, Modbus, LoRaWAN, MQTT, REST API, OPC&nbsp;UA u.&nbsp;a.</li>\n        <li><strong>Skalierbar:</strong> Von einzelnen Anlagen bis zu Portfolios mit mehreren Standorten.</li>\n        <li><strong>Datenqualität:</strong> Plausibilisierung (Vollständigkeit, Zeitbezug, Einheiten) ist Grundlage belastbarer KPIs.</li>\n      </ul>\n      <p class=\"eco-ar__hint\">\n        Tipp: Nutzen Sie die im Anlagenbericht definierten Messpunkte als Referenz – so bleiben Messkonzept, Datenmodell und Dashboards konsistent.\n      </p>\n    </section>\n\n    <section class=\"eco-ar__step\" data-step=\"3\">\n      <h3>Reporting, ESG &amp; Mobile</h3>\n      <p>\n        Das integrierte Reporting liefert bedarfsorientierte Energieberichte als Ergänzung zum laufenden Monitoring – \n        etwa für Verrechnung, interne Steuerung oder ESG-Reporting. Dashboards stehen zudem auch mobil zur Verfügung.\n      </p>\n      <ul>\n        <li><strong>Standardreports &amp; individuelle Reports:</strong> Berichte passend zu Organisation, Rollen und Entscheidungsprozessen.</li>\n        <li><strong>Hoher Anpassungsgrad:</strong> Individuelle Dashboards ermöglichen kunden- und betrieberspezifische Sichten.</li>\n        <li><strong>Mobile Nutzung:</strong> Wichtige Dashboards jederzeit auch in der App verfügbar.</li>\n      </ul>\n\n      <div class=\"eco-ar__cta\">\n        <a class=\"eco-ar__link\" href=\"https://diagnostics.ecoenergygroup.com/dashboards/all/e04fdab0-d784-11f0-915d-39f188b2fdb7\" target=\"_blank\" rel=\"noopener\">Monitoring Dashboard öffnen</a>\n        <a class=\"eco-ar__link\" href=\"https://www.ecoenergygroup.com/reporting\" target=\"_blank\" rel=\"noopener\">Mehr zu Monitoring &amp; Reporting</a>\n        <span class=\"eco-ar__ctaNote\">Öffnet in neuem Tab.</span>\n      </div>\n    </section>\n  </div>\n\n  <div class=\"eco-ar__nav\">\n    <button type=\"button\" class=\"eco-ar__btn eco-ar__btn--ghost\" id=\"ecoMonPrev\">Zurück</button>\n    <div class=\"eco-ar__navMeta\" id=\"ecoMonMeta\">Schritt 1 von 4</div>\n    <button type=\"button\" class=\"eco-ar__btn eco-ar__btn--primary\" id=\"ecoMonNext\">Weiter</button>\n  </div>\n\n  <script>\n    (function () {\n      var root = document.getElementById('ecoMonRoot');\n      if (!root) return;\n\n      var steps = Array.prototype.slice.call(root.querySelectorAll('.eco-ar__step'));\n      var dots = Array.prototype.slice.call(root.querySelectorAll('.eco-ar__dot'));\n      var prevBtn = root.querySelector('#ecoMonPrev');\n      var nextBtn = root.querySelector('#ecoMonNext');\n      var meta = root.querySelector('#ecoMonMeta');\n\n      var current = 0;\n\n      function setStep(idx) {\n        if (idx < 0) idx = 0;\n        if (idx > steps.length - 1) idx = steps.length - 1;\n        current = idx;\n\n        steps.forEach(function (s) {\n          s.classList.toggle('is-active', Number(s.getAttribute('data-step')) === current);\n        });\n\n        dots.forEach(function (d) {\n          d.classList.toggle('is-active', Number(d.getAttribute('data-step')) === current);\n        });\n\n        if (meta) meta.textContent = 'Schritt ' + (current + 1) + ' von ' + steps.length;\n\n        if (prevBtn) prevBtn.disabled = current === 0;\n        if (nextBtn) nextBtn.textContent = (current === steps.length - 1) ? 'Fertig' : 'Weiter';\n      }\n\n      function go(delta) {\n        setStep(current + delta);\n      }\n\n      if (prevBtn) prevBtn.addEventListener('click', function () { go(-1); });\n      if (nextBtn) nextBtn.addEventListener('click', function () { go(1); });\n\n      dots.forEach(function (d) {\n        d.addEventListener('click', function () {\n          setStep(Number(d.getAttribute('data-step')));\n        });\n      });\n\n      setStep(0);\n    })();\n  </script>\n</div>\n",
+            "cardCss": ".eco-ar{\n  width:100%;\n  height:100%;\n  box-sizing:border-box;\n  display:flex;\n  flex-direction:column;\n  gap:10px;\n  padding:12px;\n  border:1px solid rgba(0,0,0,0.08);\n  border-radius:12px;\n  background:#fff;\n  overflow:auto;\n  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Arial, sans-serif;\n  color: rgba(0,0,0,0.87);\n}\n\n.eco-ar__header{ display:flex; flex-direction:column; gap:4px; }\n.eco-ar__title{ font-size:16px; font-weight:700; line-height:1.2; }\n.eco-ar__subtitle{ font-size:12px; color:rgba(0,0,0,0.62); line-height:1.3; }\n\n.eco-ar__progress{\n  display:flex;\n  align-items:center;\n  gap:8px;\n  user-select:none;\n}\n\n.eco-ar__dot{\n  width:28px; height:28px;\n  border-radius:999px;\n  border:1px solid rgba(0,0,0,0.18);\n  background:#fff;\n  font-size:12px;\n  font-weight:700;\n  cursor:pointer;\n  display:flex;\n  align-items:center;\n  justify-content:center;\n}\n\n.eco-ar__dot.is-active{\n  border-color: rgba(33,150,243,0.9);\n  box-shadow: 0 0 0 3px rgba(33,150,243,0.15);\n}\n\n.eco-ar__line{\n  height:2px;\n  flex:1;\n  background: rgba(0,0,0,0.10);\n  border-radius:999px;\n}\n\n.eco-ar__steps{\n  flex:1;\n  min-height:0;\n}\n\n.eco-ar__step{\n  display:none;\n}\n\n.eco-ar__step.is-active{\n  display:block;\n}\n\n.eco-ar__step h3{\n  margin:0 0 6px 0;\n  font-size:14px;\n  font-weight:700;\n}\n\n.eco-ar__step p{\n  margin:0 0 8px 0;\n  font-size:12px;\n  line-height:1.45;\n}\n\n.eco-ar__step ul, .eco-ar__step ol{\n  margin:0;\n  padding-left:18px;\n  font-size:12px;\n  line-height:1.45;\n}\n\n.eco-ar__hint{\n  margin-top:8px !important;\n  color: rgba(0,0,0,0.62);\n  font-size:11.5px;\n}\n\n.eco-ar__cta{\n  margin-top:10px;\n  display:flex;\n  align-items:center;\n  gap:10px;\n  flex-wrap:wrap;\n  padding:10px;\n  border:1px solid rgba(0,0,0,0.08);\n  border-radius:10px;\n  background: rgba(0,0,0,0.02);\n}\n\n.eco-ar__link{\n  display:inline-flex;\n  align-items:center;\n  justify-content:center;\n  padding:8px 10px;\n  border-radius:10px;\n  border:1px solid rgba(33,150,243,0.35);\n  text-decoration:none;\n  font-size:12px;\n  font-weight:700;\n  color: rgba(33,150,243,1);\n}\n\n.eco-ar__link:hover{ background: rgba(33,150,243,0.06); }\n\n.eco-ar__ctaNote{ font-size:11.5px; color:rgba(0,0,0,0.62); }\n\n.eco-ar__nav{\n  display:flex;\n  align-items:center;\n  justify-content:space-between;\n  gap:10px;\n}\n\n.eco-ar__navMeta{\n  font-size:12px;\n  color:rgba(0,0,0,0.62);\n  text-align:center;\n  flex:1;\n}\n\n.eco-ar__btn{\n  padding:8px 10px;\n  border-radius:10px;\n  border:1px solid rgba(0,0,0,0.18);\n  background:#fff;\n  cursor:pointer;\n  font-size:12px;\n  font-weight:700;\n}\n\n.eco-ar__btn:disabled{\n  opacity:0.45;\n  cursor:not-allowed;\n}\n\n.eco-ar__btn--primary{\n  border-color: rgba(33,150,243,0.55);\n}\n"
+          },
+          "title": "HTML Card",
+          "dropShadow": false,
+          "enableFullscreen": false,
+          "enableDataExport": true,
+          "borderRadius": "8px",
+          "widgetStyle": {},
+          "widgetCss": "",
+          "pageSize": 1024,
+          "noDataDisplayMessage": ""
+        },
+        "row": 0,
+        "col": 0,
+        "id": "a678f68b-a9cc-db8c-1579-2794a0af750e"
+      },
+      "02da89a4-ffe1-db20-dc1a-add382df5f2e": {
+        "typeFullFqn": "system.cards.html_card",
+        "type": "static",
+        "sizeX": 7.5,
+        "sizeY": 3,
+        "config": {
+          "datasources": [
+            {
+              "type": "static",
+              "name": "function",
+              "dataKeys": [
+                {
+                  "name": "f(x)",
+                  "type": "function",
+                  "label": "Random",
+                  "color": "#2196f3",
+                  "settings": {},
+                  "_hash": 0.15479322438769105,
+                  "funcBody": "var value = prevValue + Math.random() * 100 - 50;\nvar multiplier = Math.pow(10, 2 || 0);\nvar value = Math.round(value * multiplier) / multiplier;\nif (value < -1000) {\n\tvalue = -1000;\n} else if (value > 1000) {\n\tvalue = 1000;\n}\nreturn value;"
+                }
+              ]
+            }
+          ],
+          "timewindow": {
+            "realtime": {
+              "timewindowMs": 60000
+            }
+          },
+          "showTitle": false,
+          "backgroundColor": "rgb(255, 255, 255)",
+          "color": "rgba(0, 0, 0, 0.87)",
+          "padding": "0px",
+          "settings": {
+            "cardHtml": "<div style=\"width:100%; height:100%; margin:0; padding:0;\">\n  <iframe id=\"eco-dashboard-frame\"\n    src=\"\"\n    style=\"width:100%; height:100%; border:0;\"\n    loading=\"lazy\"\n    referrerpolicy=\"no-referrer\"\n    allow=\"fullscreen\"\n    allowfullscreen\n    sandbox=\"allow-scripts allow-same-origin allow-forms allow-popups\">\n  </iframe>\n</div>\n<script>\n(function() {\n  // Same-origin dashboard URL to avoid cross-domain cookie/session issues (tenant whitelabeling).\n  var origin = window.location.origin;\n  var dashboardId = \"5392aff0-5ef7-11ef-a314-81782f443b0c\";\n  // Single-page dashboard route hides the main ThingsBoard menu/sidebar.\n  // state=default loads the default dashboard state.\n  // hideToolbar=true (if supported) hides dashboard toolbar; alternatively enable \"Hide Toolbar\" in dashboard settings.\n  var url = origin + \"/dashboard/\" + dashboardId + \"?state=default&hideToolbar=true\";\n  document.getElementById(\"eco-dashboard-frame\").src = url;\n})();\n</script>\n",
+            "cardCss": ".card {\n  width: 100%;\n  height: 100%;\n  display: block;\n}\niframe {\n  width: 100%;\n  height: 100%;\n  border: 0;\n}"
+          },
+          "title": "HTML Card",
+          "dropShadow": false,
+          "enableFullscreen": false,
+          "enableDataExport": true,
+          "borderRadius": "0px",
+          "widgetStyle": {},
+          "widgetCss": "",
+          "pageSize": 1024,
+          "noDataDisplayMessage": "",
+          "actions": {
+            "headerButton": [
+              {
+                "name": "test",
+                "buttonType": "miniFab",
+                "icon": "open_in_new",
+                "buttonColor": "#ffffff",
+                "buttonFillColor": "var(--tb-primary-500)",
+                "customButtonStyle": {},
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "type": "openDashboard",
+                "targetDashboardStateId": "default",
+                "setEntityId": false,
+                "stateEntityParamName": null,
+                "openNewBrowserTab": false,
+                "targetDashboardId": "5392aff0-5ef7-11ef-a314-81782f443b0c",
+                "openInSeparateDialog": false,
+                "openInPopover": false,
+                "id": "bf5ca6c8-7346-228e-2e12-5b2a3c006f4c"
+              }
+            ]
+          }
+        },
+        "row": 0,
+        "col": 0,
+        "id": "02da89a4-ffe1-db20-dc1a-add382df5f2e"
+      },
+      "8ece8969-fb30-f489-572e-41e529a369ff": {
+        "typeFullFqn": "system.cards.html_card",
+        "type": "static",
+        "sizeX": 7.5,
+        "sizeY": 3,
+        "config": {
+          "datasources": [
+            {
+              "type": "static",
+              "name": "function",
+              "dataKeys": [
+                {
+                  "name": "f(x)",
+                  "type": "function",
+                  "label": "Random",
+                  "color": "#2196f3",
+                  "settings": {},
+                  "_hash": 0.15479322438769105,
+                  "funcBody": "var value = prevValue + Math.random() * 100 - 50;\nvar multiplier = Math.pow(10, 2 || 0);\nvar value = Math.round(value * multiplier) / multiplier;\nif (value < -1000) {\n\tvalue = -1000;\n} else if (value > 1000) {\n\tvalue = 1000;\n}\nreturn value;"
+                }
+              ]
+            }
+          ],
+          "timewindow": {
+            "realtime": {
+              "timewindowMs": 60000
+            }
+          },
+          "showTitle": false,
+          "backgroundColor": "rgb(255, 255, 255)",
+          "color": "rgba(0, 0, 0, 0.87)",
+          "padding": "0px",
+          "settings": {
+            "cardHtml": "<div style=\"width:100%; height:100%; margin:0; padding:0;\">\n  <iframe id=\"eco-dashboard-frame\"\n    src=\"\"\n    style=\"width:100%; height:100%; border:0;\"\n    loading=\"lazy\"\n    referrerpolicy=\"no-referrer\"\n    allow=\"fullscreen\"\n    allowfullscreen\n    sandbox=\"allow-scripts allow-same-origin allow-forms allow-popups\">\n  </iframe>\n</div>\n<script>\n(function() {\n  // Same-origin dashboard URL to avoid cross-domain cookie/session issues (tenant whitelabeling).\n  var origin = window.location.origin;\n  var dashboardId = \"e04fdab0-d784-11f0-915d-39f188b2fdb7\";\n  // Single-page dashboard route hides the main ThingsBoard menu/sidebar.\n  // state=default loads the default dashboard state.\n  // hideToolbar=true (if supported) hides dashboard toolbar; alternatively enable \"Hide Toolbar\" in dashboard settings.\n  var url = origin + \"/dashboard/\" + dashboardId;\n  document.getElementById(\"eco-dashboard-frame\").src = url;\n})();\n</script>\n",
+            "cardCss": ".card {\n  width: 100%;\n  height: 100%;\n  display: block;\n}\niframe {\n  width: 100%;\n  height: 100%;\n  border: 0;\n}"
+          },
+          "title": "HTML Card",
+          "dropShadow": false,
+          "enableFullscreen": true,
+          "enableDataExport": true,
+          "borderRadius": "0px",
+          "widgetStyle": {},
+          "widgetCss": "",
+          "pageSize": 1024,
+          "noDataDisplayMessage": "",
+          "actions": {
+            "headerButton": [
+              {
+                "name": "test",
+                "buttonType": "miniFab",
+                "icon": "open_in_new",
+                "buttonColor": "#ffffff",
+                "buttonFillColor": "var(--tb-primary-500)",
+                "customButtonStyle": {},
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "type": "openDashboard",
+                "targetDashboardStateId": "",
+                "setEntityId": false,
+                "stateEntityParamName": null,
+                "openNewBrowserTab": false,
+                "targetDashboardId": "e04fdab0-d784-11f0-915d-39f188b2fdb7",
+                "openInSeparateDialog": false,
+                "openInPopover": false,
+                "id": "bf5ca6c8-7346-228e-2e12-5b2a3c006f4c"
+              }
+            ]
+          }
+        },
+        "row": 0,
+        "col": 0,
+        "id": "8ece8969-fb30-f489-572e-41e529a369ff"
+      },
+      "fdb25ed5-f07e-e11c-d893-dccf13eb51b0": {
+        "typeFullFqn": "system.cards.html_card",
+        "type": "static",
+        "sizeX": 7.5,
+        "sizeY": 3,
+        "config": {
+          "datasources": [
+            {
+              "type": "static",
+              "name": "function",
+              "dataKeys": [
+                {
+                  "name": "f(x)",
+                  "type": "function",
+                  "label": "Random",
+                  "color": "#2196f3",
+                  "settings": {},
+                  "_hash": 0.15479322438769105,
+                  "funcBody": "var value = prevValue + Math.random() * 100 - 50;\nvar multiplier = Math.pow(10, 2 || 0);\nvar value = Math.round(value * multiplier) / multiplier;\nif (value < -1000) {\n\tvalue = -1000;\n} else if (value > 1000) {\n\tvalue = 1000;\n}\nreturn value;"
+                }
+              ]
+            }
+          ],
+          "timewindow": {
+            "realtime": {
+              "timewindowMs": 60000
+            }
+          },
+          "showTitle": false,
+          "backgroundColor": "rgb(255, 255, 255)",
+          "color": "rgba(0, 0, 0, 0.87)",
+          "padding": "8px",
+          "settings": {
+            "cardHtml": "<div style=\"width:100%; height:100%; margin:0; padding:0; overflow:hidden;\">\n  <iframe\n    id=\"eco-measurement-dashboard\"\n    src=\"\"\n    style=\"width:100%; height:100%; border:0; display:block;\"\n    loading=\"lazy\"\n    allow=\"fullscreen\"\n    allowfullscreen\n    sandbox=\"allow-scripts allow-same-origin allow-forms allow-popups\">\n  </iframe>\n</div>\n\n<script>\n(function () {\n  // Same ThingsBoard instance reachable via multiple domains (whitelabeling):\n  // Always use the current origin to avoid cross-site cookie / session issues.\n  var dashboardId = \"5392aff0-5ef7-11ef-a314-81782f443b0c\";\n  var url = window.location.origin + \"/dashboard/\" + dashboardId + \"?state=default\";\n  var frame = document.getElementById(\"eco-measurement-dashboard\");\n  if (frame) {\n    frame.src = url;\n  }\n})();\n</script>\n",
+            "cardCss": ".card {\n    font-weight: bold;\n    font-size: 32px;\n    color: #999;\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}"
+          },
+          "title": "HTML Card",
+          "dropShadow": false,
+          "enableFullscreen": false,
+          "enableDataExport": true,
+          "borderRadius": "8px",
+          "widgetStyle": {},
+          "widgetCss": "",
+          "pageSize": 1024,
+          "noDataDisplayMessage": "",
+          "actions": {
+            "headerButton": [
+              {
+                "name": "test",
+                "buttonType": "miniFab",
+                "icon": "open_in_new",
+                "buttonColor": "#ffffff",
+                "buttonFillColor": "var(--tb-primary-500)",
+                "customButtonStyle": {},
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "type": "openDashboard",
+                "targetDashboardStateId": "default",
+                "setEntityId": false,
+                "stateEntityParamName": null,
+                "openNewBrowserTab": false,
+                "targetDashboardId": "5392aff0-5ef7-11ef-a314-81782f443b0c",
+                "openInSeparateDialog": false,
+                "openInPopover": false,
+                "id": "bf5ca6c8-7346-228e-2e12-5b2a3c006f4c"
+              }
+            ]
+          }
+        },
+        "row": 0,
+        "col": 0,
+        "id": "fdb25ed5-f07e-e11c-d893-dccf13eb51b0"
+      },
+      "3b15a19d-640c-393c-400d-f4d15aecf73c": {
+        "typeFullFqn": "system.cards.html_card",
+        "type": "static",
+        "sizeX": 7.5,
+        "sizeY": 3,
+        "config": {
+          "datasources": [
+            {
+              "type": "static",
+              "name": "function",
+              "dataKeys": [
+                {
+                  "name": "f(x)",
+                  "type": "function",
+                  "label": "Random",
+                  "color": "#2196f3",
+                  "settings": {},
+                  "_hash": 0.15479322438769105,
+                  "funcBody": "var value = prevValue + Math.random() * 100 - 50;\nvar multiplier = Math.pow(10, 2 || 0);\nvar value = Math.round(value * multiplier) / multiplier;\nif (value < -1000) {\n\tvalue = -1000;\n} else if (value > 1000) {\n\tvalue = 1000;\n}\nreturn value;"
+                }
+              ]
+            }
+          ],
+          "timewindow": {
+            "realtime": {
+              "timewindowMs": 60000
+            }
+          },
+          "showTitle": false,
+          "backgroundColor": "rgb(255, 255, 255)",
+          "color": "rgba(0, 0, 0, 0.87)",
+          "padding": "0px",
+          "settings": {
+            "cardHtml": "<div style=\"width:100%; height:100%; margin:0; padding:0;\">\n  <iframe id=\"eco-dashboard-frame\"\n    src=\"\"\n    style=\"width:100%; height:100%; border:0;\"\n    loading=\"lazy\"\n    referrerpolicy=\"no-referrer\"\n    allow=\"fullscreen\"\n    allowfullscreen\n    sandbox=\"allow-scripts allow-same-origin allow-forms allow-popups\">\n  </iframe>\n</div>\n<script>\n(function() {\n  // Same-origin dashboard URL to avoid cross-domain cookie/session issues (tenant whitelabeling).\n  var origin = window.location.origin;\n  var dashboardId = \"5fbebde0-5b97-11ef-ba52-9b04c3d309dd\";\n  // Single-page dashboard route hides the main ThingsBoard menu/sidebar.\n  // state=default loads the default dashboard state.\n  // hideToolbar=true (if supported) hides dashboard toolbar; alternatively enable \"Hide Toolbar\" in dashboard settings.\n  var url = origin + \"/dashboard/\" + dashboardId + \"?state=default&hideToolbar=true\";\n  document.getElementById(\"eco-dashboard-frame\").src = url;\n})();\n</script>\n",
+            "cardCss": ".card {\n  width: 100%;\n  height: 100%;\n  display: block;\n}\niframe {\n  width: 100%;\n  height: 100%;\n  border: 0;\n}"
+          },
+          "title": "HTML Card",
+          "dropShadow": false,
+          "enableFullscreen": false,
+          "enableDataExport": true,
+          "borderRadius": "0px",
+          "widgetStyle": {},
+          "widgetCss": "",
+          "pageSize": 1024,
+          "noDataDisplayMessage": "",
+          "actions": {
+            "headerButton": [
+              {
+                "name": "test",
+                "buttonType": "miniFab",
+                "icon": "open_in_new",
+                "buttonColor": "#ffffff",
+                "buttonFillColor": "var(--tb-primary-500)",
+                "customButtonStyle": {},
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "type": "openDashboard",
+                "targetDashboardStateId": "default",
+                "setEntityId": false,
+                "stateEntityParamName": null,
+                "openNewBrowserTab": false,
+                "targetDashboardId": "5392aff0-5ef7-11ef-a314-81782f443b0c",
+                "openInSeparateDialog": false,
+                "openInPopover": false,
+                "id": "bf5ca6c8-7346-228e-2e12-5b2a3c006f4c"
+              }
+            ]
+          }
+        },
+        "row": 0,
+        "col": 0,
+        "id": "3b15a19d-640c-393c-400d-f4d15aecf73c"
+      },
+      "51afa171-2f9e-200a-ec8a-5adf40fada75": {
+        "typeFullFqn": "system.cards.markdown_card",
+        "type": "latest",
+        "sizeX": 7.5,
+        "sizeY": 5,
+        "config": {
+          "datasources": [
+            {
+              "type": "entity",
+              "name": "",
+              "dataKeys": [],
+              "alarmFilterConfig": {
+                "statusList": [
+                  "ACTIVE"
+                ]
+              }
+            }
+          ],
+          "timewindow": {
+            "displayValue": "",
+            "selectedTab": 0,
+            "realtime": {
+              "realtimeType": 1,
+              "interval": 1000,
+              "timewindowMs": 60000,
+              "quickInterval": "CURRENT_DAY",
+              "hideInterval": false,
+              "hideLastInterval": false,
+              "hideQuickInterval": false
+            },
+            "history": {
+              "historyType": 0,
+              "interval": 1000,
+              "timewindowMs": 60000,
+              "fixedTimewindow": {
+                "startTimeMs": 1765971909202,
+                "endTimeMs": 1766058309202
+              },
+              "quickInterval": "CURRENT_DAY",
+              "hideInterval": false,
+              "hideLastInterval": false,
+              "hideFixedInterval": false,
+              "hideQuickInterval": false
+            },
+            "aggregation": {
+              "type": "AVG",
+              "limit": 50000
+            }
+          },
+          "showTitle": false,
+          "backgroundColor": "#fff",
+          "color": "rgba(0, 0, 0, 0.87)",
+          "padding": "0px",
+          "settings": {
+            "useMarkdownTextFunction": true,
+            "markdownTextPattern": "",
+            "markdownTextFunction": "/**\n * Asset Report embed (Option C: token exchange)\n *\n * Expected backend (exchangeUrl) behavior:\n * - POST exchangeUrl\n * - Headers: Authorization: Bearer <ThingsBoard JWT>, Content-Type: application/json\n * - Body: { accessCode: \"1234567890\", entityId?: \"...\", entityType?: \"ASSET\", dashboardId?: \"...\", stateId?: \"...\" }\n * - Response (JSON): { embedUrl: \"https://asset.ecoenergygroup.com/embed/<one-time-token>\", expiresAt?: 1730000000000 }\n *\n * Notes:\n * - This function uses a synchronous XHR on purpose to be able to return HTML immediately.\n * - Ensure CORS allows the ThingsBoard origin and the Authorization header on exchangeUrl.\n */\nfunction getTbJwt(ctx) {\n  try {\n    var $injector = ctx && ctx.$scope && ctx.$scope.$injector;\n    if ($injector) {\n      var userService = $injector.get('userService');\n      if (userService && userService.getJwtToken) {\n        var t = userService.getJwtToken();\n        if (t) return t;\n      }\n    }\n  } catch (e) { /* ignore */ }\n\n  // Fallbacks (depending on TB version/build)\n  try {\n    return (\n      localStorage.getItem('jwt_token') ||\n      localStorage.getItem('jwtToken') ||\n      localStorage.getItem('tbJwtToken') ||\n      localStorage.getItem('token') ||\n      ''\n    );\n  } catch (e2) {\n    return '';\n  }\n}\n\nfunction syncPostJson(url, payload, bearerToken) {\n  var xhr = new XMLHttpRequest();\n  xhr.open('POST', url, false); // synchronous\n  xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');\n  if (bearerToken) {\n    xhr.setRequestHeader('Authorization', 'Bearer ' + bearerToken);\n  }\n  xhr.send(JSON.stringify(payload || {}));\n\n  var ok = xhr.status >= 200 && xhr.status < 300;\n  if (!ok) {\n    var msg = (xhr.responseText || '').slice(0, 500);\n    throw new Error('Token-exchange failed (' + xhr.status + '): ' + msg);\n  }\n  try {\n    return JSON.parse(xhr.responseText || '{}');\n  } catch (e) {\n    throw new Error('Token-exchange returned non-JSON response.');\n  }\n}\n\nvar exchangeUrl = (ctx.settings && ctx.settings.exchangeUrl) || 'https://asset.ecoenergygroup.com/api/embed/session';\nvar accessCode  = (ctx.settings && ctx.settings.accessCode) || '';\nvar heightPx    = (ctx.settings && ctx.settings.embedHeightPx) || 800;\nvar sandboxAttr = (ctx.settings && ctx.settings.sandbox) || 'allow-scripts allow-same-origin allow-forms allow-popups';\n\nvar entityId = (data && data[0] && (data[0].entityId || (data[0].entity && data[0].entity.id))) || null;\nvar entityType = (data && data[0] && (data[0].entityType || (data[0].entity && data[0].entity.entityType))) || null;\n\n// Cache to avoid re-exchanging on every widget refresh\nwindow.__assetReportEmbedCache = window.__assetReportEmbedCache || {};\nvar cacheKey = String(entityType || '') + ':' + String(entityId || '') + ':' + String(accessCode || '');\nvar cached = window.__assetReportEmbedCache[cacheKey];\nif (cached && cached.embedUrl && (!cached.expiresAt || cached.expiresAt > Date.now() + 30000)) {\n  return (\n    '<div style=\"width:100%;height:' + heightPx + 'px;\">' +\n      '<iframe ' +\n        'src=\"' + cached.embedUrl + '\" ' +\n        'style=\"width:100%;height:100%;border:0;\" ' +\n        'loading=\"lazy\" referrerpolicy=\"no-referrer\" ' +\n        'sandbox=\"' + sandboxAttr + '\">' +\n      '</iframe>' +\n    '</div>'\n  );\n}\n\nvar tbJwt = getTbJwt(ctx);\nif (!accessCode) {\n  return '<div style=\"padding:12px;\">Missing accessCode in widget settings.</div>';\n}\nif (!tbJwt) {\n  return '<div style=\"padding:12px;\">Unable to read ThingsBoard JWT (user is not authenticated or storage access is blocked).</div>';\n}\n\n// Build exchange payload (extend as needed)\nvar payload = {\n  accessCode: String(accessCode),\n  entityId: entityId,\n  entityType: entityType,\n  dashboardId: (ctx.dashboard && ctx.dashboard.dashboardId) || null,\n  stateId: (ctx.stateController && ctx.stateController.stateId) || null\n};\n\ntry {\n  var resp = syncPostJson(exchangeUrl, payload, tbJwt);\n  if (!resp || !resp.embedUrl) {\n    return '<div style=\"padding:12px;\">Token-exchange succeeded but no embedUrl returned.</div>';\n  }\n  window.__assetReportEmbedCache[cacheKey] = {\n    embedUrl: resp.embedUrl,\n    expiresAt: resp.expiresAt || null\n  };\n  return (\n    '<div style=\"width:100%;height:' + heightPx + 'px;\">' +\n      '<iframe ' +\n        'src=\"' + resp.embedUrl + '\" ' +\n        'style=\"width:100%;height:100%;border:0;\" ' +\n        'loading=\"lazy\" referrerpolicy=\"no-referrer\" ' +\n        'sandbox=\"' + sandboxAttr + '\">' +\n      '</iframe>' +\n    '</div>'\n  );\n} catch (err) {\n  return (\n    '<div style=\"padding:12px;\">' +\n      '<div style=\"font-weight:600;margin-bottom:6px;\">Asset report embed error</div>' +\n      '<div style=\"white-space:pre-wrap;opacity:0.85;\">' + ('' + err) + '</div>' +\n      '<div style=\"margin-top:10px;opacity:0.8;\">Check CORS on exchangeUrl (Authorization header), and backend response format.</div>' +\n    '</div>'\n  );\n}",
+            "applyDefaultMarkdownStyle": false,
+            "markdownCss": ":host { display:block; width:100%; height:100%; }",
+            "exchangeUrl": "https://asset.ecoenergygroup.com/api/embed/session",
+            "accessCode": "1234567890",
+            "embedHeightPx": 800,
+            "sandbox": "allow-scripts allow-same-origin allow-forms allow-popups"
+          },
+          "title": "Asset Report (Embedded)",
+          "showTitleIcon": false,
+          "iconColor": "rgba(0, 0, 0, 0.87)",
+          "iconSize": "24px",
+          "titleTooltip": "",
+          "dropShadow": false,
+          "enableFullscreen": true,
+          "widgetStyle": {},
+          "titleStyle": {
+            "fontSize": "16px",
+            "fontWeight": 400
+          },
+          "showLegend": false,
+          "useDashboardTimewindow": true,
+          "displayTimewindow": true,
+          "enableDataExport": false,
+          "borderRadius": "8px",
+          "widgetCss": "",
+          "pageSize": 1024,
+          "noDataDisplayMessage": ""
+        },
+        "row": 0,
+        "col": 0,
+        "id": "51afa171-2f9e-200a-ec8a-5adf40fada75"
+      }
+    },
+    "states": {
+      "default": {
+        "name": "Smart Diagnostics",
+        "root": true,
+        "layouts": {
+          "main": {
+            "widgets": {
+              "1dd6b46f-3282-d932-e25d-d495ef9c2432": {
+                "sizeX": 24,
+                "sizeY": 13,
+                "row": 0,
+                "col": 0
+              }
+            },
+            "gridSettings": {
+              "layoutType": "default",
+              "backgroundColor": "#eeeeee",
+              "columns": 24,
+              "margin": 10,
+              "outerMargin": true,
+              "backgroundSizeMode": "100%",
+              "minColumns": 24,
+              "viewFormat": "grid",
+              "autoFillHeight": true,
+              "rowHeight": 70,
+              "backgroundImageUrl": null,
+              "mobileAutoFillHeight": false,
+              "mobileRowHeight": 70
+            }
+          }
+        }
+      },
+      "assessment": {
+        "name": "Assessment",
+        "root": false,
+        "layouts": {
+          "main": {
+            "widgets": {
+              "735b995c-b399-59c8-ff2b-1f4ddbc6ce75": {
+                "sizeX": 24,
+                "sizeY": 12,
+                "row": 0,
+                "col": 0
+              }
+            },
+            "gridSettings": {
+              "layoutType": "default",
+              "backgroundColor": "#FFFFFF",
+              "columns": 24,
+              "margin": 10,
+              "outerMargin": true,
+              "backgroundSizeMode": "100%",
+              "minColumns": 24,
+              "viewFormat": "grid",
+              "autoFillHeight": true,
+              "rowHeight": 70,
+              "backgroundImageUrl": null,
+              "mobileAutoFillHeight": false,
+              "mobileRowHeight": 70
+            }
+          }
+        }
+      },
+      "assetreport": {
+        "name": "Asset Report",
+        "root": false,
+        "layouts": {
+          "main": {
+            "widgets": {
+              "65942fd9-5b4f-cbd1-172d-99233158696c": {
+                "sizeX": 24,
+                "sizeY": 12,
+                "row": 0,
+                "col": 0
+              },
+              "51afa171-2f9e-200a-ec8a-5adf40fada75": {
+                "sizeX": 24,
+                "sizeY": 3,
+                "mobileHide": true,
+                "desktopHide": true,
+                "resizable": true,
+                "row": 12,
+                "col": 0
+              }
+            },
+            "gridSettings": {
+              "layoutType": "default",
+              "backgroundColor": "#FFFFFF",
+              "columns": 24,
+              "margin": 10,
+              "outerMargin": true,
+              "backgroundSizeMode": "100%",
+              "minColumns": 24,
+              "viewFormat": "grid",
+              "autoFillHeight": true,
+              "rowHeight": 70,
+              "backgroundImageUrl": null,
+              "mobileAutoFillHeight": false,
+              "mobileRowHeight": 70
+            }
+          }
+        }
+      },
+      "measurement": {
+        "name": "Measurement",
+        "root": false,
+        "layouts": {
+          "main": {
+            "widgets": {
+              "fdb25ed5-f07e-e11c-d893-dccf13eb51b0": {
+                "sizeX": 24,
+                "sizeY": 12,
+                "row": 0,
+                "col": 0
+              }
+            },
+            "gridSettings": {
+              "layoutType": "default",
+              "backgroundColor": "#FFFFFF",
+              "columns": 24,
+              "margin": 10,
+              "outerMargin": true,
+              "backgroundSizeMode": "100%",
+              "minColumns": 24,
+              "viewFormat": "grid",
+              "autoFillHeight": true,
+              "rowHeight": 70,
+              "backgroundImageUrl": null,
+              "mobileAutoFillHeight": false,
+              "mobileRowHeight": 70
+            }
+          }
+        }
+      },
+      "analysis": {
+        "name": "Analysis",
+        "root": false,
+        "layouts": {
+          "main": {
+            "widgets": {
+              "02da89a4-ffe1-db20-dc1a-add382df5f2e": {
+                "sizeX": 24,
+                "sizeY": 12,
+                "row": 0,
+                "col": 0
+              }
+            },
+            "gridSettings": {
+              "layoutType": "default",
+              "backgroundColor": "#FFFFFF",
+              "columns": 24,
+              "margin": 10,
+              "outerMargin": true,
+              "backgroundSizeMode": "100%",
+              "minColumns": 24,
+              "viewFormat": "grid",
+              "autoFillHeight": true,
+              "rowHeight": 70,
+              "backgroundImageUrl": null,
+              "mobileAutoFillHeight": false,
+              "mobileRowHeight": 70
+            }
+          }
+        }
+      },
+      "monitoring": {
+        "name": "Monitoring",
+        "root": false,
+        "layouts": {
+          "main": {
+            "widgets": {
+              "8ece8969-fb30-f489-572e-41e529a369ff": {
+                "sizeX": 24,
+                "sizeY": 12,
+                "row": 0,
+                "col": 0
+              }
+            },
+            "gridSettings": {
+              "layoutType": "default",
+              "backgroundColor": "#FFFFFF",
+              "columns": 24,
+              "margin": 10,
+              "outerMargin": true,
+              "backgroundSizeMode": "100%",
+              "minColumns": 24,
+              "viewFormat": "grid",
+              "autoFillHeight": true,
+              "rowHeight": 70,
+              "backgroundImageUrl": null,
+              "mobileAutoFillHeight": false,
+              "mobileRowHeight": 70
+            }
+          }
+        }
+      },
+      "home": {
+        "name": "Home",
+        "root": false,
+        "layouts": {
+          "main": {
+            "widgets": {
+              "c02e9712-3220-aaf0-60a7-fecd55515eb9": {
+                "sizeX": 24,
+                "sizeY": 12,
+                "row": 12,
+                "col": 0,
+                "resizable": true,
+                "mobileHide": true,
+                "desktopHide": true
+              },
+              "9094f048-ccc5-b9d7-9dd0-6ef0a20851c9": {
+                "sizeX": 24,
+                "sizeY": 12,
+                "row": 0,
+                "col": 0
+              }
+            },
+            "gridSettings": {
+              "layoutType": "default",
+              "backgroundColor": "#FFFFFF",
+              "columns": 24,
+              "margin": 10,
+              "outerMargin": true,
+              "backgroundSizeMode": "100%",
+              "minColumns": 24,
+              "viewFormat": "grid",
+              "autoFillHeight": true,
+              "rowHeight": 70,
+              "backgroundImageUrl": null,
+              "mobileAutoFillHeight": false,
+              "mobileRowHeight": 70
+            }
+          }
+        }
+      },
+      "mobile-app": {
+        "name": "Mobile App",
+        "root": false,
+        "layouts": {
+          "main": {
+            "widgets": {
+              "978e4d0b-4d55-a5f6-8cf3-1e9ac9b3b6ce": {
+                "sizeX": 24,
+                "sizeY": 13,
+                "row": 0,
+                "col": 0
+              }
+            },
+            "gridSettings": {
+              "layoutType": "default",
+              "backgroundColor": "#FFFFFF",
+              "columns": 24,
+              "margin": 10,
+              "outerMargin": true,
+              "backgroundSizeMode": "100%",
+              "minColumns": 24,
+              "viewFormat": "grid",
+              "autoFillHeight": true,
+              "rowHeight": 70,
+              "backgroundImageUrl": null,
+              "mobileAutoFillHeight": false,
+              "mobileRowHeight": 70
+            }
+          }
+        }
+      },
+      "info-assessment": {
+        "name": "Belimo RetroFIT+",
+        "root": false,
+        "layouts": {
+          "main": {
+            "widgets": {
+              "79029476-4566-98e9-5da8-27caeb565c2c": {
+                "sizeX": 24,
+                "sizeY": 12,
+                "row": 0,
+                "col": 0
+              }
+            },
+            "gridSettings": {
+              "layoutType": "default",
+              "backgroundColor": "#FFFFFF",
+              "columns": 24,
+              "margin": 10,
+              "outerMargin": true,
+              "backgroundSizeMode": "100%",
+              "minColumns": 24,
+              "viewFormat": "grid",
+              "autoFillHeight": true,
+              "rowHeight": 70,
+              "backgroundImageUrl": null,
+              "mobileAutoFillHeight": false,
+              "mobileRowHeight": 70
+            }
+          }
+        }
+      },
+      "info-assetreport": {
+        "name": "ECO Energy Asset Report",
+        "root": false,
+        "layouts": {
+          "main": {
+            "widgets": {
+              "bdbf787e-094a-92e0-6df5-4b3969affe5f": {
+                "sizeX": 24,
+                "sizeY": 12,
+                "row": 0,
+                "col": 0
+              }
+            },
+            "gridSettings": {
+              "layoutType": "default",
+              "backgroundColor": "#FFFFFF",
+              "columns": 24,
+              "margin": 10,
+              "outerMargin": true,
+              "backgroundSizeMode": "100%",
+              "minColumns": 24,
+              "viewFormat": "grid",
+              "autoFillHeight": true,
+              "rowHeight": 70,
+              "backgroundImageUrl": null,
+              "mobileAutoFillHeight": false,
+              "mobileRowHeight": 70
+            }
+          }
+        }
+      },
+      "info-measurement": {
+        "name": "Smart Measurement",
+        "root": false,
+        "layouts": {
+          "main": {
+            "widgets": {
+              "8840f0a9-1d9a-9649-79cd-0310c0cc567a": {
+                "sizeX": 24,
+                "sizeY": 12,
+                "row": 0,
+                "col": 0
+              }
+            },
+            "gridSettings": {
+              "layoutType": "default",
+              "backgroundColor": "#FFFFFF",
+              "columns": 24,
+              "margin": 10,
+              "outerMargin": true,
+              "backgroundSizeMode": "100%",
+              "minColumns": 24,
+              "viewFormat": "grid",
+              "autoFillHeight": true,
+              "rowHeight": 70,
+              "backgroundImageUrl": null,
+              "mobileAutoFillHeight": false,
+              "mobileRowHeight": 70
+            }
+          }
+        }
+      },
+      "info-analysis": {
+        "name": "Smart Analysis",
+        "root": false,
+        "layouts": {
+          "main": {
+            "widgets": {
+              "7d36dd75-f618-00e4-4ad7-e05a332e4404": {
+                "sizeX": 24,
+                "sizeY": 12,
+                "row": 0,
+                "col": 0
+              }
+            },
+            "gridSettings": {
+              "layoutType": "default",
+              "backgroundColor": "#FFFFFF",
+              "columns": 24,
+              "margin": 10,
+              "outerMargin": true,
+              "backgroundSizeMode": "100%",
+              "minColumns": 24,
+              "viewFormat": "grid",
+              "autoFillHeight": true,
+              "rowHeight": 70,
+              "backgroundImageUrl": null,
+              "mobileAutoFillHeight": false,
+              "mobileRowHeight": 70
+            }
+          }
+        }
+      },
+      "info-monitoring": {
+        "name": "Smart Monitoring",
+        "root": false,
+        "layouts": {
+          "main": {
+            "widgets": {
+              "a678f68b-a9cc-db8c-1579-2794a0af750e": {
+                "sizeX": 24,
+                "sizeY": 12,
+                "row": 0,
+                "col": 0
+              }
+            },
+            "gridSettings": {
+              "layoutType": "default",
+              "backgroundColor": "#FFFFFF",
+              "columns": 24,
+              "margin": 10,
+              "outerMargin": true,
+              "backgroundSizeMode": "100%",
+              "minColumns": 24,
+              "viewFormat": "grid",
+              "autoFillHeight": true,
+              "rowHeight": 70,
+              "backgroundImageUrl": null,
+              "mobileAutoFillHeight": false,
+              "mobileRowHeight": 70
+            }
+          }
+        }
+      },
+      "administration": {
+        "name": "Administration",
+        "root": false,
+        "layouts": {
+          "main": {
+            "widgets": {
+              "3b15a19d-640c-393c-400d-f4d15aecf73c": {
+                "sizeX": 24,
+                "sizeY": 12,
+                "row": 0,
+                "col": 0
+              }
+            },
+            "gridSettings": {
+              "layoutType": "default",
+              "backgroundColor": "#FFFFFF",
+              "columns": 24,
+              "margin": 10,
+              "outerMargin": true,
+              "backgroundSizeMode": "100%",
+              "minColumns": 24,
+              "viewFormat": "grid",
+              "autoFillHeight": true,
+              "rowHeight": 70,
+              "backgroundImageUrl": null,
+              "mobileAutoFillHeight": false,
+              "mobileRowHeight": 70
+            }
+          }
+        }
+      }
+    },
+    "entityAliases": {
+      "62ceb79d-0f40-7f6b-ad01-f3d4b52d141a": {
+        "id": "62ceb79d-0f40-7f6b-ad01-f3d4b52d141a",
+        "alias": "tabMode",
+        "filter": {
+          "type": "stateEntity",
+          "resolveMultiple": false,
+          "stateEntityParamName": "tabMode",
+          "defaultStateEntity": null
+        }
+      }
+    },
+    "filters": {},
+    "timewindow": {
+      "displayValue": "",
+      "hideAggregation": false,
+      "hideAggInterval": false,
+      "hideTimezone": false,
+      "selectedTab": 0,
+      "realtime": {
+        "realtimeType": 0,
+        "interval": 1000,
+        "timewindowMs": 60000,
+        "quickInterval": "CURRENT_DAY",
+        "hideInterval": false,
+        "hideLastInterval": false,
+        "hideQuickInterval": false
+      },
+      "history": {
+        "historyType": 0,
+        "interval": 1000,
+        "timewindowMs": 60000,
+        "fixedTimewindow": {
+          "startTimeMs": 1765478806714,
+          "endTimeMs": 1765565206714
+        },
+        "quickInterval": "CURRENT_DAY",
+        "hideInterval": false,
+        "hideLastInterval": false,
+        "hideFixedInterval": false,
+        "hideQuickInterval": false
+      },
+      "aggregation": {
+        "type": "AVG",
+        "limit": 50000
+      }
+    },
+    "settings": {
+      "stateControllerId": "entity",
+      "showTitle": false,
+      "showDashboardsSelect": true,
+      "showEntitiesSelect": false,
+      "showDashboardTimewindow": false,
+      "showDashboardExport": false,
+      "toolbarAlwaysOpen": false,
+      "titleColor": "rgba(0,0,0,0.870588)",
+      "showDashboardLogo": false,
+      "dashboardLogoUrl": null,
+      "hideToolbar": false,
+      "showFilters": false,
+      "showUpdateDashboardImage": false,
+      "dashboardCss": ""
+    }
+  },
+  "name": "Smart Diagnostics Navigation",
+  "resources": null
+}

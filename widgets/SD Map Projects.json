@@ -1,0 +1,606 @@
+{
+  "widget": {
+    "typeFullFqn": "system.map",
+    "type": "latest",
+    "sizeX": 8.5,
+    "sizeY": 6,
+    "config": {
+      "datasources": [],
+      "timewindow": {
+        "displayValue": "",
+        "selectedTab": 0,
+        "realtime": {
+          "realtimeType": 1,
+          "interval": 1000,
+          "timewindowMs": 60000,
+          "quickInterval": "CURRENT_DAY",
+          "hideInterval": false,
+          "hideLastInterval": false,
+          "hideQuickInterval": false
+        },
+        "history": {
+          "historyType": 0,
+          "interval": 1000,
+          "timewindowMs": 60000,
+          "fixedTimewindow": {
+            "startTimeMs": 1745755787013,
+            "endTimeMs": 1745842187013
+          },
+          "quickInterval": "CURRENT_DAY",
+          "hideInterval": false,
+          "hideLastInterval": false,
+          "hideFixedInterval": false,
+          "hideQuickInterval": false
+        },
+        "aggregation": {
+          "type": "AVG",
+          "limit": 50000
+        }
+      },
+      "showTitle": false,
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "color": "rgba(0, 0, 0, 0.87)",
+      "padding": "0px",
+      "settings": {
+        "mapType": "geoMap",
+        "layers": [
+          {
+            "label": "{i18n:widgets.maps.layer.roadmap}",
+            "provider": "openstreet",
+            "layerType": "CartoDB.Positron",
+            "referenceLayer": null
+          },
+          {
+            "label": "{i18n:widgets.maps.layer.satellite}",
+            "provider": "openstreet",
+            "layerType": "Esri.WorldImagery"
+          },
+          {
+            "label": "{i18n:widgets.maps.layer.hybrid}",
+            "provider": "openstreet",
+            "layerType": "Esri.WorldImagery",
+            "referenceLayer": "openstreetmap_hybrid"
+          },
+          {
+            "label": "{i18n:widgets.maps.layer.topographic}",
+            "provider": "openstreet",
+            "layerType": "Esri.WorldTopoMap",
+            "referenceLayer": null
+          },
+          {
+            "label": null,
+            "provider": "openstreet",
+            "layerType": "OpenStreetMap.HOT",
+            "referenceLayer": null
+          },
+          {
+            "label": null,
+            "provider": "openstreet",
+            "layerType": "Esri.WorldStreetMap",
+            "referenceLayer": null
+          },
+          {
+            "provider": "openstreet",
+            "layerType": "OpenStreetMap.Mapnik"
+          }
+        ],
+        "imageSource": null,
+        "markers": [
+          {
+            "dsType": "entity",
+            "dsLabel": "",
+            "dsDeviceId": null,
+            "dsEntityAliasId": "6a54233e-e9c7-7e5d-626b-c1cf3a0a30a6",
+            "dsFilterId": "dfd37bd2-bb12-d529-9ea0-999958063eb5",
+            "additionalDataSources": null,
+            "additionalDataKeys": [
+              {
+                "name": "progress",
+                "type": "attribute",
+                "label": "progress",
+                "color": "#2196f3",
+                "settings": {},
+                "_hash": 0.9725950885098493
+              },
+              {
+                "name": "name",
+                "type": "entityField",
+                "label": "name",
+                "color": "#2196f3",
+                "settings": {},
+                "_hash": 0.2872987416504812,
+                "aggregationType": null,
+                "units": null,
+                "decimals": null,
+                "funcBody": null,
+                "usePostProcessing": null,
+                "postFuncBody": null
+              },
+              {
+                "name": "address",
+                "type": "attribute",
+                "label": "address",
+                "color": "#2196f3",
+                "settings": {},
+                "_hash": 0.8026110588871542
+              },
+              {
+                "name": "outsideTemp",
+                "type": "timeseries",
+                "label": "outsideTemp",
+                "color": "#2196f3",
+                "settings": {},
+                "_hash": 0.759902282076257
+              },
+              {
+                "name": "outsideHumidity",
+                "type": "timeseries",
+                "label": "outsideHumidity",
+                "color": "#2196f3",
+                "settings": {},
+                "_hash": 0.05821233805088244
+              },
+              {
+                "name": "label",
+                "type": "entityField",
+                "label": "label",
+                "color": "#2196f3",
+                "settings": {},
+                "_hash": 0.8646915284773707,
+                "aggregationType": null,
+                "units": null,
+                "decimals": null,
+                "funcBody": null,
+                "usePostProcessing": null,
+                "postFuncBody": null
+              }
+            ],
+            "label": {
+              "show": true,
+              "type": "function",
+              "pattern": "${entityName}",
+              "patternFunction": {
+                "body": "var color = utils.getProgressColor(data.progress).color;\r\n\r\nreturn '<span style=\"border: solid ' + color + '; border-radius: 10px; color: ' + color + '; background-color: #fff; padding: 3px 5px; font-size: 14px; position: relative; bottom: 6px;\">' + \r\n           '${entityName}' + \r\n        '</span>';",
+                "modules": {
+                  "utils": "tb-resource;/api/resource/js_module/tenant/ECO Diagnostics Utils JS.js"
+                }
+              }
+            },
+            "tooltip": {
+              "show": true,
+              "type": "function",
+              "pattern": "<b>${entityName}</b><br/><br/><b>Latitude:</b> ${latitude:7}<br/><b>Longitude:</b> ${longitude:7}<br/><b>Temperature:</b> ${temperature} \u00b0C<br/><small>See tooltip settings for details</small>",
+              "patternFunction": {
+                "body": "const temperature = data.outsideTemp;\nconst humidity = data.outsideHumidity;\nconst pressure = data.pressure;\nconst longitude = data.longitude;\nconst latitude = data.latitude;\nvar locationName = data.locationName || 'N/A';\nconst installationType = data.installationType;\nconst address = data.address;\nconst name = data.name;\nconst label = data.label;\n/*console.log(data[0]);\nconsole.log(data[1]);\nconsole.log(data[2]);\nconsole.log(data);\nconsole.log(dsData[dsData.length -1]);*/\nconst userRole = dsData[dsData.length - 1].role;\n\n\n\n// Alarms\nconst state = data.state;\nconst progress = data.progress;\nconst criticalAlarms = data.criticalAlarmsCount || 'N/A';\nconst majorAlarms = data.majorAlarmsCount || 'N/A';\nconst minorAlarms = data.minorAlarmsCount || 'N/A';\nconst warningAlarms = data.warningAlarmsCount || 'N/A';\n\n// Farben f\u00fcr Alarms\nconst criticalAlarmsColor = '#FF0000'; // Rot\nconst criticalAlarmsBgColor =\n    'rgba(255, 0, 0, 0.1)'; // Transparenter Rot\n\nconst majorAlarmsColor = '#FF8C00'; // Orange\nconst majorAlarmsBgColor =\n    'rgba(255, 140, 0, 0.1)'; // Transparenter Orange\n\nconst minorAlarmsColor = '#FFD700'; // Gold\nconst minorAlarmsBgColor =\n    'rgba(255, 215, 0, 0.1)'; // Transparenter Gold\n\nconst warningAlarmsColor = '#000000'; // Schwarz\nconst warningAlarmsBgColor =\n    'rgba(128, 128, 128, 0.1)'; // Transparenter Grau\n\nvar ButtonHtml = '';\nif (userRole !== \"Belimo Retrofit Users\") {\n    ButtonHtml = '<div style=\"text-align: center\">' +\n        '<link-act name=\"toggle_measurements\">Measurements</link-act>' +\n        '</div>';\n}\n\nif (locationName === 'N/A') {\n    locationName = label;\n}\n\nreturn '<div style=\"display:flex;flex-direction:column;margin-bottom:8px;font-family:\\'Roboto\\';font-weight:500;font-size:16px;line-height:24px;letter-spacing:0.25px;color:#29313C\">' +\n    '<div>' + locationName + ' | ' + name + '</div>' +\n    '<div style=\"width: 100%;border-bottom:1px solid rgba(0, 0, 0, 0.12);margin:12px 0;\"></div>' +\n\n    '<div style=\"display:flex;flex-direction:row;align-items:baseline;margin-bottom:9px;\">' +\n    '<div style=\"font-size:13px;line-height:16px;font-weight:500;color:rgba(0, 0, 0, 0.38);width:100px\">{i18n:custom.diagnostics.project-address.title}</div>' +\n    '<div style=\"font-size:14px;line-height:20px;font-weight:500;letter-spacing:0.25px\">' +\n    address + '</div>' +\n    '</div>' +\n    /*    '<div style=\"display:flex;flex-direction:row;align-items:baseline;margin-bottom:9px;\">' +\n        '<div style=\"font-size:13px;line-height:16px;font-weight:500;color:rgba(0, 0, 0, 0.38);width:100px\">Critical Alarms</div>' +\n        '<div style=\"width:fit-content;padding:4px 8px;border-radius:8px;line-height:20px;font-size:14px;font-weight:500;letter-spacing:0.25px;color:' +\n        criticalAlarmsColor + ';background-color:' +\n        criticalAlarmsBgColor + '\">' + criticalAlarms +\n        '</div>' +\n        '</div>' +\n        '<div style=\"display:flex;flex-direction:row;align-items:baseline;margin-bottom:9px;\">' +\n        '<div style=\"font-size:13px;line-height:16px;font-weight:500;color:rgba(0, 0, 0, 0.38);width:100px\">Major Alarms</div>' +\n        '<div style=\"width:fit-content;padding:4px 8px;border-radius:8px;line-height:20px;font-size:14px;font-weight:500;letter-spacing:0.25px;color:' +\n        majorAlarmsColor + ';background-color:' +\n        majorAlarmsBgColor + '\">' + majorAlarms + '</div>' +\n        '</div>' +\n        '<div style=\"display:flex;flex-direction:row;align-items:baseline;margin-bottom:9px;\">' +\n        '<div style=\"font-size:13px;line-height:16px;font-weight:500;color:rgba(0, 0, 0, 0.38);width:100px\">Minor Alarms</div>' +\n        '<div style=\"width:fit-content;padding:4px 8px;border-radius:8px;line-height:20px;font-size:14px;font-weight:500;letter-spacing:0.25px;color:' +\n        minorAlarmsColor + ';background-color:' +\n        minorAlarmsBgColor + '\">' + minorAlarms + '</div>' +\n        '</div>' +\n        '<div style=\"display:flex;flex-direction:row;align-items:baseline;margin-bottom:9px;\">' +\n        '<div style=\"font-size:13px;line-height:16px;font-weight:500;color:rgba(0, 0, 0, 0.38);width:100px\">Warning Alarms</div>' +\n        '<div style=\"width:fit-content;padding:4px 8px;border-radius:8px;line-height:20px;font-size:14px;font-weight:500;letter-spacing:0.25px;color:' +\n        warningAlarmsColor + ';background-color:' +\n        warningAlarmsBgColor + '\">' + warningAlarms + '</div>' +\n        '</div>' +*/\n    '<div style=\"display:flex;flex-direction:row;align-items:baseline;margin-bottom:9px;\">' +\n    '<div style=\"font-size:13px;line-height:16px;font-weight:500;color:rgba(0, 0, 0, 0.38);width:100px\">{i18n:custom.diagnostics.project-progress.title}</div>' +\n    '<div style=\"font-size:14px;line-height:20px;font-weight:500;letter-spacing:0.25px\">' +\n    utils.getProgressHtml(progress) + '</div>' +\n    '</div>' +\n    '<div style=\"display:flex;flex-direction:row;align-items:baseline;margin-bottom:9px;\">' +\n    '<div style=\"font-size:13px;line-height:16px;font-weight:500;color:rgba(0, 0, 0, 0.38);width:100px\">{i18n:custom.diagnostics.temperature.title}</div>' +\n    '<div style=\"font-size:14px;line-height:20px;font-weight:500;letter-spacing:0.25px\">' +\n    temperature + ' \u00b0C</div>' +\n    '</div>' +\n    '<div style=\"display:flex;flex-direction:row;align-items:baseline;margin-bottom:9px;\">' +\n    '<div style=\"font-size:13px;line-height:16px;font-weight:500;color:rgba(0, 0, 0, 0.38);width:100px\">{i18n:custom.diagnostics.humidity.title}</div>' +\n    '<div style=\"font-size:14px;line-height:20px;font-weight:500;letter-spacing:0.25px\">' +\n    humidity + ' % r.H.</div>' +\n    '</div>' +\n    ButtonHtml +\n    '</div>';",
+                "modules": {
+                  "utils": "tb-resource;/api/resource/js_module/tenant/ECO Diagnostics Utils JS.js"
+                }
+              },
+              "trigger": "click",
+              "autoclose": true,
+              "offsetX": 0,
+              "offsetY": -1,
+              "tagActions": [
+                {
+                  "name": "toggle_measurements",
+                  "type": "custom",
+                  "customFunction": "var params = widgetContext.stateController.getStateParams();\nvar selectedProject = params['selectedProject'];\nif (selectedProject && selectedProject.entityId.id === entityId.id) {\n    params['selectedProject'] = null;\n} else {\n    params['selectedProject'] = { entityId: entityId, entityName: entityName, entityLabel: entityLabel };\n}\nwidgetContext.stateController.updateState(null, params);\n/*console.log(\"Params 1: \" + JSON.stringify(params));*/",
+                  "openInSeparateDialog": false,
+                  "openInPopover": false
+                }
+              ]
+            },
+            "click": {
+              "type": "doNothing",
+              "openInSeparateDialog": false,
+              "openInPopover": false
+            },
+            "groups": null,
+            "edit": {
+              "enabledActions": [
+                "add",
+                "move"
+              ],
+              "attributeScope": "SERVER_SCOPE",
+              "snappable": false
+            },
+            "xKey": {
+              "name": "latitude",
+              "label": "latitude",
+              "type": "attribute",
+              "settings": {},
+              "color": "#2196f3"
+            },
+            "yKey": {
+              "name": "longitude",
+              "label": "longitude",
+              "type": "attribute",
+              "settings": {},
+              "color": "#2196f3"
+            },
+            "markerType": "icon",
+            "markerShape": {
+              "shape": "markerShape1",
+              "size": 34,
+              "color": {
+                "type": "constant",
+                "color": "#307FE5"
+              }
+            },
+            "markerIcon": {
+              "iconContainer": "iconContainer4",
+              "icon": "domain",
+              "size": 40,
+              "color": {
+                "type": "function",
+                "color": "#307FE5",
+                "rangeKey": null,
+                "range": null,
+                "colorFunction": {
+                  "body": "return utils.getProgressColor(data.progress).color;",
+                  "modules": {
+                    "utils": "tb-resource;/api/resource/js_module/tenant/ECO Diagnostics Utils JS.js"
+                  }
+                }
+              }
+            },
+            "markerImage": {
+              "type": "image",
+              "image": "/assets/markers/shape1.svg",
+              "imageSize": 34
+            },
+            "markerOffsetX": 0.5,
+            "markerOffsetY": 1,
+            "markerClustering": {
+              "enable": true,
+              "zoomOnClick": true,
+              "maxZoom": null,
+              "maxClusterRadius": 80,
+              "zoomAnimation": true,
+              "showCoverageOnHover": true,
+              "spiderfyOnMaxZoom": false,
+              "chunkedLoad": false,
+              "lazyLoad": true,
+              "useClusterMarkerColorFunction": false,
+              "clusterMarkerColorFunction": null
+            }
+          }
+        ],
+        "polygons": [],
+        "circles": [],
+        "additionalDataSources": [
+          {
+            "dsType": "entity",
+            "dsLabel": "",
+            "dataKeys": [
+              {
+                "name": "latitude",
+                "type": "attribute",
+                "label": "selectedProject",
+                "color": "#2196f3",
+                "settings": {},
+                "_hash": 0.5634367819170003,
+                "aggregationType": null,
+                "units": null,
+                "decimals": null,
+                "funcBody": null,
+                "usePostProcessing": null,
+                "postFuncBody": null
+              }
+            ],
+            "dsEntityAliasId": "1c43e3cf-6ca2-f2f1-65c0-45d7b82735ce"
+          },
+          {
+            "dsType": "entity",
+            "dsLabel": "",
+            "dataKeys": [
+              {
+                "name": "role",
+                "type": "attribute",
+                "label": "role",
+                "color": "#2196f3",
+                "settings": {},
+                "_hash": 0.7014478669430672
+              },
+              {
+                "name": "displayAbortedMeasurement",
+                "type": "attribute",
+                "label": "displayAbortedMeasurement",
+                "color": "#2196f3",
+                "settings": {},
+                "_hash": 0.8011587598224269
+              },
+              {
+                "name": "displayActiveMeasurement",
+                "type": "attribute",
+                "label": "displayActiveMeasurement",
+                "color": "#2196f3",
+                "settings": {},
+                "_hash": 0.8205299052205228
+              },
+              {
+                "name": "displayFinishedMeasurement",
+                "type": "attribute",
+                "label": "displayFinishedMeasurement",
+                "color": "#2196f3",
+                "settings": {},
+                "_hash": 0.038665901375789624
+              },
+              {
+                "name": "displayPreparationMeasurement",
+                "type": "attribute",
+                "label": "displayPreparationMeasurement",
+                "color": "#2196f3",
+                "settings": {},
+                "_hash": 0.21373032656145663
+              }
+            ],
+            "dsEntityAliasId": "7b659beb-1601-5b67-528e-0846d1a0efa6"
+          }
+        ],
+        "controlsPosition": "topleft",
+        "zoomActions": [
+          "scroll",
+          "doubleClick",
+          "controlButtons"
+        ],
+        "scales": [
+          "metric"
+        ],
+        "dragModeButton": true,
+        "fitMapBounds": true,
+        "useDefaultCenterPosition": false,
+        "defaultCenterPosition": "0,0",
+        "defaultZoomLevel": null,
+        "mapPageSize": 16384,
+        "mapActionButtons": [
+          {
+            "label": "Filter",
+            "icon": "filter_alt",
+            "color": "#0000008A",
+            "action": {
+              "type": "openDashboardState",
+              "targetDashboardStateId": "Measurement_state_filter",
+              "setEntityId": true,
+              "stateEntityParamName": null,
+              "openRightLayout": false,
+              "popoverPreferredPlacement": "top",
+              "popoverHideOnClickOutside": true,
+              "popoverHideDashboardToolbar": true,
+              "popoverWidth": "300px",
+              "popoverHeight": "250px",
+              "popoverStyle": {
+                "padding": "16px",
+                "borderRadius": "8px",
+                "boxShadow": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+                "background": "#ffffff"
+              },
+              "openInSeparateDialog": false,
+              "openInPopover": true
+            }
+          },
+          {
+            "label": "Add Project",
+            "icon": "add",
+            "color": "#0000008a",
+            "action": {
+              "type": "placeMapItem",
+              "customHtml": "<form #addEntityForm=\"ngForm\" [formGroup]=\"addProjectFormGroup\"\n      (ngSubmit)=\"save()\" class=\"add-entity-form max-w-3xl mx-auto\" style=\"width: 600px; max-width: 90vw;\">\n  <mat-toolbar class=\"flex items-center bg-primary text-white px-4\" color=\"primary\">\n    <h2 class=\"text-lg font-semibold\">Add Project</h2>\n    <span class=\"flex-1\"></span>\n    <button mat-icon-button (click)=\"cancel()\" type=\"button\">\n      <mat-icon class=\"material-icons\">close</mat-icon>\n    </button>\n  </mat-toolbar>\n  <mat-progress-bar color=\"warn\" mode=\"indeterminate\" *ngIf=\"isLoading$ | async\">\n  </mat-progress-bar>\n  <div style=\"height: 4px;\" *ngIf=\"!(isLoading$ | async)\"></div>\n  <div mat-dialog-content class=\"flex flex-col p-4 space-y-4\">\n    <div class=\"flex flex-col gap-0 sm:gap-2\">\n        <mat-form-field *ngIf=\"isTenantAdmin\" appearance=\"fill\" class=\"flex-1\">\n          <mat-label>Customer</mat-label>\n\n          <mat-select\n              formControlName=\"customer\"\n              (selectionChange)=\"onCustomerChange()\"\n              required>\n\n            <mat-option *ngFor=\"let c of customers\" [value]=\"c\">\n              {{ c.name }}\n            </mat-option>\n\n          </mat-select>\n\n          <mat-error *ngIf=\"addProjectFormGroup.get('customer')?.hasError('required')\">\n            Customer is required.\n          </mat-error>\n        </mat-form-field>\n        <mat-form-field appearance=\"fill\" class=\"flex-1\">\n            <mat-label>Project ID</mat-label>\n            <input matInput formControlName=\"name\" required readonly>\n            <mat-error *ngIf=\"addProjectFormGroup.get('name').hasError('required')\">\n              Project title is required.\n            </mat-error>\n        </mat-form-field>\n        <mat-form-field appearance=\"fill\" class=\"flex-1\">\n            <mat-label>Label</mat-label>\n            <input matInput formControlName=\"entityLabel\">\n        </mat-form-field>\n        <mat-form-field appearance=\"fill\" class=\"flex-1\">\n            <mat-label>Project address</mat-label>\n            <input matInput formControlName=\"address\">\n        </mat-form-field>\n        <div style=\"display: flex; gap: 8px;\">\n          <mat-form-field appearance=\"fill\" style=\"flex: 1;\">\n              <mat-label>Postal Code</mat-label>\n              <input matInput formControlName=\"postalCode\">\n          </mat-form-field>\n          <mat-form-field appearance=\"fill\" style=\"flex: 2;\">\n              <mat-label>City</mat-label>\n              <input matInput formControlName=\"city\">\n          </mat-form-field>\n        </div>\n        <div style=\"display: flex; gap: 8px;\">\n          <mat-form-field appearance=\"fill\" style=\"flex: 1;\">\n              <mat-label>Latitude</mat-label>\n              <input matInput formControlName=\"latitude\" readonly>\n          </mat-form-field>\n          <mat-form-field appearance=\"fill\" style=\"flex: 1;\">\n              <mat-label>Longitude</mat-label>\n              <input matInput formControlName=\"longitude\" readonly>\n          </mat-form-field>\n        </div>\n    </div>\n  </div>\n  <div mat-dialog-actions class=\"flex justify-end gap-2\">\n    <button mat-button color=\"primary\"\n            type=\"button\"\n            [disabled]=\"(isLoading$ | async)\"\n            (click)=\"cancel()\" cdkFocusInitial>\n      Cancel\n    </button>\n    <button mat-button mat-raised-button color=\"primary\"\n            type=\"submit\"\n            [disabled]=\"(isLoading$ | async) || addProjectFormGroup.invalid || !addProjectFormGroup.dirty\">\n      Add Project\n    </button>\n  </div>\n</form>\n",
+              "customCss": "",
+              "customFunction": "/*========================================================================*/\n/*========  Add Project with Customer Selection & Reverse Geocoding  =====*/\n/*========================================================================*/\n\nlet $injector = widgetContext.$scope.$injector;\nlet customDialog = $injector.get(widgetContext.servicesMap.get('customDialog'));\nlet assetService = $injector.get(widgetContext.servicesMap.get('assetService'));\nlet entityGroupService = $injector.get(widgetContext.servicesMap.get('entityGroupService'));\nlet attributeService = $injector.get(widgetContext.servicesMap.get('attributeService'));\nlet entityRelationService = $injector.get(widgetContext.servicesMap.get('entityRelationService'));\nlet customerService = $injector.get(widgetContext.servicesMap.get('customerService'));\nlet $http = $injector.get(widgetContext.servicesMap.get('http'));\n\n// Get marker coordinates\nconst markerLat = additionalParams.coordinates.x;\nconst markerLon = additionalParams.coordinates.y;\n\nconsole.log(\"Marker Coordinates: \", markerLat, markerLon);\n\n// Check if Tenant Admin\nconst isTenantAdmin = widgetContext.currentUser.authority === 'TENANT_ADMIN';\nconst pageLink = widgetContext.pageLink(1000, 0, null, null, null);\n\n// Shared variables for async operations\nlet customers = [];\nlet selectedCustomerId = null;\nlet selectedCustomerName = null;\nlet addressData = null;\nlet nextProjectId = 0;\nlet customerShortName = '';\n\n// Step 1: Reverse Geocoding\nreverseGeocode(markerLat, markerLon)\n  .then(data => {\n    addressData = data;\n    console.log('Reverse geocoding result:', addressData);\n\n    // Step 2: Fetch customers\n    return fetchCustomers();\n  })\n  .then(() => {\n    console.log('Customers fetched:', customers);\n\n    // Step 3: Open dialog with customer selection\n    openAddProjectDialog();\n  })\n  .catch(error => {\n    console.error('Error in Add Project workflow:', error);\n  });\n\n/**\n * Reverse Geocoding: Converts lat/lon to address using Photon API\n * Address format: Stra\u00dfenname Hausnummer, CC-Postleitzahl Ort\n */\nfunction reverseGeocode(lat, lon) {\n  return new Promise((resolve, reject) => {\n    const url = `https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}&limit=1`;\n\n    $http.get(url).subscribe(\n      response => {\n        if (response && response.features && response.features.length > 0) {\n          const feature = response.features[0];\n          const props = feature.properties;\n\n          // Build address in format: Stra\u00dfenname Hausnummer, CC-Postleitzahl Ort\n          let street = props.street || props.name || '';\n          let housenumber = props.housenumber || '';\n          let postcode = props.postcode || '';\n          let city = props.city || props.town || props.village || '';\n          let countryCode = props.countrycode ? props.countrycode.toUpperCase() : '';\n\n          // Street + Housenumber part\n          let addressLine = street;\n          if (housenumber) {\n            addressLine += ' ' + housenumber;\n          }\n\n          // CC-Postcode + City part\n          let locationLine = '';\n          if (countryCode && postcode) {\n            locationLine = countryCode + '-' + postcode;\n          } else if (postcode) {\n            locationLine = postcode;\n          }\n          if (city) {\n            locationLine += (locationLine ? ' ' : '') + city;\n          }\n\n          // Combined format: \"Street Number, CC-Postcode City\"\n          let fullAddress = addressLine;\n          if (locationLine) {\n            fullAddress += ', ' + locationLine;\n          }\n\n          const result = {\n            address: fullAddress,\n            postalCode: postcode,\n            city: city,\n            latitude: lat,\n            longitude: lon\n          };\n\n          resolve(result);\n        } else {\n          resolve({\n            address: '',\n            postalCode: '',\n            city: '',\n            latitude: lat,\n            longitude: lon\n          });\n        }\n      },\n      error => {\n        console.error('Photon API error:', error);\n        reject(error);\n      }\n    );\n  });\n}\n\n/**\n * Fetch customers based on user role\n */\nfunction fetchCustomers() {\n  return new Promise((resolve, reject) => {\n    customerService.getUserCustomers(pageLink).subscribe(\n      pageData => {\n        customers = (pageData && pageData.data) ? pageData.data : [];\n\n        // Non-Tenant-Admin \u2192 automatically select the single customer\n        if (!isTenantAdmin && customers.length === 1) {\n          const c = customers[0];\n          selectedCustomerId = {\n            id: c.id.id,\n            entityType: 'CUSTOMER'\n          };\n          selectedCustomerName = c.name;\n        }\n\n        resolve();\n      },\n      error => {\n        console.error('Error fetching customers:', error);\n        reject(error);\n      }\n    );\n  });\n}\n\nfunction openAddProjectDialog() {\n  customDialog.customDialog(htmlTemplate, AddProjectDialogController).subscribe();\n}\n\nfunction AddProjectDialogController(instance) {\n  let vm = instance;\n\n  vm.isTenantAdmin = isTenantAdmin;\n  vm.customers = customers;\n\n  // FormGroup erstellen\n  vm.addProjectFormGroup = vm.fb.group({\n    customer: [{ value: null, disabled: !isTenantAdmin }, vm.validators.required],\n    name: [{ value: '', disabled: true }, vm.validators.required],\n    entityLabel: [''],\n    address: [addressData ? addressData.address : ''],\n    postalCode: [addressData ? addressData.postalCode : ''],\n    city: [addressData ? addressData.city : ''],\n    latitude: [addressData ? addressData.latitude.toFixed(6) : markerLat.toFixed(6)],\n    longitude: [addressData ? addressData.longitude.toFixed(6) : markerLon.toFixed(6)]\n  });\n\n  // Customer vorausf\u00fcllen (Non-Tenant-Admin)\n  if (!isTenantAdmin && selectedCustomerId) {\n    vm.addProjectFormGroup.patchValue({\n      customer: customers[0]\n    });\n    vm.addProjectFormGroup.get('customer').markAsDirty();\n    loadCustomerData(selectedCustomerId, selectedCustomerName);\n  }\n\n  // Customer Change Handler\n  vm.onCustomerChange = function () {\n    const c = vm.addProjectFormGroup.getRawValue().customer;\n    if (!c) return;\n\n    selectedCustomerId = {\n      id: c.id.id,\n      entityType: 'CUSTOMER'\n    };\n    selectedCustomerName = c.name;\n\n    loadCustomerData(selectedCustomerId, selectedCustomerName);\n  };\n\n  // Load customer-specific data (projects + shortName)\n  function loadCustomerData(customerId, customerName) {\n    const assetSearchQuery = {\n      \"parameters\": {\n        \"rootId\": customerId.id,\n        \"rootType\": \"CUSTOMER\",\n        \"direction\": \"FROM\",\n        \"relationTypeGroup\": \"COMMON\",\n        \"maxLevel\": 10,\n        \"fetchLastLevelOnly\": false\n      },\n      \"relationType\": \"Owns\",\n      \"assetTypes\": [\"Project\"]\n    };\n\n    assetService.findByQuery(assetSearchQuery).subscribe(projects => {\n      nextProjectId = getLastProjectId(projects);\n\n      attributeService\n        .getEntityAttributes(customerId, 'SERVER_SCOPE', ['shortName'])\n        .subscribe(attributes => {\n          const shortNameAttr = attributes.find(a => a.key === 'shortName');\n          customerShortName = shortNameAttr ? shortNameAttr.value : customerName;\n\n          vm.addProjectFormGroup.patchValue({\n            name: customerShortName + '_' + nextProjectId\n          });\n\n          vm.addProjectFormGroup.get('name').markAsDirty();\n        });\n    });\n  }\n\n  function getLastProjectId(projects) {\n    let maxNumber = 0;\n    projects.forEach(item => {\n      const name = item.name;\n      const parts = name.split('_');\n      if (parts.length === 2) {\n        const number = parseInt(parts[1], 10);\n        if (number > maxNumber) {\n          maxNumber = number;\n        }\n      }\n    });\n    return maxNumber + 1;\n  }\n\n  vm.cancel = function() {\n    vm.dialogRef.close(null);\n  };\n\n  vm.save = function () {\n    if (!selectedCustomerId) {\n      console.error('No customer selected');\n      return;\n    }\n\n    // Validate that name is set\n    const formValues = vm.addProjectFormGroup.getRawValue();\n    if (!formValues.name || formValues.name === '') {\n      console.error('Project name is not set. Please select a customer first.');\n      return;\n    }\n\n    vm.addProjectFormGroup.markAsPristine();\n    saveProjectObservable(selectedCustomerId).subscribe(\n      function (Project) {\n        widgetContext.rxjs.forkJoin([\n          saveCustomerToProjectRelation(selectedCustomerId, Project.id),\n          saveAttributes(Project.id)\n        ]).subscribe(\n          function () {\n            var params = widgetContext.stateController.getStateParams();\n            params['selectedProject'] = {\n              entityId: Project.id,\n              entityName: Project.name,\n              entityLabel: ''\n            };\n            widgetContext.updateAliases();\n            vm.dialogRef.close(null);\n          }\n        );\n      }\n    );\n  };\n\n  function saveProjectObservable(customerId) {\n    return getProjectsGroup(customerId).pipe(\n      widgetContext.rxjs.switchMap((ProjectsGroup) => {\n        const formValues = vm.addProjectFormGroup.getRawValue();\n        let Project = {\n          name: formValues.name,\n          type: 'Project',\n          label: formValues.entityLabel,\n          customerId: customerId\n        };\n        return assetService.saveAsset(Project, ProjectsGroup.id.id)\n      })\n    );\n  }\n\n  function saveAttributes(entityId) {\n    let attributesArray = getMapItemLocationAttributes();\n    const formValues = vm.addProjectFormGroup.getRawValue();\n\n    attributesArray.push({key: 'address', value: formValues.address});\n    attributesArray.push({key: 'postalCode', value: formValues.postalCode});\n    attributesArray.push({key: 'city', value: formValues.city});\n    attributesArray.push({key: 'progress', value: 'in preparation'});\n    attributesArray.push({key: 'units', value: 'metric'});\n\n    if (attributesArray.length > 0) {\n      return attributeService.saveEntityAttributes(entityId, \"SERVER_SCOPE\", attributesArray);\n    }\n    return widgetContext.rxjs.of([]);\n  }\n\n  function getProjectsGroup(customerId) {\n    return entityGroupService.getEntityGroupsByOwnerId(customerId.entityType, customerId.id, 'ASSET').pipe(\n      widgetContext.rxjs.switchMap((entityGroups) => {\n        var ProjectsGroup = entityGroups.find(group => group.name === 'Projects');\n        if (ProjectsGroup) {\n          return widgetContext.rxjs.of(ProjectsGroup);\n        } else {\n          ProjectsGroup = {\n            type: 'ASSET',\n            name: 'Projects',\n            ownerId: customerId\n          };\n          return entityGroupService.saveEntityGroup(ProjectsGroup);\n        }\n      })\n    );\n  }\n\n  function saveCustomerToProjectRelation(customerId, ProjectId) {\n    var relation = {\n      from: customerId,\n      to: ProjectId,\n      typeGroup: 'COMMON',\n      type: 'Owns'\n    };\n    return entityRelationService.saveRelation(relation);\n  }\n\n  function getMapItemLocationAttributes() {\n    const attributes = [];\n    const mapItemType = $event.shape;\n    if (mapItemType === 'Marker') {\n      const mapType = widgetContext.mapInstance.type();\n      attributes.push({key: mapType === 'image' ? 'xPos' : 'latitude', value: additionalParams.coordinates.x});\n      attributes.push({key: mapType === 'image' ? 'yPos' : 'longitude', value: additionalParams.coordinates.y});\n    } else if (mapItemType === 'Rectangle' || mapItemType === 'Polygon') {\n      attributes.push({key: 'perimeter', value: additionalParams.coordinates});\n    } else if (mapItemType === 'Circle') {\n      attributes.push({key: 'circle', value: additionalParams.coordinates});\n    }\n    return attributes;\n  }\n}\n",
+              "customResources": [],
+              "mapItemType": "marker",
+              "mapItemTooltips": {},
+              "openInSeparateDialog": false,
+              "openInPopover": false
+            }
+          }
+        ],
+        "background": {
+          "type": "color",
+          "color": "#fff",
+          "overlay": {
+            "enabled": false,
+            "color": "rgba(255,255,255,0.72)",
+            "blur": 3
+          }
+        },
+        "padding": "8px"
+      },
+      "title": "Map",
+      "useDashboardTimewindow": true,
+      "displayTimewindow": true,
+      "showTitleIcon": false,
+      "titleTooltip": "",
+      "dropShadow": false,
+      "enableFullscreen": true,
+      "widgetStyle": {},
+      "widgetCss": "",
+      "titleStyle": {
+        "fontSize": "16px",
+        "fontWeight": 400
+      },
+      "pageSize": 1024,
+      "noDataDisplayMessage": "",
+      "configMode": "advanced",
+      "titleFont": null,
+      "titleColor": null,
+      "margin": "0px",
+      "borderRadius": "8px",
+      "iconSize": "24px",
+      "titleIcon": "map",
+      "iconColor": "#1F6BDD",
+      "actions": {
+        "headerButton": []
+      },
+      "enableDataExport": false
+    },
+    "row": 0,
+    "col": 0,
+    "id": "7a6b8e2d-c83d-57cf-5b9d-800fe3f1a7b3"
+  },
+  "aliasesInfo": {
+    "datasourceAliases": {},
+    "targetDeviceAlias": null
+  },
+  "filtersInfo": {
+    "datasourceFilters": {}
+  },
+  "originalSize": {
+    "sizeX": 24,
+    "sizeY": 14
+  },
+  "originalColumns": 24,
+  "widgetExportInfo": {
+    "markers": {
+      "0": {
+        "alias": {
+          "alias": "Project",
+          "filter": {
+            "type": "assetType",
+            "resolveMultiple": true,
+            "assetTypes": [
+              "Project"
+            ],
+            "assetNameFilter": ""
+          }
+        },
+        "filter": {
+          "filter": "Progress filter projects",
+          "keyFilters": [
+            {
+              "key": {
+                "type": "ATTRIBUTE",
+                "key": "progress"
+              },
+              "valueType": "STRING",
+              "predicates": [
+                {
+                  "keyFilterPredicate": {
+                    "operation": "OR",
+                    "predicates": [
+                      {
+                        "keyFilterPredicate": {
+                          "operation": "EQUAL",
+                          "value": {
+                            "defaultValue": "in preparation",
+                            "dynamicValue": {
+                              "sourceType": "CURRENT_USER",
+                              "sourceAttribute": "displayPreparationMeasurement",
+                              "inherit": false
+                            }
+                          },
+                          "ignoreCase": false,
+                          "type": "STRING"
+                        },
+                        "userInfo": {
+                          "editable": true,
+                          "label": "",
+                          "autogeneratedLabel": true,
+                          "order": 0
+                        }
+                      },
+                      {
+                        "keyFilterPredicate": {
+                          "operation": "EQUAL",
+                          "value": {
+                            "defaultValue": "active",
+                            "dynamicValue": {
+                              "sourceType": "CURRENT_USER",
+                              "sourceAttribute": "displayActiveMeasurement",
+                              "inherit": false
+                            }
+                          },
+                          "ignoreCase": false,
+                          "type": "STRING"
+                        },
+                        "userInfo": {
+                          "editable": true,
+                          "label": "",
+                          "autogeneratedLabel": true,
+                          "order": 0
+                        }
+                      },
+                      {
+                        "keyFilterPredicate": {
+                          "operation": "EQUAL",
+                          "value": {
+                            "defaultValue": "finished",
+                            "dynamicValue": {
+                              "sourceType": "CURRENT_USER",
+                              "sourceAttribute": "displayFinishedMeasurement",
+                              "inherit": false
+                            }
+                          },
+                          "ignoreCase": false,
+                          "type": "STRING"
+                        },
+                        "userInfo": {
+                          "editable": true,
+                          "label": "",
+                          "autogeneratedLabel": true,
+                          "order": 0
+                        }
+                      },
+                      {
+                        "keyFilterPredicate": {
+                          "operation": "EQUAL",
+                          "value": {
+                            "defaultValue": "in preperation",
+                            "dynamicValue": null
+                          },
+                          "ignoreCase": false,
+                          "type": "STRING"
+                        },
+                        "userInfo": {
+                          "editable": true,
+                          "label": "",
+                          "autogeneratedLabel": true,
+                          "order": 0
+                        }
+                      }
+                    ],
+                    "type": "COMPLEX"
+                  },
+                  "userInfo": {
+                    "editable": true,
+                    "label": "",
+                    "autogeneratedLabel": true,
+                    "order": 0
+                  }
+                }
+              ]
+            }
+          ],
+          "editable": false
+        }
+      }
+    },
+    "additionalDataSources": {
+      "0": {
+        "alias": {
+          "alias": "Selected Project",
+          "filter": {
+            "type": "stateEntity",
+            "resolveMultiple": false,
+            "stateEntityParamName": "selectedProject",
+            "defaultStateEntity": null
+          }
+        }
+      },
+      "1": {
+        "alias": {
+          "alias": "Current user",
+          "filter": {
+            "type": "singleEntity",
+            "resolveMultiple": false,
+            "singleEntity": {
+              "entityType": "CURRENT_USER",
+              "id": "13814000-1dd2-11b2-8080-808080808080"
+            }
+          }
+        }
+      }
+    }
+  }
+}

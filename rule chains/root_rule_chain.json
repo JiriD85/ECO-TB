@@ -1,0 +1,825 @@
+{
+  "ruleChain": {
+    "name": "Root Rule Chain",
+    "type": "CORE",
+    "firstRuleNodeId": null,
+    "root": false,
+    "debugMode": false,
+    "configuration": null,
+    "additionalInfo": null
+  },
+  "metadata": {
+    "version": 37,
+    "firstNodeIndex": 9,
+    "nodes": [
+      {
+        "type": "org.thingsboard.rule.engine.telemetry.TbMsgTimeseriesNode",
+        "name": "Save Timeseries",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "defaultTTL": 0,
+          "processingSettings": {
+            "type": "ON_EVERY_MESSAGE"
+          }
+        },
+        "additionalInfo": {
+          "layoutX": 999,
+          "layoutY": 245
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.telemetry.TbMsgAttributesNode",
+        "name": "Save Attributes",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 3,
+        "configuration": {
+          "scope": "CLIENT_SCOPE",
+          "notifyDevice": false,
+          "processingSettings": {
+            "type": "ON_EVERY_MESSAGE"
+          },
+          "sendAttributesUpdatedNotification": false,
+          "updateAttributesOnlyOnValueChange": true
+        },
+        "additionalInfo": {
+          "layoutX": 996,
+          "layoutY": 183
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbMsgTypeSwitchNode",
+        "name": "Message Type Switch",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "version": 0
+        },
+        "additionalInfo": {
+          "description": null,
+          "layoutX": 566,
+          "layoutY": 302
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "Log RPC from Device",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return '\\nIncoming message:\\n' + JSON.stringify(msg) + '\\nIncoming metadata:\\n' + JSON.stringify(metadata);",
+          "tbelScript": "return '\\nIncoming message:\\n' + JSON.stringify(msg) + '\\nIncoming metadata:\\n' + JSON.stringify(metadata);"
+        },
+        "additionalInfo": {
+          "layoutX": 996,
+          "layoutY": 460
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "Log Other",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return '\\nIncoming message:\\n' + JSON.stringify(msg) + '\\nIncoming metadata:\\n' + JSON.stringify(metadata);",
+          "tbelScript": "return '\\nIncoming message:\\n' + JSON.stringify(msg) + '\\nIncoming metadata:\\n' + JSON.stringify(metadata);"
+        },
+        "additionalInfo": {
+          "layoutX": 996,
+          "layoutY": 525
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.rpc.TbSendRPCRequestNode",
+        "name": "RPC Call Request",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "timeoutInSeconds": 60
+        },
+        "additionalInfo": {
+          "layoutX": 996,
+          "layoutY": 614
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbOriginatorTypeFilterNode",
+        "name": "Is Entity Group",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "originatorTypes": [
+            "ENTITY_GROUP"
+          ]
+        },
+        "additionalInfo": {
+          "layoutX": 255,
+          "layoutY": 301
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbMsgTypeFilterNode",
+        "name": "Post attributes or RPC request",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "messageTypes": [
+            "POST_ATTRIBUTES_REQUEST",
+            "RPC_CALL_FROM_SERVER_TO_DEVICE"
+          ]
+        },
+        "additionalInfo": {
+          "layoutX": 319,
+          "layoutY": 109
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbDuplicateMsgToGroupNode",
+        "name": "Duplicate To Group Entities",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "entityGroupId": null,
+          "entityGroupIsMessageOriginator": true
+        },
+        "additionalInfo": {
+          "layoutX": 627,
+          "layoutY": 108
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.profile.TbDeviceProfileNode",
+        "name": "Device Profile Node",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "persistAlarmRulesState": false,
+          "fetchAlarmRulesStateOnStart": "false"
+        },
+        "additionalInfo": {
+          "description": "Process incoming messages from devices with the alarm rules defined in the device profile. Dispatch all incoming messages with \"Success\" relation type.",
+          "layoutX": 137,
+          "layoutY": 415
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.flow.TbRuleChainInputNode",
+        "name": "Generate Report",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "ruleChainId": "efcd1f70-b576-11ee-a6c2-a149ed03c64d",
+          "forwardMsgToDefaultRuleChain": false
+        },
+        "additionalInfo": {
+          "description": "Forwards message to the \"Generate Report\" rule chain",
+          "layoutX": 1000,
+          "layoutY": 721
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.flow.TbRuleChainInputNode",
+        "name": "create application",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "ruleChainId": "9ba8eae0-ec0e-11ee-97f4-4199996f70d5",
+          "forwardMsgToDefaultRuleChain": false
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 994,
+          "layoutY": 2
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.flow.TbRuleChainInputNode",
+        "name": "Delete Appliation",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "ruleChainId": "a4e67cd0-ec0e-11ee-aec0-2f1fd908e9e8",
+          "forwardMsgToDefaultRuleChain": false
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 990,
+          "layoutY": 119
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.flow.TbRuleChainInputNode",
+        "name": "Update Application",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "ruleChainId": "167432b0-fb0b-11ee-b3e5-d3cd89469f85",
+          "forwardMsgToDefaultRuleChain": false
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 992,
+          "layoutY": 58
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Create Locations JSON",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "JS",
+          "jsScript": "function unixTimestampToDate(unixTimestamp) {\r\n    // Convert UNIX timestamp to milliseconds (JavaScript uses milliseconds)\r\n    const date = new Date(unixTimestamp);\r\n\r\n    // Get the date components\r\n    const day = date.getDate().toString().padStart(2, '0');\r\n    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Month is zero-indexed\r\n    const year = date.getFullYear();\r\n\r\n    // Format the date as dd-mm-YYYY\r\n    const formattedDate = `${day}-${month}-${year}`;\r\n\r\n    return formattedDate;\r\n}\r\n\r\nfunction updateLocationLog() {\r\n// Initialize locationLog as an empty array\r\n    let locationLog = [];\r\n\r\n    // Determine latitude and longitude from msg or metadata\r\n    let latitude = msg.latitude || parseFloat(metadata.ss_latitude);\r\n    let longitude = msg.longitude || parseFloat(metadata.ss_longitude);\r\n\r\n    // Get the timestamps from metadata\r\n    let fromTimestamp = unixTimestampToDate(msg.from); // Assuming ss_from exists in metadata\r\n\r\n    // If fromTimestamp is not defined or invalid, fallback to current date timestamp\r\n    if (!fromTimestamp || isNaN(new Date(fromTimestamp))) {\r\n        const currentDate = new Date();\r\n        fromTimestamp = unixTimestampToDate(currentDate.getTime()); // Convert current time to UNIX timestamp and format\r\n    }\r\n\r\n    // Check if ss_locationLog exists in metadata and is a valid array\r\n    if (metadata.ss_locationLog) {\r\n        try {\r\n            locationLog = JSON.parse(metadata.ss_locationLog);\r\n\r\n            // Get the latest entry\r\n            const latestEntry = locationLog[locationLog.length - 1];\r\n\r\n            // Check if ss_active is true\r\n            if (metadata.ss_active === \"true\") {\r\n                // Check if the latest entry has the same latitude and longitude\r\n                if (latestEntry.latitude !== latitude || latestEntry.longitude !== longitude) {\r\n                    // Check if msg.from is different from the 'from' of the latest entry\r\n                    if (unixTimestampToDate(msg.from) === latestEntry.from) {\r\n                        fromTimestamp = unixTimestampToDate(new Date().getTime()); // Use current timestamp\r\n                    }\r\n                    // Extend the latest entry of locationLog with the 'to' key using fromTimestamp\r\n                    locationLog[locationLog.length - 1] = { ...latestEntry, to: fromTimestamp };\r\n                    \r\n                }else{\r\n                return locationLog;\r\n                }\r\n            } else {\r\n                if (unixTimestampToDate(msg.from) === latestEntry.from) {\r\n                        fromTimestamp = unixTimestampToDate(new Date().getTime()); // Use current timestamp\r\n                }\r\n                locationLog[locationLog.length - 1] = { ...latestEntry, to: fromTimestamp };\r\n                return locationLog;\r\n            }\r\n        } catch (error) {\r\n            console.error('Error parsing ss_locationLog:', error.message);\r\n        }\r\n    } else {\r\n        // ss_locationLog does not exist or is not a valid array\r\n        if (metadata.ss_active === \"true\") {\r\n            // Initialize locationLog as an empty array if it doesn't exist\r\n            locationLog = [];\r\n        }\r\n        // If ss_active is false, do nothing (return the empty locationLog)\r\n    }\r\n\r\n    // Create a new array with existing locationLog entries and newEntry\r\n    locationLog.push({\"Address\": msg.address, \"Location Name\": msg.locationName, \"Installation Location\" : msg.installationLocation, latitude, longitude, from: fromTimestamp });\r\n\r\n    // Return the updated locationLog\r\n    return locationLog;\r\n}\r\n\r\nlet locationLog = updateLocationLog();\r\nlet newMsg = {\r\n    locationLog: locationLog\r\n};\r\n\r\nreturn {msg: newMsg, metadata: metadata, msgType: \"POST_ATTRIBUTES_REQUEST\"};\r\n",
+          "tbelScript": "return {msg: msg, metadata: metadata, msgType: msgType};"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1370,
+          "layoutY": 946
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Manage State and Active",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "JS",
+          "jsScript": "if(metadata.originatorType === \"Measurement\"){\n    if(msg.state === \"finished\" || msg.state===\"aborted\"){\n        msg.active = false;\n        msgType = \"POST_ATTRIBUTES_REQUEST\";\n    }\n}\nreturn {msg: msg, metadata: metadata, msgType: msgType};",
+          "tbelScript": "return {msg: msg, metadata: metadata, msgType: msgType};"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 447,
+          "layoutY": 671
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.metadata.TbGetOriginatorFieldsNode",
+        "name": "Get Type of Originator",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "dataMapping": {
+            "type": "originatorType"
+          },
+          "ignoreNullStrings": false,
+          "fetchTo": "METADATA"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 173,
+          "layoutY": 668
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbJsSwitchNode",
+        "name": "switch active",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "JS",
+          "jsScript": "if(msg.active === false) {\n    return ['update'];\n}else{\n    return ['other'];\n}",
+          "tbelScript": "function nextRelation(metadata, msg) {\n    return ['one','nine'];\n}\nif(msgType == 'POST_TELEMETRY_REQUEST') {\n    return ['two'];\n}\nreturn nextRelation(metadata, msg);"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 453,
+          "layoutY": 764
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.telemetry.TbMsgAttributesNode",
+        "name": "Save Attributes",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 3,
+        "configuration": {
+          "scope": "SERVER_SCOPE",
+          "notifyDevice": false,
+          "processingSettings": {
+            "type": "ON_EVERY_MESSAGE"
+          },
+          "sendAttributesUpdatedNotification": false,
+          "updateAttributesOnlyOnValueChange": true
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 449,
+          "layoutY": 870
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.flow.TbRuleChainInputNode",
+        "name": "Handle Stripe API",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "forwardMsgToDefaultRuleChain": false,
+          "ruleChainId": "b30d8f00-96d7-11ef-981d-f794e5a19eb6"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1230,
+          "layoutY": 334
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbAssetTypeSwitchNode",
+        "name": "Product switch",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "version": 0
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1330,
+          "layoutY": 269
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.flow.TbRuleChainInputNode",
+        "name": "sim api",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "forwardMsgToDefaultRuleChain": false,
+          "ruleChainId": "8be09130-ac0c-11ef-82b1-d9e9ec9e24c0"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1435,
+          "layoutY": 521
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbJsSwitchNode",
+        "name": "check sim status",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "JS",
+          "jsScript": "if(msg.checkSimStatus) {\n    return [\"simStatus\"];\n} else{\n    return[\"other\"];\n}",
+          "tbelScript": "function nextRelation(metadata, msg) {\n    return ['one','nine'];\n}\nif(msgType == 'POST_TELEMETRY_REQUEST') {\n    return ['two'];\n}\nreturn nextRelation(metadata, msg);"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1240,
+          "layoutY": 399
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.flow.TbRuleChainInputNode",
+        "name": "Statistics",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "forwardMsgToDefaultRuleChain": false,
+          "ruleChainId": "7321e5b0-bd1c-11ef-9f17-ed653bcaf16e"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 997,
+          "layoutY": 399
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbJsSwitchNode",
+        "name": "check sim status",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "JS",
+          "jsScript": "if(msg.setStripeKey) {\n    return [\"stripeKey\"];\n} else{\n    return[\"other\"];\n}",
+          "tbelScript": "function nextRelation(metadata, msg) {\n    return ['one','nine'];\n}\nif(msgType == 'POST_TELEMETRY_REQUEST') {\n    return ['two'];\n}\nreturn nextRelation(metadata, msg);"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1239,
+          "layoutY": 620
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.flow.TbRuleChainInputNode",
+        "name": "set Stripe key to Customers",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "forwardMsgToDefaultRuleChain": false,
+          "ruleChainId": "168749b0-e2f3-11ef-bbb2-4d807c0bdfca"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1558,
+          "layoutY": 619
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.flow.TbRuleChainInputNode",
+        "name": "Product Relation",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 1739464024006
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "forwardMsgToDefaultRuleChain": false,
+          "ruleChainId": "c9ff96c0-e30f-11ef-bbb2-4d807c0bdfca"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1622,
+          "layoutY": 237
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbOriginatorTypeSwitchNode",
+        "name": "Switch Customer",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "version": 0
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1329,
+          "layoutY": 205
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbJsSwitchNode",
+        "name": "check payments",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 1741278589057
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "JS",
+          "jsScript": "if(msg.checkSubscriptionStatus) {\n    return [\"checkSubscription\"];\n}else if(msg.detailReportCheck) {\n    return [\"detailReportCheck\"];\n}else if(msg.generalReportCheck) {\n    return [\"generalReportCheck\"];\n} else{\n    return[\"other\"];\n}",
+          "tbelScript": "function nextRelation(metadata, msg) {\n    return ['one','nine'];\n}\nif(msgType == 'POST_TELEMETRY_REQUEST') {\n    return ['two'];\n}\nreturn nextRelation(metadata, msg);"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1240,
+          "layoutY": 701
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.flow.TbRuleChainInputNode",
+        "name": "Check Stripe Subscription",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 1741278806106
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "forwardMsgToDefaultRuleChain": false,
+          "ruleChainId": "b30d8f00-96d7-11ef-981d-f794e5a19eb6"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1615,
+          "layoutY": 698
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbJsSwitchNode",
+        "name": "Switch apiCall",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 1741870957923
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "function nextRelation(metadata, msg) {\n    return ['one','nine'];\n}\nif(msgType === 'POST_TELEMETRY_REQUEST') {\n    return ['two'];\n}\nreturn nextRelation(metadata, msg);",
+          "tbelScript": "if (msg.apiCall === \"getOpenWeatherData\") {\n    return [\"OpenWeatherData\"];\n} else {\n    return [\"other\"];\n}"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1292,
+          "layoutY": 106
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.flow.TbRuleChainInputNode",
+        "name": "OpenWeatherData",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "forwardMsgToDefaultRuleChain": false,
+          "ruleChainId": "d7994710-6eb4-11ef-8170-db057079800d"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1626,
+          "layoutY": 106
+        }
+      }
+    ],
+    "connections": [
+      {
+        "fromIndex": 1,
+        "toIndex": 30,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 0,
+        "type": "Post telemetry"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 1,
+        "type": "Post attributes"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 3,
+        "type": "RPC Request from Device"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 4,
+        "type": "Other"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 5,
+        "type": "RPC Request to Device"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 10,
+        "type": "Generate Report"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 11,
+        "type": "Entity Created"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 12,
+        "type": "Entity Deleted"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 13,
+        "type": "Entity Updated"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 16,
+        "type": "Attributes Updated"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 19,
+        "type": "Attributes Deleted"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 19,
+        "type": "Attributes Updated"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 19,
+        "type": "Entity Created"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 19,
+        "type": "Entity Deleted"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 19,
+        "type": "Entity Updated"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 20,
+        "type": "Entity Created"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 20,
+        "type": "Entity Updated"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 22,
+        "type": "Post attributes"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 23,
+        "type": "Attributes Deleted"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 23,
+        "type": "Attributes Updated"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 23,
+        "type": "Entity Created"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 23,
+        "type": "Entity Deleted"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 23,
+        "type": "Post attributes"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 24,
+        "type": "Attributes Updated"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 24,
+        "type": "Post attributes"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 27,
+        "type": "Entity Created"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 28,
+        "type": "Attributes Updated"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 28,
+        "type": "Post attributes"
+      },
+      {
+        "fromIndex": 6,
+        "toIndex": 2,
+        "type": "False"
+      },
+      {
+        "fromIndex": 6,
+        "toIndex": 7,
+        "type": "True"
+      },
+      {
+        "fromIndex": 7,
+        "toIndex": 2,
+        "type": "False"
+      },
+      {
+        "fromIndex": 7,
+        "toIndex": 8,
+        "type": "True"
+      },
+      {
+        "fromIndex": 8,
+        "toIndex": 2,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 9,
+        "toIndex": 6,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 15,
+        "toIndex": 17,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 16,
+        "toIndex": 15,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 17,
+        "toIndex": 18,
+        "type": "update"
+      },
+      {
+        "fromIndex": 20,
+        "toIndex": 26,
+        "type": "Product"
+      },
+      {
+        "fromIndex": 22,
+        "toIndex": 21,
+        "type": "simStatus"
+      },
+      {
+        "fromIndex": 24,
+        "toIndex": 25,
+        "type": "stripeKey"
+      },
+      {
+        "fromIndex": 27,
+        "toIndex": 26,
+        "type": "Customer"
+      },
+      {
+        "fromIndex": 28,
+        "toIndex": 29,
+        "type": "checkSubscription"
+      },
+      {
+        "fromIndex": 28,
+        "toIndex": 29,
+        "type": "detailReportCheck"
+      },
+      {
+        "fromIndex": 28,
+        "toIndex": 29,
+        "type": "generalReportCheck"
+      },
+      {
+        "fromIndex": 30,
+        "toIndex": 31,
+        "type": "OpenWeatherData"
+      }
+    ],
+    "ruleChainConnections": null
+  }
+}

@@ -1,0 +1,299 @@
+{
+  "ruleChain": {
+    "name": "RESI",
+    "type": "CORE",
+    "firstRuleNodeId": null,
+    "root": false,
+    "debugMode": false,
+    "configuration": null,
+    "additionalInfo": {
+      "description": ""
+    }
+  },
+  "metadata": {
+    "version": 20,
+    "firstNodeIndex": 1,
+    "nodes": [
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbMsgTypeSwitchNode",
+        "name": "Message Type Switch",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 1764770729603
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "version": 0
+        },
+        "additionalInfo": {
+          "description": null,
+          "layoutX": 494,
+          "layoutY": 309
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.profile.TbDeviceProfileNode",
+        "name": "Device Profile Node",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 1740998555244
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "persistAlarmRulesState": false,
+          "fetchAlarmRulesStateOnStart": "false"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 209,
+          "layoutY": 307
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.flow.TbRuleChainInputNode",
+        "name": "EM Alarm Handler",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "forwardMsgToDefaultRuleChain": false,
+          "ruleChainId": "88aee890-6f6c-11ef-8170-db057079800d"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 392,
+          "layoutY": 567
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.flow.TbRuleChainInputNode",
+        "name": "set relation",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "forwardMsgToDefaultRuleChain": false,
+          "ruleChainId": "060a9640-ec50-11ee-aec0-2f1fd908e9e8"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 748,
+          "layoutY": 660
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.flow.TbRuleChainInputNode",
+        "name": "Inactivity Alarm Handler",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "forwardMsgToDefaultRuleChain": false,
+          "ruleChainId": "8f873a50-6f6c-11ef-8a75-b31459678eb5"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 980,
+          "layoutY": 460
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.flow.TbRuleChainInputNode",
+        "name": "RESI Device",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 1740579527123
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "forwardMsgToDefaultRuleChain": false,
+          "ruleChainId": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 971,
+          "layoutY": 125
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.flow.TbRuleChainInputNode",
+        "name": "Handle wherever SIM API",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "forwardMsgToDefaultRuleChain": false,
+          "ruleChainId": "8be09130-ac0c-11ef-82b1-d9e9ec9e24c0"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1233,
+          "layoutY": 306
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbJsSwitchNode",
+        "name": "Connectivity",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 0
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "JS",
+          "jsScript": "if (msg.connectivity) {\n    return [\"connectivity\"];\n} else {\n    return [\"other\"];\n}",
+          "tbelScript": "if (msg.connectivity) {\n    return [\"connectivity\"];\n} else {\n    return [\"other\"];\n}"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 902,
+          "layoutY": 308
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.flow.TbRuleChainInputNode",
+        "name": "navigate to wherever SIM",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "forwardMsgToDefaultRuleChain": false,
+          "ruleChainId": "8be09130-ac0c-11ef-82b1-d9e9ec9e24c0"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 491,
+          "layoutY": 726
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbJsSwitchNode",
+        "name": "check connectivity",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "JS",
+          "jsScript": "if (msg.connectivity) {\n    return [\"wSIM\"];\n} else {\n    return [\"other\"];\n}",
+          "tbelScript": "function nextRelation(metadata, msg) {\n    return ['one','nine'];\n}\nif(msgType == 'POST_TELEMETRY_REQUEST') {\n    return ['two'];\n}\nreturn nextRelation(metadata, msg);"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 148,
+          "layoutY": 717
+        }
+      }
+    ],
+    "connections": [
+      {
+        "fromIndex": 0,
+        "toIndex": 2,
+        "type": "Alarm Cleared"
+      },
+      {
+        "fromIndex": 0,
+        "toIndex": 2,
+        "type": "Entity Created"
+      },
+      {
+        "fromIndex": 0,
+        "toIndex": 3,
+        "type": "Attributes Updated"
+      },
+      {
+        "fromIndex": 0,
+        "toIndex": 3,
+        "type": "Entity Deleted"
+      },
+      {
+        "fromIndex": 0,
+        "toIndex": 3,
+        "type": "Entity Updated"
+      },
+      {
+        "fromIndex": 0,
+        "toIndex": 4,
+        "type": "Activity Event"
+      },
+      {
+        "fromIndex": 0,
+        "toIndex": 4,
+        "type": "Inactivity Event"
+      },
+      {
+        "fromIndex": 0,
+        "toIndex": 5,
+        "type": "Post attributes"
+      },
+      {
+        "fromIndex": 0,
+        "toIndex": 5,
+        "type": "Post telemetry"
+      },
+      {
+        "fromIndex": 0,
+        "toIndex": 5,
+        "type": "RPC Request from Device"
+      },
+      {
+        "fromIndex": 0,
+        "toIndex": 7,
+        "type": "Attributes Updated"
+      },
+      {
+        "fromIndex": 0,
+        "toIndex": 9,
+        "type": "Attributes Updated"
+      },
+      {
+        "fromIndex": 1,
+        "toIndex": 0,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 1,
+        "toIndex": 2,
+        "type": "Alarm Cleared"
+      },
+      {
+        "fromIndex": 1,
+        "toIndex": 2,
+        "type": "Alarm Created"
+      },
+      {
+        "fromIndex": 1,
+        "toIndex": 2,
+        "type": "Alarm Updated"
+      },
+      {
+        "fromIndex": 7,
+        "toIndex": 6,
+        "type": "connectivity"
+      },
+      {
+        "fromIndex": 9,
+        "toIndex": 8,
+        "type": "wSIM"
+      }
+    ],
+    "ruleChainConnections": null
+  }
+}
