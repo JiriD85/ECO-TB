@@ -96,3 +96,24 @@ ECO TB/
 - Entity aliases support complex filtering
 - Dashboard states enable multi-view navigation
 - Custom widgets support Angular components
+
+## Multi-Agent Workflow (Claude + Codex)
+
+Dieses Projekt nutzt einen kombinierten Workflow mit Claude Code und OpenAI Codex CLI.
+Siehe [AGENTS.md](AGENTS.md) für Details.
+
+### Workflow
+1. **Planung (Claude Code):** Architektur, Risiken, Task-Spezifikation erstellen
+2. **Umsetzung (Codex CLI):** Implementierung gemäß Task-Specs in `tasks/`
+3. **Review (Claude Code):** Code-Review, Edge-Cases, Verbesserungen
+
+### Task-Übergabe
+- Tasks werden in `tasks/TASK_NAME.md` spezifiziert
+- Format siehe `tasks/TEMPLATE.md`
+- Status: draft → ready → in-progress → completed → review
+
+### Claude Code Verantwortlichkeiten
+- Plan-Mode für Architektur-Entscheidungen nutzen
+- Klare Akzeptanzkriterien definieren
+- Nach Codex-Umsetzung: Review durchführen
+- Edge-Cases und Risiken identifizieren
