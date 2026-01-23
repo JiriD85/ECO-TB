@@ -435,12 +435,12 @@ mat-icon {
 
       <!-- Step 0c: Select Measurement (if not in stateParams) -->
       <mat-step *ngIf="needsMeasurementSelection" [completed]="measurementSelected">
-        <ng-template matStepLabel>Select Measurement</ng-template>
+        <ng-template matStepLabel>{{ 'custom.csv-importer.step-select-measurement' | translate }}</ng-template>
 
         <div style="margin-top: 16px;">
           <div class="flex flex-col gap-4">
             <mat-form-field appearance="fill" class="w-full">
-              <mat-label>Measurement</mat-label>
+              <mat-label>{{ 'custom.csv-importer.measurement' | translate }}</mat-label>
               <mat-select formControlName="measurement" required (selectionChange)="onMeasurementChange()"
                           [disabled]="lockMeasurementSelection">
                 <mat-option *ngFor="let measurement of measurements" [value]="measurement">
@@ -448,11 +448,11 @@ mat-icon {
                 </mat-option>
               </mat-select>
               <mat-error *ngIf="formGroup.get('measurement').hasError('required')">
-                Measurement is required
+                {{ 'custom.csv-importer.measurement-required' | translate }}
               </mat-error>
             </mat-form-field>
             <mat-form-field appearance="fill" class="w-full">
-              <mat-label>Measurement Label</mat-label>
+              <mat-label>{{ 'custom.csv-importer.measurement-label' | translate }}</mat-label>
               <input matInput formControlName="measurementLabel" (blur)="saveMeasurementLabel()">
             </mat-form-field>
           </div>
@@ -2060,50 +2060,121 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
   // Check if user is Tenant Administrator
   const isTenantAdmin = stateParams && stateParams.userRole === 'Tenant Administrators';
 
-  console.log('[dataConnectorDialog] State params:', stateParams);
-  console.log('[dataConnectorDialog] Is Tenant Admin:', isTenantAdmin);
-  console.log('[dataConnectorDialog] entityId param (will be ignored):', entityId);
-  console.log('[dataConnectorDialog] entityName param (will be ignored):', entityName);
 
-  const selectedCustomerEntity = stateParams.selectedCustomer
-    ? { id: stateParams.selectedCustomer.entityId, name: stateParams.selectedCustomer.entityName }
-    : null;
-  const selectedProjectEntity = stateParams.selectedProject
-    ? {
-        id: stateParams.selectedProject.entityId,
-        name: stateParams.selectedProject.entityName,
-        label: stateParams.selectedProject.entityLabel
+  // Check if entityId is provided and is an ASSET - need to determine its type
+  if (entityId && entityId.entityType === 'ASSET' && entityId.id) {
+    assetService.getAsset(entityId.id).subscribe(
+      function(asset) {
+        if (asset && asset.type === 'Measurement') {
+          // entityId is a Measurement - skip directly to Connect Data
+          const measurementFromParam = {
+            entityId: entityId,
+            entityName: asset.name || entityName || ''
+          };
+          proceedWithDialog(measurementFromParam, 'connectData');
+        } else if (asset && asset.type === 'Project') {
+          // entityId is a Project - check if it matches stateParams.selectedProject
+          // If yes, start at Select Measurement step
+          const selectedProjectId = stateParams.selectedProject && stateParams.selectedProject.entityId
+            ? stateParams.selectedProject.entityId.id
+            : null;
+          if (selectedProjectId && selectedProjectId === entityId.id) {
+            proceedWithDialog(null, 'selectMeasurement');
+          } else {
+            proceedWithDialog(null, 'normal');
+          }
+        } else {
+          // Unknown asset type - proceed with normal flow
+          proceedWithDialog(null, 'normal');
+        }
+      },
+      function() {
+        proceedWithDialog(null, 'normal');
       }
+    );
+    return;
+  }
+
+  // No entityId provided - check if we have selectedProject in stateParams
+  if (stateParams.selectedProject && stateParams.selectedProject.entityId && !stateParams.selectedMeasurement) {
+    proceedWithDialog(null, 'selectMeasurement');
+    return;
+  }
+
+  // Normal flow
+  const stateParamMeasurement = (stateParams.selectedMeasurement && stateParams.selectedMeasurement.entityId)
+    ? stateParams.selectedMeasurement
     : null;
+  proceedWithDialog(stateParamMeasurement, 'normal');
 
-  // Configuration - ignore entityId/entityName parameters, only use stateParams
-  const config = {
-    isTenantAdmin: isTenantAdmin,
-    selectedCustomer: stateParams.selectedCustomer || null,
-    selectedProject: stateParams.selectedProject || null,
-    selectedMeasurement: stateParams.selectedMeasurement || null,
-    selectedCustomerEntity: selectedCustomerEntity,
-    selectedProjectEntity: selectedProjectEntity,
-    customers: [],
-    projects: [],
-    measurements: [],
-    needsCustomerSelection: !stateParams.selectedCustomer && isTenantAdmin,
-    needsProjectSelection: !stateParams.selectedProject,
-    needsMeasurementSelection: !stateParams.selectedMeasurement
-  };
+  // mode: 'connectData' = skip to Connect Data
+  // mode: 'selectMeasurement' = show only Measurement selection (project is known)
+  // mode: 'normal' = show all steps based on what's available
+  function proceedWithDialog(selectedMeasurementOverride, mode) {
+    const selectedMeasurement = selectedMeasurementOverride || null;
 
-  config.showCustomerStep = isTenantAdmin && (config.needsCustomerSelection || !!config.selectedProject);
-  config.showProjectStep = config.needsProjectSelection || !!config.selectedProject;
-  config.startAtMeasurement = !!config.selectedProject && config.needsMeasurementSelection;
+    const selectedCustomerEntity = stateParams.selectedCustomer
+      ? { id: stateParams.selectedCustomer.entityId, name: stateParams.selectedCustomer.entityName }
+      : null;
+    const selectedProjectEntity = stateParams.selectedProject
+      ? {
+          id: stateParams.selectedProject.entityId,
+          name: stateParams.selectedProject.entityName,
+          label: stateParams.selectedProject.entityLabel
+        }
+      : null;
 
-  if (config.selectedCustomerEntity && !config.needsCustomerSelection) {
-    config.customers = [config.selectedCustomerEntity];
-  }
-  if (config.selectedProjectEntity && !config.needsProjectSelection) {
-    config.projects = [config.selectedProjectEntity];
-  }
+    // Check what we have in stateParams
+    const hasCustomer = !!(stateParams.selectedCustomer && stateParams.selectedCustomer.entityId);
+    const hasProject = !!(stateParams.selectedProject && stateParams.selectedProject.entityId);
+    const hasMeasurement = !!selectedMeasurement;
 
-  console.log('[dataConnectorDialog] Config:', config);
+    // Configuration
+    const config = {
+      isTenantAdmin: isTenantAdmin,
+      selectedCustomer: stateParams.selectedCustomer || null,
+      selectedProject: stateParams.selectedProject || null,
+      selectedMeasurement: selectedMeasurement,
+      selectedCustomerEntity: selectedCustomerEntity,
+      selectedProjectEntity: selectedProjectEntity,
+      customers: [],
+      projects: [],
+      measurements: [],
+      needsCustomerSelection: !hasCustomer && isTenantAdmin,
+      needsProjectSelection: !hasProject,
+      needsMeasurementSelection: !hasMeasurement,
+      skipToConnectData: false,
+      showCustomerStep: false,
+      showProjectStep: false,
+      startAtMeasurement: false
+    };
+
+    // Determine which steps to show based on mode
+    if (mode === 'connectData' && hasMeasurement) {
+      // Measurement passed via entityId - skip directly to Connect Data
+      config.skipToConnectData = true;
+      config.showCustomerStep = false;
+      config.showProjectStep = false;
+      config.needsMeasurementSelection = false;
+    } else if (mode === 'selectMeasurement' || (hasProject && !hasMeasurement)) {
+      // Project is known but no measurement - show only Measurement selection
+      config.showCustomerStep = false;
+      config.showProjectStep = false;
+      config.needsMeasurementSelection = true;
+    } else {
+      // Normal flow - show all steps that are needed
+      config.showCustomerStep = isTenantAdmin && !hasCustomer;
+      config.showProjectStep = !hasProject;
+      config.needsMeasurementSelection = !hasMeasurement;
+    }
+
+    if (config.selectedCustomerEntity && !config.needsCustomerSelection) {
+      config.customers = [config.selectedCustomerEntity];
+    }
+    if (config.selectedProjectEntity && !config.needsProjectSelection) {
+      config.projects = [config.selectedProjectEntity];
+    }
+
 
   // Simple CSS for the selection dialog
   const selectionCSS = `
@@ -2163,7 +2234,7 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
       </ng-template>
 
       <!-- Step 1: Select Customer (only for Tenant Admin if not pre-selected) -->
-      <mat-step *ngIf="showCustomerStep" [completed]="customerSelected" [editable]="false">
+      <mat-step *ngIf="showCustomerStep" [completed]="customerSelected" [editable]="true">
         <ng-template matStepLabel>Select Customer</ng-template>
 
         <div style="margin-top: 16px;">
@@ -2192,7 +2263,7 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
       </mat-step>
 
       <!-- Step 2: Select Project (if not pre-selected) -->
-      <mat-step *ngIf="showProjectStep" [completed]="projectSelected" [editable]="false">
+      <mat-step *ngIf="showProjectStep" [completed]="projectSelected" [editable]="true">
         <ng-template matStepLabel>Select Project</ng-template>
 
         <div style="margin-top: 16px;">
@@ -2225,18 +2296,18 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
 
       <!-- Step 3: Select Measurement (if not pre-selected) -->
       <mat-step *ngIf="needsMeasurementSelection" [completed]="measurementSelected">
-        <ng-template matStepLabel>Select Measurement</ng-template>
+        <ng-template matStepLabel>{{ 'custom.csv-importer.step-select-measurement' | translate }}</ng-template>
 
         <div style="margin-top: 16px;">
           <mat-form-field appearance="fill" class="w-full">
-            <mat-label>Measurement</mat-label>
+            <mat-label>{{ 'custom.csv-importer.measurement' | translate }}</mat-label>
             <mat-select formControlName="measurement" required (selectionChange)="onMeasurementChange()">
               <mat-option *ngFor="let measurement of measurements" [value]="measurement">
                 {{ measurement.name }}{{ measurement.label ? ' | ' + measurement.label : '' }}
               </mat-option>
             </mat-select>
             <mat-error *ngIf="formGroup.get('measurement').hasError('required')">
-              Measurement is required
+              {{ 'custom.csv-importer.measurement-required' | translate }}
             </mat-error>
           </mat-form-field>
 
@@ -2281,7 +2352,8 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
           </div>
 
           <div style="display: flex; justify-content: space-between; margin-top: 24px;">
-            <button mat-button type="button" (click)="stepper.previous()">Back</button>
+            <button mat-button type="button" (click)="stepper.previous()" *ngIf="!skipToConnectData">Back</button>
+            <span *ngIf="skipToConnectData"></span>
             <button mat-button type="button" (click)="cancel()">Cancel</button>
           </div>
         </div>
@@ -2296,9 +2368,9 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
     customDialog.customDialog(selectionTemplate, SelectionDialogController).subscribe();
   }
 
+  // Load customer from project if needed (for data context only, steps already configured)
   if (!config.selectedCustomer && config.selectedProject && config.selectedProject.entityId && config.selectedProject.entityId.id) {
     config.needsCustomerSelection = false;
-
     const projectId = config.selectedProject.entityId.id;
     assetService.getAsset(projectId).subscribe(
       function(asset) {
@@ -2312,8 +2384,7 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
               config.projects = [asset];
               openSelectionDialog();
             },
-            function(error) {
-              console.error('[dataConnectorDialog] Failed to load customer for project:', error);
+            function() {
               openSelectionDialog();
             }
           );
@@ -2323,8 +2394,7 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
           openSelectionDialog();
         }
       },
-      function(error) {
-        console.error('[dataConnectorDialog] Failed to load project for owner lookup:', error);
+      function() {
         openSelectionDialog();
       }
     );
@@ -2341,6 +2411,7 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
     vm.needsMeasurementSelection = config.needsMeasurementSelection;
     vm.showCustomerStep = config.showCustomerStep;
     vm.showProjectStep = config.showProjectStep;
+    vm.skipToConnectData = config.skipToConnectData;
     vm.customers = config.customers;
     vm.projects = config.projects;
     vm.measurements = config.measurements;
@@ -2349,7 +2420,8 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
     vm.measurementSelected = !!config.selectedMeasurement;
     vm.selectedMeasurementName = config.selectedMeasurement ? config.selectedMeasurement.entityName : '';
     vm.startStepIndex = 0;
-    if (config.startAtMeasurement) {
+    // When skipToConnectData, start at index 0 (Connect Data is the only step)
+    if (config.startAtMeasurement && !config.skipToConnectData) {
       vm.startStepIndex = 0;
       if (vm.showCustomerStep) {
         vm.startStepIndex += 1;
@@ -2412,7 +2484,6 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
       const customer = vm.formGroup.value.customer;
       if (!customer) return;
 
-      console.log('[dataConnectorDialog] Customer selected:', customer);
       config.selectedCustomer = { entityId: customer.id, entityName: customer.name };
       vm.customerSelected = true;
       vm.projectSelected = false;
@@ -2433,7 +2504,6 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
       const project = vm.formGroup.value.project;
       if (!project) return;
 
-      console.log('[dataConnectorDialog] Project selected:', project);
       config.selectedProject = { entityId: project.id, entityName: project.name };
       vm.projectSelected = true;
       vm.measurementSelected = false;
@@ -2452,7 +2522,6 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
       const measurement = vm.formGroup.value.measurement;
       if (!measurement) return;
 
-      console.log('[dataConnectorDialog] Measurement selected:', measurement);
       config.selectedMeasurement = { entityId: measurement.id, entityName: measurement.name };
       vm.measurementSelected = true;
       vm.selectedMeasurementName = measurement.name;
@@ -2460,7 +2529,7 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
       widgetContext.detectChanges();
     };
 
-    // Helper: Load projects for customer
+    // Helper: Load projects for customer (only with progress = 'in preparation' or 'planned')
     function loadProjectsForCustomer(customerId) {
       vm.loading = true;
 
@@ -2479,32 +2548,59 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
 
       assetService.findByQuery(assetSearchQuery, false, {ignoreLoading: true}).subscribe(
         function(assets) {
-          vm.projects = assets || [];
-          if (config.selectedProject && config.selectedProject.entityId && config.selectedProject.entityId.id) {
-            const selectedProjectId = config.selectedProject.entityId.id;
-            const matchedProject = (vm.projects || []).find(p => p.id && p.id.id === selectedProjectId);
-            if (matchedProject && vm.formGroup.get('project')) {
-              vm.formGroup.patchValue({ project: matchedProject });
-              vm.projectSelected = true;
-              config.selectedProject = { entityId: matchedProject.id, entityName: matchedProject.name };
-              config.selectedProjectEntity = matchedProject;
-              if (config.needsMeasurementSelection) {
-                loadMeasurementsForProject(matchedProject.id);
+          const allProjects = assets || [];
+          if (allProjects.length === 0) {
+            vm.projects = [];
+            vm.loading = false;
+            widgetContext.detectChanges();
+            return;
+          }
+          // Load progress attribute for each project using Promise.all
+          const progressPromises = allProjects.map(function(p) {
+            return new Promise(function(resolve) {
+              attributeService.getEntityAttributes(p.id, 'SERVER_SCOPE', ['progress']).subscribe(
+                function(attrs) { resolve({ id: p.id.id, attrs: attrs }); },
+                function() { resolve({ id: p.id.id, attrs: [] }); }
+              );
+            });
+          });
+          Promise.all(progressPromises).then(function(results) {
+            const progressByProject = {};
+            results.forEach(function(result) {
+              const progressAttr = (result.attrs || []).find(function(a) { return a.key === 'progress'; });
+              if (progressAttr) {
+                progressByProject[result.id] = progressAttr.value;
+              }
+            });
+            vm.projects = allProjects.filter(function(p) {
+              const progress = progressByProject[p.id.id];
+              return progress === 'in preparation' || progress === 'planned';
+            });
+            if (config.selectedProject && config.selectedProject.entityId && config.selectedProject.entityId.id) {
+              const selectedProjectId = config.selectedProject.entityId.id;
+              const matchedProject = (vm.projects || []).find(function(p) { return p.id && p.id.id === selectedProjectId; });
+              if (matchedProject && vm.formGroup.get('project')) {
+                vm.formGroup.patchValue({ project: matchedProject });
+                vm.projectSelected = true;
+                config.selectedProject = { entityId: matchedProject.id, entityName: matchedProject.name };
+                config.selectedProjectEntity = matchedProject;
+                if (config.needsMeasurementSelection) {
+                  loadMeasurementsForProject(matchedProject.id);
+                }
               }
             }
-          }
-          vm.loading = false;
-          widgetContext.detectChanges();
+            vm.loading = false;
+            widgetContext.detectChanges();
+          });
         },
-        function(error) {
-          console.error('Error loading projects:', error);
+        function() {
           vm.loading = false;
           widgetContext.detectChanges();
         }
       );
     }
 
-    // Helper: Load measurements for project
+    // Helper: Load measurements for project (only with progress = 'in preparation' or 'planned')
     function loadMeasurementsForProject(projectId) {
       vm.loading = true;
 
@@ -2523,12 +2619,39 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
 
       assetService.findByQuery(assetSearchQuery, false, {ignoreLoading: true}).subscribe(
         function(assets) {
-          vm.measurements = assets || [];
-          vm.loading = false;
-          widgetContext.detectChanges();
+          const allMeasurements = assets || [];
+          if (allMeasurements.length === 0) {
+            vm.measurements = [];
+            vm.loading = false;
+            widgetContext.detectChanges();
+            return;
+          }
+          // Load progress attribute for each measurement using Promise.all
+          const progressPromises = allMeasurements.map(function(m) {
+            return new Promise(function(resolve) {
+              attributeService.getEntityAttributes(m.id, 'SERVER_SCOPE', ['progress']).subscribe(
+                function(attrs) { resolve({ id: m.id.id, attrs: attrs }); },
+                function() { resolve({ id: m.id.id, attrs: [] }); }
+              );
+            });
+          });
+          Promise.all(progressPromises).then(function(results) {
+            const progressByMeasurement = {};
+            results.forEach(function(result) {
+              const progressAttr = (result.attrs || []).find(function(a) { return a.key === 'progress'; });
+              if (progressAttr) {
+                progressByMeasurement[result.id] = progressAttr.value;
+              }
+            });
+            vm.measurements = allMeasurements.filter(function(m) {
+              const progress = progressByMeasurement[m.id.id];
+              return progress === 'in preparation' || progress === 'planned';
+            });
+            vm.loading = false;
+            widgetContext.detectChanges();
+          });
         },
-        function(error) {
-          console.error('Error loading measurements:', error);
+        function() {
           vm.loading = false;
           widgetContext.detectChanges();
         }
@@ -2552,7 +2675,6 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
 
     vm.openAssignDevice = function() {
       if (!config.selectedMeasurement || !config.selectedMeasurement.entityId) {
-        console.error('[dataConnectorDialog] No measurement selected for assignment.');
         return;
       }
       setMeasurementType('ultrasonic', function() {
@@ -2567,7 +2689,6 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
 
     vm.openImportData = function() {
       if (!config.selectedMeasurement || !config.selectedMeasurement.entityId) {
-        console.error('[dataConnectorDialog] No measurement selected for import.');
         return;
       }
       setMeasurementType('import', function() {
@@ -2581,7 +2702,6 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
 
     vm.openInterpolateData = function() {
       if (!config.selectedMeasurement || !config.selectedMeasurement.entityId) {
-        console.error('[dataConnectorDialog] No measurement selected for interpolation.');
         return;
       }
       setMeasurementType('interpolation', function() {
@@ -2594,7 +2714,6 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
         config.selectedMeasurement && config.selectedMeasurement.entityId
       );
       if (!measurementId || !measurementId.id) {
-        console.error('[dataConnectorDialog] Invalid measurementId for measurementType update:', measurementId);
         return;
       }
       attributeService.saveEntityAttributes(measurementId, 'SERVER_SCOPE', [
@@ -2606,12 +2725,12 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
           }
         },
         function(error) {
-          console.error('[dataConnectorDialog] Failed to set measurementType:', error);
         }
       );
     }
-  }
-}
+  } // end SelectionDialogController
+  } // end proceedWithDialog
+} // end dataConnectorDialog
 
 /**
  * Assign device to measurement dialog
@@ -2621,7 +2740,7 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
  *   let { assignDeviceToMeasurement } = widgetContext.custom.utils;
  *   assignDeviceToMeasurement(widgetContext);
  */
-export function assignDeviceToMeasurement(widgetContext, entityId, entityName) {
+export function assignDeviceToMeasurement(widgetContext, entityId, entityName, onClose) {
   const $injector = widgetContext.$scope.$injector;
   const customDialog = $injector.get(widgetContext.servicesMap.get('customDialog'));
   const entityService = $injector.get(widgetContext.servicesMap.get('entityService'));
@@ -2977,8 +3096,13 @@ mat-icon {
       measurementName: entityName,
       maxLimitPFlows,
       maxLimitRoomSensorCO2,
-      assignedDevicesVr
-    }).subscribe();
+      assignedDevicesVr,
+      onClose: onClose
+    }).subscribe((result) => {
+      if (typeof onClose === 'function') {
+        onClose(result);
+      }
+    });
   }
 
   function AddDeviceDialogController(instance) {

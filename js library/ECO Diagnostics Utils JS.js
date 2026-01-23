@@ -2,7 +2,7 @@
  * ECO Diagnostics Utils JS - FINALE VERSION
  *
  * ThingsBoard JavaScript Module (Version 3.9+)
- * Pfad: Resources � JavaScript library � Module � "ECO Diagnostics Utils JS.js"
+ * Pfad: Resources → JavaScript library → Module → "ECO Diagnostics Utils JS.js"
  *
  * Vollständige Library mit allen Funktionen inklusive HTML & CSS Templates:
  * - Progress Display (getProgressHtml, getProgressColor)
@@ -27,35 +27,35 @@ export function getProgressColor(progress) {
     case "in preparation":
       color = "#F2994A"; // orange
       bgColor = "rgba(242, 153, 74, 0.12)";
-      label = "{i18n:custom.progress-options.preparation}";
+      label = "In Preparation";
       break;
 
     case "planned":
       color = "#F2994A"; // orange
       bgColor = "rgba(242, 153, 74, 0.12)";
-      label = "{i18n:custom.progress-options.planned}";
+      label = "Planned";
       break;
 
     case "active":
-      color = "#27AE60"; // grün
+      color = "#27AE60"; // green
       bgColor = "rgba(39, 174, 96, 0.12)";
-      label = "{i18n:custom.progress-options.active}";
+      label = "Active";
       break;
 
     case "finished":
-      color = "#2F80ED"; // blau
+      color = "#2F80ED"; // blue
       bgColor = "rgba(47, 128, 237, 0.12)";
-      label = "{i18n:custom.progress-options.finished}";
+      label = "Finished";
       break;
 
     case "aborted":
-      color = "#EB5757"; // rot
+      color = "#EB5757"; // red
       bgColor = "rgba(235, 87, 87, 0.12)";
-      label = "{i18n:custom.progress-options.aborted}";
+      label = "Aborted";
       break;
 
     default:
-      color = "#828282"; // grau
+      color = "#828282"; // gray
       bgColor = "rgba(130, 130, 130, 0.12)";
       label = "N/A";
       break;
@@ -81,6 +81,179 @@ export function getProgressHtml(progress) {
     label +
     '</div>'
   );
+}
+
+// ============================================================================
+// MEASUREMENT/INSTALLATION TYPE STYLING
+// ============================================================================
+
+/**
+ * Gibt Icon, Farben und Label fuer Measurement Type zurueck
+ *
+ * @param {string} measurementType - Measurement Type
+ * @returns {Object} { icon, color, bgColor, label }
+ */
+export function getMeasurementTypeStyle(measurementType) {
+  let icon, color, bgColor, label;
+
+  switch (measurementType) {
+    case "ultrasonic":
+      icon = "sensors";
+      color = "#2F80ED";
+      bgColor = "rgba(47, 128, 237, 0.12)";
+      label = "Ultrasonic";
+      break;
+    case "import":
+      icon = "upload_file";
+      color = "#9B51E0";
+      bgColor = "rgba(155, 81, 224, 0.12)";
+      label = "Import";
+      break;
+    case "interpolation":
+      icon = "auto_graph";
+      color = "#27AE60";
+      bgColor = "rgba(39, 174, 96, 0.12)";
+      label = "Interpolation";
+      break;
+    case "lorawan":
+      icon = "cell_tower";
+      color = "#F2994A";
+      bgColor = "rgba(242, 153, 74, 0.12)";
+      label = "LoRaWAN";
+      break;
+    default:
+      icon = "help_outline";
+      color = "#828282";
+      bgColor = "rgba(130, 130, 130, 0.12)";
+      label = "Unknown";
+      break;
+  }
+
+  return { icon, color, bgColor, label };
+}
+
+/**
+ * Gibt HTML Badge für Measurement Type zurück
+ *
+ * @param {string} measurementType - Measurement Type
+ * @returns {string} HTML String
+ */
+export function getMeasurementTypeHtml(measurementType) {
+  const { icon, color, bgColor, label } = getMeasurementTypeStyle(measurementType);
+  return (
+    '<div style="display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:8px;' +
+    'line-height:20px;font-size:14px;font-weight:500;letter-spacing:0.25px;' +
+    'color:' + color + ';background-color:' + bgColor + ';">' +
+    '<span class="material-icons" style="font-size:16px;">' + icon + '</span>' +
+    '<span>' + label + '</span>' +
+    '</div>'
+  );
+}
+
+/**
+ * Gibt Icon, Farben und Label fuer Installation Type zurueck
+ *
+ * @param {string} installationType - Installation Type
+ * @returns {Object} { icon, color, bgColor, label }
+ */
+export function getInstallationTypeStyle(installationType) {
+  let icon, color, bgColor, label;
+
+  switch (installationType) {
+    case "cooling":
+      icon = "ac_unit";
+      color = "#2F80ED";
+      bgColor = "rgba(47, 128, 237, 0.12)";
+      label = "Cooling";
+      break;
+    case "heating":
+      icon = "local_fire_department";
+      color = "#EB5757";
+      bgColor = "rgba(235, 87, 87, 0.12)";
+      label = "Heating";
+      break;
+    default:
+      icon = "thermostat";
+      color = "#828282";
+      bgColor = "rgba(130, 130, 130, 0.12)";
+      label = "Unknown";
+      break;
+  }
+
+  return { icon, color, bgColor, label };
+}
+
+// ============================================================================
+// DEVICE STATUS/TIMESTAMP STYLING
+// ============================================================================
+
+/**
+ * Gibt Icon, Farben und Label fuer Device-Status zurueck
+ *
+ * @param {boolean} hasDevice - Device assigned
+ * @param {string} deviceName - Device name
+ * @returns {Object} { icon, color, bgColor, label }
+ */
+export function getDeviceStatusStyle(hasDevice, deviceName) {
+  let icon, color, bgColor, label;
+
+  if (hasDevice) {
+    icon = "check_circle";
+    color = "#27AE60";
+    bgColor = "rgba(39, 174, 96, 0.12)";
+    label = deviceName || "Assigned";
+  } else {
+    icon = "error_outline";
+    color = "#EB5757";
+    bgColor = "rgba(235, 87, 87, 0.12)";
+    label = "No Device";
+  }
+
+  return { icon, color, bgColor, label };
+}
+
+/**
+ * Gibt Icon, Farben und Label fuer Timestamp-Anzeige zurueck
+ *
+ * @param {number|string} timestampMs - Unix timestamp in ms
+ * @param {string} type - "start" oder "end"
+ * @returns {Object|null} { icon, color, bgColor, label, formattedTime } oder null
+ */
+export function getTimestampStyle(timestampMs, type) {
+  if (timestampMs === null || timestampMs === undefined) {
+    return null;
+  }
+
+  const date = new Date(Number(timestampMs));
+  const pad = (n) => n.toString().padStart(2, "0");
+  const formattedTime =
+    date.getFullYear() +
+    "-" +
+    pad(date.getMonth() + 1) +
+    "-" +
+    pad(date.getDate()) +
+    " " +
+    pad(date.getHours()) +
+    ":" +
+    pad(date.getMinutes()) +
+    ":" +
+    pad(date.getSeconds());
+
+  let icon, color, bgColor, label;
+
+  if (type === "start") {
+    icon = "play_circle";
+    color = "#27AE60";
+    bgColor = "rgba(39, 174, 96, 0.12)";
+    label = "Start";
+  } else {
+    icon = "stop_circle";
+    color = "#2F80ED";
+    bgColor = "rgba(47, 128, 237, 0.12)";
+    label = "End";
+  }
+
+  return { icon, color, bgColor, label, formattedTime };
 }
 
 // ============================================================================
@@ -352,7 +525,7 @@ export function getAddressSearchTemplate(options) {
   const coordinatesSideBySide = opts.coordinatesSideBySide !== false;
 
   let template = '<mat-form-field appearance="fill" class="flex-1">\n' +
-    '  <mat-label>Address</mat-label>\n' +
+    '  <mat-label>{{ \'custom.add-project-dialog.address\' | translate }}</mat-label>\n' +
     '  <input matInput formControlName="address" [matAutocomplete]="addrAuto" autocomplete="off">\n' +
     '  <button mat-icon-button matSuffix type="button" (click)="searchAddress()"\n' +
     '          [disabled]="(' + formGroupName + '.get(\'address\').value || \'\').length < 5">\n' +
@@ -366,18 +539,18 @@ export function getAddressSearchTemplate(options) {
     '    </mat-option>\n' +
     '  </mat-autocomplete>\n' +
     '  <mat-hint *ngIf="(' + formGroupName + '.get(\'address\').value || \'\').length < 5">\n' +
-    '    Enter at least 5 characters to search\n' +
+    '    {{ \'custom.add-project-dialog.address-hint\' | translate }}\n' +
     '  </mat-hint>\n' +
     '</mat-form-field>\n';
 
   if (showPostalCodeCity) {
     template += '\n<div style="display: flex; gap: 8px;">\n' +
       '  <mat-form-field appearance="fill" style="flex: 1;">\n' +
-      '      <mat-label>Postal Code</mat-label>\n' +
+      '      <mat-label>{{ \'custom.add-project-dialog.postal-code\' | translate }}</mat-label>\n' +
       '      <input matInput formControlName="postalCode">\n' +
       '  </mat-form-field>\n' +
       '  <mat-form-field appearance="fill" style="flex: 2;">\n' +
-      '      <mat-label>City</mat-label>\n' +
+      '      <mat-label>{{ \'custom.add-project-dialog.city\' | translate }}</mat-label>\n' +
       '      <input matInput formControlName="city">\n' +
       '  </mat-form-field>\n' +
       '</div>\n';
@@ -387,21 +560,21 @@ export function getAddressSearchTemplate(options) {
     if (coordinatesSideBySide) {
       template += '\n<div style="display: flex; gap: 8px;">\n' +
         '  <mat-form-field appearance="fill" style="flex: 1;">\n' +
-        '      <mat-label>Latitude</mat-label>\n' +
+        '      <mat-label>{{ \'custom.add-project-dialog.latitude\' | translate }}</mat-label>\n' +
         '      <input matInput formControlName="latitude">\n' +
         '  </mat-form-field>\n' +
         '  <mat-form-field appearance="fill" style="flex: 1;">\n' +
-        '      <mat-label>Longitude</mat-label>\n' +
+        '      <mat-label>{{ \'custom.add-project-dialog.longitude\' | translate }}</mat-label>\n' +
         '      <input matInput formControlName="longitude">\n' +
         '  </mat-form-field>\n' +
         '</div>\n';
     } else {
       template += '\n<mat-form-field appearance="fill" class="flex-1">\n' +
-        '    <mat-label>Latitude</mat-label>\n' +
+        '    <mat-label>{{ \'custom.add-project-dialog.latitude\' | translate }}</mat-label>\n' +
         '    <input matInput formControlName="latitude">\n' +
         '</mat-form-field>\n' +
         '<mat-form-field appearance="fill" class="flex-1">\n' +
-        '    <mat-label>Longitude</mat-label>\n' +
+        '    <mat-label>{{ \'custom.add-project-dialog.longitude\' | translate }}</mat-label>\n' +
         '    <input matInput formControlName="longitude">\n' +
         '</mat-form-field>\n';
     }
@@ -428,7 +601,7 @@ export function getProjectDialogHtml() {
   return '<form #addEntityForm="ngForm" [formGroup]="addProjectFormGroup"\n' +
     '      (ngSubmit)="save()" class="add-entity-form max-w-3xl mx-auto" style="width: 600px; max-width: 90vw;">\n' +
     '  <mat-toolbar class="flex items-center bg-primary text-white px-4" color="primary">\n' +
-    '    <h2 class="text-lg font-semibold">Add Project</h2>\n' +
+    '    <h2 class="text-lg font-semibold">{{ \'custom.add-project-dialog.title\' | translate }}</h2>\n' +
     '    <span class="flex-1"></span>\n' +
     '    <button mat-icon-button (click)="cancel()" type="button">\n' +
     '      <mat-icon class="material-icons">close</mat-icon>\n' +
@@ -440,7 +613,7 @@ export function getProjectDialogHtml() {
     '  <div mat-dialog-content class="flex flex-col p-4 space-y-4">\n' +
     '    <div class="flex flex-col gap-0 sm:gap-2">\n' +
     '        <mat-form-field *ngIf="isTenantAdmin" appearance="fill" class="flex-1">\n' +
-    '          <mat-label>Customer</mat-label>\n' +
+    '          <mat-label>{{ \'custom.add-project-dialog.customer\' | translate }}</mat-label>\n' +
     '        \n' +
     '          <mat-select\n' +
     '              formControlName="customer"\n' +
@@ -454,22 +627,22 @@ export function getProjectDialogHtml() {
     '          </mat-select>\n' +
     '        \n' +
     '          <mat-error *ngIf="addProjectFormGroup.get(\'customer\')?.hasError(\'required\')">\n' +
-    '            Customer is required.\n' +
+    '            {{ \'custom.add-project-dialog.customer-required\' | translate }}\n' +
     '          </mat-error>\n' +
     '        </mat-form-field>\n' +
     '        <mat-form-field appearance="fill" class="flex-1">\n' +
-    '            <mat-label>Project ID</mat-label>\n' +
+    '            <mat-label>{{ \'custom.add-project-dialog.project-id\' | translate }}</mat-label>\n' +
     '            <input matInput formControlName="name" required readonly>\n' +
     '            <mat-error *ngIf="addProjectFormGroup.get(\'name\').hasError(\'required\')">\n' +
-    '              Project title is required.\n' +
+    '              {{ \'custom.add-project-dialog.project-id-required\' | translate }}\n' +
     '            </mat-error>\n' +
     '        </mat-form-field>\n' +
     '        <mat-form-field appearance="fill" class="flex-1">\n' +
-    '            <mat-label>Label</mat-label>\n' +
+    '            <mat-label>{{ \'custom.add-project-dialog.label\' | translate }}</mat-label>\n' +
     '            <input matInput formControlName="entityLabel">\n' +
     '        </mat-form-field>\n' +
     '<mat-form-field appearance="fill" class="flex-1">\n' +
-    '  <mat-label>Project address</mat-label>\n' +
+    '  <mat-label>{{ \'custom.add-project-dialog.address\' | translate }}</mat-label>\n' +
     '\n' +
     '  <input matInput\n' +
     '         formControlName="address"\n' +
@@ -495,28 +668,28 @@ export function getProjectDialogHtml() {
     '  </mat-autocomplete>\n' +
     '\n' +
     '  <mat-hint *ngIf="(addProjectFormGroup.get(\'address\').value || \'\').length < 5">\n' +
-    '    Enter at least 5 characters to search\n' +
+    '    {{ \'custom.add-project-dialog.address-hint\' | translate }}\n' +
     '  </mat-hint>\n' +
     '</mat-form-field>\n' +
     '\n' +
     '        <div style="display: flex; gap: 8px;">\n' +
     '          <mat-form-field appearance="fill" style="flex: 1;">\n' +
-    '              <mat-label>Postal Code</mat-label>\n' +
+    '              <mat-label>{{ \'custom.add-project-dialog.postal-code\' | translate }}</mat-label>\n' +
     '              <input matInput formControlName="postalCode">\n' +
     '          </mat-form-field>\n' +
     '          <mat-form-field appearance="fill" style="flex: 2;">\n' +
-    '              <mat-label>City</mat-label>\n' +
+    '              <mat-label>{{ \'custom.add-project-dialog.city\' | translate }}</mat-label>\n' +
     '              <input matInput formControlName="city">\n' +
     '          </mat-form-field>\n' +
     '        </div>\n' +
     '\n' +
     '        <div style="display: flex; gap: 8px;">\n' +
     '          <mat-form-field appearance="fill" style="flex: 1;">\n' +
-    '              <mat-label>Latitude</mat-label>\n' +
+    '              <mat-label>{{ \'custom.add-project-dialog.latitude\' | translate }}</mat-label>\n' +
     '              <input matInput formControlName="latitude">\n' +
     '          </mat-form-field>\n' +
     '          <mat-form-field appearance="fill" style="flex: 1;">\n' +
-    '              <mat-label>Longitude</mat-label>\n' +
+    '              <mat-label>{{ \'custom.add-project-dialog.longitude\' | translate }}</mat-label>\n' +
     '              <input matInput formControlName="longitude">\n' +
     '          </mat-form-field>\n' +
     '        </div>\n' +
@@ -527,12 +700,12 @@ export function getProjectDialogHtml() {
     '            type="button"\n' +
     '            [disabled]="(isLoading$ | async)"\n' +
     '            (click)="cancel()" cdkFocusInitial>\n' +
-    '      Cancel\n' +
+    '      {{ \'custom.add-project-dialog.cancel\' | translate }}\n' +
     '    </button>\n' +
     '    <button mat-button mat-raised-button color="primary"\n' +
     '            type="submit"\n' +
     '            [disabled]="(isLoading$ | async) || addProjectFormGroup.invalid || !addProjectFormGroup.dirty">\n' +
-    '      Add Project\n' +
+    '      {{ \'custom.add-project-dialog.add-project\' | translate }}\n' +
     '    </button>\n' +
     '  </div>\n' +
     '</form>';
