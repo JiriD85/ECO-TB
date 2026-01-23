@@ -439,7 +439,7 @@ mat-icon {
 
         <div style="margin-top: 16px;">
           <div class="flex flex-col gap-4">
-            <mat-form-field appearance="fill" class="w-full">
+            <mat-form-field appearance="outline" class="w-full">
               <mat-label>{{ 'custom.csv-importer.measurement' | translate }}</mat-label>
               <mat-select formControlName="measurement" required (selectionChange)="onMeasurementChange()"
                           [disabled]="lockMeasurementSelection">
@@ -451,7 +451,7 @@ mat-icon {
                 {{ 'custom.csv-importer.measurement-required' | translate }}
               </mat-error>
             </mat-form-field>
-            <mat-form-field appearance="fill" class="w-full">
+            <mat-form-field appearance="outline" class="w-full">
               <mat-label>{{ 'custom.csv-importer.measurement-label' | translate }}</mat-label>
               <input matInput formControlName="measurementLabel" (blur)="saveMeasurementLabel()">
             </mat-form-field>
@@ -2212,8 +2212,9 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
   // HTML for selection dialog with stepper
   const selectionTemplate = `
 <form [formGroup]="formGroup" style="width: 900px; max-width: 90vw; min-height: 520px; max-height: 85vh;">
-  <mat-toolbar color="primary">
-    <h2>{{ 'custom.data-connector.title' | translate }}</h2>
+  <mat-toolbar class="flex items-center" color="primary">
+    <mat-icon style="margin-right: 12px;">link</mat-icon>
+    <h2 style="margin: 0; font-size: 18px;">{{ 'custom.data-connector.title' | translate }}</h2>
     <span class="flex-1"></span>
     <button mat-icon-button (click)="cancel()" type="button">
       <mat-icon>close</mat-icon>
@@ -2238,7 +2239,7 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
         <ng-template matStepLabel>Select Customer</ng-template>
 
         <div style="margin-top: 16px;">
-          <mat-form-field appearance="fill" class="w-full">
+          <mat-form-field appearance="outline" class="w-full">
             <mat-label>Customer</mat-label>
             <mat-select formControlName="customer" required (selectionChange)="onCustomerChange()"
                         [disabled]="!needsCustomerSelection">
@@ -2267,7 +2268,7 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
         <ng-template matStepLabel>Select Project</ng-template>
 
         <div style="margin-top: 16px;">
-          <mat-form-field appearance="fill" class="w-full">
+          <mat-form-field appearance="outline" class="w-full">
             <mat-label>Project</mat-label>
             <mat-select formControlName="project" required (selectionChange)="onProjectChange()"
                         [disabled]="!needsProjectSelection">
@@ -2299,7 +2300,7 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
         <ng-template matStepLabel>{{ 'custom.csv-importer.step-select-measurement' | translate }}</ng-template>
 
         <div style="margin-top: 16px;">
-          <mat-form-field appearance="fill" class="w-full">
+          <mat-form-field appearance="outline" class="w-full">
             <mat-label>{{ 'custom.csv-importer.measurement' | translate }}</mat-label>
             <mat-select formControlName="measurement" required (selectionChange)="onMeasurementChange()">
               <mat-option *ngFor="let measurement of measurements" [value]="measurement">
@@ -2855,151 +2856,215 @@ mat-icon {
   // HTML Template
   const htmlTemplate = `
 <form #addEntityForm="ngForm" [formGroup]="addDeviceFormGroup"
-      (ngSubmit)="save()" class="add-entity-form mx-auto" style="width: 800px;">
-  <mat-toolbar class="flex items-center bg-primary text-white px-4" color="primary">
-    <h2>{{'custom.projects.measurements.assigned.devices.add-devices.add-device' | translate}}</h2>
+      (ngSubmit)="save()" class="add-entity-form mx-auto" style="width: 600px;">
+  <mat-toolbar class="flex items-center" color="primary">
+    <mat-icon style="margin-right: 12px;">sensors</mat-icon>
+    <h2 style="margin: 0; font-size: 18px;">{{'custom.projects.measurements.assigned.devices.add-devices.add-device' | translate}}</h2>
     <span class="flex-1"></span>
     <button mat-icon-button (click)="cancel()" type="button">
-      <mat-icon class="material-icons">close</mat-icon>
+      <mat-icon>close</mat-icon>
     </button>
   </mat-toolbar>
   <mat-progress-bar color="warn" mode="indeterminate" *ngIf="isLoading$ | async"></mat-progress-bar>
   <div style="height: 4px;" *ngIf="!(isLoading$ | async)"></div>
 
-  <div mat-dialog-content class="flex flex-col p-4 space-y-4">
-    <div *ngIf="warningMessage" style="color: #d32f2f; font-size: 14px; margin-bottom: 10px; border: 1px solid #d32f2f; padding: 8px; border-radius: 4px;">
-      {{ warningMessage }}
+  <div mat-dialog-content class="flex flex-col p-4" style="max-height: 65vh; overflow-y: auto;">
+    <!-- Warning Messages -->
+    <div *ngIf="warningMessage" class="flex items-center gap-2" style="background: #fff3e0; color: #e65100; border-radius: 8px; padding: 12px; margin-bottom: 16px; border: 1px solid rgba(230, 81, 0, 0.3);">
+      <mat-icon style="flex-shrink: 0;">warning</mat-icon>
+      <span style="font-size: 13px;">{{ warningMessage }}</span>
+    </div>
+
+    <div *ngIf="pFlowLimit || CO2Limit" class="flex items-center gap-2" style="background: #e3f2fd; color: #1565c0; border-radius: 8px; padding: 12px; margin-bottom: 16px; border: 1px solid rgba(21, 101, 192, 0.3);">
+      <mat-icon style="flex-shrink: 0;">info</mat-icon>
+      <div class="flex flex-col gap-1" style="font-size: 13px;">
+        <span *ngIf="pFlowLimit">{{'custom.projects.measurements.assigned.devices.add-devices.limit-p-flows' | translate}}</span>
+        <span *ngIf="CO2Limit">{{'custom.projects.measurements.assigned.devices.add-devices.limit-co2-sensors' | translate}}</span>
+      </div>
     </div>
 
     <div formGroupName="stepper" class="flex flex-col gap-4">
-      <div formGroupName="assignmentStep">
-        <fieldset *ngIf="pFlowLimit || CO2Limit" class="fieldset" style="margin-bottom: 16px;">
-          <div class="flex flex-col p-4 space-y-4">
-            <div class="flex w-full">
-              <mat-icon *ngIf="pFlowLimit" style="margin-right: 8px;">info</mat-icon>
-              <p *ngIf="pFlowLimit" style="font-size: 15px; margin: 0;">
-                {{'custom.projects.measurements.assigned.devices.add-devices.limit-p-flows' | translate}}
-              </p>
-            </div>
-            <div class="flex w-full">
-              <mat-icon *ngIf="CO2Limit" style="margin-right: 8px;">info</mat-icon>
-              <p *ngIf="CO2Limit" style="font-size: 15px; margin: 0;">
-                {{'custom.projects.measurements.assigned.devices.add-devices.limit-co2-sensors' | translate}}
-              </p>
-            </div>
-          </div>
-        </fieldset>
+      <div formGroupName="assignmentStep" class="flex flex-col gap-3">
 
-        <mat-form-field appearance="fill" class="w-full pflow-field">
-          <mat-label>P-Flow D116</mat-label>
-          <input *ngIf="assignedPFlow" matInput [value]="assignedPFlow.name + ' | ' + assignedPFlow.type + ' | ' + getActiveLabel(assignedPFlow)"
-                 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" disabled>
-          <mat-select *ngIf="!assignedPFlow" formControlName="pflowDevice" required (selectionChange)="onPFlowChange()">
-            <mat-select-trigger>
-              <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
-                <div style="min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                  {{ addDeviceFormGroup.get('stepper.assignmentStep.pflowDevice').value?.name }} |
-                  {{ addDeviceFormGroup.get('stepper.assignmentStep.pflowDevice').value?.type }} |
-                  {{ getActiveLabel(addDeviceFormGroup.get('stepper.assignmentStep.pflowDevice').value) }}
-                </div>
-                <div class="status" [ngStyle]="getActiveStyle(addDeviceFormGroup.get('stepper.assignmentStep.pflowDevice').value)">
-                  {{ getActiveLabel(addDeviceFormGroup.get('stepper.assignmentStep.pflowDevice').value) }}
-                </div>
-              </div>
-            </mat-select-trigger>
-            <mat-option *ngFor="let device of availablePFlows" [value]="device">
-              <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%;">
-                <div style="min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                  {{ device.name }} | {{ device.type }}
-                </div>
-                <div class="status" [ngStyle]="getActiveStyle(device)">
-                  {{ getActiveLabel(device) }}
-                </div>
+        <!-- Section: Diagnostic Kit -->
+        <div class="flex items-center gap-2 mb-1" style="color: #305680;">
+          <mat-icon style="font-size: 18px; width: 18px; height: 18px;">inventory_2</mat-icon>
+          <span style="font-weight: 600; font-size: 14px;">1. Select Diagnostic Kit</span>
+        </div>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Diagnostic Kit</mat-label>
+          <input matInput formControlName="diagnostickit"
+                 [matAutocomplete]="kitAuto"
+                 (input)="filterKits($event.target.value)"
+                 (focus)="filterKits('')"
+                 placeholder="Search kit (e.g. 0042)">
+          <mat-icon matSuffix style="color: #666;">search</mat-icon>
+          <mat-autocomplete #kitAuto="matAutocomplete"
+                            [displayWith]="displayKit"
+                            (optionSelected)="onKitSelected($event.option.value)">
+            <mat-option *ngFor="let kit of filteredKits" [value]="kit">
+              <div class="flex items-center gap-2">
+                <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #305680;">inventory_2</mat-icon>
+                <span>{{ kit.name }}</span>
               </div>
             </mat-option>
-          </mat-select>
-          <button *ngIf="assignedPFlow" mat-icon-button matSuffix type="button" class="pflow-unassign-btn" (click)="unassignPFlow()">
-            <tb-icon role="img" class="mat-icon notranslate material-icons mat-ligature-font mat-icon-no-color ng-star-inserted" data-mat-icon-type="font">link_off<span style="display: none;"> link_off </span></tb-icon>
+          </mat-autocomplete>
+          <mat-hint *ngIf="!selectedKit">Search and select a diagnostic kit to see available devices</mat-hint>
+        </mat-form-field>
+
+        <!-- Kit Info Badge -->
+        <div *ngIf="selectedKit" class="flex items-center gap-3" style="background: linear-gradient(135deg, #e8f4fd 0%, #f0f7ff 100%); border: 1px solid #305680; border-radius: 8px; padding: 12px; margin-bottom: 8px;">
+          <mat-icon style="color: #305680; font-size: 24px; width: 24px; height: 24px;">inventory_2</mat-icon>
+          <div class="flex flex-col">
+            <span style="font-weight: 600; color: #305680;">{{ selectedKit.name }}</span>
+            <span style="font-size: 12px; color: #666;">{{ kitPFlows.length }} P-Flow(s), {{ kitSensors.length }} Sensor(s) available</span>
+          </div>
+        </div>
+
+        <!-- Section: P-Flow Selection -->
+        <div class="flex items-center gap-2 mb-1 mt-2" style="color: #305680;">
+          <mat-icon style="font-size: 18px; width: 18px; height: 18px;">sensors</mat-icon>
+          <span style="font-weight: 600; font-size: 14px;">2. Select P-Flow Device</span>
+          <span style="font-size: 12px; color: #d32f2f;">*</span>
+        </div>
+
+        <mat-form-field appearance="outline" class="w-full pflow-field">
+          <mat-label>P-Flow D116</mat-label>
+          <input *ngIf="assignedPFlow" matInput [value]="assignedPFlow.name"
+                 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" disabled>
+          <ng-container *ngIf="!assignedPFlow">
+            <input matInput formControlName="pflowDevice"
+                   [matAutocomplete]="pflowAuto"
+                   (input)="filterPFlows($event.target.value)"
+                   (focus)="filterPFlows('')"
+                   [placeholder]="selectedKit ? 'Select P-Flow' : 'Select a Diagnostic Kit first'">
+            <mat-icon matSuffix style="color: #666;">arrow_drop_down</mat-icon>
+            <mat-autocomplete #pflowAuto="matAutocomplete"
+                              [displayWith]="displayPFlow"
+                              (optionSelected)="onPFlowSelected($event.option.value)">
+              <mat-option *ngFor="let device of filteredPFlows" [value]="device">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%;">
+                  <div class="flex items-center gap-2" style="min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                    <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #2196f3;">sensors</mat-icon>
+                    <span>{{ device.name }}</span>
+                  </div>
+                  <div [ngStyle]="getActiveStyle(device)" style="font-size: 11px;">
+                    {{ getActiveLabel(device) }}
+                  </div>
+                </div>
+              </mat-option>
+            </mat-autocomplete>
+          </ng-container>
+          <button *ngIf="assignedPFlow" mat-icon-button matSuffix type="button" (click)="unassignPFlow()" matTooltip="Unassign P-Flow">
+            <mat-icon style="color: #d32f2f;">link_off</mat-icon>
           </button>
           <mat-error *ngIf="addDeviceFormGroup.get('stepper.assignmentStep.pflowDevice').hasError('required')">
             {{'custom.projects.measurements.assigned.devices.add-devices.device-required' | translate}}
           </mat-error>
+          <mat-hint *ngIf="!selectedKit && !assignedPFlow">Select a Diagnostic Kit first</mat-hint>
+          <mat-hint *ngIf="selectedKit && kitPFlows.length === 0 && !assignedPFlow">No P-Flows available in this kit</mat-hint>
         </mat-form-field>
 
-        <mat-form-field appearance="fill" class="w-full">
+        <!-- Assigned P-Flow Info -->
+        <div *ngIf="assignedPFlow" class="flex items-center gap-2" style="background: #e8f5e9; border-radius: 8px; padding: 8px 12px; margin-bottom: 8px;">
+          <mat-icon style="color: #2e7d32; font-size: 18px; width: 18px; height: 18px;">check_circle</mat-icon>
+          <span style="font-size: 13px; color: #2e7d32;">P-Flow assigned: {{ assignedPFlow.name }}</span>
+          <div [ngStyle]="getActiveStyle(assignedPFlow)" style="font-size: 11px; margin-left: auto;">
+            {{ getActiveLabel(assignedPFlow) }}
+          </div>
+        </div>
+
+        <!-- Measurement Label -->
+        <mat-form-field appearance="outline" class="w-full">
           <mat-label>{{'custom.projects.measurements.assigned.devices.add-devices.measurement-label' | translate}}</mat-label>
-          <input matInput formControlName="measurementLabel">
-        </mat-form-field>
-
-        <mat-form-field appearance="fill" class="w-full">
-          <mat-label>{{'custom.projects.measurements.assigned.devices.add-devices.assigned-kit' | translate}}</mat-label>
-          <input matInput formControlName="kit" disabled>
+          <input matInput formControlName="measurementLabel" placeholder="Optional label for this measurement">
+          <mat-icon matSuffix style="color: #666;">label</mat-icon>
         </mat-form-field>
       </div>
 
-      <div class="flex flex-col gap-3">
-        <div *ngIf="selectedSensors.length > 0" class="flex flex-col gap-2">
-          <div class="flex items-start gap-2" *ngFor="let sensor of selectedSensors; let i = index">
-            <mat-form-field appearance="fill" class="flex-1 pflow-field">
-              <mat-label>Temperature Sensor</mat-label>
-              <mat-select *ngIf="!sensor.isAssigned"
-                          [ngModelOptions]="{standalone: true}"
-                          [(ngModel)]="sensor.device"
-                          (selectionChange)="onSensorChange()">
-                <mat-select-trigger>
-                  <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
-                    <div style="min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                      {{ sensor.device?.name }} | {{ sensor.device?.type }} | {{ getActiveLabel(sensor.device) }}
+      <!-- Section: Temperature Sensors -->
+      <div class="flex flex-col gap-3" style="border-top: 1px solid #e0e0e0; padding-top: 16px; margin-top: 8px;">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2" style="color: #305680;">
+            <mat-icon style="font-size: 18px; width: 18px; height: 18px;">thermostat</mat-icon>
+            <span style="font-weight: 600; font-size: 14px;">3. Temperature Sensors</span>
+            <span style="font-size: 12px; color: #666; font-weight: 400;">(optional)</span>
+          </div>
+          <button mat-stroked-button color="primary" type="button"
+                  (click)="addSensor()"
+                  [disabled]="!selectedKit || kitSensors.length === 0"
+                  style="font-size: 12px;">
+            <mat-icon style="font-size: 18px; width: 18px; height: 18px;">add</mat-icon>
+            Add Sensor
+          </button>
+        </div>
+
+        <div *ngIf="!selectedKit" class="flex items-center gap-2" style="background: #f5f5f5; border-radius: 8px; padding: 12px; color: #666;">
+          <mat-icon>info</mat-icon>
+          <span style="font-size: 13px;">Select a Diagnostic Kit to add temperature sensors</span>
+        </div>
+
+        <div *ngIf="selectedKit && kitSensors.length === 0 && selectedSensors.length === 0" class="flex items-center gap-2" style="background: #f5f5f5; border-radius: 8px; padding: 12px; color: #666;">
+          <mat-icon>info</mat-icon>
+          <span style="font-size: 13px;">No temperature sensors available in this kit</span>
+        </div>
+
+        <div *ngIf="selectedSensors.length > 0" class="flex flex-col gap-3">
+          <div class="flex items-start gap-2" *ngFor="let sensor of selectedSensors; let i = index" style="background: #fafafa; border-radius: 8px; padding: 12px;">
+            <mat-form-field appearance="outline" class="flex-1 pflow-field" style="margin-bottom: -1.25em;">
+              <mat-label>Temperature Sensor {{ i + 1 }}</mat-label>
+              <input *ngIf="sensor.isAssigned" matInput [value]="sensor.device.name" disabled>
+              <ng-container *ngIf="!sensor.isAssigned">
+                <input matInput
+                       [ngModelOptions]="{standalone: true}"
+                       [(ngModel)]="sensor.device"
+                       [matAutocomplete]="sensorAuto"
+                       (input)="filterKitSensors($event.target.value, sensor)"
+                       (focus)="filterKitSensors('', sensor)"
+                       placeholder="Select sensor"
+                       [displayWith]="displaySensor">
+                <mat-icon matSuffix style="color: #666;">arrow_drop_down</mat-icon>
+                <mat-autocomplete #sensorAuto="matAutocomplete"
+                                  [displayWith]="displaySensor"
+                                  (optionSelected)="onSensorChange()">
+                  <mat-option *ngFor="let device of filteredKitSensors" [value]="device">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%;">
+                      <div class="flex items-center gap-2">
+                        <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #ff9800;">thermostat</mat-icon>
+                        <span>{{ device.name }}</span>
+                      </div>
+                      <div [ngStyle]="getActiveStyle(device)" style="font-size: 11px;">
+                        {{ getActiveLabel(device) }}
+                      </div>
                     </div>
-                    <div class="status" [ngStyle]="getActiveStyle(sensor.device)">
-                      {{ getActiveLabel(sensor.device) }}
-                    </div>
-                  </div>
-                </mat-select-trigger>
-                <mat-option *ngFor="let device of getSensorOptions(sensor)" [value]="device">
-                  <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%;">
-                    <div style="min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                      {{ device.name }} | {{ device.type }}
-                    </div>
-                    <div class="status" [ngStyle]="getActiveStyle(device)">
-                      {{ getActiveLabel(device) }}
-                    </div>
-                  </div>
-                </mat-option>
-              </mat-select>
-              <input *ngIf="sensor.isAssigned" matInput [value]="sensor.device.name + ' | ' + sensor.device.type + ' | ' + getActiveLabel(sensor.device)"
-                     style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" disabled>
-              <button mat-icon-button matSuffix type="button" class="pflow-unassign-btn" (click)="unassignSensor(sensor)">
-                <tb-icon role="img" class="mat-icon notranslate material-icons mat-ligature-font mat-icon-no-color ng-star-inserted" data-mat-icon-type="font">link_off<span style="display: none;"> link_off </span></tb-icon>
-              </button>
+                  </mat-option>
+                </mat-autocomplete>
+              </ng-container>
             </mat-form-field>
-            <mat-form-field appearance="fill" class="flex-1">
-              <mat-label>Sensor Label</mat-label>
-              <input matInput [ngModelOptions]="{standalone: true}" [(ngModel)]="sensor.sensorLabel">
+            <mat-form-field appearance="outline" class="flex-1" style="margin-bottom: -1.25em;">
+              <mat-label>Label</mat-label>
+              <input matInput [ngModelOptions]="{standalone: true}" [(ngModel)]="sensor.sensorLabel" placeholder="e.g. Supply, Return">
             </mat-form-field>
+            <button mat-icon-button type="button" (click)="unassignSensor(sensor)" matTooltip="Remove sensor" style="margin-top: 4px;">
+              <mat-icon style="color: #d32f2f;">delete</mat-icon>
+            </button>
           </div>
         </div>
       </div>
-
-      <div class="flex justify-end items-center gap-2">
-        <button mat-button color="primary"
-                type="button"
-                [disabled]="(isLoading$ | async)"
-                (click)="cancel()" cdkFocusInitial>
-          {{'action.cancel' | translate}}
-        </button>
-        <button mat-button mat-raised-button color="primary" type="button"
-                (click)="addSensor()"
-                [disabled]="availableSensors.length === 0">
-          Add Sensor
-        </button>
-        <button mat-button mat-raised-button color="primary"
-                type="submit"
-                [disabled]="(isLoading$ | async) || addDeviceFormGroup.invalid">
-          {{'action.save' | translate}}
-        </button>
-      </div>
     </div>
+  </div>
+
+  <!-- Footer Actions -->
+  <div class="flex justify-end items-center gap-2 p-4" style="border-top: 1px solid #e0e0e0; background: #fafafa;">
+    <button mat-button type="button" [disabled]="(isLoading$ | async)" (click)="cancel()">
+      {{'action.cancel' | translate}}
+    </button>
+    <button mat-raised-button color="primary" type="submit"
+            [disabled]="(isLoading$ | async) || addDeviceFormGroup.invalid">
+      <mat-icon style="font-size: 18px; width: 18px; height: 18px; margin-right: 4px;">save</mat-icon>
+      {{'action.save' | translate}}
+    </button>
   </div>
 </form>
 `;
@@ -3160,61 +3225,249 @@ mat-icon {
     vm.addDeviceFormGroup = vm.fb.group({
       stepper: vm.fb.group({
         assignmentStep: vm.fb.group({
+          diagnostickit: [null],
           pflowDevice: [null, [vm.validators.required]],
-          measurementLabel: [''],
-          kit: [{ value: null, disabled: true }]
+          measurementLabel: ['']
         })
       })
     });
 
-    vm.addDeviceFormGroup.get('stepper.assignmentStep.pflowDevice').valueChanges.subscribe(function(value) {
-      vm.warningMessage = null;
-      if (value) {
-        const selectedDeviceId = value.deviceId.id;
-        const kitSearchQuery = {
-          parameters: {
-            rootId: selectedDeviceId,
-            rootType: 'DEVICE',
-            direction: 'TO',
-            relationTypeGroup: 'COMMON',
-            maxLevel: 1073741824,
-            fetchLastLevelOnly: false
-          },
-          relationType: 'Contains',
-          assetTypes: ['Diagnostickit']
-        };
+    // Kit, P-Flow and Sensor autocomplete state
+    vm.allKits = [];
+    vm.filteredKits = [];
+    vm.selectedKit = null;
+    vm.filteredPFlows = [];
+    vm.kitPFlows = []; // P-Flows that belong to selected kit and are unassigned
+    vm.kitSensors = []; // Temperature Sensors that belong to selected kit and are unassigned
+    vm.filteredKitSensors = [];
 
-        assetService.findByQuery(kitSearchQuery).subscribe(
-          function(kitData) {
-            if (kitData && kitData.length > 0) {
-              const kitName = kitData[0].name;
-              vm.addDeviceFormGroup.patchValue({ stepper: { assignmentStep: { kit: kitName } } }, { emitEvent: false });
-              const kitId = kitData[0].id;
-              getKitInfo(kitId).subscribe(function(kitAttributes) {
-                const subAttr = kitAttributes.find(attr => attr.key === 'subscriptionStatus');
-                const validToAttr = kitAttributes.find(attr => attr.key === 'validTo');
-                const status = subAttr ? subAttr.value.toLowerCase() : null;
-                if ((status === 'canceled' || status === 'cancelled') && validToAttr) {
-                  const validToDate = new Date(validToAttr.value);
-                  const now = new Date();
-                  if (validToDate > now) {
-                    const diffDays = Math.ceil((validToDate - now) / (1000 * 3600 * 24));
-                    if (diffDays < 31) {
-                      vm.warningMessage = `The diagnostic kit license for the selected device will expire in ${diffDays} days. Please refrain from assigning this device if the measurement duration exceeds this period to prevent potential data loss.`;
-                    }
-        }
+    // Display functions for autocomplete
+    vm.displayKit = function(kit) {
+      return kit ? kit.name : '';
+    };
+
+    vm.displayPFlow = function(device) {
+      return device ? device.name : '';
+    };
+
+    // Filter kits based on search text
+    vm.filterKits = function(searchText) {
+      if (!searchText || searchText.length === 0) {
+        vm.filteredKits = vm.allKits.slice(0, 20);
+      } else {
+        const lowerSearch = searchText.toLowerCase();
+        vm.filteredKits = vm.allKits.filter(function(kit) {
+          return kit.name.toLowerCase().includes(lowerSearch);
+        }).slice(0, 20);
       }
-    });
-            } else {
-              vm.addDeviceFormGroup.patchValue({ stepper: { assignmentStep: { kit: '' } } }, { emitEvent: false });
-            }
-          },
-          function(error) {
-            console.error("Error fetching kit data:", error);
-            vm.addDeviceFormGroup.patchValue({ stepper: { assignmentStep: { kit: '' } } }, { emitEvent: false });
+    };
+
+    // When a kit is selected, load P-Flows and Temperature Sensors for that kit
+    vm.onKitSelected = function(kit) {
+      vm.selectedKit = kit;
+      vm.addDeviceFormGroup.patchValue({ stepper: { assignmentStep: { pflowDevice: null } } }, { emitEvent: false });
+      vm.kitPFlows = [];
+      vm.filteredPFlows = [];
+      vm.kitSensors = [];
+      vm.filteredKitSensors = [];
+      vm.selectedSensors = [];
+
+      if (!kit || !kit.id) {
+        return;
+      }
+
+      loadingSubject.next(true);
+
+      // Find P-Flows that belong to this kit via Contains relation
+      // Direction FROM because relation is: Kit --Contains--> Device
+      const pflowSearchQuery = {
+        parameters: {
+          rootId: kit.id.id,
+          rootType: 'ASSET',
+          direction: 'FROM',
+          relationTypeGroup: 'COMMON',
+          maxLevel: 1
+        },
+        relationType: 'Contains',
+        deviceTypes: ['P-Flow D116']
+      };
+
+      // Find Temperature Sensors that belong to this kit
+      const sensorSearchQuery = {
+        parameters: {
+          rootId: kit.id.id,
+          rootType: 'ASSET',
+          direction: 'FROM',
+          relationTypeGroup: 'COMMON',
+          maxLevel: 1
+        },
+        relationType: 'Contains',
+        deviceTypes: ['Temperature Sensor']
+      };
+
+      // Load both P-Flows and Sensors in parallel
+      rxjs.forkJoin({
+        pflowDevices: deviceService.findByQuery(pflowSearchQuery),
+        sensorDevices: deviceService.findByQuery(sensorSearchQuery)
+      }).subscribe(
+        function(result) {
+          // Process P-Flows - use devices directly from kit query
+          if (result.pflowDevices && result.pflowDevices.length > 0) {
+            vm.kitPFlows = result.pflowDevices.map(function(device) {
+              return {
+                name: device.name,
+                type: device.type,
+                label: device.label || device.name,
+                deviceId: device.id
+              };
+            });
+            vm.filteredPFlows = vm.kitPFlows.slice();
+          } else {
+            vm.kitPFlows = [];
+            vm.filteredPFlows = [];
           }
-        );
+
+          // Process Temperature Sensors - use devices directly from kit query
+          if (result.sensorDevices && result.sensorDevices.length > 0) {
+            vm.kitSensors = result.sensorDevices.map(function(device) {
+              return {
+                name: device.name,
+                type: device.type,
+                label: device.label || device.name,
+                deviceId: device.id
+              };
+            });
+            vm.filteredKitSensors = vm.kitSensors.slice();
+          } else {
+            vm.kitSensors = [];
+            vm.filteredKitSensors = [];
+          }
+
+          // Check kit subscription status
+          getKitInfo(kit.id).subscribe(function(kitAttributes) {
+            const subAttr = kitAttributes.find(attr => attr.key === 'subscriptionStatus');
+            const validToAttr = kitAttributes.find(attr => attr.key === 'validTo');
+            const status = subAttr ? subAttr.value.toLowerCase() : null;
+            if ((status === 'canceled' || status === 'cancelled') && validToAttr) {
+              const validToDate = new Date(validToAttr.value);
+              const now = new Date();
+              if (validToDate > now) {
+                const diffDays = Math.ceil((validToDate - now) / (1000 * 3600 * 24));
+                if (diffDays < 31) {
+                  vm.warningMessage = `The diagnostic kit license will expire in ${diffDays} days. Please refrain from assigning devices from this kit if the measurement duration exceeds this period.`;
+                }
+              }
+            }
+            loadingSubject.next(false);
+          });
+        },
+        function(error) {
+          console.error('Error loading devices for kit:', error);
+          vm.kitPFlows = [];
+          vm.filteredPFlows = [];
+          vm.kitSensors = [];
+          vm.filteredKitSensors = [];
+          loadingSubject.next(false);
+        }
+      );
+    };
+
+    // Filter P-Flows based on search text
+    vm.filterPFlows = function(searchText) {
+      if (!vm.selectedKit) {
+        vm.filteredPFlows = [];
+        return;
       }
+      if (!searchText || searchText.length === 0) {
+        vm.filteredPFlows = vm.kitPFlows.slice();
+      } else {
+        const lowerSearch = searchText.toLowerCase();
+        vm.filteredPFlows = vm.kitPFlows.filter(function(device) {
+          return device.name.toLowerCase().includes(lowerSearch);
+        });
+      }
+    };
+
+    // Filter Kit Sensors based on search text (excludes already selected sensors)
+    vm.filterKitSensors = function(searchText, currentSensor) {
+      if (!vm.selectedKit) {
+        vm.filteredKitSensors = [];
+        return;
+      }
+      // Get IDs of already selected sensors (excluding current one)
+      const selectedSensorIds = vm.selectedSensors
+        .filter(s => s.device && s.device.deviceId && s !== currentSensor)
+        .map(s => s.device.deviceId.id);
+
+      // Filter out already selected sensors
+      let available = vm.kitSensors.filter(function(device) {
+        return !selectedSensorIds.includes(device.deviceId.id);
+      });
+
+      if (searchText && searchText.length > 0) {
+        const lowerSearch = searchText.toLowerCase();
+        available = available.filter(function(device) {
+          return device.name.toLowerCase().includes(lowerSearch);
+        });
+      }
+      vm.filteredKitSensors = available;
+    };
+
+    // Display function for sensor autocomplete
+    vm.displaySensor = function(device) {
+      return device ? device.name : '';
+    };
+
+    // When a P-Flow is selected
+    vm.onPFlowSelected = function(device) {
+      if (device && device.deviceId) {
+        vm.addDeviceFormGroup.patchValue({
+          stepper: { assignmentStep: { pflowDevice: device } }
+        }, { emitEvent: true });
+      }
+    };
+
+    // Load all diagnostickits
+    vm.loadDiagnostickits = function() {
+      const kitQuery = {
+        entityFilter: {
+          type: 'assetType',
+          assetType: 'Diagnostickit'
+        },
+        pageLink: { pageSize: 1000, page: 0 },
+        entityFields: [
+          { key: 'name', type: 'ENTITY_FIELD' }
+        ]
+      };
+
+      entityService.findEntityDataByQuery(kitQuery).subscribe(
+        function(data) {
+          vm.allKits = data.data.map(function(entityData) {
+            return {
+              id: entityData.entityId,
+              name: entityData.latest['ENTITY_FIELD'].name.value
+            };
+          });
+          vm.allKits.sort(function(a, b) {
+            return a.name.localeCompare(b.name);
+          });
+          vm.filteredKits = vm.allKits.slice(0, 20);
+        },
+        function(error) {
+          console.error('Error loading diagnostickits:', error);
+          vm.allKits = [];
+          vm.filteredKits = [];
+        }
+      );
+    };
+
+    // Load diagnostickits on init
+    vm.loadDiagnostickits();
+
+    // P-Flow selection handling - kit is already selected via onKitSelected
+    vm.addDeviceFormGroup.get('stepper.assignmentStep.pflowDevice').valueChanges.subscribe(function(value) {
+      // Kit warning is already handled in onKitSelected
+      // This subscription can be used for any additional P-Flow selection logic if needed
     });
 
     vm.cancel = function() {
@@ -3231,13 +3484,13 @@ mat-icon {
     };
 
     vm.addSensor = function() {
-      if (vm.availableSensors.length === 0) return;
+      if (!vm.selectedKit || vm.kitSensors.length === 0) return;
       vm.selectedSensors.push({
         device: null,
         sensorLabel: '',
         isAssigned: false
       });
-      refreshAvailableLists();
+      vm.filterKitSensors('', null);
     };
 
     vm.onSensorChange = function() {
@@ -3250,7 +3503,6 @@ mat-icon {
         unassignDevice(vm.assignedPFlow, function() {
           vm.assignedPFlow = null;
           vm.pFlowLimit = false;
-          vm.addDeviceFormGroup.patchValue({ stepper: { assignmentStep: { kit: '' } } }, { emitEvent: false });
           const pflowControl = vm.addDeviceFormGroup.get('stepper.assignmentStep.pflowDevice');
           if (pflowControl) {
             pflowControl.setValue(null, { emitEvent: false });
@@ -3426,24 +3678,7 @@ mat-icon {
                 deviceId: entityData.entityId
               };
             });
-            if (unassignedDiagnostickitGroup) {
-              const kitQuery = {
-                entityFilter: {
-                  type: 'entityGroup',
-                  groupType: 'DEVICE',
-                  entityGroup: unassignedDiagnostickitGroup.id.id
-                },
-                pageLink: { pageSize: 1000, page: 0 },
-                entityFields: [{ key: 'name', type: 'ENTITY_FIELD' }]
-              };
-              entityService.findEntityDataByQuery(kitQuery).subscribe(function(kitData) {
-                const diagnostickitDeviceIds = kitData.data.map(entityData => entityData.entityId.id);
-                vm.availableDevices = vm.availableDevices.filter(device => !diagnostickitDeviceIds.includes(device.deviceId.id));
-                finalizeDevices();
-              });
-            } else {
-              finalizeDevices();
-            }
+            finalizeDevices();
           });
         }
 
@@ -3640,9 +3875,6 @@ mat-icon {
           }
           applySensorLabels();
           loadActiveForAssignedDevices();
-          if (vm.assignedPFlow) {
-            updateAssignedKit(vm.assignedPFlow);
-          }
           refreshAvailableLists();
         },
         function(error) {
@@ -3742,21 +3974,6 @@ mat-icon {
           if (result && onConfirm) {
             onConfirm();
           }
-        }
-      );
-    }
-
-    function updateAssignedKit(device) {
-      if (!device || !device.deviceId) return;
-      getRelatedKit(device.deviceId.id).subscribe(
-        function(kitData) {
-          const kitName = (kitData && kitData.length > 0) ? kitData[0].name : '';
-          vm.addDeviceFormGroup.patchValue({
-            stepper: { assignmentStep: { kit: kitName } }
-          }, { emitEvent: false });
-        },
-        function(error) {
-          console.error('Failed to load assigned kit:', error);
         }
       );
     }
