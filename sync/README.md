@@ -26,6 +26,8 @@ project/
 ├── dashboards/          # Dashboard JSON-Dateien
 ├── rule chains/         # Rule Chain JSON-Dateien
 ├── widgets/             # Widget Bundle JSON-Dateien
+├── js library/          # JS Module (.js Dateien)
+├── translation/         # Custom Translations (z.B. de_DE_custom_translation.json)
 ├── backups/             # Automatische Backups
 │   └── .sync-status.json
 ├── sync/
@@ -53,6 +55,14 @@ node sync/sync.js sync --rulechains
 # Nur Widgets
 node sync/sync.js sync --widgets
 
+# Nur JS Libraries
+node sync/sync.js sync --js
+node sync/sync.js sync --jslibraries
+
+# Nur Translations
+node sync/sync.js sync --i18n
+node sync/sync.js sync --translations
+
 # Explizit alles
 node sync/sync.js sync --all
 ```
@@ -61,6 +71,8 @@ node sync/sync.js sync --all
 - Vor dem Upload wird automatisch ein Backup der betroffenen Dateien erstellt
 - Existierende Dashboards werden anhand des Titels erkannt und aktualisiert
 - Neue Dashboards werden erstellt
+- JS Module werden anhand des `resourceKey` (Dateiname) erkannt und aktualisiert
+- Translations werden anhand des Locale-Codes aus dem Dateinamen erkannt (z.B. `de_DE_custom_translation.json` → `de_DE`)
 
 ### pull - Dashboards von ThingsBoard herunterladen
 
@@ -80,6 +92,38 @@ node sync/sync.js pull --all
 - Dateinamen werden aus dem Dashboard-Titel generiert
 - JSON wird formatiert gespeichert (2 Spaces Einrückung)
 
+### pull-js - JS Module von ThingsBoard herunterladen
+
+```bash
+# Ein spezifisches JS Modul (Teilübereinstimmung im Namen)
+node sync/sync.js pull-js "ECO Data Importer"
+
+# Alle JS Module herunterladen
+node sync/sync.js pull-js --all
+```
+
+**Verhalten:**
+- Dateiname entspricht dem `resourceKey` auf dem Server
+- Dateien werden im Verzeichnis `js library/` gespeichert
+
+### pull-i18n - Custom Translations von ThingsBoard herunterladen
+
+```bash
+# Spezifische Locales herunterladen
+node sync/sync.js pull-i18n de_DE en_US
+
+# Standard-Locales (de_DE, en_US) herunterladen
+node sync/sync.js pull-i18n
+
+# Alle verfügbaren Translations prüfen (common locales)
+node sync/sync.js pull-i18n --all
+```
+
+**Verhalten:**
+- Dateinamen folgen dem Muster `{locale}_custom_translation.json`
+- Dateien werden im Verzeichnis `translation/` gespeichert
+- Nur Locales mit existierenden Custom Translations werden heruntergeladen
+
 ### list - Dashboards auf dem Server auflisten
 
 ```bash
@@ -95,6 +139,40 @@ Found 47 dashboards:
   Smart Diagnostics Measurements
     ID: 4cee2950-f6b7-11f0-adb4-33b9bcf3ddd0
   ...
+```
+
+### list-js - JS Module auf dem Server auflisten
+
+```bash
+node sync/sync.js list-js
+```
+
+**Ausgabe:**
+```
+Found 3 JS modules:
+
+  ECO Data Importer
+    ID: abc123...
+    Key: ECO Data Importer.js
+  ECO Diagnostics Utils
+    ID: def456...
+    Key: ECO Diagnostics Utils JS.js
+```
+
+### list-i18n - Custom Translations auflisten
+
+```bash
+node sync/sync.js list-i18n
+```
+
+**Ausgabe:**
+```
+Found 2 locale(s) with custom translations:
+
+  de_DE
+    Keys: 156
+  en_US
+    Keys: 42
 ```
 
 ### backup - Manuelles Backup erstellen
@@ -225,6 +303,26 @@ npm install node-fetch@2
 - Stelle sicher, dass JSON-Dateien im `dashboards/` Verzeichnis liegen
 - Dateinamen müssen auf `.json` enden
 
+### JS Libraries synchronisieren
+
+```bash
+# Von ThingsBoard holen
+node sync/sync.js pull-js "ECO Data Importer"
+
+# Nach ThingsBoard pushen
+node sync/sync.js sync --js
+```
+
+### Translations synchronisieren
+
+```bash
+# Von ThingsBoard holen
+node sync/sync.js pull-i18n de_DE en_US
+
+# Nach ThingsBoard pushen
+node sync/sync.js sync --i18n
+```
+
 ## API-Endpunkte
 
 Das Tool nutzt folgende ThingsBoard API-Endpunkte:
@@ -238,3 +336,8 @@ Das Tool nutzt folgende ThingsBoard API-Endpunkte:
 | `POST /api/dashboard` | Dashboard erstellen/aktualisieren |
 | `POST /api/ruleChain` | Rule Chain hochladen |
 | `POST /api/widgetsBundle` | Widget Bundle hochladen |
+| `GET /api/resource` | Resource-Liste (JS Modules) |
+| `GET /api/resource/{id}/download` | Resource herunterladen |
+| `POST /api/resource` | Resource hochladen (multipart) |
+| `GET /api/customTranslation/customTranslation` | Custom Translation abrufen |
+| `POST /api/customTranslation/customTranslation` | Custom Translation speichern |

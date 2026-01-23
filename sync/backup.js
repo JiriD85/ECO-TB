@@ -70,31 +70,38 @@ async function createBackup(logger = console, selectedDirs = null) {
   return { backupDir, timestamp };
 }
 
-async function getLatestBackupDir() {
+async function getAllBackupDirs() {
   const backups = await listBackups();
-  if (!backups.length) return null;
-  return path.join(BACKUP_ROOT, backups[backups.length - 1]);
+  if (!backups.length) return [];
+  // Return newest first for efficient searching
+  return backups.reverse().map(name => path.join(BACKUP_ROOT, name));
 }
 
-async function fileChanged(filePath, lastBackupDir) {
-  if (!lastBackupDir) return true; // No previous backup, file is "changed"
+async function fileChanged(filePath, backupDirs) {
+  if (!backupDirs || backupDirs.length === 0) return true; // No previous backup, file is "changed"
 
   const relativePath = path.relative(process.cwd(), filePath);
-  const backupFilePath = path.join(lastBackupDir, relativePath);
 
-  // If file doesn't exist in backup, it's new/changed
-  if (!(await pathExists(backupFilePath))) return true;
+  // Search through all backups (newest first) for the file
+  for (const backupDir of backupDirs) {
+    const backupFilePath = path.join(backupDir, relativePath);
 
-  // Compare file contents
-  try {
-    const [currentContent, backupContent] = await Promise.all([
-      fs.readFile(filePath, 'utf8'),
-      fs.readFile(backupFilePath, 'utf8')
-    ]);
-    return currentContent !== backupContent;
-  } catch (err) {
-    return true; // On error, assume changed
+    if (await pathExists(backupFilePath)) {
+      // Found the file in a backup, compare contents
+      try {
+        const [currentContent, backupContent] = await Promise.all([
+          fs.readFile(filePath, 'utf8'),
+          fs.readFile(backupFilePath, 'utf8')
+        ]);
+        return currentContent !== backupContent;
+      } catch (err) {
+        return true; // On error, assume changed
+      }
+    }
   }
+
+  // File not found in any backup, it's new
+  return true;
 }
 
 async function backupFiles(logger = console, filePaths = []) {
@@ -103,20 +110,19 @@ async function backupFiles(logger = console, filePaths = []) {
     return { backupDir: null, timestamp: null };
   }
 
-  const lastBackupDir = await getLatestBackupDir();
+  const backupDirs = await getAllBackupDirs();
 
   // Filter to only changed files
   const changedFiles = [];
   for (const filePath of filePaths) {
     if (await pathExists(filePath)) {
-      if (await fileChanged(filePath, lastBackupDir)) {
+      if (await fileChanged(filePath, backupDirs)) {
         changedFiles.push(filePath);
       }
     }
   }
 
   if (changedFiles.length === 0) {
-    logger.log('No files changed since last backup');
     return { backupDir: null, timestamp: null, count: 0 };
   }
 
@@ -125,18 +131,60 @@ async function backupFiles(logger = console, filePaths = []) {
   const backupDir = path.join(BACKUP_ROOT, timestamp);
   await ensureDir(backupDir);
 
+  const backedUpRelativePaths = [];
   for (const filePath of changedFiles) {
     const relativePath = path.relative(process.cwd(), filePath);
     const destPath = path.join(backupDir, relativePath);
     await ensureDir(path.dirname(destPath));
     await fs.copyFile(filePath, destPath);
     logger.log(`Backed up: ${relativePath}`);
+    backedUpRelativePaths.push(relativePath);
   }
+
+  // Write changelog
+  const changelogPath = path.join(backupDir, 'CHANGELOG.md');
+  const changelogContent = generateChangelog(timestamp, backedUpRelativePaths);
+  await fs.writeFile(changelogPath, changelogContent);
 
   await updateStatus({ lastBackup: timestamp });
   logger.log(`Backed up ${changedFiles.length} changed file(s) to ${backupDir}`);
 
   return { backupDir, timestamp, count: changedFiles.length };
+}
+
+function generateChangelog(timestamp, files) {
+  const dateStr = timestamp.replace('_', ' ').replace(/-(\d{2})-(\d{2})$/, ':$1:$2');
+  const lines = [
+    `# Backup ${timestamp}`,
+    '',
+    `**Date:** ${dateStr}`,
+    '',
+    '## Changed Files',
+    '',
+  ];
+
+  // Group files by directory
+  const byDir = {};
+  for (const file of files) {
+    const dir = path.dirname(file);
+    if (!byDir[dir]) byDir[dir] = [];
+    byDir[dir].push(path.basename(file));
+  }
+
+  for (const [dir, fileNames] of Object.entries(byDir)) {
+    lines.push(`### ${dir}/`);
+    for (const name of fileNames) {
+      lines.push(`- ${name}`);
+    }
+    lines.push('');
+  }
+
+  lines.push('## Description');
+  lines.push('');
+  lines.push('_Add description of changes here_');
+  lines.push('');
+
+  return lines.join('\n');
 }
 
 async function listBackups() {
