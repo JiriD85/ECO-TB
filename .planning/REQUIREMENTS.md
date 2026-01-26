@@ -13,11 +13,11 @@
 
 ### Device Display
 
-- [ ] **DEV-01**: Popup lädt alle Geräte mit Measurement-Relation (FROM, type: Measurement)
-- [ ] **DEV-02**: Für jedes Gerät: Name/Label anzeigen
-- [ ] **DEV-03**: Für jedes Gerät: lastActivityTime als DD.MM.YYYY hh:mm:ss
-- [ ] **DEV-04**: Für jedes Gerät: active Status visualisieren
-- [ ] **DEV-05**: Diagnostic Kit separat hervorheben mit Name/Label
+- [x] **DEV-01**: Popup lädt alle Geräte mit Measurement-Relation (FROM, type: Measurement) ✓
+- [x] **DEV-02**: Für jedes Gerät: Name/Label anzeigen ✓
+- [x] **DEV-03**: Für jedes Gerät: lastActivityTime als DD.MM.YYYY hh:mm:ss ✓
+- [x] **DEV-04**: Für jedes Gerät: active Status visualisieren ✓
+- [x] **DEV-05**: Diagnostic Kit separat hervorheben mit Name/Label ✓
 
 ### Timeseries Data
 
@@ -67,11 +67,11 @@
 | INFO-01 | Phase 1 | Complete |
 | INFO-02 | Phase 1 | Complete |
 | INFO-03 | Phase 1 | Complete |
-| DEV-01 | Phase 2 | Pending |
-| DEV-02 | Phase 2 | Pending |
-| DEV-03 | Phase 2 | Pending |
-| DEV-04 | Phase 2 | Pending |
-| DEV-05 | Phase 2 | Pending |
+| DEV-01 | Phase 2 | Complete |
+| DEV-02 | Phase 2 | Complete |
+| DEV-03 | Phase 2 | Complete |
+| DEV-04 | Phase 2 | Complete |
+| DEV-05 | Phase 2 | Complete |
 | TS-01 | Phase 3 | Pending |
 | TS-02 | Phase 3 | Pending |
 | TS-03 | Phase 3 | Pending |
@@ -92,4 +92,4 @@
 
 ---
 *Requirements defined: 2025-01-26*
-*Last updated: 2025-01-26 after initial definition*
+*Last updated: 2026-01-27 after Phase 2 completion*

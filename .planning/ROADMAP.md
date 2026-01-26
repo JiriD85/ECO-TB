@@ -56,7 +56,7 @@ Plans:
 **Plans:** 1 plan
 
 Plans:
-- [ ] 02-01-PLAN.md — Add device loading and display to info dialog
+- [x] 02-01-PLAN.md — Add device loading and display to info dialog ✓
 
 **Success Criteria:**
 1. Alle Geräte mit FROM/Measurement Relation werden geladen
