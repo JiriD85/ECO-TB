@@ -2215,14 +2215,18 @@ const measurementInfoHtmlTemplate = `<div class="measurement-info-dialog" style=
   <mat-toolbar class="flex items-center" style="background-color: #305680; color: white;">
     <mat-icon style="margin-right: 12px;">info</mat-icon>
     <h2 style="margin: 0; font-size: 18px;">Measurement Info</h2>
+    <button mat-icon-button (click)="refresh()" [disabled]="isRefreshing"
+            type="button" title="Refresh data" style="margin-left: 8px;">
+      <mat-icon [class.spinning]="isRefreshing">refresh</mat-icon>
+    </button>
     <span class="flex-1"></span>
     <button mat-icon-button (click)="cancel()" type="button">
       <mat-icon>close</mat-icon>
     </button>
   </mat-toolbar>
 
-  <mat-progress-bar color="warn" mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
-  <div style="height: 4px;" *ngIf="!isLoading"></div>
+  <mat-progress-bar color="warn" mode="indeterminate" *ngIf="isLoading || isRefreshing"></mat-progress-bar>
+  <div style="height: 4px;" *ngIf="!isLoading && !isRefreshing"></div>
 
   <div mat-dialog-content class="flex flex-col p-4">
     <!-- Entity Info Card -->
@@ -2284,6 +2288,14 @@ const measurementInfoHtmlTemplate = `<div class="measurement-info-dialog" style=
                     {{ formatTimestampDE(device.lastActivityTime) }}
                   </div>
                 </div>
+                <!-- Timeseries Data -->
+                <div *ngIf="device.timeseries && device.timeseries.length > 0"
+                     style="margin-left: 22px; margin-top: 8px; padding: 8px; background: #f0f8ff; border-radius: 4px; border-left: 3px solid #305680;">
+                  <div *ngFor="let ts of device.timeseries" class="flex items-center gap-2" style="font-size: 11px; margin-bottom: 4px;">
+                    <span style="color: #666; min-width: 90px;">{{ ts.label }}:</span>
+                    <span style="font-weight: 600; color: #305680;">{{ ts.formattedValue }}</span>
+                  </div>
+                </div>
               </div>
             </ng-container>
           </div>
@@ -2320,6 +2332,14 @@ const measurementInfoHtmlTemplate = `<div class="measurement-info-dialog" style=
                     {{ formatTimestampDE(device.lastActivityTime) }}
                   </div>
                 </div>
+                <!-- Timeseries Data -->
+                <div *ngIf="device.timeseries && device.timeseries.length > 0"
+                     style="margin-left: 22px; margin-top: 8px; padding: 8px; background: #f0f8ff; border-radius: 4px; border-left: 3px solid #305680;">
+                  <div *ngFor="let ts of device.timeseries" class="flex items-center gap-2" style="font-size: 11px; margin-bottom: 4px;">
+                    <span style="color: #666; min-width: 90px;">{{ ts.label }}:</span>
+                    <span style="font-weight: 600; color: #305680;">{{ ts.formattedValue }}</span>
+                  </div>
+                </div>
               </div>
             </ng-container>
           </div>
@@ -2330,6 +2350,11 @@ const measurementInfoHtmlTemplate = `<div class="measurement-info-dialog" style=
       <div *ngIf="kitGroups.length === 0 && noKitDevices.length === 0" style="color: #888; font-style: italic; text-align: center; padding: 12px;">
         No devices connected to this measurement
       </div>
+    </div>
+
+    <!-- Last Refresh Indicator -->
+    <div *ngIf="lastRefresh" style="text-align: right; font-size: 10px; color: #999; margin-top: 8px;">
+      Last updated: {{ formatTimestampDE(lastRefresh.getTime()) }}
     </div>
   </div>
 
@@ -2348,6 +2373,16 @@ const measurementInfoCss = `.measurement-info-dialog .badge {
   margin-bottom: 0;
 }
 .measurement-info-dialog .kit-group:last-child {
+  margin-bottom: 0;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.measurement-info-dialog .spinning {
+  animation: spin 1s linear infinite;
+}
+.measurement-info-dialog .timeseries-section div:last-child {
   margin-bottom: 0;
 }`;
 
