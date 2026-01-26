@@ -53,6 +53,11 @@ Plans:
 - DEV-04: active Status visualisieren
 - DEV-05: Diagnostic Kit hervorheben
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 02-01-PLAN.md — Add device loading and display to info dialog
+
 **Success Criteria:**
 1. Alle Geräte mit FROM/Measurement Relation werden geladen
 2. Geräteliste zeigt Name/Label für jedes Gerät
