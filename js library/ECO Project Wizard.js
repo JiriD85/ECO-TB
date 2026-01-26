@@ -2377,10 +2377,10 @@ export function openMeasurementInfoDialog(widgetContext, measurementId, callback
 
   function findDeviceKit(deviceId) {
     return new Promise(function(resolve) {
-      entityRelationService.findByFrom(deviceId).subscribe(
+      entityRelationService.findByTo(deviceId).subscribe(
         function(relations) {
           var assetRelations = (relations || []).filter(function(r) {
-            return r.to && r.to.entityType === 'ASSET';
+            return r.from && r.from.entityType === 'ASSET';
           });
           if (!assetRelations.length) {
             resolve(null);
@@ -2391,7 +2391,7 @@ export function openMeasurementInfoDialog(widgetContext, measurementId, callback
               resolve(null);
               return;
             }
-            assetService.getAsset(assetRelations[index].to.id).subscribe(
+            assetService.getAsset(assetRelations[index].from.id).subscribe(
               function(kit) {
                 if (kit && kit.type === 'Diagnostickit') {
                   resolve(kit);
