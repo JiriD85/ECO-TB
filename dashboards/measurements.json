@@ -3963,6 +3963,18 @@
                 "openInSeparateDialog": false,
                 "openInPopover": false,
                 "id": "6f852a67-6999-f59d-5795-e81b18274a55"
+              },
+              {
+                "id": "delete-measurement-1769460037673",
+                "name": "Delete Measurement",
+                "icon": "delete",
+                "type": "custom",
+                "customFunction": {
+                  "body": "const measurementId = entityId;\nconst measurementName = entityName || entityLabel || 'this measurement';\n\nif (!measurementId || !measurementId.id) {\n    console.error(\"No measurement selected\");\n    return;\n}\n\nprojectWizard.deleteMeasurement(widgetContext, measurementId, measurementName);",
+                  "modules": {
+                    "projectWizard": "tb-resource;/api/resource/js_module/tenant/ECO Project Wizard.js"
+                  }
+                }
               }
             ],
             "headerButton": [
@@ -36399,25 +36411,20 @@
       }
     },
     "timewindow": {
-      "hideAggregation": true,
+      "aggregation": {
+        "limit": 100000,
+        "type": "NONE"
+      },
       "hideAggInterval": true,
-      "hideTimezone": false,
-      "selectedTab": 1,
+      "hideAggregation": true,
       "history": {
         "historyType": 1,
         "fixedTimewindow": {
-          "startTimeMs": 1765288800000,
-          "endTimeMs": 1769445482146
-        },
-        "interval": 18000000,
-        "hideInterval": false,
-        "hideLastInterval": false,
-        "hideQuickInterval": false
+          "startTimeMs": 1766427387158,
+          "endTimeMs": 1769451387158
+        }
       },
-      "aggregation": {
-        "type": "NONE",
-        "limit": 100000
-      }
+      "selectedTab": 1
     },
     "settings": {
       "stateControllerId": "entity",
@@ -36453,7 +36460,7 @@
     "entityType": "DASHBOARD",
     "id": "d086f510-f6be-11f0-adb4-33b9bcf3ddd0"
   },
-  "version": 145,
+  "version": 152,
   "ownerId": {
     "entityType": "TENANT",
     "id": "efb63c10-b576-11ee-a6c2-a149ed03c64d"

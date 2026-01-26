@@ -2177,3 +2177,207 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
     };
   }
 }
+
+// ============================================================================
+// DELETE MEASUREMENT
+// ============================================================================
+
+/**
+ * Opens a confirmation dialog and deletes the measurement
+ * - Finds devices with FROM relation (type: Measurement)
+ * - Moves devices to "Unassigned Measurement Devices" group
+ * - Deletes the measurement asset
+ *
+ * @param {Object} widgetContext - ThingsBoard widget context
+ * @param {Object} measurementId - Measurement entity ID { id: string, entityType: 'ASSET' }
+ * @param {string} measurementName - Display name for confirmation dialog
+ * @param {Function} callback - Optional callback after successful deletion
+ */
+export function deleteMeasurement(widgetContext, measurementId, measurementName, callback) {
+  const $injector = widgetContext.$scope.$injector;
+  const dialogs = $injector.get(widgetContext.servicesMap.get('dialogs'));
+  const assetService = $injector.get(widgetContext.servicesMap.get('assetService'));
+  const entityRelationService = $injector.get(widgetContext.servicesMap.get('entityRelationService'));
+  const entityGroupService = $injector.get(widgetContext.servicesMap.get('entityGroupService'));
+  const attributeService = $injector.get(widgetContext.servicesMap.get('attributeService'));
+
+  let customerId = null;
+
+  // Open confirmation dialog
+  const title = 'Delete Measurement';
+  const content = 'Are you sure you want to delete the measurement "' + measurementName + '"? All related devices will be unassigned.';
+
+  dialogs.confirm(title, content, 'Cancel', 'Delete').subscribe(function(confirmed) {
+    if (confirmed) {
+      // First find the customer ID, then perform delete
+      findCustomerId();
+    }
+  });
+
+  function findCustomerId() {
+    if (widgetContext.currentUser.authority !== 'TENANT_ADMIN') {
+      // For customer users, use their customer ID
+      customerId = { id: widgetContext.currentUser.customerId, entityType: 'CUSTOMER' };
+      performDelete();
+      return;
+    }
+
+    // For TENANT_ADMIN: Find customer via Measurement -> Project -> Customer relation chain
+    // First find the Project (TO relation from Measurement)
+    entityRelationService.findByTo(measurementId, 'Measurement').subscribe(
+      function(relations) {
+        if (relations && relations.length > 0) {
+          // Found Project, now find Customer
+          const projectId = relations[0].from;
+          entityRelationService.findByTo(projectId, 'Measurement').subscribe(
+            function(customerRelations) {
+              if (customerRelations && customerRelations.length > 0) {
+                customerId = customerRelations[0].from;
+                performDelete();
+              } else {
+                console.error('Could not find customer for measurement');
+                // Try to delete without unassigning devices
+                deleteAsset();
+              }
+            },
+            function(error) {
+              console.error('Error finding customer:', error);
+              deleteAsset();
+            }
+          );
+        } else {
+          console.error('Could not find project for measurement');
+          deleteAsset();
+        }
+      },
+      function(error) {
+        console.error('Error finding project:', error);
+        deleteAsset();
+      }
+    );
+  }
+
+  function performDelete() {
+    // Find devices with FROM relation, type "Measurement"
+    const relatedDevicesQuery = {
+      parameters: {
+        rootId: measurementId.id,
+        rootType: 'ASSET',
+        direction: 'FROM',
+        relationTypeGroup: 'COMMON',
+        maxLevel: 1
+      },
+      filters: [{ relationType: 'Measurement', entityTypes: ['DEVICE'] }]
+    };
+
+    entityRelationService.findByQuery(relatedDevicesQuery).subscribe(
+      function(relations) {
+        if (relations && relations.length > 0 && customerId) {
+          // Get or create unassigned devices group, then unassign devices
+          getOrCreateUnassignedDevicesGroup(customerId).subscribe(
+            function(unassignedGroup) {
+              unassignDevicesAndDelete(relations, unassignedGroup.id.id);
+            },
+            function(error) {
+              console.error('Error getting unassigned devices group:', error);
+              // Try to delete anyway
+              deleteAsset();
+            }
+          );
+        } else {
+          // No devices to unassign or no customer found, just delete
+          deleteAsset();
+        }
+      },
+      function(error) {
+        console.error('Error finding related devices:', error);
+        // Try to delete anyway
+        deleteAsset();
+      }
+    );
+  }
+
+  function getOrCreateUnassignedDevicesGroup(customerId) {
+    return entityGroupService.getEntityGroupsByOwnerId(customerId.entityType, customerId.id, 'DEVICE').pipe(
+      widgetContext.rxjs.switchMap(function(deviceGroups) {
+        const unassignedGroup = deviceGroups.find(function(group) {
+          return group.name === 'Unassigned Measurement Devices';
+        });
+
+        if (unassignedGroup) {
+          return widgetContext.rxjs.of(unassignedGroup);
+        } else {
+          // Create the group
+          const newGroup = {
+            type: 'DEVICE',
+            name: 'Unassigned Measurement Devices',
+            ownerId: customerId
+          };
+          return entityGroupService.saveEntityGroup(newGroup);
+        }
+      })
+    );
+  }
+
+  function unassignDevicesAndDelete(relations, unassignedGroupId) {
+    let processed = 0;
+    const total = relations.length;
+
+    relations.forEach(function(relation) {
+      const deviceId = relation.to;
+
+      // Add to unassigned group
+      entityGroupService.addEntityToEntityGroup(unassignedGroupId, deviceId.id).subscribe(
+        function() {
+          // Delete the relation
+          entityRelationService.deleteRelation(measurementId, 'Measurement', deviceId).subscribe(
+            function() {
+              // Remove position attributes
+              attributeService.deleteEntityAttributes(deviceId, 'SERVER_SCOPE', [{ key: 'xPos' }, { key: 'yPos' }]).subscribe(
+                function() {
+                  processed++;
+                  if (processed >= total) {
+                    deleteAsset();
+                  }
+                },
+                function() {
+                  processed++;
+                  if (processed >= total) {
+                    deleteAsset();
+                  }
+                }
+              );
+            },
+            function() {
+              processed++;
+              if (processed >= total) {
+                deleteAsset();
+              }
+            }
+          );
+        },
+        function(error) {
+          console.error('Error adding device to group:', error);
+          processed++;
+          if (processed >= total) {
+            deleteAsset();
+          }
+        }
+      );
+    });
+  }
+
+  function deleteAsset() {
+    assetService.deleteAsset(measurementId.id).subscribe(
+      function() {
+        widgetContext.updateAliases();
+        if (callback) {
+          callback();
+        }
+      },
+      function(error) {
+        console.error('Error deleting measurement:', error);
+      }
+    );
+  }
+}
