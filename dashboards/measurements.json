@@ -3908,6 +3908,22 @@
             ],
             "actionCellButton": [
               {
+                "id": "measurement-info-action",
+                "name": "Measurement Info",
+                "icon": "info",
+                "type": "custom",
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "customFunction": {
+                  "body": "const measurementId = entityId;\nprojectWizard.openMeasurementInfoDialog(widgetContext, measurementId);",
+                  "modules": {
+                    "projectWizard": "tb-resource;/api/resource/js_module/tenant/ECO Project Wizard.js"
+                  }
+                },
+                "openInSeparateDialog": false,
+                "openInPopover": false
+              },
+              {
                 "name": "Connect Measurement",
                 "icon": "add_chart",
                 "useShowWidgetActionFunction": true,
@@ -36460,7 +36476,7 @@
     "entityType": "DASHBOARD",
     "id": "d086f510-f6be-11f0-adb4-33b9bcf3ddd0"
   },
-  "version": 152,
+  "version": 153,
   "ownerId": {
     "entityType": "TENANT",
     "id": "efb63c10-b576-11ee-a6c2-a149ed03c64d"
