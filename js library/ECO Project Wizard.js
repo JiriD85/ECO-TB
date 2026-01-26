@@ -2179,6 +2179,139 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
 }
 
 // ============================================================================
+// MEASUREMENT INFO DIALOG
+// ============================================================================
+
+const measurementInfoHtmlTemplate = `<div class="measurement-info-dialog" style="width: 450px;">
+  <mat-toolbar class="flex items-center" style="background-color: #305680; color: white;">
+    <mat-icon style="margin-right: 12px;">info</mat-icon>
+    <h2 style="margin: 0; font-size: 18px;">Measurement Info</h2>
+    <span class="flex-1"></span>
+    <button mat-icon-button (click)="cancel()" type="button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <mat-progress-bar color="warn" mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
+  <div style="height: 4px;" *ngIf="!isLoading"></div>
+
+  <div mat-dialog-content class="flex flex-col p-4">
+    <!-- Entity Info Card -->
+    <div class="entity-info-card" style="border: 2px solid #305680; border-radius: 8px; padding: 16px; margin-bottom: 16px; background: linear-gradient(135deg, #f8fafc 0%, #e8f4fd 100%);">
+      <div class="flex items-center gap-2 mb-2">
+        <mat-icon style="color: #305680;">assessment</mat-icon>
+        <span style="font-size: 18px; font-weight: 600; color: #305680;">{{ entityName }}</span>
+      </div>
+      <div *ngIf="entityLabel" style="color: #666; font-size: 14px; margin-left: 32px;">
+        {{ entityLabel }}
+      </div>
+    </div>
+
+    <!-- Badges Section -->
+    <div class="badges-section" style="display: flex; flex-wrap: wrap; gap: 8px;">
+      <div *ngIf="installationType" class="badge flex items-center gap-1"
+           [style.color]="getInstallationTypeStyle(installationType).color"
+           [style.background-color]="getInstallationTypeStyle(installationType).bgColor"
+           style="padding: 6px 12px; border-radius: 16px; font-size: 14px; font-weight: 500;">
+        <mat-icon style="font-size: 16px; width: 16px; height: 16px;">{{ getInstallationTypeStyle(installationType).icon }}</mat-icon>
+        {{ getInstallationTypeStyle(installationType).label }}
+      </div>
+    </div>
+  </div>
+
+  <div class="flex justify-end items-center gap-2 p-4" style="border-top: 1px solid #e0e0e0; background: #fafafa;">
+    <button mat-raised-button color="primary" type="button" (click)="cancel()">
+      Close
+    </button>
+  </div>
+</div>`;
+
+const measurementInfoCss = `.measurement-info-dialog .badge {
+  display: inline-flex;
+  align-items: center;
+}`;
+
+/**
+ * Opens the Measurement Info dialog
+ *
+ * @param {Object} widgetContext - ThingsBoard widget context
+ * @param {Object} measurementId - Measurement entity ID { id: string, entityType: 'ASSET' }
+ * @param {Function} callback - Optional callback after dialog closes
+ */
+export function openMeasurementInfoDialog(widgetContext, measurementId, callback) {
+  const $injector = widgetContext.$scope.$injector;
+  const customDialog = $injector.get(widgetContext.servicesMap.get('customDialog'));
+  const attributeService = $injector.get(widgetContext.servicesMap.get('attributeService'));
+  const assetService = $injector.get(widgetContext.servicesMap.get('assetService'));
+
+  // Fetch asset info first, then attributes
+  let fetchedAttributes = [];
+  let fetchedAsset = null;
+
+  assetService.getAsset(measurementId.id).subscribe(
+    function(asset) {
+      fetchedAsset = asset;
+      fetchAttributes();
+    },
+    function(error) {
+      console.error('Error fetching asset:', error);
+      fetchAttributes();
+    }
+  );
+
+  function fetchAttributes() {
+    attributeService.getEntityAttributes(measurementId, 'SERVER_SCOPE').subscribe(
+      function(attributes) {
+        fetchedAttributes = attributes;
+        openDialog();
+      },
+      function(error) {
+        console.error('Error fetching attributes:', error);
+        openDialog();
+      }
+    );
+  }
+
+  function openDialog() {
+    customDialog.customDialog(measurementInfoHtmlTemplate, MeasurementInfoDialogController, {
+      measurementId,
+      attributes: fetchedAttributes,
+      entityName: fetchedAsset ? fetchedAsset.name : '',
+      entityLabel: fetchedAsset ? fetchedAsset.label : ''
+    }, measurementInfoCss).subscribe();
+  }
+
+  function MeasurementInfoDialogController(instance) {
+    const vm = instance;
+    const config = vm.data;
+
+    vm.isLoading = false;
+    vm.measurementId = config.measurementId;
+    vm.entityName = config.entityName || '';
+    vm.entityLabel = config.entityLabel || '';
+    vm.installationType = null;
+
+    // Extract installationType from attributes
+    const findAttr = function(key) {
+      const attr = config.attributes.find(function(a) { return a.key === key; });
+      return attr ? attr.value : null;
+    };
+
+    vm.installationType = findAttr('installationType');
+
+    // Expose getInstallationTypeStyle to template
+    vm.getInstallationTypeStyle = getInstallationTypeStyle;
+
+    vm.cancel = function() {
+      vm.dialogRef.close(null);
+      if (callback) {
+        callback();
+      }
+    };
+  }
+}
+
+// ============================================================================
 // DELETE MEASUREMENT
 // ============================================================================
 
