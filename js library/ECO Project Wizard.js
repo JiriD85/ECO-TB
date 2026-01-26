@@ -182,7 +182,8 @@ function getActivityColor(active) {
 
 const startProjectHtmlTemplate = `<form [formGroup]="startProjectFormGroup" (ngSubmit)="save()" class="start-project-form" style="width: 500px;">
   <mat-toolbar class="flex items-center" color="primary">
-    <h2 style="margin: 0;">{{ 'custom.project-wizard.dialog-title' | translate }}</h2>
+    <mat-icon style="margin-right: 12px;">rocket_launch</mat-icon>
+    <h2 style="margin: 0; font-size: 18px;">{{ 'custom.project-wizard.dialog-title' | translate }}</h2>
     <span class="flex-1"></span>
     <button mat-icon-button (click)="cancel()" type="button">
       <mat-icon>close</mat-icon>
@@ -190,6 +191,7 @@ const startProjectHtmlTemplate = `<form [formGroup]="startProjectFormGroup" (ngS
   </mat-toolbar>
 
   <mat-progress-bar color="warn" mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
+  <div style="height: 4px;" *ngIf="!isLoading"></div>
 
   <div mat-dialog-content class="flex flex-col p-4" style="max-height: 60vh; overflow-y: auto;">
     <!-- Project Info Container -->
@@ -324,20 +326,21 @@ const startProjectHtmlTemplate = `<form [formGroup]="startProjectFormGroup" (ngS
     </div>
   </div>
 
-  <div class="flex justify-end items-center gap-2 p-4" style="border-top: 1px solid #e0e0e0;">
+  <div class="flex justify-end items-center gap-2 p-4" style="border-top: 1px solid #e0e0e0; background: #fafafa;">
     <button mat-button type="button" (click)="cancel()">{{ 'custom.project-wizard.cancel' | translate }}</button>
     <button *ngIf="projectProgress === 'in preparation'" mat-raised-button color="primary" type="submit" [disabled]="!canStart || isLoading">
-      <mat-icon>play_arrow</mat-icon> {{ 'custom.project-wizard.start-project' | translate }}
+      <mat-icon style="font-size: 18px; margin-right: 4px;">play_arrow</mat-icon> {{ 'custom.project-wizard.start-project' | translate }}
     </button>
     <button *ngIf="projectProgress === 'active'" mat-raised-button color="warn" type="button" (click)="finishProject()" [disabled]="isLoading">
-      <mat-icon>stop</mat-icon> {{ 'custom.project-wizard.finish-project' | translate }}
+      <mat-icon style="font-size: 18px; margin-right: 4px;">stop</mat-icon> {{ 'custom.project-wizard.finish-project' | translate }}
     </button>
   </div>
 </form>`;
 
 const finishHtmlTemplate = `<form [formGroup]="finishProjectFormGroup" (ngSubmit)="saveFinish()" style="width: 450px;">
   <mat-toolbar class="flex items-center" color="warn">
-    <h2 style="margin: 0;">{{ 'custom.project-wizard.finish-dialog-title' | translate }}: {{ projectName }}</h2>
+    <mat-icon style="margin-right: 12px;">stop_circle</mat-icon>
+    <h2 style="margin: 0; font-size: 18px;">{{ 'custom.project-wizard.finish-dialog-title' | translate }}: {{ projectName }}</h2>
     <span class="flex-1"></span>
     <button mat-icon-button (click)="cancelFinish()" type="button">
       <mat-icon>close</mat-icon>
@@ -345,6 +348,7 @@ const finishHtmlTemplate = `<form [formGroup]="finishProjectFormGroup" (ngSubmit
   </mat-toolbar>
 
   <mat-progress-bar color="warn" mode="indeterminate" *ngIf="isFinishLoading"></mat-progress-bar>
+  <div style="height: 4px;" *ngIf="!isFinishLoading"></div>
 
   <div mat-dialog-content class="flex flex-col p-4 gap-3">
     <div class="flex items-center gap-2 p-3" style="background-color: #fff3e0; color: #e65100; border-radius: 4px;">
@@ -352,7 +356,7 @@ const finishHtmlTemplate = `<form [formGroup]="finishProjectFormGroup" (ngSubmit
       <span>{{ 'custom.project-wizard.finish-warning' | translate }}</span>
     </div>
 
-    <mat-form-field appearance="fill">
+    <mat-form-field appearance="outline">
       <mat-label>{{ 'custom.project-wizard.progress' | translate }}</mat-label>
       <mat-select formControlName="progress">
         <mat-option value="finished">{{ 'custom.project-wizard.finished' | translate }}</mat-option>
@@ -361,36 +365,36 @@ const finishHtmlTemplate = `<form [formGroup]="finishProjectFormGroup" (ngSubmit
     </mat-form-field>
 
     <div class="flex gap-2">
-      <mat-form-field appearance="fill" class="flex-1">
+      <mat-form-field appearance="outline" class="flex-1">
         <mat-label>{{ 'custom.project-wizard.start-date' | translate }}</mat-label>
         <input matInput [matDatepicker]="startDatePicker" formControlName="startDate" readonly>
         <mat-datepicker-toggle matSuffix [for]="startDatePicker" disabled></mat-datepicker-toggle>
         <mat-datepicker #startDatePicker disabled></mat-datepicker>
       </mat-form-field>
-      <mat-form-field appearance="fill" style="width: 120px;">
+      <mat-form-field appearance="outline" style="width: 120px;">
         <mat-label>{{ 'custom.project-wizard.start-time' | translate }}</mat-label>
         <input matInput type="time" formControlName="startTime" readonly>
       </mat-form-field>
     </div>
 
     <div class="flex gap-2">
-      <mat-form-field appearance="fill" class="flex-1">
+      <mat-form-field appearance="outline" class="flex-1">
         <mat-label>{{ 'custom.project-wizard.end-date' | translate }}</mat-label>
         <input matInput [matDatepicker]="endDatePicker" formControlName="endDate">
         <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle>
         <mat-datepicker #endDatePicker></mat-datepicker>
       </mat-form-field>
-      <mat-form-field appearance="fill" style="width: 120px;">
+      <mat-form-field appearance="outline" style="width: 120px;">
         <mat-label>{{ 'custom.project-wizard.end-time' | translate }}</mat-label>
         <input matInput type="time" formControlName="endTime">
       </mat-form-field>
     </div>
   </div>
 
-  <div class="flex justify-end items-center gap-2 p-4" style="border-top: 1px solid #e0e0e0;">
+  <div class="flex justify-end items-center gap-2 p-4" style="border-top: 1px solid #e0e0e0; background: #fafafa;">
     <button mat-button type="button" (click)="cancelFinish()">{{ 'custom.project-wizard.cancel' | translate }}</button>
     <button mat-raised-button color="warn" type="submit" [disabled]="isFinishLoading">
-      <mat-icon>save</mat-icon> {{ 'custom.project-wizard.save' | translate }}
+      <mat-icon style="font-size: 18px; margin-right: 4px;">save</mat-icon> {{ 'custom.project-wizard.save' | translate }}
     </button>
   </div>
 </form>`;
@@ -449,7 +453,8 @@ const startProjectCss = `.measurement-card:hover {
 // MAIN EXPORT FUNCTION
 // ============================================================================
 
-export function openProjectWizardDialog(widgetContext, projectId, projectName, projectLabel, callback) {
+export function openProjectWizardDialog(widgetContext, projectId, projectName, projectLabel, callback, options) {
+  // options.dataImporter - optional reference to ECO Data Importer module for device assignment
   const $injector = widgetContext.$scope.$injector;
   const customDialog = $injector.get(widgetContext.servicesMap.get('customDialog'));
   const deviceService = $injector.get(widgetContext.servicesMap.get('deviceService'));
@@ -771,7 +776,9 @@ export function openProjectWizardDialog(widgetContext, projectId, projectName, p
         projectId: { id: projIdVal, entityType: 'ASSET' },
         projectName: projectNameValue,
         projectLabel: projectLabelValue,
-        onClose: handleClose
+        onClose: handleClose,
+        dataImporter: options && options.dataImporter ? options.dataImporter : null,
+        widgetContext: widgetContext
       },
       startProjectCss
     ).subscribe();
@@ -785,6 +792,8 @@ export function openProjectWizardDialog(widgetContext, projectId, projectName, p
     var projectName = data.projectName;
     var projectLabel = data.projectLabel;
     var onClose = data.onClose;
+    var dataImporter = data.dataImporter;
+    var dialogWidgetContext = data.widgetContext;
 
     vm.measurements = measurements;
     vm.projectName = projectName;
@@ -867,10 +876,35 @@ export function openProjectWizardDialog(widgetContext, projectId, projectName, p
     vm.startProjectFormGroup = vm.fb.group({});
 
     vm.connectMeasurement = function(measurement) {
-      // Note: connectMeasurement functionality requires dataImporter module
-      // For now, just show a message
-      console.log('Connect measurement:', measurement.name);
-      vm.validationError = 'Connect functionality not available from this context.';
+      console.log('Connect measurement:', measurement.name, 'id:', measurement.id);
+
+      if (!dataImporter || !dataImporter.assignDeviceToMeasurement) {
+        console.error('dataImporter module not available');
+        vm.validationError = 'Connect functionality not available from this context.';
+        return;
+      }
+
+      if (!dialogWidgetContext) {
+        console.error('widgetContext not available');
+        vm.validationError = 'Connect functionality not available from this context.';
+        return;
+      }
+
+      // Close the current dialog first
+      vm.dialogRef.close(null);
+
+      // Open the device assignment dialog
+      dataImporter.assignDeviceToMeasurement(
+        dialogWidgetContext,
+        measurement.id,
+        measurement.name,
+        function() {
+          // After device assignment, refresh the project wizard
+          if (typeof onClose === 'function') {
+            onClose();
+          }
+        }
+      );
     };
 
     vm.cancel = function() {
@@ -1114,9 +1148,10 @@ export function openProjectWizardDialog(widgetContext, projectId, projectName, p
 // ADD MEASUREMENT DIALOG
 // ============================================================================
 
-const addMeasurementHtmlTemplate = `<form [formGroup]="addMeasurementFormGroup" (ngSubmit)="save()" class="add-entity-form" style="width: 380px;">
+const addMeasurementHtmlTemplate = `<form [formGroup]="addMeasurementFormGroup" (ngSubmit)="save()" class="add-entity-form" style="width: 420px;">
   <mat-toolbar class="flex items-center" color="primary">
-    <h2 style="margin: 0;">{{'custom.projects.measurements.add-measurement' | translate}}</h2>
+    <mat-icon style="margin-right: 12px;">assessment</mat-icon>
+    <h2 style="margin: 0; font-size: 18px;">{{'custom.projects.measurements.add-measurement' | translate}}</h2>
     <span class="flex-1"></span>
     <button mat-icon-button (click)="cancel()" type="button">
       <mat-icon>close</mat-icon>
@@ -1126,56 +1161,101 @@ const addMeasurementHtmlTemplate = `<form [formGroup]="addMeasurementFormGroup" 
   <mat-progress-bar color="warn" mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
   <div style="height: 4px;" *ngIf="!isLoading"></div>
 
-  <div mat-dialog-content class="flex flex-col p-4">
-    <!-- Measurement title (readonly, auto-generated) -->
-    <mat-form-field appearance="fill" class="w-full">
+  <div mat-dialog-content class="flex flex-col p-4 gap-1">
+    <!-- Measurement Name (auto-generated, readonly) -->
+    <mat-form-field appearance="outline" class="w-full">
       <mat-label>{{'custom.projects.measurements.measurement-title' | translate}}</mat-label>
       <input matInput formControlName="name" readonly>
+      <mat-icon matSuffix style="color: #666;">badge</mat-icon>
+      <mat-hint>Auto-generated measurement name</mat-hint>
     </mat-form-field>
 
     <!-- Entity Label -->
-    <mat-form-field appearance="fill" class="w-full">
+    <mat-form-field appearance="outline" class="w-full">
       <mat-label>Label</mat-label>
-      <input matInput formControlName="label">
+      <input matInput formControlName="label" placeholder="e.g. Main Heating Circuit">
+      <mat-icon matSuffix style="color: #666;">label</mat-icon>
+      <mat-hint>Optional descriptive label</mat-hint>
     </mat-form-field>
 
-    <!-- Installation type -->
-    <mat-form-field appearance="fill" class="w-full" *ngIf="addMeasurementFormGroup.get('measurementType')?.value !== 'loraWan'">
-      <mat-label>{{'custom.diagnostics.action.edit-measurement-parameters.installation-type.title' | translate}}</mat-label>
-      <mat-select formControlName="installationType" required>
-        <mat-option value="heating">{{'custom.diagnostics.measurement-type.heating.title' | translate}}</mat-option>
-        <mat-option value="cooling">{{'custom.diagnostics.measurement-type.cooling.title' | translate}}</mat-option>
-      </mat-select>
-      <mat-error *ngIf="addMeasurementFormGroup.get('installationType')?.hasError('required')">
-        {{'custom.diagnostics.action.edit-measurement-parameters.installation-type.error' | translate}}
-      </mat-error>
-    </mat-form-field>
-
-    <!-- Measurement type -->
-    <mat-form-field appearance="fill" class="w-full">
+    <!-- Measurement Type -->
+    <div class="flex items-center gap-2 mt-2 mb-1" style="color: #305680;">
+      <mat-icon style="font-size: 18px; width: 18px; height: 18px;">category</mat-icon>
+      <span style="font-weight: 600; font-size: 13px;">Measurement Type</span>
+    </div>
+    <mat-form-field appearance="outline" class="w-full">
       <mat-label>{{'custom.measurement.administration.action.measurement-type.title' | translate}}</mat-label>
       <mat-select formControlName="measurementType" required>
-        <mat-option value="ultrasonic">Ultrasonic</mat-option>
-        <mat-option value="import">Import</mat-option>
-        <mat-option value="interpolation">Interpolation</mat-option>
-        <mat-option value="loraWan">LoRaWan</mat-option>
+        <mat-option value="ultrasonic">
+          <div class="flex items-center gap-2">
+            <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #2196f3;">sensors</mat-icon>
+            <span>Ultrasonic</span>
+          </div>
+        </mat-option>
+        <mat-option value="import">
+          <div class="flex items-center gap-2">
+            <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #9c27b0;">upload_file</mat-icon>
+            <span>Import</span>
+          </div>
+        </mat-option>
+        <mat-option value="interpolation">
+          <div class="flex items-center gap-2">
+            <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #4caf50;">auto_graph</mat-icon>
+            <span>Interpolation</span>
+          </div>
+        </mat-option>
+        <mat-option value="loraWan">
+          <div class="flex items-center gap-2">
+            <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #ff9800;">cell_tower</mat-icon>
+            <span>LoRaWAN</span>
+          </div>
+        </mat-option>
       </mat-select>
       <mat-error *ngIf="addMeasurementFormGroup.get('measurementType')?.hasError('required')">
         {{'custom.measurement.administration.action.measurement-type.error.is-required' | translate}}
       </mat-error>
     </mat-form-field>
 
-    <!-- Connect Measurement checkbox (only for ultrasonic) -->
-    <mat-checkbox formControlName="connectKit" *ngIf="addMeasurementFormGroup.get('measurementType')?.value === 'ultrasonic'" style="margin-top: 8px;">
-      Connect Measurement
-    </mat-checkbox>
+    <!-- Installation Type (not for LoRaWAN) -->
+    <mat-form-field appearance="outline" class="w-full" *ngIf="addMeasurementFormGroup.get('measurementType')?.value !== 'loraWan'">
+      <mat-label>{{'custom.diagnostics.action.edit-measurement-parameters.installation-type.title' | translate}}</mat-label>
+      <mat-select formControlName="installationType" required>
+        <mat-option value="heating">
+          <div class="flex items-center gap-2">
+            <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #f44336;">local_fire_department</mat-icon>
+            <span>{{'custom.diagnostics.measurement-type.heating.title' | translate}}</span>
+          </div>
+        </mat-option>
+        <mat-option value="cooling">
+          <div class="flex items-center gap-2">
+            <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #2196f3;">ac_unit</mat-icon>
+            <span>{{'custom.diagnostics.measurement-type.cooling.title' | translate}}</span>
+          </div>
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="addMeasurementFormGroup.get('installationType')?.hasError('required')">
+        {{'custom.diagnostics.action.edit-measurement-parameters.installation-type.error' | translate}}
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Connect Measurement Option (only for ultrasonic) -->
+    <div *ngIf="addMeasurementFormGroup.get('measurementType')?.value === 'ultrasonic'"
+         class="flex items-center gap-3"
+         style="background: linear-gradient(135deg, #e8f4fd 0%, #f0f7ff 100%); border: 1px solid #305680; border-radius: 8px; padding: 12px; margin-top: 8px;">
+      <mat-checkbox formControlName="connectKit" color="primary"></mat-checkbox>
+      <div class="flex flex-col">
+        <span style="font-weight: 500; color: #305680;">Connect Diagnostic Kit</span>
+        <span style="font-size: 12px; color: #666;">Assign a P-Flow device after creation</span>
+      </div>
+    </div>
   </div>
 
-  <div mat-dialog-actions class="flex justify-end gap-2 p-4">
-    <button mat-button color="primary" type="button" [disabled]="isLoading" (click)="cancel()">
+  <div class="flex justify-end items-center gap-2 p-4" style="border-top: 1px solid #e0e0e0; background: #fafafa;">
+    <button mat-button type="button" [disabled]="isLoading" (click)="cancel()">
       {{'action.cancel' | translate}}
     </button>
     <button mat-raised-button color="primary" type="submit" [disabled]="isLoading || addMeasurementFormGroup.invalid">
+      <mat-icon style="font-size: 18px; width: 18px; height: 18px; margin-right: 4px;">add</mat-icon>
       {{'custom.projects.measurements.add-measurement' | translate}}
     </button>
   </div>
@@ -1448,7 +1528,8 @@ export function openAddMeasurementDialog(widgetContext, projectId, projectName, 
 
 const measurementParametersHtmlTemplate = `<form [formGroup]="parametersFormGroup" (ngSubmit)="save()" class="measurement-parameters-form" style="width: 600px;">
   <mat-toolbar class="flex items-center" color="primary">
-    <h2 style="margin: 0;">Edit Measurement Parameters</h2>
+    <mat-icon style="margin-right: 12px;">tune</mat-icon>
+    <h2 style="margin: 0; font-size: 18px;">Edit Measurement Parameters</h2>
     <span class="flex-1"></span>
     <button mat-icon-button (click)="cancel()" type="button">
       <mat-icon>close</mat-icon>
@@ -1460,9 +1541,28 @@ const measurementParametersHtmlTemplate = `<form [formGroup]="parametersFormGrou
 
   <div mat-dialog-content class="flex flex-col p-4" style="max-height: 70vh; overflow-y: auto;">
 
+    <!-- Measurement Info Section -->
+    <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+      <legend class="flex items-center gap-2" style="font-weight: 600; color: #305680; padding: 0 8px;">
+        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">sensors</mat-icon>
+        Measurement
+      </legend>
+      <mat-form-field appearance="fill" class="w-full">
+        <mat-label>Name (System)</mat-label>
+        <input matInput [value]="entityName" readonly disabled>
+      </mat-form-field>
+      <mat-form-field appearance="fill" class="w-full">
+        <mat-label>Label</mat-label>
+        <input matInput formControlName="entityLabel" placeholder="Display name for this measurement">
+      </mat-form-field>
+    </fieldset>
+
     <!-- Status Section (Progress, Start/End Time) -->
     <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
-      <legend style="font-weight: 600; color: #305680; padding: 0 8px;">Status</legend>
+      <legend class="flex items-center gap-2" style="font-weight: 600; color: #305680; padding: 0 8px;">
+        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">timeline</mat-icon>
+        Status
+      </legend>
 
       <!-- Progress -->
       <mat-form-field appearance="fill" class="w-full">
@@ -1510,7 +1610,10 @@ const measurementParametersHtmlTemplate = `<form [formGroup]="parametersFormGrou
 
     <!-- Dimension Section -->
     <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
-      <legend style="font-weight: 600; color: #305680; padding: 0 8px;">Dimension</legend>
+      <legend class="flex items-center gap-2" style="font-weight: 600; color: #305680; padding: 0 8px;">
+        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">straighten</mat-icon>
+        Dimension
+      </legend>
       <div class="flex gap-2">
         <mat-form-field appearance="fill" style="flex: 1;">
           <mat-label>Dimension</mat-label>
@@ -1537,7 +1640,10 @@ const measurementParametersHtmlTemplate = `<form [formGroup]="parametersFormGrou
 
     <!-- Installation Section -->
     <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
-      <legend style="font-weight: 600; color: #305680; padding: 0 8px;">Installation</legend>
+      <legend class="flex items-center gap-2" style="font-weight: 600; color: #305680; padding: 0 8px;">
+        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">build</mat-icon>
+        Installation
+      </legend>
       <div class="flex gap-2">
         <mat-form-field appearance="fill" style="flex: 1;">
           <mat-label>Installation Type</mat-label>
@@ -1568,7 +1674,10 @@ const measurementParametersHtmlTemplate = `<form [formGroup]="parametersFormGrou
 
     <!-- Analysis Section -->
     <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
-      <legend style="font-weight: 600; color: #305680; padding: 0 8px;">Analysis</legend>
+      <legend class="flex items-center gap-2" style="font-weight: 600; color: #305680; padding: 0 8px;">
+        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">analytics</mat-icon>
+        Analysis
+      </legend>
       <div class="flex gap-2">
         <mat-form-field appearance="fill" style="flex: 2;">
           <mat-label>Standard Outdoor Temp.</mat-label>
@@ -1612,7 +1721,10 @@ const measurementParametersHtmlTemplate = `<form [formGroup]="parametersFormGrou
 
     <!-- Weekly Operating Schedule -->
     <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
-      <legend style="font-weight: 600; color: #305680; padding: 0 8px;">Weekly Operating Schedule</legend>
+      <legend class="flex items-center gap-2" style="font-weight: 600; color: #305680; padding: 0 8px;">
+        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">schedule</mat-icon>
+        Weekly Operating Schedule
+      </legend>
       <div formGroupName="weeklyOperatingSchedule" class="flex justify-between items-center gap-1">
         <mat-checkbox formControlName="monday">Mon</mat-checkbox>
         <mat-checkbox formControlName="tuesday">Tue</mat-checkbox>
@@ -1626,7 +1738,10 @@ const measurementParametersHtmlTemplate = `<form [formGroup]="parametersFormGrou
 
     <!-- Alarm Thresholds -->
     <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
-      <legend style="font-weight: 600; color: #305680; padding: 0 8px;">Alarm Thresholds</legend>
+      <legend class="flex items-center gap-2" style="font-weight: 600; color: #305680; padding: 0 8px;">
+        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">notification_important</mat-icon>
+        Alarm Thresholds
+      </legend>
       <div class="flex gap-2">
         <mat-form-field appearance="fill" class="flex-1">
           <mat-label>Max Volume Flow Critical</mat-label>
@@ -1661,11 +1776,12 @@ const measurementParametersHtmlTemplate = `<form [formGroup]="parametersFormGrou
 
   </div>
 
-  <div mat-dialog-actions class="flex justify-end gap-2 p-4">
-    <button mat-button color="primary" type="button" [disabled]="isLoading" (click)="cancel()">
+  <div class="flex justify-end items-center gap-2 p-4" style="border-top: 1px solid #e0e0e0; background: #fafafa;">
+    <button mat-button type="button" [disabled]="isLoading" (click)="cancel()">
       Cancel
     </button>
     <button mat-raised-button color="primary" type="submit" [disabled]="isLoading || parametersFormGroup.invalid">
+      <mat-icon style="font-size: 18px; width: 18px; height: 18px; margin-right: 4px;">save</mat-icon>
       Save
     </button>
   </div>
@@ -1692,22 +1808,42 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
   const $injector = widgetContext.$scope.$injector;
   const customDialog = $injector.get(widgetContext.servicesMap.get('customDialog'));
   const attributeService = $injector.get(widgetContext.servicesMap.get('attributeService'));
+  const assetService = $injector.get(widgetContext.servicesMap.get('assetService'));
 
-  // Fetch current attributes
-  attributeService.getEntityAttributes(measurementId, 'SERVER_SCOPE').subscribe(
-    function(attributes) {
-      openDialog(attributes);
+  // Fetch asset info first, then attributes
+  let fetchedAttributes = [];
+  let fetchedAsset = null;
+
+  assetService.getAsset(measurementId.id).subscribe(
+    function(asset) {
+      fetchedAsset = asset;
+      fetchAttributes();
     },
     function(error) {
-      console.error('Error fetching measurement attributes:', error);
-      openDialog([]);
+      console.error('Error fetching asset:', error);
+      fetchAttributes();
     }
   );
 
-  function openDialog(attributes) {
+  function fetchAttributes() {
+    attributeService.getEntityAttributes(measurementId, 'SERVER_SCOPE').subscribe(
+      function(attributes) {
+        fetchedAttributes = attributes;
+        openDialog();
+      },
+      function(error) {
+        console.error('Error fetching attributes:', error);
+        openDialog();
+      }
+    );
+  }
+
+  function openDialog() {
     customDialog.customDialog(measurementParametersHtmlTemplate, MeasurementParametersDialogController, {
       measurementId,
-      attributes
+      attributes: fetchedAttributes,
+      entityName: fetchedAsset ? fetchedAsset.name : '',
+      entityLabel: fetchedAsset ? fetchedAsset.label : ''
     }, measurementParametersCss).subscribe();
   }
 
@@ -1717,12 +1853,16 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
 
     vm.isLoading = false;
     vm.measurementId = config.measurementId;
+    vm.entityName = config.entityName || '';
+    vm.originalEntityLabel = config.entityLabel || '';
 
     vm.dimensionOptions = ['DN15', 'DN20', 'DN25', 'DN32', 'DN40', 'DN50', 'DN65', 'DN80', 'DN100', 'DN125', 'DN150'];
     vm.weekDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
     // Create form group
     vm.parametersFormGroup = vm.fb.group({
+      // Measurement info
+      entityLabel: [''],
       // Status fields
       progress: ['in preparation'],
       startDate: [null],
@@ -1773,6 +1913,9 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
       attributes.forEach(function(attr) {
         attributeMap[attr.key] = attr.value;
       });
+
+      // Measurement info
+      vm.parametersFormGroup.get('entityLabel').setValue(vm.originalEntityLabel);
 
       // Status fields
       if (attributeMap.progress) {
@@ -1973,20 +2116,64 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
         { key: 'minTemperatureDifferenceMajorThreshold', value: formData.minTemperatureDifferenceMajorThreshold }
       ];
 
-      attributeService.saveEntityAttributes(vm.measurementId, 'SERVER_SCOPE', attributesArray).subscribe(
-        function() {
-          vm.isLoading = false;
-          widgetContext.updateAliases();
-          vm.dialogRef.close(null);
-          if (callback) {
-            callback();
+      // Save attributes
+      const saveAttributes$ = attributeService.saveEntityAttributes(vm.measurementId, 'SERVER_SCOPE', attributesArray);
+
+      // Check if entityLabel changed
+      const newLabel = formData.entityLabel || '';
+      const labelChanged = newLabel !== vm.originalEntityLabel;
+
+      if (labelChanged) {
+        // First get current asset, update label, then save attributes
+        assetService.getAsset(vm.measurementId.id).subscribe(
+          function(asset) {
+            asset.label = newLabel;
+            assetService.saveAsset(asset).subscribe(
+              function() {
+                // Now save attributes
+                saveAttributes$.subscribe(
+                  function() {
+                    vm.isLoading = false;
+                    widgetContext.updateAliases();
+                    vm.dialogRef.close(null);
+                    if (callback) {
+                      callback();
+                    }
+                  },
+                  function(error) {
+                    console.error('Error saving measurement parameters:', error);
+                    vm.isLoading = false;
+                  }
+                );
+              },
+              function(error) {
+                console.error('Error saving asset label:', error);
+                vm.isLoading = false;
+              }
+            );
+          },
+          function(error) {
+            console.error('Error fetching asset:', error);
+            vm.isLoading = false;
           }
-        },
-        function(error) {
-          console.error('Error saving measurement parameters:', error);
-          vm.isLoading = false;
-        }
-      );
+        );
+      } else {
+        // Just save attributes
+        saveAttributes$.subscribe(
+          function() {
+            vm.isLoading = false;
+            widgetContext.updateAliases();
+            vm.dialogRef.close(null);
+            if (callback) {
+              callback();
+            }
+          },
+          function(error) {
+            console.error('Error saving measurement parameters:', error);
+            vm.isLoading = false;
+          }
+        );
+      }
     };
   }
 }
