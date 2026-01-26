@@ -2182,6 +2182,35 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
 // MEASUREMENT INFO DIALOG
 // ============================================================================
 
+// Timeseries key mappings
+const TIMESERIES_UNITS = {
+  'CHC_S_Heating_Power': 'kW',
+  'CHS_M_Heating_Energy': 'kWh',
+  'CHC_S_Cooling_Power': 'kW',
+  'CHC_M_Cooling_Energy': 'kWh',
+  'CHC_S_VolumeFlow': 'l/hr',
+  'CHC_M_Volume': 'm³',
+  'CHC_S_TemperatureDiff': '°C',
+  'CHC_S_TemperatureFlow': '°C',
+  'CHC_S_TemperatureReturn': '°C',
+  'CHC_S_Velocity': 'm/s',
+  'temperature': '°C'
+};
+
+const TIMESERIES_LABELS = {
+  'CHC_S_Heating_Power': 'Heating Power',
+  'CHS_M_Heating_Energy': 'Heating Energy',
+  'CHC_S_Cooling_Power': 'Cooling Power',
+  'CHC_M_Cooling_Energy': 'Cooling Energy',
+  'CHC_S_VolumeFlow': 'Volume Flow',
+  'CHC_M_Volume': 'Volume',
+  'CHC_S_TemperatureDiff': 'Temp Diff',
+  'CHC_S_TemperatureFlow': 'Flow Temp',
+  'CHC_S_TemperatureReturn': 'Return Temp',
+  'CHC_S_Velocity': 'Velocity',
+  'temperature': 'Temperature'
+};
+
 const measurementInfoHtmlTemplate = `<div class="measurement-info-dialog" style="width: 500px;">
   <mat-toolbar class="flex items-center" style="background-color: #305680; color: white;">
     <mat-icon style="margin-right: 12px;">info</mat-icon>
@@ -2409,6 +2438,58 @@ export function openMeasurementInfoDialog(widgetContext, measurementId, callback
     });
   }
 
+  function getPFlowTimeseriesKeys(installationType) {
+    var commonKeys = [
+      'CHC_S_VolumeFlow',
+      'CHC_M_Volume',
+      'CHC_S_TemperatureDiff',
+      'CHC_S_TemperatureFlow',
+      'CHC_S_TemperatureReturn',
+      'CHC_S_Velocity'
+    ];
+    if (installationType === 'heating') {
+      return ['CHC_S_Heating_Power', 'CHS_M_Heating_Energy'].concat(commonKeys);
+    } else if (installationType === 'cooling') {
+      return ['CHC_S_Cooling_Power', 'CHC_M_Cooling_Energy'].concat(commonKeys);
+    }
+    return commonKeys;
+  }
+
+  function fetchDeviceTimeseries(deviceId, keys) {
+    return new Promise(function(resolve) {
+      var keysParam = keys.join(',');
+      var url = '/api/plugins/telemetry/DEVICE/' + deviceId.id + '/values/timeseries?keys=' + keysParam;
+      widgetContext.http.get(url).subscribe(
+        function(response) { resolve(response || {}); },
+        function() { resolve({}); }
+      );
+    });
+  }
+
+  function formatTimeseriesValue(key, value) {
+    if (value === null || value === undefined) return '-';
+    var numValue = Number(value);
+    if (!Number.isFinite(numValue)) return '-';
+    var unit = TIMESERIES_UNITS[key] || '';
+    var decimals = (key === 'CHC_M_Volume' || key.includes('Energy')) ? 3 : 2;
+    return numValue.toFixed(decimals) + ' ' + unit;
+  }
+
+  function processTimeseriesResponse(response, keys) {
+    var result = [];
+    keys.forEach(function(key) {
+      if (response && response[key] && response[key].length > 0) {
+        result.push({
+          key: key,
+          label: TIMESERIES_LABELS[key] || key,
+          value: response[key][0].value,
+          formattedValue: formatTimeseriesValue(key, response[key][0].value)
+        });
+      }
+    });
+    return result;
+  }
+
   function fetchAttributes() {
     attributeService.getEntityAttributes(measurementId, 'SERVER_SCOPE').subscribe(
       function(attributes) {
@@ -2522,6 +2603,9 @@ export function openMeasurementInfoDialog(widgetContext, measurementId, callback
     vm.installationType = null;
     vm.kitGroups = config.kitGroups || [];
     vm.noKitDevices = config.noKitDevices || [];
+    vm.isRefreshing = false;
+    vm.refreshInterval = null;
+    vm.lastRefresh = null;
 
     // Extract installationType from attributes
     const findAttr = function(key) {
@@ -2553,6 +2637,62 @@ export function openMeasurementInfoDialog(widgetContext, measurementId, callback
       return { color, bgColor, label, icon };
     }
 
+    // Timeseries fetching function
+    function fetchAllTimeseries() {
+      if (vm.isRefreshing) return;
+      vm.isRefreshing = true;
+
+      var allDevices = [];
+      vm.kitGroups.forEach(function(kit) {
+        kit.devices.forEach(function(d) { allDevices.push(d); });
+      });
+      vm.noKitDevices.forEach(function(d) { allDevices.push(d); });
+
+      var pflowDevices = allDevices.filter(function(d) { return d.type === 'P-Flow D116'; });
+      var tempSensors = allDevices.filter(function(d) { return d.type === 'Temperature Sensor'; });
+      var pflowKeys = getPFlowTimeseriesKeys(vm.installationType);
+
+      var fetchPromises = [];
+
+      pflowDevices.forEach(function(device) {
+        fetchPromises.push(
+          fetchDeviceTimeseries(device.id, pflowKeys).then(function(data) {
+            device.timeseries = processTimeseriesResponse(data, pflowKeys);
+          })
+        );
+      });
+
+      tempSensors.forEach(function(device) {
+        fetchPromises.push(
+          fetchDeviceTimeseries(device.id, ['temperature']).then(function(data) {
+            device.timeseries = processTimeseriesResponse(data, ['temperature']);
+          })
+        );
+      });
+
+      if (fetchPromises.length === 0) {
+        vm.isRefreshing = false;
+        return;
+      }
+
+      Promise.all(fetchPromises).then(function() {
+        vm.isRefreshing = false;
+        vm.lastRefresh = new Date();
+      }).catch(function() {
+        vm.isRefreshing = false;
+      });
+    }
+
+    vm.refresh = function() {
+      fetchAllTimeseries();
+    };
+
+    // Initial fetch and start auto-refresh
+    fetchAllTimeseries();
+    vm.refreshInterval = setInterval(function() {
+      fetchAllTimeseries();
+    }, 5000);
+
     // Expose helper functions to template
     vm.getInstallationTypeStyle = getInstallationTypeStyle;
     vm.getActivityColor = getActivityColor;
@@ -2568,6 +2708,10 @@ export function openMeasurementInfoDialog(widgetContext, measurementId, callback
     };
 
     vm.cancel = function() {
+      if (vm.refreshInterval) {
+        clearInterval(vm.refreshInterval);
+        vm.refreshInterval = null;
+      }
       vm.dialogRef.close(null);
       if (callback) {
         callback();
