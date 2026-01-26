@@ -7,9 +7,9 @@
 
 ### Measurement Info
 
-- [ ] **INFO-01**: Popup zeigt entityLabel der Messung
-- [ ] **INFO-02**: Popup zeigt entityName der Messung
-- [ ] **INFO-03**: Popup zeigt installationType Attribut (heating/cooling Badge)
+- [x] **INFO-01**: Popup zeigt entityLabel der Messung ✓
+- [x] **INFO-02**: Popup zeigt entityName der Messung ✓
+- [x] **INFO-03**: Popup zeigt installationType Attribut (heating/cooling Badge) ✓
 
 ### Device Display
 
@@ -40,8 +40,8 @@
 
 ### Styling
 
-- [ ] **STYLE-01**: Dialog-Styling konsistent mit ECO Project Wizard
-- [ ] **STYLE-02**: Responsive Layout für verschiedene Bildschirmgrößen
+- [x] **STYLE-01**: Dialog-Styling konsistent mit ECO Project Wizard ✓
+- [x] **STYLE-02**: Responsive Layout für verschiedene Bildschirmgrößen ✓
 
 ## v2 Requirements
 
@@ -64,9 +64,9 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFO-01 | Phase 1 | Pending |
-| INFO-02 | Phase 1 | Pending |
-| INFO-03 | Phase 1 | Pending |
+| INFO-01 | Phase 1 | Complete |
+| INFO-02 | Phase 1 | Complete |
+| INFO-03 | Phase 1 | Complete |
 | DEV-01 | Phase 2 | Pending |
 | DEV-02 | Phase 2 | Pending |
 | DEV-03 | Phase 2 | Pending |
@@ -82,8 +82,8 @@
 | ACT-01 | Phase 5 | Pending |
 | ACT-02 | Phase 5 | Pending |
 | ACT-03 | Phase 5 | Pending |
-| STYLE-01 | Phase 1 | Pending |
-| STYLE-02 | Phase 1 | Pending |
+| STYLE-01 | Phase 1 | Complete |
+| STYLE-02 | Phase 1 | Complete |
 
 **Coverage:**
 - v1 requirements: 18 total

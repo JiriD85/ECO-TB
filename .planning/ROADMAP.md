@@ -29,7 +29,7 @@
 **Plans:** 1 plan
 
 Plans:
-- [ ] 01-01-PLAN.md — Create dialog function and add to dashboard
+- [x] 01-01-PLAN.md — Create dialog function and add to dashboard ✓
 
 **Success Criteria:**
 1. Dialog öffnet sich aus Measurements_card Tabelle
