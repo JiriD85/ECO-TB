@@ -2243,6 +2243,8 @@ export function openMeasurementInfoDialog(widgetContext, measurementId, callback
   const customDialog = $injector.get(widgetContext.servicesMap.get('customDialog'));
   const attributeService = $injector.get(widgetContext.servicesMap.get('attributeService'));
   const assetService = $injector.get(widgetContext.servicesMap.get('assetService'));
+  const deviceService = $injector.get(widgetContext.servicesMap.get('deviceService'));
+  const entityRelationService = $injector.get(widgetContext.servicesMap.get('entityRelationService'));
 
   // Fetch asset info first, then attributes
   let fetchedAttributes = [];
@@ -2259,25 +2261,162 @@ export function openMeasurementInfoDialog(widgetContext, measurementId, callback
     }
   );
 
+  function loadDeviceAttributes(device) {
+    return new Promise(function(resolve) {
+      attributeService.getEntityAttributes(
+        device.id,
+        'SERVER_SCOPE',
+        ['active', 'lastActivityTime']
+      ).subscribe(
+        function(attributes) {
+          var activeAttr = attributes.find(function(a) { return a.key === 'active'; });
+          var lastActivityAttr = attributes.find(function(a) { return a.key === 'lastActivityTime'; });
+          device.active = activeAttr ? activeAttr.value : null;
+          device.lastActivityTime = lastActivityAttr ? lastActivityAttr.value : null;
+          resolve(device);
+        },
+        function() {
+          device.active = null;
+          device.lastActivityTime = null;
+          resolve(device);
+        }
+      );
+    });
+  }
+
+  function findDeviceKit(deviceId) {
+    return new Promise(function(resolve) {
+      entityRelationService.findByFrom(deviceId).subscribe(
+        function(relations) {
+          var assetRelations = (relations || []).filter(function(r) {
+            return r.to && r.to.entityType === 'ASSET';
+          });
+          if (!assetRelations.length) {
+            resolve(null);
+            return;
+          }
+          function tryNext(index) {
+            if (index >= assetRelations.length) {
+              resolve(null);
+              return;
+            }
+            assetService.getAsset(assetRelations[index].to.id).subscribe(
+              function(kit) {
+                if (kit && kit.type === 'Diagnostickit') {
+                  resolve(kit);
+                } else {
+                  tryNext(index + 1);
+                }
+              },
+              function() { tryNext(index + 1); }
+            );
+          }
+          tryNext(0);
+        },
+        function() { resolve(null); }
+      );
+    });
+  }
+
   function fetchAttributes() {
     attributeService.getEntityAttributes(measurementId, 'SERVER_SCOPE').subscribe(
       function(attributes) {
         fetchedAttributes = attributes;
-        openDialog();
+        fetchDevices(function(deviceData) {
+          openDialog(deviceData);
+        });
       },
       function(error) {
         console.error('Error fetching attributes:', error);
-        openDialog();
+        fetchDevices(function(deviceData) {
+          openDialog(deviceData);
+        });
       }
     );
   }
 
-  function openDialog() {
+  function fetchDevices(callback) {
+    var deviceSearchQuery = {
+      parameters: {
+        rootId: measurementId.id,
+        rootType: 'ASSET',
+        direction: 'FROM',
+        relationTypeGroup: 'COMMON',
+        maxLevel: 1,
+        fetchLastLevelOnly: false
+      },
+      relationType: 'Measurement',
+      deviceTypes: ['P-Flow D116', 'Room Sensor CO2', 'Temperature Sensor', 'RESI']
+    };
+
+    deviceService.findByQuery(deviceSearchQuery).subscribe(
+      function(devices) {
+        if (!devices || !devices.length) {
+          callback({ kitGroups: [], noKitDevices: [] });
+          return;
+        }
+
+        var devicePromises = devices.map(function(device) {
+          return loadDeviceAttributes(device).then(function(updatedDevice) {
+            return findDeviceKit(updatedDevice.id).then(function(kit) {
+              return { device: updatedDevice, kit: kit };
+            });
+          });
+        });
+
+        Promise.all(devicePromises).then(function(results) {
+          var kitMap = {};
+          var noKitDevices = [];
+
+          results.forEach(function(result) {
+            var d = result.device;
+            var kit = result.kit;
+            var deviceData = {
+              id: d.id,
+              name: d.name,
+              type: d.type,
+              active: d.active,
+              lastActivityTime: d.lastActivityTime
+            };
+
+            if (kit) {
+              var kitKey = kit.id.id;
+              if (!kitMap[kitKey]) {
+                kitMap[kitKey] = {
+                  id: kit.id,
+                  name: kit.name,
+                  label: kit.label,
+                  devices: []
+                };
+              }
+              kitMap[kitKey].devices.push(deviceData);
+            } else {
+              noKitDevices.push(deviceData);
+            }
+          });
+
+          var kitGroups = Object.values(kitMap).sort(function(a, b) {
+            return (a.name || '').localeCompare(b.name || '');
+          });
+
+          callback({ kitGroups: kitGroups, noKitDevices: noKitDevices });
+        });
+      },
+      function(error) {
+        console.error('Error fetching devices:', error);
+        callback({ kitGroups: [], noKitDevices: [] });
+      }
+    );
+  }
+
+  function openDialog(deviceData) {
     customDialog.customDialog(measurementInfoHtmlTemplate, MeasurementInfoDialogController, {
       measurementId,
       attributes: fetchedAttributes,
       entityName: fetchedAsset ? fetchedAsset.name : '',
-      entityLabel: fetchedAsset ? fetchedAsset.label : ''
+      entityLabel: fetchedAsset ? fetchedAsset.label : '',
+      kitGroups: deviceData ? deviceData.kitGroups : [],
+      noKitDevices: deviceData ? deviceData.noKitDevices : []
     }, measurementInfoCss).subscribe();
   }
 
@@ -2290,6 +2429,8 @@ export function openMeasurementInfoDialog(widgetContext, measurementId, callback
     vm.entityName = config.entityName || '';
     vm.entityLabel = config.entityLabel || '';
     vm.installationType = null;
+    vm.kitGroups = config.kitGroups || [];
+    vm.noKitDevices = config.noKitDevices || [];
 
     // Extract installationType from attributes
     const findAttr = function(key) {
@@ -2299,8 +2440,41 @@ export function openMeasurementInfoDialog(widgetContext, measurementId, callback
 
     vm.installationType = findAttr('installationType');
 
-    // Expose getInstallationTypeStyle to template
+    // Helper function for activity color
+    function getActivityColor(active) {
+      let color, bgColor, label, icon;
+      if (active === true) {
+        color = "#27AE60";      // Green
+        bgColor = "rgba(39, 174, 96, 0.12)";
+        label = "Active";
+        icon = "check_circle";
+      } else if (active === false) {
+        color = "#EB5757";      // Red
+        bgColor = "rgba(235, 87, 87, 0.12)";
+        label = "Inactive";
+        icon = "cancel";
+      } else {
+        color = "#828282";      // Gray for null/undefined
+        bgColor = "rgba(130, 130, 130, 0.12)";
+        label = "N/A";
+        icon = "help_outline";
+      }
+      return { color, bgColor, label, icon };
+    }
+
+    // Expose helper functions to template
     vm.getInstallationTypeStyle = getInstallationTypeStyle;
+    vm.getActivityColor = getActivityColor;
+
+    vm.formatTimestampDE = function(ms) {
+      if (ms === null || ms === undefined) return '-';
+      var value = Number(ms);
+      if (!Number.isFinite(value) || value <= 0) return '-';
+      var date = new Date(value);
+      function pad(n) { return n.toString().padStart(2, '0'); }
+      return pad(date.getDate()) + '.' + pad(date.getMonth() + 1) + '.' + date.getFullYear() +
+        ' ' + pad(date.getHours()) + ':' + pad(date.getMinutes()) + ':' + pad(date.getSeconds());
+    };
 
     vm.cancel = function() {
       vm.dialogRef.close(null);
