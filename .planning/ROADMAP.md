@@ -82,6 +82,11 @@ Plans:
 - LIVE-02: Refresh Button
 - LIVE-03: Loading Indicator
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 03-01-PLAN.md - Add timeseries fetching and auto-refresh
+
 **Success Criteria:**
 1. P-Flow zeigt korrekte Timeseries basierend auf installationType
 2. Temperature Sensoren zeigen temperature Wert
