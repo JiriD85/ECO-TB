@@ -2182,7 +2182,7 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
 // MEASUREMENT INFO DIALOG
 // ============================================================================
 
-const measurementInfoHtmlTemplate = `<div class="measurement-info-dialog" style="width: 450px;">
+const measurementInfoHtmlTemplate = `<div class="measurement-info-dialog" style="width: 500px;">
   <mat-toolbar class="flex items-center" style="background-color: #305680; color: white;">
     <mat-icon style="margin-right: 12px;">info</mat-icon>
     <h2 style="margin: 0; font-size: 18px;">Measurement Info</h2>
@@ -2217,6 +2217,91 @@ const measurementInfoHtmlTemplate = `<div class="measurement-info-dialog" style=
         {{ getInstallationTypeStyle(installationType).label }}
       </div>
     </div>
+
+    <!-- Devices Section -->
+    <div *ngIf="kitGroups.length > 0 || noKitDevices.length > 0" class="devices-section" style="margin-top: 16px;">
+      <div style="font-size: 14px; font-weight: 600; color: #305680; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">devices</mat-icon>
+        Connected Devices
+      </div>
+
+      <!-- Diagnostic Kit Groups (highlighted) -->
+      <ng-container *ngFor="let kit of kitGroups">
+        <div class="kit-group" style="margin-bottom: 12px; border: 1px solid #305680; border-radius: 8px; overflow: hidden;">
+          <div style="background: linear-gradient(135deg, #305680 0%, #4a7ab0 100%); color: white; padding: 8px 12px; font-weight: 500; display: flex; align-items: center; gap: 6px;">
+            <mat-icon style="font-size: 16px; width: 16px; height: 16px;">router</mat-icon>
+            {{ kit.label || kit.name }}
+          </div>
+          <div style="padding: 8px;">
+            <ng-container *ngFor="let device of kit.devices">
+              <div class="device-item flex flex-col" style="padding: 6px 8px; border-radius: 4px; background: #f5f5f5; margin-bottom: 4px;">
+                <div class="flex items-center gap-2">
+                  <mat-icon style="font-size: 14px; width: 14px; height: 14px; color: #666;">memory</mat-icon>
+                  <div class="flex flex-col">
+                    <span style="font-weight: 500; font-size: 13px;">{{ device.name }}</span>
+                    <span style="color: #888; font-size: 11px;">{{ device.type }}</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap" style="margin-left: 22px; margin-top: 6px;">
+                  <div class="flex items-center gap-1"
+                       [style.background]="getActivityColor(device.active).bgColor"
+                       [style.color]="getActivityColor(device.active).color"
+                       style="padding: 2px 8px; border-radius: 12px; font-size: 11px;">
+                    <mat-icon style="font-size: 12px; width: 12px; height: 12px;">{{ getActivityColor(device.active).icon }}</mat-icon>
+                    {{ getActivityColor(device.active).label }}
+                  </div>
+                  <div class="flex items-center gap-1" style="color: #666; font-size: 11px;">
+                    <mat-icon style="font-size: 12px; width: 12px; height: 12px;">schedule</mat-icon>
+                    {{ formatTimestampDE(device.lastActivityTime) }}
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Devices without Kit -->
+      <ng-container *ngIf="noKitDevices.length > 0">
+        <div class="no-kit-devices" style="margin-bottom: 12px; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+          <div style="background: #f5f5f5; color: #666; padding: 8px 12px; font-weight: 500; display: flex; align-items: center; gap: 6px;">
+            <mat-icon style="font-size: 16px; width: 16px; height: 16px;">device_unknown</mat-icon>
+            Other Devices
+          </div>
+          <div style="padding: 8px;">
+            <ng-container *ngFor="let device of noKitDevices">
+              <div class="device-item flex flex-col" style="padding: 6px 8px; border-radius: 4px; background: #fafafa; margin-bottom: 4px;">
+                <div class="flex items-center gap-2">
+                  <mat-icon style="font-size: 14px; width: 14px; height: 14px; color: #666;">memory</mat-icon>
+                  <div class="flex flex-col">
+                    <span style="font-weight: 500; font-size: 13px;">{{ device.name }}</span>
+                    <span style="color: #888; font-size: 11px;">{{ device.type }}</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap" style="margin-left: 22px; margin-top: 6px;">
+                  <div class="flex items-center gap-1"
+                       [style.background]="getActivityColor(device.active).bgColor"
+                       [style.color]="getActivityColor(device.active).color"
+                       style="padding: 2px 8px; border-radius: 12px; font-size: 11px;">
+                    <mat-icon style="font-size: 12px; width: 12px; height: 12px;">{{ getActivityColor(device.active).icon }}</mat-icon>
+                    {{ getActivityColor(device.active).label }}
+                  </div>
+                  <div class="flex items-center gap-1" style="color: #666; font-size: 11px;">
+                    <mat-icon style="font-size: 12px; width: 12px; height: 12px;">schedule</mat-icon>
+                    {{ formatTimestampDE(device.lastActivityTime) }}
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- No devices message -->
+      <div *ngIf="kitGroups.length === 0 && noKitDevices.length === 0" style="color: #888; font-style: italic; text-align: center; padding: 12px;">
+        No devices connected to this measurement
+      </div>
+    </div>
   </div>
 
   <div class="flex justify-end items-center gap-2 p-4" style="border-top: 1px solid #e0e0e0; background: #fafafa;">
@@ -2229,6 +2314,12 @@ const measurementInfoHtmlTemplate = `<div class="measurement-info-dialog" style=
 const measurementInfoCss = `.measurement-info-dialog .badge {
   display: inline-flex;
   align-items: center;
+}
+.measurement-info-dialog .device-item:last-child {
+  margin-bottom: 0;
+}
+.measurement-info-dialog .kit-group:last-child {
+  margin-bottom: 0;
 }`;
 
 /**
