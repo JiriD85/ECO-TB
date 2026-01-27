@@ -21,22 +21,22 @@
 
 ### Timeseries Data
 
-- [ ] **TS-01**: P-Flow Heating: CHC_S_Heating_Power (kW), CHS_M_Heating_Energy (kWh)
-- [ ] **TS-02**: P-Flow Cooling: CHC_S_Cooling_Power (kW), CHC_M_Cooling_Energy (kWh)
-- [ ] **TS-03**: P-Flow Common: VolumeFlow, Volume, TemperatureDiff, TempFlow, TempReturn, Velocity
-- [ ] **TS-04**: Temperature Sensor: temperature (°C)
+- [x] **TS-01**: P-Flow Heating: CHC_S_Heating_Power (kW), CHS_M_Heating_Energy (kWh) ✓
+- [x] **TS-02**: P-Flow Cooling: CHC_S_Cooling_Power (kW), CHC_M_Cooling_Energy (kWh) ✓
+- [x] **TS-03**: P-Flow Common: VolumeFlow, Volume, TemperatureDiff, TempFlow, TempReturn, Velocity ✓
+- [x] **TS-04**: Temperature Sensor: temperature (°C) ✓
 
 ### Live Updates
 
-- [ ] **LIVE-01**: Auto-Refresh alle 5 Sekunden
-- [ ] **LIVE-02**: Refresh Button für manuelles Aktualisieren
-- [ ] **LIVE-03**: Loading-Indicator während Daten geladen werden
+- [x] **LIVE-01**: Auto-Refresh alle 5 Sekunden ✓
+- [x] **LIVE-02**: Refresh Button für manuelles Aktualisieren ✓
+- [x] **LIVE-03**: Loading-Indicator während Daten geladen werden ✓
 
 ### Actions
 
-- [ ] **ACT-01**: Button: Navigation zu Device Details State
-- [ ] **ACT-02**: Button: Navigation zu Measurement Dashboard State
-- [ ] **ACT-03**: Button: Measurement Parameters Dialog öffnen
+- [x] **ACT-01**: Button: Navigation zu Device Details State ✓
+- [x] **ACT-02**: Button: Navigation zu Measurement Dashboard State ✓
+- [x] **ACT-03**: Button: Measurement Parameters Dialog öffnen ✓
 
 ### Styling
 
@@ -72,16 +72,16 @@
 | DEV-03 | Phase 2 | Complete |
 | DEV-04 | Phase 2 | Complete |
 | DEV-05 | Phase 2 | Complete |
-| TS-01 | Phase 3 | Pending |
-| TS-02 | Phase 3 | Pending |
-| TS-03 | Phase 3 | Pending |
-| TS-04 | Phase 3 | Pending |
-| LIVE-01 | Phase 4 | Pending |
-| LIVE-02 | Phase 4 | Pending |
-| LIVE-03 | Phase 4 | Pending |
-| ACT-01 | Phase 5 | Pending |
-| ACT-02 | Phase 5 | Pending |
-| ACT-03 | Phase 5 | Pending |
+| TS-01 | Phase 3 | Complete |
+| TS-02 | Phase 3 | Complete |
+| TS-03 | Phase 3 | Complete |
+| TS-04 | Phase 3 | Complete |
+| LIVE-01 | Phase 3 | Complete |
+| LIVE-02 | Phase 3 | Complete |
+| LIVE-03 | Phase 3 | Complete |
+| ACT-01 | Phase 4 | Complete |
+| ACT-02 | Phase 4 | Complete |
+| ACT-03 | Phase 4 | Complete |
 | STYLE-01 | Phase 1 | Complete |
 | STYLE-02 | Phase 1 | Complete |
 
@@ -92,4 +92,4 @@
 
 ---
 *Requirements defined: 2025-01-26*
-*Last updated: 2026-01-27 after Phase 2 completion*
+*Last updated: 2026-01-27 after Phase 4 completion — v1 complete*

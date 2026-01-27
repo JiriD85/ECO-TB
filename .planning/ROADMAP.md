@@ -111,7 +111,7 @@ Plans:
 **Plans:** 1 plan
 
 Plans:
-- [ ] 04-01-PLAN.md - Add navigation buttons and actions to dialog
+- [x] 04-01-PLAN.md - Add navigation buttons and actions to dialog ✓
 
 **Success Criteria:**
 1. "Device Details" Button navigiert zum entsprechenden State
