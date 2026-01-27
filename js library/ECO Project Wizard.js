@@ -2866,6 +2866,8 @@ export function openMeasurementInfoDialog(widgetContext, measurementId, callback
           keys = pflowKeys;
         } else if (info.type === 'Temperature Sensor') {
           keys = ['temperature'];
+        } else if (info.type === 'Room Sensor CO2') {
+          keys = ['co2', 'temperature', 'humidity', 'battery'];
         }
 
         if (keys.length > 0) {
