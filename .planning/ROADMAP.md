@@ -108,6 +108,11 @@ Plans:
 - ACT-02: Measurement Dashboard Navigation
 - ACT-03: Parameters Dialog öffnen
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 04-01-PLAN.md - Add navigation buttons and actions to dialog
+
 **Success Criteria:**
 1. "Device Details" Button navigiert zum entsprechenden State
 2. "Dashboard" Button öffnet Measurement Dashboard State
