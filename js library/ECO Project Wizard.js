@@ -2388,11 +2388,6 @@ const measurementInfoHtmlTemplate = `<div class="measurement-info-dialog" style=
   <div class="flex justify-end items-center gap-2 p-4" style="border-top: 1px solid #e0e0e0; background: #fafafa;">
     <button mat-raised-button type="button" (click)="goToDetails()"
             style="background-color: #305680; color: white;">
-      <mat-icon style="margin-right: 4px; font-size: 18px; width: 18px; height: 18px;">analytics</mat-icon>
-      Details
-    </button>
-    <button mat-raised-button type="button" (click)="goToDashboard()"
-            style="background-color: #27AE60; color: white;">
       <mat-icon style="margin-right: 4px; font-size: 18px; width: 18px; height: 18px;">dashboard</mat-icon>
       Dashboard
     </button>
@@ -2972,10 +2967,6 @@ export function openMeasurementInfoDialog(widgetContext, measurementId, callback
         ? 'measurement_details_cooling_full'
         : 'measurement_details_heating_full';
       cleanupAndNavigate(stateId);
-    };
-
-    vm.goToDashboard = function() {
-      cleanupAndNavigate('Measurements_card');
     };
 
     vm.openParams = function() {
