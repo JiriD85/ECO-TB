@@ -70,6 +70,7 @@ function getMeasurementTypeStyle(measurementType) {
       label = "Interpolation";
       break;
     case "lorawan":
+    case "loraWan": // backwards compatibility
       icon = "cell_tower";
       color = "#F2994A";
       bgColor = "rgba(242, 153, 74, 0.12)";
