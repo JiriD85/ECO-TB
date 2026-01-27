@@ -1,122 +1,49 @@
 # Project State
 
 **Project:** Measurement Live Data Popup
-**Current Phase:** 5 of 5 (Diagnostic Roomkit LoRaWAN)
+**Milestone:** v1.0 COMPLETE
 **Last Updated:** 2026-01-27
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2025-01-26)
+See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Core value:** Benutzer können auf einen Blick den aktuellen Status einer Messung sehen
-**Current focus:** PROJECT COMPLETE
+**Current focus:** v1.0 shipped — planning next milestone
 
 ## Current Position
 
-Phase: 5 of 5 (Diagnostic Roomkit LoRaWAN)
-Plan: 1 of 1 (complete)
-Status: PROJECT COMPLETE
-Last activity: 2026-01-27 - Completed 05-01-PLAN.md: Room Sensor CO2 Telemetry
+Phase: 5 of 5 (complete)
+Status: MILESTONE COMPLETE
+Last activity: 2026-01-27 — v1.0 milestone shipped
 
 Progress: [=====] 100% (5/5 phases)
 
-## Phase Progress
+## Milestone Summary
 
-| Phase | Name | Status | Plans |
-|-------|------|--------|-------|
-| 1 | Dialog Foundation | COMPLETE | 1/1 |
-| 2 | Device Display | COMPLETE | 1/1 |
-| 3 | Timeseries & Live | COMPLETE | 1/1 |
-| 4 | Actions | COMPLETE | 1/1 |
-| 5 | Diagnostic Roomkit (LoRaWAN) | COMPLETE | 1/1 |
-
-## Roadmap Evolution
-
-- Phase 5 added: Diagnostic Roomkit (LoRaWAN)
+**v1.0 Measurement Live Data Popup**
+- 5 phases, 5 plans, 21 requirements
+- Shipped: 2026-01-27
+- Archives: .planning/milestones/v1.0-*
 
 ## Session Log
 
-### 2026-01-27 -- Phase 5 Complete - PROJECT V2 COMPLETE
+### 2026-01-27 -- v1.0 Milestone Complete
 
-- Completed 05-01-PLAN.md: Room Sensor CO2 Telemetry
-- Added co2/ppm, humidity/%, battery/% to TIMESERIES_UNITS
-- Added co2/CO2, humidity/Humidity, battery/Battery to TIMESERIES_LABELS
-- Added Room Sensor CO2 device type condition in fetchAllTimeseries
-- Summary: .planning/phases/05-diagnostic-roomkit-lorawan/05-01-SUMMARY.md
-
-### 2026-01-27 -- Phase 5 Added
-
-- Added Phase 5: Diagnostic Roomkit (LoRaWAN) to roadmap
-- Created directory: .planning/phases/05-diagnostic-roomkit-lorawan/
-- Status: Not planned yet
-
-### 2026-01-27 -- Phase 4 Complete - PROJECT V1 COMPLETE
-
-- Completed 04-01-PLAN.md: Navigation and action buttons
-- Added goToDetails, goToDashboard, openParams navigation functions
-- cleanupAndNavigate helper for interval cleanup before navigation
-- Action buttons in dialog footer: Details (blue), Dashboard (green), Parameters (orange)
-- All navigation functions clear refreshInterval to prevent orphaned timers
-- Summary: .planning/phases/04-actions/04-01-SUMMARY.md
-
-### 2026-01-27 -- Phase 3 Complete
-
-- Completed 03-01-PLAN.md: Timeseries fetching and auto-refresh
-- Added live telemetry display for P-Flow and Temperature Sensor devices
-- Implemented 5-second auto-refresh with setInterval
-- Added refresh button with spinning icon
-- Loading indicator during data fetch
-- Proper cleanup with clearInterval on dialog close
-- User approved functionality
-- Summary: .planning/phases/03-timeseries-live/03-01-SUMMARY.md
-
-### 2026-01-27 -- Phase 2 Complete
-
-- Completed 02-01-PLAN.md: Device Loading and Display
-- Extended openMeasurementInfoDialog with device loading via deviceService.findByQuery
-- Added Diagnostic Kit grouping with blue gradient headers
-- Added active status badges (green/red/gray) and timestamp formatting
-- Fixed relation direction bug (findByFrom -> findByTo)
-- User verified device display works correctly
-- Summary: .planning/phases/02-device-display/02-01-SUMMARY.md
-
-### 2026-01-26 -- Phase 1 Complete
-
-- Completed 01-01-PLAN.md: Dialog Foundation
-- Created openMeasurementInfoDialog function in ECO Project Wizard.js
-- Added row action to Measurements_card widget
-- User verified dialog displays correctly with ECO styling
-- Summary: .planning/phases/01-dialog-foundation/01-01-SUMMARY.md
-
-### 2025-01-26 -- Project Initialization
-
-- Created PROJECT.md with full context
-- Defined 18 v1 requirements across 6 categories
-- Created 4-phase roadmap (quick depth)
-- Ready for Phase 1 planning
-
-## Decisions Made
-
-| Decision | Context | Outcome |
-|----------|---------|---------|
-| ECO Project Wizard styling | Consistency with existing dialogs | Implemented - blue header, gradient card |
-| 450px -> 500px dialog width | Device list needs more space | Expanded for device display |
-| 5s auto-refresh interval | Balance aktualitat vs performance | Implemented with dynamic adjustment |
-| All devices with Measurement relation | Flexible for future device types | Implemented - P-Flow, Room Sensor, Temp Sensor, RESI |
-| findByTo for kit relations | Kit -> Device direction | Fixed after initial findByFrom bug |
-| Details navigates by installationType | Heating vs cooling measurement states | heating_full or cooling_full based on attribute |
-| cleanupAndNavigate pattern | Prevent orphaned timers on navigation | Clear interval, close dialog, then navigate |
-| Reuse temperature key | Room Sensor CO2 shares key with Temperature Sensor | Simpler constants, consistent naming |
+- All 5 phases executed and verified
+- 21/21 requirements satisfied
+- Milestone audited and archived
+- Git tag: v1.0
 
 ## Blockers
 
-None - project complete.
+None — milestone complete.
 
 ## Session Continuity
 
 Last session: 2026-01-27
-Stopped at: PROJECT V2 COMPLETE
-Resume file: None - all phases complete
+Stopped at: v1.0 MILESTONE COMPLETE
+Next action: /gsd:new-milestone for next version
 
 ---
 *State initialized: 2025-01-26*
