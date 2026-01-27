@@ -3006,10 +3006,8 @@ export function openMeasurementInfoDialog(widgetContext, measurementId, callback
     }
 
     vm.goToDetails = function() {
-      var stateId = vm.installationType === 'cooling'
-        ? 'measurement_details_cooling_full'
-        : 'measurement_details_heating_full';
-      cleanupAndNavigate(stateId);
+      // Navigate to measurement_dashboard - the markdown widget there handles the conditional display
+      cleanupAndNavigate('measurement_dashboard');
     };
 
     vm.openParams = function() {
