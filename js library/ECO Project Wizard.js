@@ -2930,6 +2930,50 @@ export function openMeasurementInfoDialog(widgetContext, measurementId, callback
     vm.getInstallationTypeStyle = getInstallationTypeStyle;
     vm.getActivityColor = getActivityColor;
 
+    // Navigation functions
+    function cleanupAndNavigate(stateId) {
+      // Clear refresh interval to prevent orphaned timers
+      if (vm.refreshInterval) {
+        clearInterval(vm.refreshInterval);
+        vm.refreshInterval = null;
+      }
+      // Close dialog
+      vm.dialogRef.close(null);
+      // Navigate to target state with measurement context
+      var params = {
+        selectedMeasurement: {
+          entityId: vm.measurementId,
+          entityName: vm.entityName,
+          entityLabel: vm.entityLabel
+        },
+        targetEntityParamName: 'selectedMeasurement'
+      };
+      widgetContext.stateController.openState(stateId, params, false);
+    }
+
+    vm.goToDetails = function() {
+      var stateId = vm.installationType === 'cooling'
+        ? 'measurement_details_cooling_full'
+        : 'measurement_details_heating_full';
+      cleanupAndNavigate(stateId);
+    };
+
+    vm.goToDashboard = function() {
+      cleanupAndNavigate('Measurements_card');
+    };
+
+    vm.openParams = function() {
+      // Clear refresh interval to prevent orphaned timers
+      if (vm.refreshInterval) {
+        clearInterval(vm.refreshInterval);
+        vm.refreshInterval = null;
+      }
+      // Close dialog
+      vm.dialogRef.close(null);
+      // Open parameters dialog
+      openMeasurementParametersDialog(widgetContext, vm.measurementId, null);
+    };
+
     vm.formatTimestampDE = function(ms) {
       if (ms === null || ms === undefined) return '-';
       var value = Number(ms);
