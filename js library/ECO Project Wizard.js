@@ -1148,7 +1148,7 @@ export function openProjectWizardDialog(widgetContext, projectId, projectName, p
 // ADD MEASUREMENT DIALOG
 // ============================================================================
 
-const addMeasurementHtmlTemplate = `<form [formGroup]="addMeasurementFormGroup" (ngSubmit)="save()" class="add-entity-form" style="width: 420px;">
+const addMeasurementHtmlTemplate = `<form [formGroup]="addMeasurementFormGroup" (ngSubmit)="save()" class="add-entity-form" style="width: 500px; max-width: 90vw;">
   <mat-toolbar class="flex items-center" color="primary">
     <mat-icon style="margin-right: 12px;">assessment</mat-icon>
     <h2 style="margin: 0; font-size: 18px;">{{'custom.projects.measurements.add-measurement' | translate}}</h2>
@@ -1161,93 +1161,121 @@ const addMeasurementHtmlTemplate = `<form [formGroup]="addMeasurementFormGroup" 
   <mat-progress-bar color="warn" mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
   <div style="height: 4px;" *ngIf="!isLoading"></div>
 
-  <div mat-dialog-content class="flex flex-col p-4 gap-1">
-    <!-- Measurement Name (auto-generated, readonly) -->
-    <mat-form-field appearance="outline" class="w-full">
-      <mat-label>{{'custom.projects.measurements.measurement-title' | translate}}</mat-label>
-      <input matInput formControlName="name" readonly>
-      <mat-icon matSuffix style="color: #666;">badge</mat-icon>
-      <mat-hint>Auto-generated measurement name</mat-hint>
-    </mat-form-field>
+  <div mat-dialog-content class="flex flex-col gap-3 p-4">
 
-    <!-- Entity Label -->
-    <mat-form-field appearance="outline" class="w-full">
-      <mat-label>Label</mat-label>
-      <input matInput formControlName="label" placeholder="e.g. Main Heating Circuit">
-      <mat-icon matSuffix style="color: #666;">label</mat-icon>
-      <mat-hint>Optional descriptive label</mat-hint>
-    </mat-form-field>
+    <!-- Measurement Info Section -->
+    <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 0;">
+      <legend class="flex items-center gap-2" style="font-weight: 600; color: #305680; padding: 0 8px;">
+        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">info</mat-icon>
+        Measurement Info
+      </legend>
+      <mat-form-field appearance="fill" class="w-full disabled-field">
+        <mat-label>{{'custom.projects.measurements.measurement-title' | translate}}</mat-label>
+        <input matInput formControlName="name" readonly>
+        <mat-hint>Auto-generated measurement name</mat-hint>
+      </mat-form-field>
+      <mat-form-field appearance="fill" class="w-full">
+        <mat-label>Label</mat-label>
+        <input matInput formControlName="label" placeholder="e.g. Main Heating Circuit">
+        <mat-hint>Optional descriptive label</mat-hint>
+      </mat-form-field>
+    </fieldset>
 
-    <!-- Measurement Type -->
-    <div class="flex items-center gap-2 mt-2 mb-1" style="color: #305680;">
-      <mat-icon style="font-size: 18px; width: 18px; height: 18px;">category</mat-icon>
-      <span style="font-weight: 600; font-size: 13px;">Measurement Type</span>
-    </div>
-    <mat-form-field appearance="outline" class="w-full">
-      <mat-label>{{'custom.measurement.administration.action.measurement-type.title' | translate}}</mat-label>
-      <mat-select formControlName="measurementType" required>
-        <mat-option value="ultrasonic">
-          <div class="flex items-center gap-2">
-            <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #2196f3;">sensors</mat-icon>
-            <span>Ultrasonic</span>
-          </div>
-        </mat-option>
-        <mat-option value="import">
-          <div class="flex items-center gap-2">
-            <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #9c27b0;">upload_file</mat-icon>
-            <span>Import</span>
-          </div>
-        </mat-option>
-        <mat-option value="interpolation">
-          <div class="flex items-center gap-2">
-            <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #4caf50;">auto_graph</mat-icon>
-            <span>Interpolation</span>
-          </div>
-        </mat-option>
-        <mat-option value="loraWan">
-          <div class="flex items-center gap-2">
-            <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #ff9800;">cell_tower</mat-icon>
-            <span>LoRaWAN</span>
-          </div>
-        </mat-option>
-      </mat-select>
-      <mat-error *ngIf="addMeasurementFormGroup.get('measurementType')?.hasError('required')">
-        {{'custom.measurement.administration.action.measurement-type.error.is-required' | translate}}
-      </mat-error>
-    </mat-form-field>
+    <!-- Configuration Section -->
+    <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 0;">
+      <legend class="flex items-center gap-2" style="font-weight: 600; color: #305680; padding: 0 8px;">
+        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">settings</mat-icon>
+        Configuration
+      </legend>
 
-    <!-- Installation Type (not for LoRaWAN) -->
-    <mat-form-field appearance="outline" class="w-full" *ngIf="addMeasurementFormGroup.get('measurementType')?.value !== 'loraWan'">
-      <mat-label>{{'custom.diagnostics.action.edit-measurement-parameters.installation-type.title' | translate}}</mat-label>
-      <mat-select formControlName="installationType" required>
-        <mat-option value="heating">
-          <div class="flex items-center gap-2">
-            <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #f44336;">local_fire_department</mat-icon>
-            <span>{{'custom.diagnostics.measurement-type.heating.title' | translate}}</span>
-          </div>
-        </mat-option>
-        <mat-option value="cooling">
-          <div class="flex items-center gap-2">
-            <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #2196f3;">ac_unit</mat-icon>
-            <span>{{'custom.diagnostics.measurement-type.cooling.title' | translate}}</span>
-          </div>
-        </mat-option>
-      </mat-select>
-      <mat-error *ngIf="addMeasurementFormGroup.get('installationType')?.hasError('required')">
-        {{'custom.diagnostics.action.edit-measurement-parameters.installation-type.error' | translate}}
-      </mat-error>
-    </mat-form-field>
+      <!-- Measurement Type -->
+      <mat-form-field appearance="fill" class="w-full">
+        <mat-label>{{'custom.measurement.administration.action.measurement-type.title' | translate}}</mat-label>
+        <mat-select formControlName="measurementType" required>
+          <mat-select-trigger>
+            <div class="flex items-center gap-2">
+              <mat-icon *ngIf="addMeasurementFormGroup.get('measurementType')?.value === 'ultrasonic'" style="font-size: 18px; width: 18px; height: 18px; color: #2196f3;">sensors</mat-icon>
+              <mat-icon *ngIf="addMeasurementFormGroup.get('measurementType')?.value === 'import'" style="font-size: 18px; width: 18px; height: 18px; color: #9c27b0;">upload_file</mat-icon>
+              <mat-icon *ngIf="addMeasurementFormGroup.get('measurementType')?.value === 'interpolation'" style="font-size: 18px; width: 18px; height: 18px; color: #4caf50;">auto_graph</mat-icon>
+              <mat-icon *ngIf="addMeasurementFormGroup.get('measurementType')?.value === 'loraWan'" style="font-size: 18px; width: 18px; height: 18px; color: #ff9800;">cell_tower</mat-icon>
+              <span *ngIf="addMeasurementFormGroup.get('measurementType')?.value === 'ultrasonic'">Ultrasonic</span>
+              <span *ngIf="addMeasurementFormGroup.get('measurementType')?.value === 'import'">Import</span>
+              <span *ngIf="addMeasurementFormGroup.get('measurementType')?.value === 'interpolation'">Interpolation</span>
+              <span *ngIf="addMeasurementFormGroup.get('measurementType')?.value === 'loraWan'">LoRaWAN</span>
+            </div>
+          </mat-select-trigger>
+          <mat-option value="ultrasonic">
+            <div class="flex items-center gap-2">
+              <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #2196f3;">sensors</mat-icon>
+              <span>Ultrasonic</span>
+            </div>
+          </mat-option>
+          <mat-option value="import">
+            <div class="flex items-center gap-2">
+              <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #9c27b0;">upload_file</mat-icon>
+              <span>Import</span>
+            </div>
+          </mat-option>
+          <mat-option value="interpolation">
+            <div class="flex items-center gap-2">
+              <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #4caf50;">auto_graph</mat-icon>
+              <span>Interpolation</span>
+            </div>
+          </mat-option>
+          <mat-option value="loraWan">
+            <div class="flex items-center gap-2">
+              <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #ff9800;">cell_tower</mat-icon>
+              <span>LoRaWAN</span>
+            </div>
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="addMeasurementFormGroup.get('measurementType')?.hasError('required')">
+          {{'custom.measurement.administration.action.measurement-type.error.is-required' | translate}}
+        </mat-error>
+      </mat-form-field>
 
-    <!-- Connect Measurement Option (only for ultrasonic) -->
-    <div *ngIf="addMeasurementFormGroup.get('measurementType')?.value === 'ultrasonic'"
-         class="flex items-center gap-3"
-         style="background: linear-gradient(135deg, #e8f4fd 0%, #f0f7ff 100%); border: 1px solid #305680; border-radius: 8px; padding: 12px; margin-top: 8px;">
-      <mat-checkbox formControlName="connectKit" color="primary"></mat-checkbox>
-      <div class="flex flex-col">
-        <span style="font-weight: 500; color: #305680;">Connect Diagnostic Kit</span>
-        <span style="font-size: 12px; color: #666;">Assign a P-Flow device after creation</span>
+      <!-- Installation Type (not for LoRaWAN) -->
+      <mat-form-field appearance="fill" class="w-full" *ngIf="addMeasurementFormGroup.get('measurementType')?.value !== 'loraWan'">
+        <mat-label>{{'custom.diagnostics.action.edit-measurement-parameters.installation-type.title' | translate}}</mat-label>
+        <mat-select formControlName="installationType" required>
+          <mat-select-trigger>
+            <div class="flex items-center gap-2">
+              <mat-icon *ngIf="addMeasurementFormGroup.get('installationType')?.value === 'heating'" style="font-size: 18px; width: 18px; height: 18px; color: #f44336;">local_fire_department</mat-icon>
+              <mat-icon *ngIf="addMeasurementFormGroup.get('installationType')?.value === 'cooling'" style="font-size: 18px; width: 18px; height: 18px; color: #2196f3;">ac_unit</mat-icon>
+              <span *ngIf="addMeasurementFormGroup.get('installationType')?.value === 'heating'">{{'custom.diagnostics.measurement-type.heating.title' | translate}}</span>
+              <span *ngIf="addMeasurementFormGroup.get('installationType')?.value === 'cooling'">{{'custom.diagnostics.measurement-type.cooling.title' | translate}}</span>
+            </div>
+          </mat-select-trigger>
+          <mat-option value="heating">
+            <div class="flex items-center gap-2">
+              <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #f44336;">local_fire_department</mat-icon>
+              <span>{{'custom.diagnostics.measurement-type.heating.title' | translate}}</span>
+            </div>
+          </mat-option>
+          <mat-option value="cooling">
+            <div class="flex items-center gap-2">
+              <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #2196f3;">ac_unit</mat-icon>
+              <span>{{'custom.diagnostics.measurement-type.cooling.title' | translate}}</span>
+            </div>
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="addMeasurementFormGroup.get('installationType')?.hasError('required')">
+          {{'custom.diagnostics.action.edit-measurement-parameters.installation-type.error' | translate}}
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Connect Measurement Option (only for ultrasonic) -->
+      <div *ngIf="addMeasurementFormGroup.get('measurementType')?.value === 'ultrasonic'"
+           class="flex items-center gap-3"
+           style="background: linear-gradient(135deg, #e8f4fd 0%, #f0f7ff 100%); border: 1px solid #305680; border-radius: 8px; padding: 12px; margin-top: 8px;">
+        <mat-checkbox formControlName="connectKit" color="primary"></mat-checkbox>
+        <div class="flex flex-col">
+          <span style="font-weight: 500; color: #305680;">Connect Diagnostic Kit</span>
+          <span style="font-size: 12px; color: #666;">Assign a P-Flow device after creation</span>
+        </div>
       </div>
-    </div>
+    </fieldset>
+
   </div>
 
   <div class="flex justify-end items-center gap-2 p-4" style="border-top: 1px solid #e0e0e0; background: #fafafa;">
@@ -1272,6 +1300,12 @@ const addMeasurementCss = `.add-entity-form .mdc-text-field--filled.mdc-text-fie
 }
 .add-entity-form .mat-mdc-form-field-focus-overlay {
   background-color: #F4F9FE !important;
+}
+.add-entity-form .disabled-field input {
+  color: rgba(0, 0, 0, 0.6) !important;
+}
+.add-entity-form .disabled-field {
+  background-color: rgba(244, 249, 254, 0.5) !important;
 }`;
 
 /**
@@ -3258,23 +3292,78 @@ export function openEditProjectDialog(widgetContext, projectId, projectName, pro
   <mat-progress-bar color="warn" mode="indeterminate" *ngIf="isLoading$ | async">
   </mat-progress-bar>
   <div style="height: 4px;" *ngIf="!(isLoading$ | async)"></div>
-  <div mat-dialog-content class="flex flex-col gap-2 p-4">
-    <mat-form-field appearance="outline" class="w-full disabled-field">
-      <mat-label>Customer</mat-label>
-      <input matInput formControlName="customerName" readonly>
-    </mat-form-field>
-    <tb-image-input formControlName="projectPicture" label="Project Picture" noImageText="No picture selected"></tb-image-input>
-    <mat-form-field appearance="outline" class="w-full disabled-field">
+  <div mat-dialog-content class="flex flex-col gap-3 p-4">
+
+    <!-- Customer Section -->
+    <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 0;">
+      <legend class="flex items-center gap-2" style="font-weight: 600; color: #305680; padding: 0 8px;">
+        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">business</mat-icon>
+        Customer
+      </legend>
+      <mat-form-field appearance="fill" class="w-full disabled-field">
+        <mat-label>Customer</mat-label>
+        <input matInput formControlName="customerName" readonly>
+      </mat-form-field>
+    </fieldset>
+
+    <!-- Project Info Section -->
+    <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 0;">
+      <legend class="flex items-center gap-2" style="font-weight: 600; color: #305680; padding: 0 8px;">
+        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">folder</mat-icon>
+        Project Info
+      </legend>
+      <tb-image-input formControlName="projectPicture" label="Project Picture" noImageText="No picture selected"></tb-image-input>
+      <mat-form-field appearance="fill" class="w-full disabled-field">
         <mat-label>Project ID</mat-label>
         <input matInput formControlName="name" readonly>
-    </mat-form-field>
-    <mat-form-field appearance="outline" class="w-full">
+      </mat-form-field>
+      <mat-form-field appearance="fill" class="w-full">
         <mat-label>Label</mat-label>
         <input matInput formControlName="entityLabel">
-    </mat-form-field>
+      </mat-form-field>
+    </fieldset>
+
+    <!-- Address Section -->
+    <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 0;">
+      <legend class="flex items-center gap-2" style="font-weight: 600; color: #305680; padding: 0 8px;">
+        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">location_on</mat-icon>
+        Address
+      </legend>
+      <mat-form-field appearance="fill" class="w-full">
+        <mat-label>Project address</mat-label>
+        <input matInput formControlName="address" [matAutocomplete]="addrAuto" autocomplete="off">
+        <button mat-icon-button matSuffix type="button" (click)="searchAddress()" [disabled]="(editProjectFormGroup.get('address').value || '').length < 5">
+          <mat-icon>search</mat-icon>
+        </button>
+        <mat-autocomplete #addrAuto="matAutocomplete" [displayWith]="displayAddressOption" (optionSelected)="onAddressSelected($event.option.value)">
+          <mat-option *ngFor="let opt of addressOptions" [value]="opt">{{ opt.label }}</mat-option>
+        </mat-autocomplete>
+        <mat-hint *ngIf="(editProjectFormGroup.get('address').value || '').length < 5">Enter at least 5 characters to search</mat-hint>
+      </mat-form-field>
+      <div class="flex gap-2">
+        <mat-form-field appearance="fill" style="flex: 1;">
+          <mat-label>Postal Code</mat-label>
+          <input matInput formControlName="postalCode">
+        </mat-form-field>
+        <mat-form-field appearance="fill" style="flex: 2;">
+          <mat-label>City</mat-label>
+          <input matInput formControlName="city">
+        </mat-form-field>
+      </div>
+      <div class="flex gap-2">
+        <mat-form-field appearance="fill" style="flex: 1;">
+          <mat-label>Latitude</mat-label>
+          <input matInput formControlName="latitude">
+        </mat-form-field>
+        <mat-form-field appearance="fill" style="flex: 1;">
+          <mat-label>Longitude</mat-label>
+          <input matInput formControlName="longitude">
+        </mat-form-field>
+      </div>
+    </fieldset>
 
     <!-- Status Section -->
-    <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin: 8px 0;">
+    <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 0;">
       <legend class="flex items-center gap-2" style="font-weight: 600; color: #305680; padding: 0 8px;">
         <mat-icon style="font-size: 18px; width: 18px; height: 18px;">timeline</mat-icon>
         Status
@@ -3318,37 +3407,6 @@ export function openEditProjectDialog(widgetContext, projectId, projectName, pro
       </div>
     </fieldset>
 
-    <mat-form-field appearance="outline" class="w-full">
-      <mat-label>Project address</mat-label>
-      <input matInput formControlName="address" [matAutocomplete]="addrAuto" autocomplete="off">
-      <button mat-icon-button matSuffix type="button" (click)="searchAddress()" [disabled]="(editProjectFormGroup.get('address').value || '').length < 5">
-        <mat-icon>search</mat-icon>
-      </button>
-      <mat-autocomplete #addrAuto="matAutocomplete" [displayWith]="displayAddressOption" (optionSelected)="onAddressSelected($event.option.value)">
-        <mat-option *ngFor="let opt of addressOptions" [value]="opt">{{ opt.label }}</mat-option>
-      </mat-autocomplete>
-      <mat-hint *ngIf="(editProjectFormGroup.get('address').value || '').length < 5">Enter at least 5 characters to search</mat-hint>
-    </mat-form-field>
-    <div style="display: flex; gap: 8px;">
-      <mat-form-field appearance="outline" style="flex: 1;">
-          <mat-label>Postal Code</mat-label>
-          <input matInput formControlName="postalCode">
-      </mat-form-field>
-      <mat-form-field appearance="outline" style="flex: 2;">
-          <mat-label>City</mat-label>
-          <input matInput formControlName="city">
-      </mat-form-field>
-    </div>
-    <div style="display: flex; gap: 8px;">
-      <mat-form-field appearance="outline" style="flex: 1;">
-          <mat-label>Latitude</mat-label>
-          <input matInput formControlName="latitude">
-      </mat-form-field>
-      <mat-form-field appearance="outline" style="flex: 1;">
-          <mat-label>Longitude</mat-label>
-          <input matInput formControlName="longitude">
-      </mat-form-field>
-    </div>
   </div>
   <div class="flex justify-end items-center gap-2 p-4" style="border-top: 1px solid #e0e0e0; background: #fafafa;">
     <button mat-button (click)="cancel()" type="button">Cancel</button>
