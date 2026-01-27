@@ -3207,3 +3207,337 @@ export function deleteMeasurement(widgetContext, measurementId, measurementName,
     );
   }
 }
+
+/**
+ * Opens the Edit Project dialog
+ * @param {Object} widgetContext - ThingsBoard widget context
+ * @param {Object} projectId - Project entity ID {id: string, entityType: 'ASSET'}
+ * @param {string} projectName - Project name
+ * @param {string} projectLabel - Project label
+ * @param {Function} callback - Optional callback after save
+ */
+export function openEditProjectDialog(widgetContext, projectId, projectName, projectLabel, callback) {
+  const $injector = widgetContext.$scope.$injector;
+  const customDialog = $injector.get(widgetContext.servicesMap.get('customDialog'));
+  const assetService = $injector.get(widgetContext.servicesMap.get('assetService'));
+  const attributeService = $injector.get(widgetContext.servicesMap.get('attributeService'));
+  const customerService = $injector.get(widgetContext.servicesMap.get('customerService'));
+
+  // Load project data
+  assetService.getAsset(projectId.id).subscribe(function(project) {
+    // Load project attributes
+    attributeService.getEntityAttributes(projectId, 'SERVER_SCOPE',
+      ['latitude', 'longitude', 'address', 'postalCode', 'city', 'projectPicture']
+    ).subscribe(function(attributes) {
+      const attrMap = {};
+      attributes.forEach(function(a) { attrMap[a.key] = a.value; });
+
+      // Load customer name
+      if (project.customerId && project.customerId.id) {
+        customerService.getCustomer(project.customerId.id).subscribe(function(customer) {
+          openDialog(project, attrMap, customer ? customer.name : 'Unknown');
+        });
+      } else {
+        openDialog(project, attrMap, 'Unknown');
+      }
+    });
+  });
+
+  function openDialog(project, attrMap, customerName) {
+    const htmlTemplate = `
+<form #editProjectForm="ngForm" [formGroup]="editProjectFormGroup"
+      (ngSubmit)="save()" class="edit-project-form" style="width: 600px; max-width: 90vw;">
+  <mat-toolbar class="flex items-center" color="primary">
+    <mat-icon style="margin-right: 12px;">edit</mat-icon>
+    <h2 style="margin: 0; font-size: 18px;">Edit Project</h2>
+    <span class="flex-1"></span>
+    <button mat-icon-button (click)="cancel()" type="button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-toolbar>
+  <mat-progress-bar color="warn" mode="indeterminate" *ngIf="isLoading$ | async">
+  </mat-progress-bar>
+  <div style="height: 4px;" *ngIf="!(isLoading$ | async)"></div>
+  <div mat-dialog-content class="flex flex-col gap-2 p-4">
+    <mat-form-field appearance="outline" class="w-full disabled-field">
+      <mat-label>Customer</mat-label>
+      <input matInput formControlName="customerName" readonly>
+    </mat-form-field>
+    <tb-image-input formControlName="projectPicture" label="Project Picture" noImageText="No picture selected"></tb-image-input>
+    <mat-form-field appearance="outline" class="w-full disabled-field">
+        <mat-label>Project ID</mat-label>
+        <input matInput formControlName="name" readonly>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Label</mat-label>
+        <input matInput formControlName="entityLabel">
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Project address</mat-label>
+      <input matInput formControlName="address" [matAutocomplete]="addrAuto" autocomplete="off">
+      <button mat-icon-button matSuffix type="button" (click)="searchAddress()" [disabled]="(editProjectFormGroup.get('address').value || '').length < 5">
+        <mat-icon>search</mat-icon>
+      </button>
+      <mat-autocomplete #addrAuto="matAutocomplete" [displayWith]="displayAddressOption" (optionSelected)="onAddressSelected($event.option.value)">
+        <mat-option *ngFor="let opt of addressOptions" [value]="opt">{{ opt.label }}</mat-option>
+      </mat-autocomplete>
+      <mat-hint *ngIf="(editProjectFormGroup.get('address').value || '').length < 5">Enter at least 5 characters to search</mat-hint>
+    </mat-form-field>
+    <div style="display: flex; gap: 8px;">
+      <mat-form-field appearance="outline" style="flex: 1;">
+          <mat-label>Postal Code</mat-label>
+          <input matInput formControlName="postalCode">
+      </mat-form-field>
+      <mat-form-field appearance="outline" style="flex: 2;">
+          <mat-label>City</mat-label>
+          <input matInput formControlName="city">
+      </mat-form-field>
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <mat-form-field appearance="outline" style="flex: 1;">
+          <mat-label>Latitude</mat-label>
+          <input matInput formControlName="latitude">
+      </mat-form-field>
+      <mat-form-field appearance="outline" style="flex: 1;">
+          <mat-label>Longitude</mat-label>
+          <input matInput formControlName="longitude">
+      </mat-form-field>
+    </div>
+  </div>
+  <div class="flex justify-end items-center gap-2 p-4" style="border-top: 1px solid #e0e0e0; background: #fafafa;">
+    <button mat-button (click)="cancel()" type="button">Cancel</button>
+    <button mat-raised-button color="primary" type="submit"
+            [disabled]="(isLoading$ | async) || editProjectFormGroup.invalid || !editProjectFormGroup.dirty">
+      <mat-icon style="font-size: 18px; width: 18px; height: 18px; margin-right: 4px;">save</mat-icon>
+      Save
+    </button>
+  </div>
+</form>`;
+
+    const cssTemplate = `
+.edit-project-form .mdc-text-field--filled.mdc-text-field--disabled {
+  background-color: rgba(244, 249, 254, 0.5) !important;
+}
+.edit-project-form .mat-mdc-form-field-disabled .mat-mdc-form-field-focus-overlay {
+  background-color: rgba(244, 249, 254, 0.5) !important;
+}
+.edit-project-form .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+  background-color: #F4F9FE !important;
+}
+.edit-project-form .mat-mdc-form-field-focus-overlay {
+  background-color: #F4F9FE !important;
+}
+.edit-project-form .disabled-field input {
+  color: rgba(0, 0, 0, 0.6) !important;
+}
+.edit-project-form .disabled-field {
+  background-color: rgba(244, 249, 254, 0.5) !important;
+}
+mat-icon {
+  vertical-align: middle;
+  margin-right: 4px;
+}`;
+
+    customDialog.customDialog(htmlTemplate, EditProjectDialogController, cssTemplate).subscribe();
+
+    function EditProjectDialogController(instance) {
+      const vm = instance;
+
+      vm.project = project;
+      vm.attrMap = attrMap;
+
+      vm.editProjectFormGroup = vm.fb.group({
+        customerName: [{ value: customerName, disabled: true }],
+        name: [{ value: project.name, disabled: true }],
+        entityLabel: [project.label || ''],
+        projectPicture: [attrMap.projectPicture || null],
+        address: [attrMap.address || ''],
+        postalCode: [attrMap.postalCode || ''],
+        city: [attrMap.city || ''],
+        latitude: [attrMap.latitude || ''],
+        longitude: [attrMap.longitude || '']
+      });
+
+      // --- Address search state ---
+      vm.addressOptions = [];
+      vm._lastSelectedAddressLabel = null;
+
+      vm.displayAddressOption = function(opt) {
+        if (!opt) return '';
+        return (typeof opt === 'string') ? opt : (opt.label || '');
+      };
+
+      vm.searchAddress = function() {
+        const qRaw = vm.editProjectFormGroup.get('address').value || '';
+        const q = (typeof qRaw === 'string') ? qRaw.trim() : vm.displayAddressOption(qRaw).trim();
+        if (q.length < 5) {
+          vm.addressOptions = [];
+          return;
+        }
+        searchAddressViaPhoton(q);
+      };
+
+      vm.onAddressSelected = function(opt) {
+        if (!opt) return;
+        vm._lastSelectedAddressLabel = opt.label;
+
+        const patchData = {
+          address: opt.label,
+          latitude: opt.lat,
+          longitude: opt.lon
+        };
+
+        const currentPostalCode = (vm.editProjectFormGroup.get('postalCode').value || '').trim();
+        const currentCity = (vm.editProjectFormGroup.get('city').value || '').trim();
+
+        if (!currentPostalCode && opt.postcode) {
+          patchData.postalCode = opt.postcode;
+        }
+        if (!currentCity && opt.city) {
+          patchData.city = opt.city;
+        }
+
+        vm.editProjectFormGroup.patchValue(patchData);
+        vm.editProjectFormGroup.get('address').markAsDirty();
+        vm.editProjectFormGroup.get('latitude').markAsDirty();
+        vm.editProjectFormGroup.get('longitude').markAsDirty();
+
+        if (!currentPostalCode && opt.postcode) {
+          vm.editProjectFormGroup.get('postalCode').markAsDirty();
+        }
+        if (!currentCity && opt.city) {
+          vm.editProjectFormGroup.get('city').markAsDirty();
+        }
+
+        vm.addressOptions = [];
+      };
+
+      // --- Debounced auto-search ---
+      let addrTimer = null;
+      let lastQuery = '';
+
+      vm.editProjectFormGroup.get('address').valueChanges.subscribe(function(val) {
+        if (typeof val === 'string' && vm._lastSelectedAddressLabel && val === vm._lastSelectedAddressLabel) {
+          return;
+        }
+
+        const s = (typeof val === 'string')
+          ? val.trim()
+          : (vm.displayAddressOption(val) || '').trim();
+
+        if (s.length < 5) {
+          vm.addressOptions = [];
+          lastQuery = s;
+          if (addrTimer) {
+            clearTimeout(addrTimer);
+            addrTimer = null;
+          }
+          return;
+        }
+
+        if (s === lastQuery) return;
+        lastQuery = s;
+
+        if (addrTimer) clearTimeout(addrTimer);
+        addrTimer = setTimeout(function() {
+          searchAddressViaPhoton(s);
+        }, 350);
+      });
+
+      function searchAddressViaPhoton(query) {
+        const postalCode = (vm.editProjectFormGroup.get('postalCode').value || '').trim();
+        const city = (vm.editProjectFormGroup.get('city').value || '').trim();
+
+        let refinedQuery = query;
+        if (postalCode) refinedQuery += ' ' + postalCode;
+        if (city) refinedQuery += ' ' + city;
+
+        const url = 'https://photon.komoot.io/api?q=' + encodeURIComponent(refinedQuery) + '&limit=5';
+
+        fetch(url)
+          .then(function(res) {
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.json();
+          })
+          .then(function(data) {
+            const features = (data && data.features) ? data.features : [];
+            vm.addressOptions = features.map(function(f) {
+              const p = f.properties || {};
+              const coords = (f.geometry && f.geometry.coordinates) ? f.geometry.coordinates : [null, null];
+              const lon = coords[0];
+              const lat = coords[1];
+
+              const street = p.street || p.name || '';
+              const house = p.housenumber ? (' ' + p.housenumber) : '';
+              const place = (street + house).trim() || (p.label || p.name || '').trim();
+
+              const cc = (p.countrycode || '').toUpperCase();
+              const postcode = p.postcode || '';
+              const cityFromResult = p.city || p.town || p.village || p.state || '';
+
+              let tail = '';
+              if (cc || postcode || cityFromResult) {
+                tail = (cc ? cc : '');
+                if (cc && postcode) tail += '-' + postcode;
+                else if (!cc && postcode) tail += postcode;
+                if ((cc || postcode) && cityFromResult) tail += ' ' + cityFromResult;
+                else if (!cc && !postcode && cityFromResult) tail += cityFromResult;
+              }
+
+              const label = tail ? (place + ', ' + tail) : place;
+
+              return {
+                label: label,
+                lat: (typeof lat === 'number') ? lat : parseFloat(lat),
+                lon: (typeof lon === 'number') ? lon : parseFloat(lon),
+                postcode: postcode,
+                city: cityFromResult,
+                raw: f
+              };
+            });
+          })
+          .catch(function(err) {
+            console.error('Address search failed', err);
+            vm.addressOptions = [];
+          });
+      }
+
+      vm.cancel = function() {
+        vm.dialogRef.close(null);
+      };
+
+      vm.save = function() {
+        vm.editProjectFormGroup.markAsPristine();
+
+        // Update asset label
+        const formValues = vm.editProjectFormGroup.getRawValue();
+        const updatedProject = Object.assign({}, vm.project, {
+          label: formValues.entityLabel
+        });
+
+        assetService.saveAsset(updatedProject).subscribe(function() {
+          // Save attributes
+          const attributesArray = [
+            { key: 'latitude', value: formValues.latitude || vm.attrMap.latitude || 48.1406022 },
+            { key: 'longitude', value: formValues.longitude || vm.attrMap.longitude || 16.2932688 },
+            { key: 'address', value: formValues.address || '' },
+            { key: 'postalCode', value: formValues.postalCode || '' },
+            { key: 'city', value: formValues.city || '' }
+          ];
+
+          if (formValues.projectPicture) {
+            attributesArray.push({ key: 'projectPicture', value: formValues.projectPicture });
+          }
+
+          attributeService.saveEntityAttributes(projectId, 'SERVER_SCOPE', attributesArray).subscribe(function() {
+            widgetContext.updateAliases();
+            vm.dialogRef.close(null);
+            if (callback) {
+              callback();
+            }
+          });
+        });
+      };
+    }
+  }
+}
