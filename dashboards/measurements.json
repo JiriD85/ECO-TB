@@ -2554,14 +2554,14 @@
             "useMarkdownTextFunction": true,
             "markdownTextPattern": "# Markdown/HTML card \\n - **Current entity**: **${entityName}**. \\n - **Current value**: **${Random}**.",
             "markdownTextFunction": {
-              "body": "var name, label, address, progress;\nif (data && data.length) {\n    name = data[0]['entityName'] || 'N/A';\n    label = data[0]['Label'] || 'N/A';\n    address = data[0]['address'] || 'N/A';\n    progress = data[0]['progress'] || 'N/A';\n} else {\n    name = 'N/A';\n    label = 'N/A';\n    address = 'N/A';\n    progress = 'N/A';\n}\n\n// Project Wizard style header\nvar header = '<div class=\"project-header\" style=\"display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #fafafa; border: 1px solid #e0e0e0; border-radius: 8px;\">' +\n  '<div style=\"display: flex; flex-direction: column; gap: 4px;\">' +\n    '<div style=\"display: flex; align-items: center; gap: 12px;\">' +\n      '<span style=\"font-weight: 600; font-size: 16px; color: #333;\">' + name + '</span>' +\n      '<span style=\"font-size: 13px; color: #666;\">' + label + '</span>' +\n    '</div>' +\n    '<div style=\"display: flex; align-items: center; gap-12px; margin-top: 4px;\">' +\n      '<div style=\"display: flex; align-items: center; gap: 8px;\">' +\n        '<mat-icon style=\"font-size: 16px; width: 16px; height: 16px; color: #666;\">location_on</mat-icon>' +\n        '<span style=\"font-size: 12px; color: #666;\">' + address + '</span>' +\n      '</div>' +\n      '<div style=\"margin-left: 16px;\">' + utils.getProgressHtml(progress) + '</div>' +\n    '</div>' +\n  '</div>' +\n  '<button id=\"open-project-wizard\" type=\"button\" mat-raised-button color=\"primary\" style=\"display: flex; align-items: center; gap: 8px;\">' +\n    '<mat-icon>rocket_launch</mat-icon>' +\n    '<span>Project Wizard</span>' +\n  '</button>' +\n'</div>';\n\nreturn header;\n",
+              "body": "var name, label, address, progress;\nif (data && data.length) {\n    name = data[0]['entityName'] || 'N/A';\n    label = data[0]['Label'] || 'N/A';\n    address = data[0]['address'] || 'N/A';\n    progress = data[0]['progress'] || 'N/A';\n} else {\n    name = 'N/A';\n    label = 'N/A';\n    address = 'N/A';\n    progress = 'N/A';\n}\n\n// Project Wizard style header with Go Back and Project Wizard buttons\nvar header = '<div class=\"project-header\" style=\"display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #fafafa; border: 1px solid #e0e0e0; border-radius: 8px;\">' +\n  '<div style=\"display: flex; flex-direction: column; gap: 4px;\">' +\n    '<div style=\"display: flex; align-items: center; gap: 12px;\">' +\n      '<span style=\"font-weight: 600; font-size: 16px; color: #333;\">' + name + '</span>' +\n      '<span style=\"font-size: 13px; color: #666;\">' + label + '</span>' +\n    '</div>' +\n    '<div style=\"display: flex; align-items: center; gap: 12px; margin-top: 4px;\">' +\n      '<div style=\"display: flex; align-items: center; gap: 8px;\">' +\n        '<mat-icon style=\"font-size: 16px; width: 16px; height: 16px; color: #666;\">location_on</mat-icon>' +\n        '<span style=\"font-size: 12px; color: #666;\">' + address + '</span>' +\n      '</div>' +\n      '<div style=\"margin-left: 16px;\">' + utils.getProgressHtml(progress) + '</div>' +\n    '</div>' +\n  '</div>' +\n  '<div style=\"display: flex; align-items: center; gap: 8px;\">' +\n    '<button id=\"go-back\" type=\"button\" mat-raised-button class=\"header-btn-secondary\">' +\n      '<mat-icon>arrow_back</mat-icon>' +\n      '<span>{i18n:custom.diagnostics.action.go-back.title}</span>' +\n    '</button>' +\n    '<button id=\"open-project-wizard\" type=\"button\" mat-raised-button class=\"header-btn-primary\">' +\n      '<mat-icon>rocket_launch</mat-icon>' +\n      '<span>Project Wizard</span>' +\n    '</button>' +\n  '</div>' +\n'</div>';\n\nreturn header;\n",
               "modules": {
                 "clientUtils": "tb-resource;/api/resource/js_module/tenant/client-utils.js",
                 "utils": "tb-resource;/api/resource/js_module/tenant/ECO Diagnostics Utils JS.js"
               }
             },
             "applyDefaultMarkdownStyle": false,
-            "markdownCss": ".project-header {\n    background: #fafafa !important;\n    border: 1px solid #e0e0e0 !important;\n    border-radius: 8px !important;\n}\n.project-header button[mat-raised-button] {\n    background-color: var(--tb-primary-500) !important;\n    color: white !important;\n}\n.project-header button[mat-raised-button]:hover {\n    background-color: var(--tb-primary-600) !important;\n}"
+            "markdownCss": ".project-header {\n    background: #fafafa !important;\n    border: 1px solid #e0e0e0 !important;\n    border-radius: 8px !important;\n}\n.project-header .header-btn-primary {\n    background-color: var(--tb-primary-500) !important;\n    color: white !important;\n}\n.project-header .header-btn-primary:hover {\n    background-color: var(--tb-primary-600) !important;\n}\n.project-header .header-btn-secondary {\n    background-color: var(--tb-primary-500) !important;\n    color: white !important;\n}\n.project-header .header-btn-secondary:hover {\n    background-color: var(--tb-primary-600) !important;\n}"
           },
           "title": "New Markdown/HTML Card",
           "showTitleIcon": false,
@@ -2586,15 +2586,11 @@
                 "icon": "more_horiz",
                 "useShowWidgetActionFunction": null,
                 "showWidgetActionFunction": "return true;",
-                "type": "openDashboard",
-                "targetDashboardStateId": "",
-                "setEntityId": true,
-                "stateEntityParamName": null,
-                "openNewBrowserTab": false,
-                "targetDashboardId": "5392aff0-5ef7-11ef-a314-81782f443b0c",
+                "type": "custom",
                 "openInSeparateDialog": false,
                 "openInPopover": false,
-                "id": "37e5e007-da10-e64c-be1e-899094481e42"
+                "id": "37e5e007-da10-e64c-be1e-899094481e42",
+                "customFunction": "var params = widgetContext.stateController.getStateParams();\n\nparams['selectedProject'] = null;\nparams['targetStateParameter'] = null;\n\nparams = {\n    \"userRole\": params.userRole\n};\n\nwidgetContext.stateController.updateState(null, params);"
               },
               {
                 "name": "settings",
