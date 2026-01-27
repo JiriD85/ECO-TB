@@ -2386,6 +2386,22 @@ const measurementInfoHtmlTemplate = `<div class="measurement-info-dialog" style=
   </div>
 
   <div class="flex justify-end items-center gap-2 p-4" style="border-top: 1px solid #e0e0e0; background: #fafafa;">
+    <button mat-raised-button type="button" (click)="goToDetails()"
+            style="background-color: #305680; color: white;">
+      <mat-icon style="margin-right: 4px; font-size: 18px; width: 18px; height: 18px;">analytics</mat-icon>
+      Details
+    </button>
+    <button mat-raised-button type="button" (click)="goToDashboard()"
+            style="background-color: #27AE60; color: white;">
+      <mat-icon style="margin-right: 4px; font-size: 18px; width: 18px; height: 18px;">dashboard</mat-icon>
+      Dashboard
+    </button>
+    <button mat-raised-button type="button" (click)="openParams()"
+            style="background-color: #F2994A; color: white;">
+      <mat-icon style="margin-right: 4px; font-size: 18px; width: 18px; height: 18px;">settings</mat-icon>
+      Parameters
+    </button>
+    <span class="flex-1"></span>
     <button mat-raised-button color="primary" type="button" (click)="cancel()">
       Close
     </button>
