@@ -287,6 +287,17 @@ const startProjectHtmlTemplate = `<form [formGroup]="startProjectFormGroup" (ngS
           </div>
         </div>
         <span class="flex-1"></span>
+        <div class="flex items-center gap-1">
+          <button type="button" mat-icon-button class="measurement-action-btn" (click)="openLiveData(m)" title="Live Data">
+            <mat-icon>sensors</mat-icon>
+          </button>
+          <button type="button" mat-icon-button class="measurement-action-btn" (click)="openDashboard(m)" title="Dashboard">
+            <mat-icon>dashboard</mat-icon>
+          </button>
+          <button type="button" mat-icon-button class="measurement-action-btn" (click)="openParams(m)" title="Parameters">
+            <mat-icon>settings</mat-icon>
+          </button>
+        </div>
       </div>
 
       <div class="flex flex-wrap items-center gap-2" style="font-size: 12px;">
@@ -448,6 +459,26 @@ const startProjectCss = `.measurement-card:hover {
   gap: 6px;
   margin-top: 4px;
   margin-left: 8px;
+}
+.measurement-action-btn {
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  min-width: 32px !important;
+  line-height: 32px !important;
+  border-radius: 4px !important;
+  background: #e3f2fd !important;
+  color: #1976d2 !important;
+  border: none !important;
+  cursor: pointer !important;
+}
+.measurement-action-btn:hover {
+  background: #bbdefb !important;
+}
+.measurement-action-btn mat-icon {
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
 }`;
 
 // ============================================================================
@@ -853,6 +884,32 @@ export function openProjectWizardDialog(widgetContext, projectId, projectName, p
 
     vm.isKitExpanded = function(measurementId, kitKey) {
       return vm.expandedKits[measurementId + '_' + kitKey] === true;
+    };
+
+    // Open Live Data dialog for measurement
+    vm.openLiveData = function(measurement) {
+      vm.dialogRef.close(null);
+      openMeasurementInfoDialog(widgetContext, measurement.id, null);
+    };
+
+    // Navigate to measurement dashboard
+    vm.openDashboard = function(measurement) {
+      vm.dialogRef.close(null);
+      var params = {
+        selectedMeasurement: {
+          entityId: measurement.id,
+          entityName: measurement.name,
+          entityLabel: measurement.label || measurement.name,
+        },
+        targetEntityParamName: 'selectedMeasurement'
+      };
+      widgetContext.stateController.openState('measurement_dashboard', params, true);
+    };
+
+    // Open Parameters dialog for measurement
+    vm.openParams = function(measurement) {
+      vm.dialogRef.close(null);
+      openMeasurementParametersDialog(widgetContext, measurement.id, null);
     };
 
     function updateValidation() {
