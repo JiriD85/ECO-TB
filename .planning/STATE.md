@@ -1,7 +1,7 @@
 # Project State
 
 **Project:** Measurement Live Data Popup
-**Current Phase:** 4 of 4 (Actions)
+**Current Phase:** 5 of 5 (Diagnostic Roomkit LoRaWAN)
 **Last Updated:** 2026-01-27
 
 ## Project Reference
@@ -9,16 +9,16 @@
 See: .planning/PROJECT.md (updated 2025-01-26)
 
 **Core value:** Benutzer können auf einen Blick den aktuellen Status einer Messung sehen
-**Current focus:** Phase 4 - Actions (COMPLETE) - V1 COMPLETE
+**Current focus:** PROJECT COMPLETE
 
 ## Current Position
 
-Phase: 4 of 4 (Actions)
+Phase: 5 of 5 (Diagnostic Roomkit LoRaWAN)
 Plan: 1 of 1 (complete)
 Status: PROJECT COMPLETE
-Last activity: 2026-01-27 - Completed 04-01-PLAN.md
+Last activity: 2026-01-27 - Completed 05-01-PLAN.md: Room Sensor CO2 Telemetry
 
-Progress: [====] 100% (4/4 phases)
+Progress: [=====] 100% (5/5 phases)
 
 ## Phase Progress
 
@@ -28,8 +28,27 @@ Progress: [====] 100% (4/4 phases)
 | 2 | Device Display | COMPLETE | 1/1 |
 | 3 | Timeseries & Live | COMPLETE | 1/1 |
 | 4 | Actions | COMPLETE | 1/1 |
+| 5 | Diagnostic Roomkit (LoRaWAN) | COMPLETE | 1/1 |
+
+## Roadmap Evolution
+
+- Phase 5 added: Diagnostic Roomkit (LoRaWAN)
 
 ## Session Log
+
+### 2026-01-27 -- Phase 5 Complete - PROJECT V2 COMPLETE
+
+- Completed 05-01-PLAN.md: Room Sensor CO2 Telemetry
+- Added co2/ppm, humidity/%, battery/% to TIMESERIES_UNITS
+- Added co2/CO2, humidity/Humidity, battery/Battery to TIMESERIES_LABELS
+- Added Room Sensor CO2 device type condition in fetchAllTimeseries
+- Summary: .planning/phases/05-diagnostic-roomkit-lorawan/05-01-SUMMARY.md
+
+### 2026-01-27 -- Phase 5 Added
+
+- Added Phase 5: Diagnostic Roomkit (LoRaWAN) to roadmap
+- Created directory: .planning/phases/05-diagnostic-roomkit-lorawan/
+- Status: Not planned yet
 
 ### 2026-01-27 -- Phase 4 Complete - PROJECT V1 COMPLETE
 
@@ -87,6 +106,7 @@ Progress: [====] 100% (4/4 phases)
 | findByTo for kit relations | Kit -> Device direction | Fixed after initial findByFrom bug |
 | Details navigates by installationType | Heating vs cooling measurement states | heating_full or cooling_full based on attribute |
 | cleanupAndNavigate pattern | Prevent orphaned timers on navigation | Clear interval, close dialog, then navigate |
+| Reuse temperature key | Room Sensor CO2 shares key with Temperature Sensor | Simpler constants, consistent naming |
 
 ## Blockers
 
@@ -95,7 +115,7 @@ None - project complete.
 ## Session Continuity
 
 Last session: 2026-01-27
-Stopped at: PROJECT V1 COMPLETE
+Stopped at: PROJECT V2 COMPLETE
 Resume file: None - all phases complete
 
 ---
