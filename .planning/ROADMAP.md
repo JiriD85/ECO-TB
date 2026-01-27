@@ -1,7 +1,7 @@
 # Roadmap: Measurement Live Data Popup
 
 **Created:** 2025-01-26
-**Depth:** Quick (4 phases)
+**Depth:** Quick (5 phases)
 **Core Value:** Benutzer können auf einen Blick den aktuellen Status einer Messung sehen
 
 ## Phase Overview
@@ -12,6 +12,7 @@
 | 2 | Device Display | DEV-01, DEV-02, DEV-03, DEV-04, DEV-05 | Geräte laden und anzeigen |
 | 3 | Timeseries & Live | TS-01, TS-02, TS-03, TS-04, LIVE-01, LIVE-02, LIVE-03 | Live-Daten mit Auto-Refresh |
 | 4 | Actions | ACT-01, ACT-02, ACT-03 | Navigation und Aktionen |
+| 5 | Diagnostic Roomkit (LoRaWAN) | LORA-01, LORA-02, LORA-03 | Room Sensor CO2 Timeseries |
 
 ---
 
@@ -120,6 +121,29 @@ Plans:
 4. Dialog schließt sich nach Navigation
 
 **Dependencies:** Phase 3
+
+---
+
+## Phase 5: Diagnostic Roomkit (LoRaWAN)
+
+**Goal:** Add Room Sensor CO2 (LoRaWAN) telemetry display to Measurement Info dialog
+
+**Requirements:**
+- LORA-01: Add Room Sensor CO2 telemetry support (co2, temperature, humidity, battery)
+- LORA-02: Integrate with existing timeseries fetching pattern
+- LORA-03: Display values with correct units and labels
+
+**Plans:** 1 plan
+
+Plans:
+- [ ] 05-01-PLAN.md — Add Room Sensor CO2 telemetry constants and device type handling
+
+**Success Criteria:**
+1. Room Sensor CO2 devices show CO2 (ppm), Temperature (C), Humidity (%), Battery (%)
+2. Values update with auto-refresh like other devices
+3. Styling consistent with P-Flow and Temperature Sensor display
+
+**Dependencies:** Phase 4
 
 ---
 
