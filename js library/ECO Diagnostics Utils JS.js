@@ -258,6 +258,209 @@ export function getTimestampStyle(timestampMs, type) {
 }
 
 // ============================================================================
+// ALARM STATE & PROGRESS BADGE FUNCTIONS
+// ============================================================================
+
+/**
+ * Gibt Icon, Farben, CSS-Klasse und i18n-Key für Alarm State zurück
+ *
+ * @param {string} state - Alarm State (critical, major, minor, normal)
+ * @returns {Object} { icon, color, bgColor, badgeClass, i18nKey }
+ */
+export function getAlarmStateStyle(state) {
+  let icon, color, bgColor, badgeClass, i18nKey;
+
+  switch (state) {
+    case "critical":
+      icon = "error";
+      color = "#F44336";
+      bgColor = "rgba(244, 67, 54, 0.1)";
+      badgeClass = "badge-critical";
+      i18nKey = "custom.diagnostics.alarm-severity.critical";
+      break;
+    case "major":
+      icon = "warning";
+      color = "#FF9800";
+      bgColor = "rgba(255, 152, 0, 0.15)";
+      badgeClass = "badge-major";
+      i18nKey = "custom.diagnostics.alarm-severity.major";
+      break;
+    case "minor":
+      icon = "info";
+      color = "#F9A825";
+      bgColor = "rgba(255, 235, 59, 0.2)";
+      badgeClass = "badge-minor";
+      i18nKey = "custom.diagnostics.alarm-severity.minor";
+      break;
+    case "normal":
+      icon = "check_circle";
+      color = "#4CAF50";
+      bgColor = "rgba(76, 175, 80, 0.1)";
+      badgeClass = "badge-normal";
+      i18nKey = "custom.diagnostics.alarm-severity.normal";
+      break;
+    default:
+      icon = "help";
+      color = "#666";
+      bgColor = "#f5f5f5";
+      badgeClass = "badge-default";
+      i18nKey = null;
+      break;
+  }
+
+  return { icon, color, bgColor, badgeClass, i18nKey };
+}
+
+/**
+ * Gibt Icon, Farben, CSS-Klasse und i18n-Key für Progress State zurück
+ * Erweitert getProgressColor um icon und badgeClass
+ *
+ * @param {string} progress - Progress State
+ * @returns {Object} { icon, color, bgColor, badgeClass, i18nKey }
+ */
+export function getProgressStyle(progress) {
+  let icon, color, bgColor, badgeClass, i18nKey;
+
+  switch (progress) {
+    case "in preparation":
+      icon = "schedule";
+      color = "#757575";
+      bgColor = "rgba(158, 158, 158, 0.15)";
+      badgeClass = "badge-preparation";
+      i18nKey = "custom.diagnostics.state-filter.preparation.title";
+      break;
+    case "active":
+      icon = "play_circle";
+      color = "#F9A825";
+      bgColor = "rgba(255, 235, 59, 0.2)";
+      badgeClass = "badge-active";
+      i18nKey = "custom.diagnostics.state-filter.active.title";
+      break;
+    case "finished":
+      icon = "check_circle";
+      color = "#4CAF50";
+      bgColor = "rgba(76, 175, 80, 0.1)";
+      badgeClass = "badge-finished";
+      i18nKey = "custom.diagnostics.state-filter.finished.title";
+      break;
+    case "aborted":
+      icon = "cancel";
+      color = "#F44336";
+      bgColor = "rgba(244, 67, 54, 0.1)";
+      badgeClass = "badge-aborted";
+      i18nKey = "custom.diagnostics.state-filter.aborted.title";
+      break;
+    case "disconnected":
+      icon = "link_off";
+      color = "#757575";
+      bgColor = "rgba(158, 158, 158, 0.15)";
+      badgeClass = "badge-disconnected";
+      i18nKey = "device.inactive";
+      break;
+    default:
+      icon = "help";
+      color = "#666";
+      bgColor = "#f5f5f5";
+      badgeClass = "badge-default";
+      i18nKey = null;
+      break;
+  }
+
+  return { icon, color, bgColor, badgeClass, i18nKey };
+}
+
+/**
+ * Gibt HTML Badge mit CSS-Klassen für State zurück
+ *
+ * @param {string} stateValue - State Wert
+ * @param {string} type - "state" für Alarm State, "progress" für Progress State
+ * @returns {string} HTML String mit CSS-Klassen
+ */
+export function getStateBadgeHtml(stateValue, type) {
+  let style;
+  if (type === "state") {
+    style = getAlarmStateStyle(stateValue);
+  } else {
+    style = getProgressStyle(stateValue);
+  }
+
+  const label = style.i18nKey
+    ? "{i18n:" + style.i18nKey + "}"
+    : stateValue || "N/A";
+
+  return (
+    '<span class="status-badge ' + style.badgeClass + '">' +
+    '<mat-icon class="badge-icon">' + style.icon + "</mat-icon>" +
+    "<span>" + label + "</span></span>"
+  );
+}
+
+/**
+ * Formatiert Timestamp zu DD.MM.YYYY HH:MM
+ *
+ * @param {number|string} timestampMs - Unix timestamp in ms
+ * @returns {string|null} Formatierter String oder null
+ */
+export function formatTimestampShort(timestampMs) {
+  if (timestampMs === null || timestampMs === undefined || timestampMs === "N/A") {
+    return null;
+  }
+  const value = Number(timestampMs);
+  if (!Number.isFinite(value) || value <= 0) {
+    return null;
+  }
+  const date = new Date(value);
+  const pad = (n) => n.toString().padStart(2, "0");
+  return (
+    pad(date.getDate()) + "." +
+    pad(date.getMonth() + 1) + "." +
+    date.getFullYear() + " " +
+    pad(date.getHours()) + ":" +
+    pad(date.getMinutes())
+  );
+}
+
+/**
+ * Gibt HTML Badge für Datum zurück
+ *
+ * @param {number|string} timestampMs - Unix timestamp in ms
+ * @param {string} type - "start" oder "end"
+ * @returns {string} HTML String oder leerer String
+ */
+export function getDateBadgeHtml(timestampMs, type) {
+  const formatted = formatTimestampShort(timestampMs);
+  if (!formatted) return "";
+
+  const icon = type === "start" ? "play_circle" : "stop_circle";
+  const color = type === "start" ? "#27AE60" : "#2F80ED";
+  const bgColor = type === "start" ? "rgba(39, 174, 96, 0.12)" : "rgba(47, 128, 237, 0.12)";
+
+  return (
+    '<span class="status-badge" style="background:' + bgColor + ";color:" + color + ';">' +
+    '<mat-icon class="badge-icon">' + icon + "</mat-icon>" +
+    "<span>" + formatted + "</span></span>"
+  );
+}
+
+/**
+ * Gibt HTML Badge mit Inline-Styles zurück (generisch)
+ *
+ * @param {string} icon - Material Icon Name
+ * @param {string} label - Badge Text
+ * @param {string} color - Text/Icon Farbe
+ * @param {string} bgColor - Hintergrundfarbe
+ * @returns {string} HTML String
+ */
+export function createBadgeHtml(icon, label, color, bgColor) {
+  return (
+    '<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:8px;' +
+    'line-height:20px;font-size:12px;font-weight:500;color:' + color + ";background-color:" + bgColor + ';">' +
+    '<mat-icon style="font-size:14px;width:14px;height:14px;">' + icon + "</mat-icon>" +
+    "<span>" + label + "</span></span>"
+  );
+}
+
+// ============================================================================
 // ADDRESS SEARCH FUNCTIONS
 // ============================================================================
 
