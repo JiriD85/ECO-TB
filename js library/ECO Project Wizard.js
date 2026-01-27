@@ -3227,7 +3227,7 @@ export function openEditProjectDialog(widgetContext, projectId, projectName, pro
   assetService.getAsset(projectId.id).subscribe(function(project) {
     // Load project attributes
     attributeService.getEntityAttributes(projectId, 'SERVER_SCOPE',
-      ['latitude', 'longitude', 'address', 'postalCode', 'city', 'projectPicture']
+      ['latitude', 'longitude', 'address', 'postalCode', 'city', 'projectPicture', 'progress', 'startTimeMs', 'endTimeMs']
     ).subscribe(function(attributes) {
       const attrMap = {};
       attributes.forEach(function(a) { attrMap[a.key] = a.value; });
@@ -3272,6 +3272,52 @@ export function openEditProjectDialog(widgetContext, projectId, projectName, pro
         <mat-label>Label</mat-label>
         <input matInput formControlName="entityLabel">
     </mat-form-field>
+
+    <!-- Status Section -->
+    <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin: 8px 0;">
+      <legend class="flex items-center gap-2" style="font-weight: 600; color: #305680; padding: 0 8px;">
+        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">timeline</mat-icon>
+        Status
+      </legend>
+      <mat-form-field appearance="fill" class="w-full">
+        <mat-label>Progress</mat-label>
+        <mat-select formControlName="progress">
+          <mat-option value="in preparation">In Preparation</mat-option>
+          <mat-option value="active">Active</mat-option>
+          <mat-option value="finished">Finished</mat-option>
+          <mat-option value="aborted">Aborted</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <div class="flex gap-2">
+        <mat-form-field appearance="fill" style="flex: 1.5;">
+          <mat-label>Start Date</mat-label>
+          <mat-datetimepicker-toggle [for]="startDatePicker" matPrefix></mat-datetimepicker-toggle>
+          <mat-datetimepicker #startDatePicker type="date" openOnFocus="true"></mat-datetimepicker>
+          <input matInput formControlName="startDate" [matDatetimepicker]="startDatePicker">
+        </mat-form-field>
+        <mat-form-field appearance="fill" style="flex: 1;">
+          <mat-label>Start Time</mat-label>
+          <mat-datetimepicker-toggle [for]="startTimePicker" matPrefix></mat-datetimepicker-toggle>
+          <mat-datetimepicker #startTimePicker type="time" openOnFocus="true"></mat-datetimepicker>
+          <input matInput formControlName="startTime" [matDatetimepicker]="startTimePicker">
+        </mat-form-field>
+      </div>
+      <div class="flex gap-2">
+        <mat-form-field appearance="fill" style="flex: 1.5;">
+          <mat-label>End Date</mat-label>
+          <mat-datetimepicker-toggle [for]="endDatePicker" matPrefix></mat-datetimepicker-toggle>
+          <mat-datetimepicker #endDatePicker type="date" openOnFocus="true"></mat-datetimepicker>
+          <input matInput formControlName="endDate" [matDatetimepicker]="endDatePicker">
+        </mat-form-field>
+        <mat-form-field appearance="fill" style="flex: 1;">
+          <mat-label>End Time</mat-label>
+          <mat-datetimepicker-toggle [for]="endTimePicker" matPrefix></mat-datetimepicker-toggle>
+          <mat-datetimepicker #endTimePicker type="time" openOnFocus="true"></mat-datetimepicker>
+          <input matInput formControlName="endTime" [matDatetimepicker]="endTimePicker">
+        </mat-form-field>
+      </div>
+    </fieldset>
+
     <mat-form-field appearance="outline" class="w-full">
       <mat-label>Project address</mat-label>
       <input matInput formControlName="address" [matAutocomplete]="addrAuto" autocomplete="off">
@@ -3346,16 +3392,64 @@ mat-icon {
       vm.project = project;
       vm.attrMap = attrMap;
 
+      // Initialize date values from timestamps
+      let startDate = null;
+      let startTime = null;
+      let endDate = null;
+      let endTime = null;
+
+      if (attrMap.startTimeMs) {
+        const startDateTime = new Date(Number(attrMap.startTimeMs));
+        startDate = startDateTime;
+        startTime = startDateTime;
+      }
+      if (attrMap.endTimeMs) {
+        const endDateTime = new Date(Number(attrMap.endTimeMs));
+        endDate = endDateTime;
+        endTime = endDateTime;
+      }
+
       vm.editProjectFormGroup = vm.fb.group({
         customerName: [{ value: customerName, disabled: true }],
         name: [{ value: project.name, disabled: true }],
         entityLabel: [project.label || ''],
         projectPicture: [attrMap.projectPicture || null],
+        // Status fields
+        progress: [attrMap.progress || 'in preparation'],
+        startDate: [startDate],
+        startTime: [startTime],
+        endDate: [endDate],
+        endTime: [endTime],
+        // Address fields
         address: [attrMap.address || ''],
         postalCode: [attrMap.postalCode || ''],
         city: [attrMap.city || ''],
         latitude: [attrMap.latitude || ''],
         longitude: [attrMap.longitude || '']
+      });
+
+      // Auto-set start/end time when progress changes
+      vm.editProjectFormGroup.get('progress').valueChanges.subscribe(function(progress) {
+        const startDateControl = vm.editProjectFormGroup.get('startDate');
+        const startTimeControl = vm.editProjectFormGroup.get('startTime');
+        const endDateControl = vm.editProjectFormGroup.get('endDate');
+        const endTimeControl = vm.editProjectFormGroup.get('endTime');
+
+        if (progress === 'active' && !startDateControl.value && !startTimeControl.value) {
+          const now = new Date();
+          startDateControl.setValue(now);
+          startTimeControl.setValue(now);
+          startDateControl.markAsDirty();
+          startTimeControl.markAsDirty();
+        } else if ((progress === 'finished' || progress === 'aborted') &&
+                   startDateControl.value && startTimeControl.value &&
+                   !endDateControl.value && !endTimeControl.value) {
+          const now = new Date();
+          endDateControl.setValue(now);
+          endTimeControl.setValue(now);
+          endDateControl.markAsDirty();
+          endTimeControl.markAsDirty();
+        }
       });
 
       // --- Address search state ---
@@ -3506,6 +3600,14 @@ mat-icon {
         vm.dialogRef.close(null);
       };
 
+      function parseDateTime(dateObj, timeObj) {
+        if (!dateObj || !timeObj) return null;
+        const date = new Date(dateObj);
+        const time = new Date(timeObj);
+        date.setHours(time.getHours(), time.getMinutes(), time.getSeconds(), time.getMilliseconds());
+        return date;
+      }
+
       vm.save = function() {
         vm.editProjectFormGroup.markAsPristine();
 
@@ -3515,6 +3617,10 @@ mat-icon {
           label: formValues.entityLabel
         });
 
+        // Parse date/time values
+        const startDateTime = parseDateTime(formValues.startDate, formValues.startTime);
+        const endDateTime = parseDateTime(formValues.endDate, formValues.endTime);
+
         assetService.saveAsset(updatedProject).subscribe(function() {
           // Save attributes
           const attributesArray = [
@@ -3522,7 +3628,10 @@ mat-icon {
             { key: 'longitude', value: formValues.longitude || vm.attrMap.longitude || 16.2932688 },
             { key: 'address', value: formValues.address || '' },
             { key: 'postalCode', value: formValues.postalCode || '' },
-            { key: 'city', value: formValues.city || '' }
+            { key: 'city', value: formValues.city || '' },
+            { key: 'progress', value: formValues.progress },
+            { key: 'startTimeMs', value: startDateTime ? startDateTime.getTime() : null },
+            { key: 'endTimeMs', value: endDateTime ? endDateTime.getTime() : null }
           ];
 
           if (formValues.projectPicture) {
