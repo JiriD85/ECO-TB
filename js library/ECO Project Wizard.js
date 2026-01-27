@@ -2184,10 +2184,10 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
 
 // Timeseries key mappings
 const TIMESERIES_UNITS = {
-  'CHC_S_Heating_Power': 'kW',
-  'CHS_M_Heating_Energy': 'kWh',
-  'CHC_S_Cooling_Power': 'kW',
-  'CHC_M_Cooling_Energy': 'kWh',
+  'CHC_S_Power_Heating': 'kW',
+  'CHC_M_Energy_Heating': 'kWh',
+  'CHC_S_Power_Cooling': 'kW',
+  'CHC_M_Energy_Cooling': 'kWh',
   'CHC_S_VolumeFlow': 'l/hr',
   'CHC_M_Volume': 'm³',
   'CHC_S_TemperatureDiff': '°C',
@@ -2198,10 +2198,10 @@ const TIMESERIES_UNITS = {
 };
 
 const TIMESERIES_LABELS = {
-  'CHC_S_Heating_Power': 'Heating Power',
-  'CHS_M_Heating_Energy': 'Heating Energy',
-  'CHC_S_Cooling_Power': 'Cooling Power',
-  'CHC_M_Cooling_Energy': 'Cooling Energy',
+  'CHC_S_Power_Heating': 'Power',
+  'CHC_M_Energy_Heating': 'Energy',
+  'CHC_S_Power_Cooling': 'Power',
+  'CHC_M_Energy_Cooling': 'Energy',
   'CHC_S_VolumeFlow': 'Volume Flow',
   'CHC_M_Volume': 'Volume',
   'CHC_S_TemperatureDiff': 'Temp Diff',
@@ -2212,13 +2212,9 @@ const TIMESERIES_LABELS = {
 };
 
 const measurementInfoHtmlTemplate = `<div class="measurement-info-dialog" style="width: 500px;">
-  <mat-toolbar class="flex items-center" style="background-color: #305680; color: white;">
-    <mat-icon style="margin-right: 12px;">info</mat-icon>
-    <h2 style="margin: 0; font-size: 18px;">Measurement Info</h2>
-    <button mat-icon-button (click)="refresh()" [disabled]="isRefreshing"
-            type="button" title="Refresh data" style="margin-left: 8px;">
-      <mat-icon [class.spinning]="isRefreshing">refresh</mat-icon>
-    </button>
+  <mat-toolbar class="flex items-center" style="background-color: var(--tb-primary-500); color: white;">
+    <mat-icon style="margin-right: 12px;">sensors</mat-icon>
+    <h2 style="margin: 0; font-size: 18px;">Live Data</h2>
     <span class="flex-1"></span>
     <button mat-icon-button (click)="cancel()" type="button">
       <mat-icon>close</mat-icon>
@@ -2241,13 +2237,25 @@ const measurementInfoHtmlTemplate = `<div class="measurement-info-dialog" style=
     </div>
 
     <!-- Badges Section -->
-    <div class="badges-section" style="display: flex; flex-wrap: wrap; gap: 8px;">
+    <div class="badges-section" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
       <div *ngIf="installationType" class="badge flex items-center gap-1"
            [style.color]="getInstallationTypeStyle(installationType).color"
            [style.background-color]="getInstallationTypeStyle(installationType).bgColor"
            style="padding: 6px 12px; border-radius: 16px; font-size: 14px; font-weight: 500;">
         <mat-icon style="font-size: 16px; width: 16px; height: 16px;">{{ getInstallationTypeStyle(installationType).icon }}</mat-icon>
         {{ getInstallationTypeStyle(installationType).label }}
+      </div>
+      <div *ngIf="progress" class="badge flex items-center gap-1"
+           [style.color]="getProgressColor(progress).color"
+           [style.background-color]="getProgressColor(progress).bgColor"
+           style="padding: 6px 12px; border-radius: 16px; font-size: 14px; font-weight: 500;">
+        <mat-icon style="font-size: 16px; width: 16px; height: 16px;">trending_up</mat-icon>
+        {{ getProgressColor(progress).label }}
+      </div>
+      <div *ngIf="startTimeMs" class="badge flex items-center gap-1"
+           style="padding: 6px 12px; border-radius: 16px; font-size: 14px; font-weight: 500; color: #27AE60; background-color: rgba(39, 174, 96, 0.12);">
+        <mat-icon style="font-size: 16px; width: 16px; height: 16px;">play_circle</mat-icon>
+        {{ formatIsoTimestamp(startTimeMs) }}
       </div>
     </div>
 
@@ -2285,7 +2293,11 @@ const measurementInfoHtmlTemplate = `<div class="measurement-info-dialog" style=
                   </div>
                   <div class="flex items-center gap-1" style="color: #666; font-size: 11px;">
                     <mat-icon style="font-size: 12px; width: 12px; height: 12px;">schedule</mat-icon>
-                    {{ formatTimestampDE(device.lastActivityTime) }}
+                    {{ formatTimestampDE(device.latestDataTimestamp || device.lastActivityTime) }}
+                  </div>
+                  <div *ngIf="device.sendInterval" class="flex items-center gap-1" style="color: #305680; font-size: 11px; background: rgba(48,86,128,0.1); padding: 2px 6px; border-radius: 4px;">
+                    <mat-icon style="font-size: 12px; width: 12px; height: 12px;">timer</mat-icon>
+                    {{ device.sendInterval }}s
                   </div>
                 </div>
                 <!-- Timeseries Data -->
@@ -2329,7 +2341,11 @@ const measurementInfoHtmlTemplate = `<div class="measurement-info-dialog" style=
                   </div>
                   <div class="flex items-center gap-1" style="color: #666; font-size: 11px;">
                     <mat-icon style="font-size: 12px; width: 12px; height: 12px;">schedule</mat-icon>
-                    {{ formatTimestampDE(device.lastActivityTime) }}
+                    {{ formatTimestampDE(device.latestDataTimestamp || device.lastActivityTime) }}
+                  </div>
+                  <div *ngIf="device.sendInterval" class="flex items-center gap-1" style="color: #305680; font-size: 11px; background: rgba(48,86,128,0.1); padding: 2px 6px; border-radius: 4px;">
+                    <mat-icon style="font-size: 12px; width: 12px; height: 12px;">timer</mat-icon>
+                    {{ device.sendInterval }}s
                   </div>
                 </div>
                 <!-- Timeseries Data -->
@@ -2352,9 +2368,20 @@ const measurementInfoHtmlTemplate = `<div class="measurement-info-dialog" style=
       </div>
     </div>
 
-    <!-- Last Refresh Indicator -->
-    <div *ngIf="lastRefresh" style="text-align: right; font-size: 10px; color: #999; margin-top: 8px;">
-      Last updated: {{ formatTimestampDE(lastRefresh.getTime()) }}
+    <!-- Auto-Refresh Status Bar -->
+    <div class="flex items-center justify-between" style="margin-top: 12px; padding: 8px 12px; background: #f5f5f5; border-radius: 6px;">
+      <div class="flex items-center gap-2" style="font-size: 11px; color: #666;">
+        <span *ngIf="lastRefresh">Updated: {{ formatTimestampDE(lastRefresh.getTime()) }} (#{{ refreshCount }})</span>
+        <span *ngIf="!lastRefresh">-</span>
+      </div>
+      <button mat-button (click)="toggleAutoRefresh()" type="button"
+              [style.color]="autoRefreshEnabled ? '#305680' : '#999'"
+              style="min-width: unset; padding: 4px 8px; font-size: 11px;">
+        <mat-icon [class.auto-refresh-active]="autoRefreshEnabled && isRefreshing"
+                  [style.color]="autoRefreshEnabled ? '#305680' : '#999'"
+                  style="font-size: 16px; width: 16px; height: 16px; margin-right: 4px;">sync</mat-icon>
+        <span>Auto-Refresh {{ autoRefreshEnabled ? 'On' : 'Off' }}</span>
+      </button>
     </div>
   </div>
 
@@ -2379,7 +2406,7 @@ const measurementInfoCss = `.measurement-info-dialog .badge {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
-.measurement-info-dialog .spinning {
+.measurement-info-dialog .auto-refresh-active {
   animation: spin 1s linear infinite;
 }
 .measurement-info-dialog .timeseries-section div:last-child {
@@ -2483,9 +2510,9 @@ export function openMeasurementInfoDialog(widgetContext, measurementId, callback
       'CHC_S_Velocity'
     ];
     if (installationType === 'heating') {
-      return ['CHC_S_Heating_Power', 'CHS_M_Heating_Energy'].concat(commonKeys);
+      return ['CHC_S_Power_Heating', 'CHC_M_Energy_Heating'].concat(commonKeys);
     } else if (installationType === 'cooling') {
-      return ['CHC_S_Cooling_Power', 'CHC_M_Cooling_Energy'].concat(commonKeys);
+      return ['CHC_S_Power_Cooling', 'CHC_M_Energy_Cooling'].concat(commonKeys);
     }
     return commonKeys;
   }
@@ -2493,12 +2520,49 @@ export function openMeasurementInfoDialog(widgetContext, measurementId, callback
   function fetchDeviceTimeseries(deviceId, keys) {
     return new Promise(function(resolve) {
       var keysParam = keys.join(',');
-      var url = '/api/plugins/telemetry/DEVICE/' + deviceId.id + '/values/timeseries?keys=' + keysParam;
+      // Fetch last 5 minutes of data to calculate send interval (need at least 2 values)
+      var endTs = Date.now();
+      var startTs = endTs - (5 * 60 * 1000); // 5 minutes ago
+      var url = '/api/plugins/telemetry/DEVICE/' + deviceId.id + '/values/timeseries?keys=' + keysParam + '&startTs=' + startTs + '&endTs=' + endTs + '&limit=2';
       widgetContext.http.get(url).subscribe(
-        function(response) { resolve(response || {}); },
-        function() { resolve({}); }
+        function(response) {
+          resolve(response || {});
+        },
+        function(error) {
+          console.error('[MeasurementInfo] Timeseries error for', deviceId.id, ':', error);
+          resolve({});
+        }
       );
     });
+  }
+
+  function calculateSendInterval(response) {
+    // Find any key with at least 2 values to calculate interval
+    for (var key in response) {
+      var values = response[key];
+      if (values && values.length >= 2) {
+        var ts1 = values[0].ts;  // most recent
+        var ts2 = values[1].ts;  // second most recent
+        var intervalMs = ts1 - ts2;
+        var intervalSec = Math.round(intervalMs / 1000);
+        return intervalSec;
+      }
+    }
+    return null;
+  }
+
+  function getLatestTimestamp(response) {
+    // Find the most recent timestamp from any timeseries key
+    var latestTs = null;
+    for (var key in response) {
+      var values = response[key];
+      if (values && values.length > 0 && values[0].ts) {
+        if (latestTs === null || values[0].ts > latestTs) {
+          latestTs = values[0].ts;
+        }
+      }
+    }
+    return latestTs;
   }
 
   function formatTimeseriesValue(key, value) {
@@ -2641,6 +2705,9 @@ export function openMeasurementInfoDialog(widgetContext, measurementId, callback
     vm.isRefreshing = false;
     vm.refreshInterval = null;
     vm.lastRefresh = null;
+    vm.autoRefreshEnabled = true;
+    vm.refreshCount = 0;
+    vm.currentIntervalMs = 5000; // Default 5s, adjusted based on detected sendInterval
 
     // Extract installationType from attributes
     const findAttr = function(key) {
@@ -2649,6 +2716,53 @@ export function openMeasurementInfoDialog(widgetContext, measurementId, callback
     };
 
     vm.installationType = findAttr('installationType');
+    vm.progress = findAttr('progress') || 'in preparation';
+    vm.startTimeMs = findAttr('startTimeMs');
+
+    // Helper function for progress color
+    function getProgressColor(progress) {
+      let color, bgColor, label;
+      switch (progress) {
+        case 'in preparation':
+          color = '#F2994A';
+          bgColor = 'rgba(242, 153, 74, 0.12)';
+          label = 'In Preparation';
+          break;
+        case 'active':
+          color = '#27AE60';
+          bgColor = 'rgba(39, 174, 96, 0.12)';
+          label = 'Active';
+          break;
+        case 'finished':
+          color = '#2F80ED';
+          bgColor = 'rgba(47, 128, 237, 0.12)';
+          label = 'Finished';
+          break;
+        case 'aborted':
+          color = '#EB5757';
+          bgColor = 'rgba(235, 87, 87, 0.12)';
+          label = 'Aborted';
+          break;
+        default:
+          color = '#828282';
+          bgColor = 'rgba(130, 130, 130, 0.12)';
+          label = progress || 'Unknown';
+      }
+      return { color, bgColor, label };
+    }
+
+    // Format timestamp to ISO string (YYYY-MM-DD HH:mm)
+    function formatIsoTimestamp(timestampMs) {
+      if (!timestampMs) return null;
+      var date = new Date(Number(timestampMs));
+      if (isNaN(date.getTime())) return null;
+      var pad = function(n) { return n.toString().padStart(2, '0'); };
+      return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate()) +
+             ' ' + pad(date.getHours()) + ':' + pad(date.getMinutes());
+    }
+
+    vm.getProgressColor = getProgressColor;
+    vm.formatIsoTimestamp = formatIsoTimestamp;
 
     // Helper function for activity color
     function getActivityColor(active) {
@@ -2677,32 +2791,43 @@ export function openMeasurementInfoDialog(widgetContext, measurementId, callback
       if (vm.isRefreshing) return;
       vm.isRefreshing = true;
 
-      var allDevices = [];
+      // Collect all device IDs and their types
+      var deviceInfos = [];
       vm.kitGroups.forEach(function(kit) {
-        kit.devices.forEach(function(d) { allDevices.push(d); });
+        kit.devices.forEach(function(d) {
+          deviceInfos.push({ id: d.id, type: d.type });
+        });
       });
-      vm.noKitDevices.forEach(function(d) { allDevices.push(d); });
+      vm.noKitDevices.forEach(function(d) {
+        deviceInfos.push({ id: d.id, type: d.type });
+      });
 
-      var pflowDevices = allDevices.filter(function(d) { return d.type === 'P-Flow D116'; });
-      var tempSensors = allDevices.filter(function(d) { return d.type === 'Temperature Sensor'; });
       var pflowKeys = getPFlowTimeseriesKeys(vm.installationType);
-
       var fetchPromises = [];
 
-      pflowDevices.forEach(function(device) {
-        fetchPromises.push(
-          fetchDeviceTimeseries(device.id, pflowKeys).then(function(data) {
-            device.timeseries = processTimeseriesResponse(data, pflowKeys);
-          })
-        );
-      });
+      // Store results in a Map keyed by device ID
+      var resultsMap = {};
 
-      tempSensors.forEach(function(device) {
-        fetchPromises.push(
-          fetchDeviceTimeseries(device.id, ['temperature']).then(function(data) {
-            device.timeseries = processTimeseriesResponse(data, ['temperature']);
-          })
-        );
+      deviceInfos.forEach(function(info) {
+        var keys = [];
+        if (info.type === 'P-Flow D116') {
+          keys = pflowKeys;
+        } else if (info.type === 'Temperature Sensor') {
+          keys = ['temperature'];
+        }
+
+        if (keys.length > 0) {
+          var deviceIdStr = info.id.id || info.id;
+          fetchPromises.push(
+            fetchDeviceTimeseries(info.id, keys).then(function(data) {
+              resultsMap[deviceIdStr] = {
+                timeseries: processTimeseriesResponse(data, keys),
+                sendInterval: calculateSendInterval(data),
+                latestDataTimestamp: getLatestTimestamp(data)
+              };
+            })
+          );
+        }
       });
 
       if (fetchPromises.length === 0) {
@@ -2711,22 +2836,95 @@ export function openMeasurementInfoDialog(widgetContext, measurementId, callback
       }
 
       Promise.all(fetchPromises).then(function() {
+        vm.refreshCount++;
+
+        // Helper to apply timeseries data to device
+        function applyTimeseries(device) {
+          var deviceIdStr = device.id.id || device.id;
+          var result = resultsMap[deviceIdStr];
+          if (result) {
+            return Object.assign({}, device, {
+              timeseries: result.timeseries,
+              sendInterval: result.sendInterval,
+              latestDataTimestamp: result.latestDataTimestamp
+            });
+          }
+          return Object.assign({}, device);
+        }
+
+        // Create new object references AND apply timeseries data
+        vm.kitGroups = vm.kitGroups.map(function(kit) {
+          return Object.assign({}, kit, {
+            devices: kit.devices.map(applyTimeseries)
+          });
+        });
+        vm.noKitDevices = vm.noKitDevices.map(applyTimeseries);
+
         vm.isRefreshing = false;
         vm.lastRefresh = new Date();
-      }).catch(function() {
+
+        // Adjust refresh interval based on calculated sendInterval
+        var detectedInterval = null;
+        for (var deviceId in resultsMap) {
+          if (resultsMap[deviceId].sendInterval) {
+            detectedInterval = resultsMap[deviceId].sendInterval;
+            break;
+          }
+        }
+
+        // Update refresh interval if we detected a send interval different from current
+        var newIntervalMs = (detectedInterval || 5) * 1000;
+        if (vm.autoRefreshEnabled && vm.currentIntervalMs !== newIntervalMs) {
+          vm.currentIntervalMs = newIntervalMs;
+          if (vm.refreshInterval) {
+            clearInterval(vm.refreshInterval);
+          }
+          vm.refreshInterval = setInterval(function() {
+            fetchAllTimeseries();
+          }, newIntervalMs);
+        }
+
+        // Trigger Angular change detection
+        if (widgetContext.detectChanges) {
+          widgetContext.detectChanges();
+        }
+      }).catch(function(error) {
+        console.error('[MeasurementInfo] Error fetching timeseries:', error);
         vm.isRefreshing = false;
+        if (widgetContext.detectChanges) {
+          widgetContext.detectChanges();
+        }
       });
     }
 
-    vm.refresh = function() {
-      fetchAllTimeseries();
+    vm.toggleAutoRefresh = function() {
+      vm.autoRefreshEnabled = !vm.autoRefreshEnabled;
+
+      if (vm.autoRefreshEnabled) {
+        // Start auto-refresh with current interval
+        fetchAllTimeseries();
+        vm.refreshInterval = setInterval(function() {
+          fetchAllTimeseries();
+        }, vm.currentIntervalMs);
+      } else {
+        // Stop auto-refresh
+        if (vm.refreshInterval) {
+          clearInterval(vm.refreshInterval);
+          vm.refreshInterval = null;
+        }
+      }
+
+      // Trigger change detection for toggle state
+      if (widgetContext.detectChanges) {
+        widgetContext.detectChanges();
+      }
     };
 
-    // Initial fetch and start auto-refresh
+    // Initial fetch and start auto-refresh (interval will be adjusted based on detected sendInterval)
     fetchAllTimeseries();
     vm.refreshInterval = setInterval(function() {
       fetchAllTimeseries();
-    }, 5000);
+    }, vm.currentIntervalMs);
 
     // Expose helper functions to template
     vm.getInstallationTypeStyle = getInstallationTypeStyle;
