@@ -1,0 +1,691 @@
+{
+  "title": "Stripe Payment Administration",
+  "image": null,
+  "mobileHide": false,
+  "mobileOrder": null,
+  "configuration": {
+    "description": "",
+    "widgets": {
+      "c8433eb6-3412-1a0f-3ff5-498dedaf1cab": {
+        "typeFullFqn": "system.cards.entities_table",
+        "type": "latest",
+        "sizeX": 7.5,
+        "sizeY": 6.5,
+        "config": {
+          "timewindow": {
+            "displayValue": "",
+            "selectedTab": 0,
+            "realtime": {
+              "realtimeType": 1,
+              "interval": 1000,
+              "timewindowMs": 86400000,
+              "quickInterval": "CURRENT_DAY",
+              "hideInterval": false,
+              "hideLastInterval": false,
+              "hideQuickInterval": false
+            },
+            "history": {
+              "historyType": 0,
+              "interval": 1000,
+              "timewindowMs": 60000,
+              "fixedTimewindow": {
+                "startTimeMs": 1730705284353,
+                "endTimeMs": 1730791684353
+              },
+              "quickInterval": "CURRENT_DAY",
+              "hideInterval": false,
+              "hideLastInterval": false,
+              "hideFixedInterval": false,
+              "hideQuickInterval": false
+            },
+            "aggregation": {
+              "type": "NONE",
+              "limit": 200
+            }
+          },
+          "showTitle": true,
+          "backgroundColor": "rgb(255, 255, 255)",
+          "color": "rgba(0, 0, 0, 0.87)",
+          "padding": "0px",
+          "settings": {
+            "entitiesTitle": "Products",
+            "enableSearch": true,
+            "enableSelectColumnDisplay": true,
+            "enableStickyHeader": true,
+            "enableStickyAction": true,
+            "showCellActionsMenu": true,
+            "reserveSpaceForHiddenAction": "true",
+            "displayEntityName": false,
+            "entityNameColumnTitle": "",
+            "displayEntityLabel": false,
+            "entityLabelColumnTitle": "",
+            "displayEntityType": false,
+            "displayPagination": true,
+            "defaultPageSize": 10,
+            "defaultSortOrder": "name",
+            "useRowStyleFunction": false,
+            "rowStyleFunction": ""
+          },
+          "title": "Products",
+          "dropShadow": false,
+          "enableFullscreen": false,
+          "titleStyle": {
+            "fontSize": "16px",
+            "fontWeight": 400,
+            "padding": "5px 10px 5px 10px"
+          },
+          "useDashboardTimewindow": false,
+          "showLegend": false,
+          "datasources": [
+            {
+              "type": "entity",
+              "name": "",
+              "entityAliasId": "670d6edf-9e49-fda0-be41-ef47af3155ca",
+              "filterId": null,
+              "dataKeys": [
+                {
+                  "name": "name",
+                  "type": "entityField",
+                  "label": "Name",
+                  "color": "#2196f3",
+                  "settings": {},
+                  "_hash": 0.3589701616645258
+                },
+                {
+                  "name": "billingType",
+                  "type": "attribute",
+                  "label": "billingType",
+                  "color": "#4caf50",
+                  "settings": {},
+                  "_hash": 0.40653677012247846
+                },
+                {
+                  "name": "interval",
+                  "type": "attribute",
+                  "label": "interval",
+                  "color": "#ffc107",
+                  "settings": {},
+                  "_hash": 0.6186356605313084
+                },
+                {
+                  "name": "price",
+                  "type": "attribute",
+                  "label": "price",
+                  "color": "#607d8b",
+                  "settings": {},
+                  "_hash": 0.29625795595965543,
+                  "aggregationType": null,
+                  "units": null,
+                  "decimals": null,
+                  "funcBody": null,
+                  "usePostProcessing": true,
+                  "postFuncBody": "return value/100;"
+                },
+                {
+                  "name": "currency",
+                  "type": "attribute",
+                  "label": "currency",
+                  "color": "#f44336",
+                  "settings": {},
+                  "_hash": 0.6505843465573018
+                }
+              ],
+              "alarmFilterConfig": {
+                "statusList": [
+                  "ACTIVE"
+                ]
+              }
+            }
+          ],
+          "displayTimewindow": false,
+          "configMode": "advanced",
+          "actions": {
+            "headerButton": [
+              {
+                "name": "add Product ",
+                "icon": "add",
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "type": "customPretty",
+                "customHtml": "<form #addEntityForm=\"ngForm\" [formGroup]=\"addEntityFormGroup\"\r\n      (ngSubmit)=\"save()\" class=\"add-entity-form\">\r\n    <mat-toolbar fxLayout=\"row\" color=\"primary\">\r\n        <h2>Add Entity</h2>\r\n        <span fxFlex></span>\r\n        <button mat-icon-button (click)=\"cancel()\" type=\"button\">\r\n            <mat-icon class=\"material-icons\">close</mat-icon>\r\n        </button>\r\n    </mat-toolbar>\r\n    <mat-progress-bar color=\"warn\" mode=\"indeterminate\" *ngIf=\"isLoading$ | async\">\r\n    </mat-progress-bar>\r\n    <div style=\"height: 4px;\" *ngIf=\"!(isLoading$ | async)\"></div>\r\n    <div mat-dialog-content fxLayout=\"column\">\r\n        <div fxLayout=\"column\" fxLayoutGap=\"8px\">\r\n            <mat-form-field class=\"mat-block\">\r\n                <mat-label>Entity Name</mat-label>\r\n                <input matInput formControlName=\"entityName\" required>\r\n                <mat-error *ngIf=\"addEntityFormGroup.get('entityName').hasError('required')\">\r\n                    Entity name is required.\r\n                </mat-error>\r\n            </mat-form-field>\r\n        </div>\r\n        <div fxLayout=\"column\" fxLayoutGap=\"8px\">\r\n            <mat-form-field class=\"mat-block\">\r\n                <mat-label>Product Type</mat-label>\r\n                <mat-select formControlName=\"prodType\" required>\r\n                    <!--<mat-option value=\"basisKit\">Diagnostics Basis Kit</mat-option>\r\n                    <mat-option value=\"extensionKit\">Diagnostics Extension Kit</mat-option>\r\n                    <mat-option value=\"loraWanKit\">Diagnostics LoRaWAN Kit</mat-option>\r\n                    <mat-option value=\"co2RoomSensor\">CO2 Room Sensor</mat-option>-->\r\n                    <mat-option value=\"datalicense\">Data lincense per Diagnostic Basis Kit</mat-option>\r\n                    <mat-option value=\"loraSimLicense\">LTE SIM card fee per LoRaWAN kit</mat-option>\r\n                    <mat-option value=\"generalReport\">General Report</mat-option>\r\n                    <mat-option value=\"detailReportUltrasonic\">Detail Report per Ultrasonic Measuring Device</mat-option>\r\n                    <mat-option value=\"detailReportLoraWan\">Detail Report per LoRaWAN Room Sensor</mat-option>\r\n                </mat-select>\r\n                <mat-error *ngIf=\"addEntityFormGroup.get('prodType').hasError('required')\">\r\n                    Product Type is required.\r\n                </mat-error>\r\n            </mat-form-field>\r\n        </div>\r\n        <div fxLayout=\"column\" fxLayoutGap=\"8px\">\r\n            <mat-form-field class=\"mat-block\">\r\n                <mat-label>Billing Type</mat-label>\r\n                <mat-select formControlName=\"billingType\" required (selectionChange)=\"onBillingTypeChange()\">\r\n                    <mat-option value=\"one-time\">One Time</mat-option>\r\n                    <mat-option value=\"recurring\">Recurring</mat-option>\r\n                </mat-select>\r\n                <mat-error *ngIf=\"addEntityFormGroup.get('billingType').hasError('required')\">\r\n                    Billing Type is required.\r\n                </mat-error>\r\n            </mat-form-field>\r\n        </div>\r\n        <div fxLayout=\"column\" fxLayoutGap=\"8px\" *ngIf=\"addEntityFormGroup.get('billingType').value === 'recurring'\">\r\n            <mat-form-field class=\"mat-block\">\r\n                <mat-label>Interval</mat-label>\r\n                <mat-select formControlName=\"interval\">\r\n                    <mat-option value=\"day\">Day</mat-option>\r\n                    <mat-option value=\"week\">Week</mat-option>\r\n                    <mat-option value=\"month\">Month</mat-option>\r\n                    <mat-option value=\"year\">Year</mat-option>\r\n                </mat-select>\r\n                <mat-error *ngIf=\"addEntityFormGroup.get('interval').hasError('required') && addEntityFormGroup.get('billingType').value === 'recurring'\">\r\n                    Interval is required for recurring billing.\r\n                </mat-error>\r\n            </mat-form-field>\r\n        </div>\r\n        <div fxLayout=\"column\" fxLayoutGap=\"8px\">\r\n            <mat-form-field class=\"mat-block\">\r\n                <mat-label>Currency</mat-label>\r\n                <mat-select formControlName=\"currency\" required>\r\n                  <mat-option value=\"AED\">AED - United Arab Emirates Dirham</mat-option>\r\n                  <mat-option value=\"AFN\">AFN - Afghan Afghani</mat-option>\r\n                  <mat-option value=\"ALL\">ALL - Albanian Lek</mat-option>\r\n                  <mat-option value=\"AMD\">AMD - Armenian Dram</mat-option>\r\n                  <mat-option value=\"ANG\">ANG - Netherlands Antillean Guilder</mat-option>\r\n                  <mat-option value=\"AOA\">AOA - Angolan Kwanza</mat-option>\r\n                  <mat-option value=\"ARS\">ARS - Argentine Peso</mat-option>\r\n                  <mat-option value=\"AUD\">AUD - Australian Dollar</mat-option>\r\n                  <mat-option value=\"AWG\">AWG - Aruban Florin</mat-option>\r\n                  <mat-option value=\"AZN\">AZN - Azerbaijani Manat</mat-option>\r\n                  <mat-option value=\"BAM\">BAM - Bosnia-Herzegovina Convertible Mark</mat-option>\r\n                  <mat-option value=\"BBD\">BBD - Barbadian Dollar</mat-option>\r\n                  <mat-option value=\"BDT\">BDT - Bangladeshi Taka</mat-option>\r\n                  <mat-option value=\"BGN\">BGN - Bulgarian Lev</mat-option>\r\n                  <mat-option value=\"BHD\">BHD - Bahraini Dinar</mat-option>\r\n                  <mat-option value=\"BIF\">BIF - Burundian Franc</mat-option>\r\n                  <mat-option value=\"BMD\">BMD - Bermudan Dollar</mat-option>\r\n                  <mat-option value=\"BND\">BND - Brunei Dollar</mat-option>\r\n                  <mat-option value=\"BOB\">BOB - Bolivian Boliviano</mat-option>\r\n                  <mat-option value=\"BRL\">BRL - Brazilian Real</mat-option>\r\n                  <mat-option value=\"BSD\">BSD - Bahamian Dollar</mat-option>\r\n                  <mat-option value=\"BTC\">BTC - Bitcoin</mat-option>\r\n                  <mat-option value=\"BTN\">BTN - Bhutanese Ngultrum</mat-option>\r\n                  <mat-option value=\"BWP\">BWP - Botswanan Pula</mat-option>\r\n                  <mat-option value=\"BYN\">BYN - Belarusian Ruble</mat-option>\r\n                  <mat-option value=\"BZD\">BZD - Belize Dollar</mat-option>\r\n                  <mat-option value=\"CAD\">CAD - Canadian Dollar</mat-option>\r\n                  <mat-option value=\"CDF\">CDF - Congolese Franc</mat-option>\r\n                  <mat-option value=\"CHF\">CHF - Swiss Franc</mat-option>\r\n                  <mat-option value=\"CLF\">CLF - Chilean Unit of Account (UF)</mat-option>\r\n                  <mat-option value=\"CLP\">CLP - Chilean Peso</mat-option>\r\n                  <mat-option value=\"CNH\">CNH - Chinese Yuan (Offshore)</mat-option>\r\n                  <mat-option value=\"CNY\">CNY - Chinese Yuan</mat-option>\r\n                  <mat-option value=\"COP\">COP - Colombian Peso</mat-option>\r\n                  <mat-option value=\"CRC\">CRC - Costa Rican Colón</mat-option>\r\n                  <mat-option value=\"CUC\">CUC - Cuban Convertible Peso</mat-option>\r\n                  <mat-option value=\"CUP\">CUP - Cuban Peso</mat-option>\r\n                  <mat-option value=\"CVE\">CVE - Cape Verdean Escudo</mat-option>\r\n                  <mat-option value=\"CZK\">CZK - Czech Republic Koruna</mat-option>\r\n                  <mat-option value=\"DJF\">DJF - Djiboutian Franc</mat-option>\r\n                  <mat-option value=\"DKK\">DKK - Danish Krone</mat-option>\r\n                  <mat-option value=\"DOP\">DOP - Dominican Peso</mat-option>\r\n                  <mat-option value=\"DZD\">DZD - Algerian Dinar</mat-option>\r\n                  <mat-option value=\"EGP\">EGP - Egyptian Pound</mat-option>\r\n                  <mat-option value=\"ERN\">ERN - Eritrean Nakfa</mat-option>\r\n                  <mat-option value=\"ETB\">ETB - Ethiopian Birr</mat-option>\r\n                  <mat-option value=\"EUR\">EUR - Euro</mat-option>\r\n                  <mat-option value=\"FJD\">FJD - Fijian Dollar</mat-option>\r\n                  <mat-option value=\"FKP\">FKP - Falkland Islands Pound</mat-option>\r\n                  <mat-option value=\"GBP\">GBP - British Pound Sterling</mat-option>\r\n                  <mat-option value=\"GEL\">GEL - Georgian Lari</mat-option>\r\n                  <mat-option value=\"GGP\">GGP - Guernsey Pound</mat-option>\r\n                  <mat-option value=\"GHS\">GHS - Ghanaian Cedi</mat-option>\r\n                  <mat-option value=\"GIP\">GIP - Gibraltar Pound</mat-option>\r\n                  <mat-option value=\"GMD\">GMD - Gambian Dalasi</mat-option>\r\n                  <mat-option value=\"GNF\">GNF - Guinean Franc</mat-option>\r\n                  <mat-option value=\"GTQ\">GTQ - Guatemalan Quetzal</mat-option>\r\n                  <mat-option value=\"GYD\">GYD - Guyanaese Dollar</mat-option>\r\n                  <mat-option value=\"HKD\">HKD - Hong Kong Dollar</mat-option>\r\n                  <mat-option value=\"HNL\">HNL - Honduran Lempira</mat-option>\r\n                  <mat-option value=\"HRK\">HRK - Croatian Kuna</mat-option>\r\n                  <mat-option value=\"HTG\">HTG - Haitian Gourde</mat-option>\r\n                  <mat-option value=\"HUF\">HUF - Hungarian Forint</mat-option>\r\n                  <mat-option value=\"IDR\">IDR - Indonesian Rupiah</mat-option>\r\n                  <mat-option value=\"ILS\">ILS - Israeli New Sheqel</mat-option>\r\n                  <mat-option value=\"IMP\">IMP - Manx pound</mat-option>\r\n                  <mat-option value=\"INR\">INR - Indian Rupee</mat-option>\r\n                  <mat-option value=\"IQD\">IQD - Iraqi Dinar</mat-option>\r\n                  <mat-option value=\"IRR\">IRR - Iranian Rial</mat-option>\r\n                  <mat-option value=\"ISK\">ISK - Icelandic Króna</mat-option>\r\n                  <mat-option value=\"JEP\">JEP - Jersey Pound</mat-option>\r\n                  <mat-option value=\"JMD\">JMD - Jamaican Dollar</mat-option>\r\n                  <mat-option value=\"JOD\">JOD - Jordanian Dinar</mat-option>\r\n                  <mat-option value=\"JPY\">JPY - Japanese Yen</mat-option>\r\n                  <mat-option value=\"KES\">KES - Kenyan Shilling</mat-option>\r\n                  <mat-option value=\"KGS\">KGS - Kyrgystani Som</mat-option>\r\n                  <mat-option value=\"KHR\">KHR - Cambodian Riel</mat-option>\r\n                  <mat-option value=\"KMF\">KMF - Comorian Franc</mat-option>\r\n                  <mat-option value=\"KPW\">KPW - North Korean Won</mat-option>\r\n                  <mat-option value=\"KRW\">KRW - South Korean Won</mat-option>\r\n                  <mat-option value=\"KWD\">KWD - Kuwaiti Dinar</mat-option>\r\n                  <mat-option value=\"KYD\">KYD - Cayman Islands Dollar</mat-option>\r\n                  <mat-option value=\"KZT\">KZT - Kazakhstani Tenge</mat-option>\r\n                  <mat-option value=\"LAK\">LAK - Laotian Kip</mat-option>\r\n                  <mat-option value=\"LBP\">LBP - Lebanese Pound</mat-option>\r\n                  <mat-option value=\"LKR\">LKR - Sri Lankan Rupee</mat-option>\r\n                  <mat-option value=\"LRD\">LRD - Liberian Dollar</mat-option>\r\n                  <mat-option value=\"LSL\">LSL - Lesotho Loti</mat-option>\r\n                  <mat-option value=\"LYD\">LYD - Libyan Dinar</mat-option>\r\n                  <mat-option value=\"MAD\">MAD - Moroccan Dirham</mat-option>\r\n                  <mat-option value=\"MDL\">MDL - Moldovan Leu</mat-option>\r\n                  <mat-option value=\"MGA\">MGA - Malagasy Ariary</mat-option>\r\n                  <mat-option value=\"MKD\">MKD - Macedonian Denar</mat-option>\r\n                  <mat-option value=\"MMK\">MMK - Myanma Kyat</mat-option>\r\n                  <mat-option value=\"MNT\">MNT - Mongolian Tugrik</mat-option>\r\n                  <mat-option value=\"MOP\">MOP - Macanese Pataca</mat-option>\r\n                  <mat-option value=\"MRU\">MRU - Mauritanian Ouguiya</mat-option>\r\n                  <mat-option value=\"MUR\">MUR - Mauritian Rupee</mat-option>\r\n                  <mat-option value=\"MVR\">MVR - Maldivian Rufiyaa</mat-option>\r\n                  <mat-option value=\"MWK\">MWK - Malawian Kwacha</mat-option>\r\n                  <mat-option value=\"MXN\">MXN - Mexican Peso</mat-option>\r\n                  <mat-option value=\"MYR\">MYR - Malaysian Ringgit</mat-option>\r\n                  <mat-option value=\"MZN\">MZN - Mozambican Metical</mat-option>\r\n                  <mat-option value=\"NAD\">NAD - Namibian Dollar</mat-option>\r\n                  <mat-option value=\"NGN\">NGN - Nigerian Naira</mat-option>\r\n                  <mat-option value=\"NIO\">NIO - Nicaraguan Córdoba</mat-option>\r\n                  <mat-option value=\"NOK\">NOK - Norwegian Krone</mat-option>\r\n                  <mat-option value=\"NPR\">NPR - Nepalese Rupee</mat-option>\r\n                  <mat-option value=\"NZD\">NZD - New Zealand Dollar</mat-option>\r\n                  <mat-option value=\"OMR\">OMR - Omani Rial</mat-option>\r\n                  <mat-option value=\"PAB\">PAB - Panamanian Balboa</mat-option>\r\n                  <mat-option value=\"PEN\">PEN - Peruvian Nuevo Sol</mat-option>\r\n                  <mat-option value=\"PGK\">PGK - Papua New Guinean Kina</mat-option>\r\n                  <mat-option value=\"PHP\">PHP - Philippine Peso</mat-option>\r\n                  <mat-option value=\"PKR\">PKR - Pakistani Rupee</mat-option>\r\n                  <mat-option value=\"PLN\">PLN - Polish Zloty</mat-option>\r\n                  <mat-option value=\"PYG\">PYG - Paraguayan Guarani</mat-option>\r\n                  <mat-option value=\"QAR\">QAR - Qatari Rial</mat-option>\r\n                  <mat-option value=\"RON\">RON - Romanian Leu</mat-option>\r\n                  <mat-option value=\"RSD\">RSD - Serbian Dinar</mat-option>\r\n                  <mat-option value=\"RUB\">RUB - Russian Ruble</mat-option>\r\n                  <mat-option value=\"RWF\">RWF - Rwandan Franc</mat-option>\r\n                  <mat-option value=\"SAR\">SAR - Saudi Riyal</mat-option>\r\n                  <mat-option value=\"SBD\">SBD - Solomon Islands Dollar</mat-option>\r\n                  <mat-option value=\"SCR\">SCR - Seychellois Rupee</mat-option>\r\n                  <mat-option value=\"SDG\">SDG - Sudanese Pound</mat-option>\r\n                  <mat-option value=\"SEK\">SEK - Swedish Krona</mat-option>\r\n                  <mat-option value=\"SGD\">SGD - Singapore Dollar</mat-option>\r\n                  <mat-option value=\"SHP\">SHP - Saint Helena Pound</mat-option>\r\n                  <mat-option value=\"SLL\">SLL - Sierra Leonean Leone</mat-option>\r\n                  <mat-option value=\"SOS\">SOS - Somali Shilling</mat-option>\r\n                  <mat-option value=\"SRD\">SRD - Surinamese Dollar</mat-option>\r\n                  <mat-option value=\"SSP\">SSP - South Sudanese Pound</mat-option>\r\n                  <mat-option value=\"STD\">STD - São Tomé and Príncipe Dobra (pre-2018)</mat-option>\r\n                  <mat-option value=\"STN\">STN - São Tomé and Príncipe Dobra</mat-option>\r\n                  <mat-option value=\"SVC\">SVC - Salvadoran Colón</mat-option>\r\n                  <mat-option value=\"SYP\">SYP - Syrian Pound</mat-option>\r\n                  <mat-option value=\"SZL\">SZL - Swazi Lilangeni</mat-option>\r\n                  <mat-option value=\"THB\">THB - Thai Baht</mat-option>\r\n                  <mat-option value=\"TJS\">TJS - Tajikistani Somoni</mat-option>\r\n                  <mat-option value=\"TMT\">TMT - Turkmenistani Manat</mat-option>\r\n                  <mat-option value=\"TND\">TND - Tunisian Dinar</mat-option>\r\n                  <mat-option value=\"TOP\">TOP - Tongan Pa'anga</mat-option>\r\n                  <mat-option value=\"TRY\">TRY - Turkish Lira</mat-option>\r\n                  <mat-option value=\"TTD\">TTD - Trinidad and Tobago Dollar</mat-option>\r\n                  <mat-option value=\"TWD\">TWD - New Taiwan Dollar</mat-option>\r\n                  <mat-option value=\"TZS\">TZS - Tanzanian Shilling</mat-option>\r\n                  <mat-option value=\"UAH\">UAH - Ukrainian Hryvnia</mat-option>\r\n                  <mat-option value=\"UGX\">UGX - Ugandan Shilling</mat-option>\r\n                  <mat-option value=\"USD\">USD - United States Dollar</mat-option>\r\n                  <mat-option value=\"UYU\">UYU - Uruguayan Peso</mat-option>\r\n                  <mat-option value=\"UZS\">UZS - Uzbekistan Som</mat-option>\r\n                  <mat-option value=\"VEF\">VEF - Venezuelan Bolívar Fuerte (Old)</mat-option>\r\n                  <mat-option value=\"VES\">VES - Venezuelan Bolívar Soberano</mat-option>\r\n                  <mat-option value=\"VND\">VND - Vietnamese Dong</mat-option>\r\n                  <mat-option value=\"VUV\">VUV - Vanuatu Vatu</mat-option>\r\n                  <mat-option value=\"WST\">WST - Samoan Tala</mat-option>\r\n                  <mat-option value=\"XAF\">XAF - CFA Franc BEAC</mat-option>\r\n                  <mat-option value=\"XAG\">XAG - Silver Ounce</mat-option>\r\n                  <mat-option value=\"XAU\">XAU - Gold Ounce</mat-option>\r\n                  <mat-option value=\"XCD\">XCD - East Caribbean Dollar</mat-option>\r\n                  <mat-option value=\"XDR\">XDR - Special Drawing Rights</mat-option>\r\n                  <mat-option value=\"XOF\">XOF - CFA Franc BCEAO</mat-option>\r\n                  <mat-option value=\"XPD\">XPD - Palladium Ounce</mat-option>\r\n                  <mat-option value=\"XPF\">XPF - CFP Franc</mat-option>\r\n                  <mat-option value=\"XPT\">XPT - Platinum Ounce</mat-option>\r\n                  <mat-option value=\"YER\">YER - Yemeni Rial</mat-option>\r\n                  <mat-option value=\"ZAR\">ZAR - South African Rand</mat-option>\r\n                  <mat-option value=\"ZMW\">ZMW - Zambian Kwacha</mat-option>\r\n                  <mat-option value=\"ZWL\">ZWL - Zimbabwean Dollar</mat-option>\r\n                </mat-select>\r\n                <mat-error *ngIf=\"addEntityFormGroup.get('currency').hasError('required')\">\r\n                    Currency is required.\r\n                </mat-error>\r\n            </mat-form-field>\r\n        </div>\r\n        <div fxLayout=\"column\" fxLayoutGap=\"8px\">\r\n            <mat-form-field class=\"mat-block\">\r\n                <mat-label>Price</mat-label>\r\n                <input type=\"number\" matInput formControlName=\"price\" required>\r\n                <mat-error *ngIf=\"addEntityFormGroup.get('price').hasError('required')\">\r\n                    Price is required.\r\n                </mat-error>\r\n            </mat-form-field>\r\n        </div>\r\n    </div>\r\n    <div mat-dialog-actions fxLayout=\"row\" fxLayoutAlign=\"end center\">\r\n        <button mat-button color=\"primary\"\r\n                type=\"button\"\r\n                [disabled]=\"(isLoading$ | async)\"\r\n                (click)=\"cancel()\" cdkFocusInitial>\r\n            Cancel\r\n        </button>\r\n        <button mat-button mat-raised-button color=\"primary\"\r\n                type=\"submit\"\r\n                [disabled]=\"(isLoading$ | async) || addEntityForm.invalid || !addEntityForm.dirty\">\r\n            Create\r\n        </button>\r\n    </div>\r\n</form>",
+                "customCss": "/*=======================================================================*/\n/*==========  There are two examples: for edit and add entity  ==========*/\n/*=======================================================================*/\n/*========================  Edit entity example  ========================*/\n/*=======================================================================*/\n/*\n.edit-entity-form .boolean-value-input {\n    padding-left: 5px;\n}\n\n.edit-entity-form .boolean-value-input .checkbox-label {\n    color: rgba(0,0,0,0.54);\n    font-size: 12px;\n}\n\n.relations-list .header {\n    padding-right: 5px;\n    padding-bottom: 5px;\n    padding-left: 5px;\n}\n\n.relations-list .header .cell {\n    padding-right: 5px;\n    padding-left: 5px;\n    font-size: 12px;\n    font-weight: 700;\n    color: rgba(0, 0, 0, .54);\n    white-space: nowrap;\n}\n\n.relations-list .mat-form-field-infix {\n    width: auto !important;\n}\n\n.relations-list .body {\n    padding-right: 5px;\n    padding-bottom: 15px;\n    padding-left: 5px;\n}\n\n.relations-list .body .row {\n    padding-top: 5px;\n}\n\n.relations-list .body .cell {\n    padding-right: 5px;\n    padding-left: 5px;\n}\n\n.relations-list .body .md-button {\n    margin: 0;\n}\n*/\n/*========================================================================*/\n/*=========================  Add entity example  =========================*/\n/*========================================================================*/\n/*\n.add-entity-form .boolean-value-input {\n    padding-left: 5px;\n}\n\n.add-entity-form .boolean-value-input .checkbox-label {\n    color: rgba(0,0,0,0.54);\n    font-size: 12px;\n}\n\n.relations-list .header {\n    padding-right: 5px;\n    padding-bottom: 5px;\n    padding-left: 5px;\n}\n\n.relations-list .header .cell {\n    padding-right: 5px;\n    padding-left: 5px;\n    font-size: 12px;\n    font-weight: 700;\n    color: rgba(0, 0, 0, .54);\n    white-space: nowrap;\n}\n\n.relations-list .mat-form-field-infix {\n    width: auto !important;\n}\n\n.relations-list .body {\n    padding-right: 5px;\n    padding-bottom: 15px;\n    padding-left: 5px;\n}\n\n.relations-list .body .row {\n    padding-top: 5px;\n}\n\n.relations-list .body .cell {\n    padding-right: 5px;\n    padding-left: 5px;\n}\n\n.relations-list .body .md-button {\n    margin: 0;\n}\n*/\n",
+                "customFunction": "let $injector = widgetContext.$scope.$injector;\nlet customDialog = $injector.get(widgetContext.servicesMap.get('customDialog'));\nlet assetService = $injector.get(widgetContext.servicesMap.get('assetService'));\nlet deviceService = $injector.get(widgetContext.servicesMap.get('deviceService'));\nlet attributeService = $injector.get(widgetContext.servicesMap.get('attributeService'));\nopenAddEntityDialog();\n\nfunction openAddEntityDialog() {\n  customDialog.customDialog(htmlTemplate, AddEntityDialogController).subscribe();\n}\n\nfunction AddEntityDialogController(instance) {\n  let vm = instance;\n\n  vm.allowedEntityTypes = ['ASSET', 'DEVICE'];\n\n  vm.addEntityFormGroup = vm.fb.group({\n    entityName: ['', [vm.validators.required]],\n    billingType: ['', [vm.validators.required]],\n    interval: [null],\n    currency: ['EUR', [vm.validators.required]],\n    price: [null, [vm.validators.required]],\n    prodType: ['analysis', [vm.validators.required]] \n  });\n\n  vm.showInterval = false;\n\n  vm.onBillingTypeChange = function() {\n    let billingType = vm.addEntityFormGroup.get('billingType').value;\n    vm.showInterval = billingType === 'recurring';\n    if (!vm.showInterval) {\n      vm.addEntityFormGroup.get('interval').reset();\n    }\n  };\n\n  vm.cancel = function() {\n    vm.dialogRef.close(null);\n  };\n\n  vm.save = function() {\n    vm.addEntityFormGroup.markAsPristine();\n    saveEntityObservable().subscribe(\n      function(entity) {\n        saveAttributes(entity.id).subscribe(\n          function() {\n            widgetContext.updateAliases();\n            vm.dialogRef.close(null);\n          },\n          function(error) {\n            console.error('Error saving attributes:', error);\n          }\n        );\n      },\n      function(error) {\n        console.error('Error saving entity:', error);\n      }\n    );\n  };\n\n  function saveEntityObservable() {\n        const formValues = vm.addEntityFormGroup.value;\n        let entity = {\n          name: formValues.entityName,\n          type: \"Product\"\n        };\n        return assetService.saveAsset(entity);\n  }\n\n  function saveAttributes(entityId) {\n    let attributes = vm.addEntityFormGroup.value;\n    let attributesArray = [];\n    for (let key in attributes) {\n      if (attributes[key] !== null && (key !== 'interval' || attributes['billingType'] === 'recurring')) {\n        let value = key === 'price' ? attributes[key] * 100 : attributes[key];\n        attributesArray.push({ key: key, value: value });\n      }\n    }\n    if (attributesArray.length > 0) {\n      return attributeService.saveEntityAttributes(entityId, \"SERVER_SCOPE\", attributesArray).pipe(\n        widgetContext.rxjs.catchError((error) => {\n          console.error('Error saving attributes:', error);\n          return widgetContext.rxjs.throwError(error);\n        })\n      );\n    }\n    return widgetContext.rxjs.of([]);\n  }\n}",
+                "customResources": [],
+                "openInSeparateDialog": false,
+                "openInPopover": false,
+                "id": "c5c28935-8631-4e05-2653-c205d9a931dc"
+              }
+            ],
+            "actionCellButton": [
+              {
+                "name": "Edit Product",
+                "icon": "edit",
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "type": "customPretty",
+                "customHtml": "<form #editEntityForm=\"ngForm\" [formGroup]=\"editEntityFormGroup\" (ngSubmit)=\"save()\" class=\"edit-entity-form\">\r\n  <mat-toolbar class=\"flex flex-row\" color=\"primary\">\r\n    <h2>Edit {{ entityType.toLowerCase() }} {{ entityName }}</h2>\r\n    <span class=\"flex-1\"></span>\r\n    <button mat-icon-button (click)=\"cancel()\" type=\"button\">\r\n      <mat-icon class=\"material-icons\">close</mat-icon>\r\n    </button>\r\n  </mat-toolbar>\r\n\r\n  <mat-progress-bar color=\"warn\" mode=\"indeterminate\" *ngIf=\"isLoading$ | async\"></mat-progress-bar>\r\n  <div style=\"height: 4px;\" *ngIf=\"!(isLoading$ | async)\"></div>\r\n\r\n  <div mat-dialog-content class=\"flex flex-col\">\r\n    <!-- Main entity fields -->\r\n    <div class=\"flex flex-row gap-2 xs:flex-col xs:gap-0\">\r\n      <mat-form-field class=\"mat-block flex-1\">\r\n        <mat-label>Product Name</mat-label>\r\n        <input matInput formControlName=\"entityName\" required readonly>\r\n      </mat-form-field>\r\n    </div>\r\n\r\n    <!-- Attributes fields -->\r\n    <div formGroupName=\"attributes\" class=\"flex flex-col\">\r\n      <div class=\"flex flex-row gap-2 xs:flex-col xs:gap-0\">\r\n        <mat-form-field class=\"mat-block flex-1\">\r\n          <mat-label>Product Type</mat-label>\r\n          <mat-select formControlName=\"prodType\">\r\n            <mat-option value=\"datalicense\">\r\n              Data license per Diagnostic Basis Kit\r\n            </mat-option>\r\n            <mat-option value=\"loraSimLicense\">\r\n              LTE SIM card fee per LoRaWAN kit\r\n            </mat-option>\r\n            <mat-option value=\"generalReport\">\r\n              General Report\r\n            </mat-option>\r\n            <mat-option value=\"detailReportUltrasonic\">\r\n              Detail Report per Ultrasonic Measuring Device\r\n            </mat-option>\r\n            <mat-option value=\"detailReportLoraWan\">\r\n              Detail Report per LoRaWAN Room Sensor\r\n            </mat-option>\r\n          </mat-select>\r\n        </mat-form-field>\r\n\r\n        <mat-form-field class=\"mat-block flex-1\">\r\n          <mat-label>Billing Type</mat-label>\r\n          <mat-select formControlName=\"billingType\">\r\n            <mat-option value=\"one-time\">One-time</mat-option>\r\n            <mat-option value=\"recurring\">Recurring</mat-option>\r\n          </mat-select>\r\n        </mat-form-field>\r\n      </div>\r\n\r\n      <!-- Show Interval only if Billing Type is recurring -->\r\n      <div class=\"flex flex-row gap-2 xs:flex-col xs:gap-0\"\r\n           *ngIf=\"editEntityFormGroup.get('attributes').get('billingType').value === 'recurring'\">\r\n        <mat-form-field class=\"mat-block flex-1\">\r\n          <mat-label>Interval</mat-label>\r\n          <mat-select formControlName=\"interval\">\r\n            <mat-option value=\"day\">Day</mat-option>\r\n            <mat-option value=\"week\">Week</mat-option>\r\n            <mat-option value=\"month\">Month</mat-option>\r\n            <mat-option value=\"year\">Year</mat-option>\r\n          </mat-select>\r\n        </mat-form-field>\r\n      </div>\r\n\r\n      <div class=\"flex flex-row gap-2 xs:flex-col xs:gap-0\">\r\n        <mat-form-field class=\"mat-block flex-1\">\r\n          <mat-label>Currency</mat-label>\r\n          <mat-select formControlName=\"currency\">\r\n            <mat-option value=\"AED\">AED - United Arab Emirates Dirham</mat-option>\r\n            <mat-option value=\"AFN\">AFN - Afghan Afghani</mat-option>\r\n            <mat-option value=\"ALL\">ALL - Albanian Lek</mat-option>\r\n            <mat-option value=\"AMD\">AMD - Armenian Dram</mat-option>\r\n            <mat-option value=\"ANG\">ANG - Netherlands Antillean Guilder</mat-option>\r\n            <mat-option value=\"AOA\">AOA - Angolan Kwanza</mat-option>\r\n            <mat-option value=\"ARS\">ARS - Argentine Peso</mat-option>\r\n            <mat-option value=\"AUD\">AUD - Australian Dollar</mat-option>\r\n            <mat-option value=\"AWG\">AWG - Aruban Florin</mat-option>\r\n            <mat-option value=\"AZN\">AZN - Azerbaijani Manat</mat-option>\r\n            <mat-option value=\"BAM\">BAM - Bosnia-Herzegovina Convertible Mark</mat-option>\r\n            <mat-option value=\"BBD\">BBD - Barbadian Dollar</mat-option>\r\n            <mat-option value=\"BDT\">BDT - Bangladeshi Taka</mat-option>\r\n            <mat-option value=\"BGN\">BGN - Bulgarian Lev</mat-option>\r\n            <mat-option value=\"BHD\">BHD - Bahraini Dinar</mat-option>\r\n            <mat-option value=\"BIF\">BIF - Burundian Franc</mat-option>\r\n            <mat-option value=\"BMD\">BMD - Bermudan Dollar</mat-option>\r\n            <mat-option value=\"BND\">BND - Brunei Dollar</mat-option>\r\n            <mat-option value=\"BOB\">BOB - Bolivian Boliviano</mat-option>\r\n            <mat-option value=\"BRL\">BRL - Brazilian Real</mat-option>\r\n            <mat-option value=\"BSD\">BSD - Bahamian Dollar</mat-option>\r\n            <mat-option value=\"BTC\">BTC - Bitcoin</mat-option>\r\n            <mat-option value=\"BTN\">BTN - Bhutanese Ngultrum</mat-option>\r\n            <mat-option value=\"BWP\">BWP - Botswanan Pula</mat-option>\r\n            <mat-option value=\"BYN\">BYN - Belarusian Ruble</mat-option>\r\n            <mat-option value=\"BZD\">BZD - Belize Dollar</mat-option>\r\n            <mat-option value=\"CAD\">CAD - Canadian Dollar</mat-option>\r\n            <mat-option value=\"CDF\">CDF - Congolese Franc</mat-option>\r\n            <mat-option value=\"CHF\">CHF - Swiss Franc</mat-option>\r\n            <mat-option value=\"CLF\">CLF - Chilean Unit of Account (UF)</mat-option>\r\n            <mat-option value=\"CLP\">CLP - Chilean Peso</mat-option>\r\n            <mat-option value=\"CNH\">CNH - Chinese Yuan (Offshore)</mat-option>\r\n            <mat-option value=\"CNY\">CNY - Chinese Yuan</mat-option>\r\n            <mat-option value=\"COP\">COP - Colombian Peso</mat-option>\r\n            <mat-option value=\"CRC\">CRC - Costa Rican Colón</mat-option>\r\n            <mat-option value=\"CUC\">CUC - Cuban Convertible Peso</mat-option>\r\n            <mat-option value=\"CUP\">CUP - Cuban Peso</mat-option>\r\n            <mat-option value=\"CVE\">CVE - Cape Verdean Escudo</mat-option>\r\n            <mat-option value=\"CZK\">CZK - Czech Republic Koruna</mat-option>\r\n            <mat-option value=\"DJF\">DJF - Djiboutian Franc</mat-option>\r\n            <mat-option value=\"DKK\">DKK - Danish Krone</mat-option>\r\n            <mat-option value=\"DOP\">DOP - Dominican Peso</mat-option>\r\n            <mat-option value=\"DZD\">DZD - Algerian Dinar</mat-option>\r\n            <mat-option value=\"EGP\">EGP - Egyptian Pound</mat-option>\r\n            <mat-option value=\"ERN\">ERN - Eritrean Nakfa</mat-option>\r\n            <mat-option value=\"ETB\">ETB - Ethiopian Birr</mat-option>\r\n            <mat-option value=\"EUR\">EUR - Euro</mat-option>\r\n            <mat-option value=\"FJD\">FJD - Fijian Dollar</mat-option>\r\n            <mat-option value=\"FKP\">FKP - Falkland Islands Pound</mat-option>\r\n            <mat-option value=\"GBP\">GBP - British Pound Sterling</mat-option>\r\n            <mat-option value=\"GEL\">GEL - Georgian Lari</mat-option>\r\n            <mat-option value=\"GGP\">GGP - Guernsey Pound</mat-option>\r\n            <mat-option value=\"GHS\">GHS - Ghanaian Cedi</mat-option>\r\n            <mat-option value=\"GIP\">GIP - Gibraltar Pound</mat-option>\r\n            <mat-option value=\"GMD\">GMD - Gambian Dalasi</mat-option>\r\n            <mat-option value=\"GNF\">GNF - Guinean Franc</mat-option>\r\n            <mat-option value=\"GTQ\">GTQ - Guatemalan Quetzal</mat-option>\r\n            <mat-option value=\"GYD\">GYD - Guyanaese Dollar</mat-option>\r\n            <mat-option value=\"HKD\">HKD - Hong Kong Dollar</mat-option>\r\n            <mat-option value=\"HNL\">HNL - Honduran Lempira</mat-option>\r\n            <mat-option value=\"HRK\">HRK - Croatian Kuna</mat-option>\r\n            <mat-option value=\"HTG\">HTG - Haitian Gourde</mat-option>\r\n            <mat-option value=\"HUF\">HUF - Hungarian Forint</mat-option>\r\n            <mat-option value=\"IDR\">IDR - Indonesian Rupiah</mat-option>\r\n            <mat-option value=\"ILS\">ILS - Israeli New Sheqel</mat-option>\r\n            <mat-option value=\"IMP\">IMP - Manx Pound</mat-option>\r\n            <mat-option value=\"INR\">INR - Indian Rupee</mat-option>\r\n            <mat-option value=\"IQD\">IQD - Iraqi Dinar</mat-option>\r\n            <mat-option value=\"IRR\">IRR - Iranian Rial</mat-option>\r\n            <mat-option value=\"ISK\">ISK - Icelandic Króna</mat-option>\r\n            <mat-option value=\"JEP\">JEP - Jersey Pound</mat-option>\r\n            <mat-option value=\"JMD\">JMD - Jamaican Dollar</mat-option>\r\n            <mat-option value=\"JOD\">JOD - Jordanian Dinar</mat-option>\r\n            <mat-option value=\"JPY\">JPY - Japanese Yen</mat-option>\r\n            <mat-option value=\"KES\">KES - Kenyan Shilling</mat-option>\r\n            <mat-option value=\"KGS\">KGS - Kyrgystani Som</mat-option>\r\n            <mat-option value=\"KHR\">KHR - Cambodian Riel</mat-option>\r\n            <mat-option value=\"KMF\">KMF - Comorian Franc</mat-option>\r\n            <mat-option value=\"KPW\">KPW - North Korean Won</mat-option>\r\n            <mat-option value=\"KRW\">KRW - South Korean Won</mat-option>\r\n            <mat-option value=\"KWD\">KWD - Kuwaiti Dinar</mat-option>\r\n            <mat-option value=\"KYD\">KYD - Cayman Islands Dollar</mat-option>\r\n            <mat-option value=\"KZT\">KZT - Kazakhstani Tenge</mat-option>\r\n            <mat-option value=\"LAK\">LAK - Laotian Kip</mat-option>\r\n            <mat-option value=\"LBP\">LBP - Lebanese Pound</mat-option>\r\n            <mat-option value=\"LKR\">LKR - Sri Lankan Rupee</mat-option>\r\n            <mat-option value=\"LRD\">LRD - Liberian Dollar</mat-option>\r\n            <mat-option value=\"LSL\">LSL - Lesotho Loti</mat-option>\r\n            <mat-option value=\"LYD\">LYD - Libyan Dinar</mat-option>\r\n            <mat-option value=\"MAD\">MAD - Moroccan Dirham</mat-option>\r\n            <mat-option value=\"MDL\">MDL - Moldovan Leu</mat-option>\r\n            <mat-option value=\"MGA\">MGA - Malagasy Ariary</mat-option>\r\n            <mat-option value=\"MKD\">MKD - Macedonian Denar</mat-option>\r\n            <mat-option value=\"MMK\">MMK - Myanma Kyat</mat-option>\r\n            <mat-option value=\"MNT\">MNT - Mongolian Tugrik</mat-option>\r\n            <mat-option value=\"MOP\">MOP - Macanese Pataca</mat-option>\r\n            <mat-option value=\"MRU\">MRU - Mauritanian Ouguiya</mat-option>\r\n            <mat-option value=\"MUR\">MUR - Mauritian Rupee</mat-option>\r\n            <mat-option value=\"MVR\">MVR - Maldivian Rufiyaa</mat-option>\r\n            <mat-option value=\"MWK\">MWK - Malawian Kwacha</mat-option>\r\n            <mat-option value=\"MXN\">MXN - Mexican Peso</mat-option>\r\n            <mat-option value=\"MYR\">MYR - Malaysian Ringgit</mat-option>\r\n            <mat-option value=\"MZN\">MZN - Mozambican Metical</mat-option>\r\n            <mat-option value=\"NAD\">NAD - Namibian Dollar</mat-option>\r\n            <mat-option value=\"NGN\">NGN - Nigerian Naira</mat-option>\r\n            <mat-option value=\"NIO\">NIO - Nicaraguan Córdoba</mat-option>\r\n            <mat-option value=\"NOK\">NOK - Norwegian Krone</mat-option>\r\n            <mat-option value=\"NPR\">NPR - Nepalese Rupee</mat-option>\r\n            <mat-option value=\"NZD\">NZD - New Zealand Dollar</mat-option>\r\n            <mat-option value=\"OMR\">OMR - Omani Rial</mat-option>\r\n            <mat-option value=\"PAB\">PAB - Panamanian Balboa</mat-option>\r\n            <mat-option value=\"PEN\">PEN - Peruvian Nuevo Sol</mat-option>\r\n            <mat-option value=\"PGK\">PGK - Papua New Guinean Kina</mat-option>\r\n            <mat-option value=\"PHP\">PHP - Philippine Peso</mat-option>\r\n            <mat-option value=\"PKR\">PKR - Pakistani Rupee</mat-option>\r\n            <mat-option value=\"PLN\">PLN - Polish Zloty</mat-option>\r\n            <mat-option value=\"PYG\">PYG - Paraguayan Guarani</mat-option>\r\n            <mat-option value=\"QAR\">QAR - Qatari Rial</mat-option>\r\n            <mat-option value=\"RON\">RON - Romanian Leu</mat-option>\r\n            <mat-option value=\"RSD\">RSD - Serbian Dinar</mat-option>\r\n            <mat-option value=\"RUB\">RUB - Russian Ruble</mat-option>\r\n            <mat-option value=\"RWF\">RWF - Rwandan Franc</mat-option>\r\n            <mat-option value=\"SAR\">SAR - Saudi Riyal</mat-option>\r\n            <mat-option value=\"SBD\">SBD - Solomon Islands Dollar</mat-option>\r\n            <mat-option value=\"SCR\">SCR - Seychellois Rupee</mat-option>\r\n            <mat-option value=\"SDG\">SDG - Sudanese Pound</mat-option>\r\n            <mat-option value=\"SEK\">SEK - Swedish Krona</mat-option>\r\n            <mat-option value=\"SGD\">SGD - Singapore Dollar</mat-option>\r\n            <mat-option value=\"SHP\">SHP - Saint Helena Pound</mat-option>\r\n            <mat-option value=\"SLL\">SLL - Sierra Leonean Leone</mat-option>\r\n            <mat-option value=\"SOS\">SOS - Somali Shilling</mat-option>\r\n            <mat-option value=\"SRD\">SRD - Surinamese Dollar</mat-option>\r\n            <mat-option value=\"SSP\">SSP - South Sudanese Pound</mat-option>\r\n            <mat-option value=\"STD\">STD - São Tomé and Príncipe Dobra (pre-2018)</mat-option>\r\n            <mat-option value=\"STN\">STN - São Tomé and Príncipe Dobra</mat-option>\r\n            <mat-option value=\"SVC\">SVC - Salvadoran Colón</mat-option>\r\n            <mat-option value=\"SYP\">SYP - Syrian Pound</mat-option>\r\n            <mat-option value=\"SZL\">SZL - Swazi Lilangeni</mat-option>\r\n            <mat-option value=\"THB\">THB - Thai Baht</mat-option>\r\n            <mat-option value=\"TJS\">TJS - Tajikistani Somoni</mat-option>\r\n            <mat-option value=\"TMT\">TMT - Turkmenistani Manat</mat-option>\r\n            <mat-option value=\"TND\">TND - Tunisian Dinar</mat-option>\r\n            <mat-option value=\"TOP\">TOP - Tongan Pa'anga</mat-option>\r\n            <mat-option value=\"TRY\">TRY - Turkish Lira</mat-option>\r\n            <mat-option value=\"TTD\">TTD - Trinidad and Tobago Dollar</mat-option>\r\n            <mat-option value=\"TWD\">TWD - New Taiwan Dollar</mat-option>\r\n            <mat-option value=\"TZS\">TZS - Tanzanian Shilling</mat-option>\r\n            <mat-option value=\"UAH\">UAH - Ukrainian Hryvnia</mat-option>\r\n            <mat-option value=\"UGX\">UGX - Ugandan Shilling</mat-option>\r\n            <mat-option value=\"USD\">USD - United States Dollar</mat-option>\r\n            <mat-option value=\"UYU\">UYU - Uruguayan Peso</mat-option>\r\n            <mat-option value=\"UZS\">UZS - Uzbekistan Som</mat-option>\r\n            <mat-option value=\"VEF\">VEF - Venezuelan Bolívar Fuerte (Old)</mat-option>\r\n            <mat-option value=\"VES\">VES - Venezuelan Bolívar Soberano</mat-option>\r\n            <mat-option value=\"VND\">VND - Vietnamese Dong</mat-option>\r\n            <mat-option value=\"VUV\">VUV - Vanuatu Vatu</mat-option>\r\n            <mat-option value=\"WST\">WST - Samoan Tala</mat-option>\r\n            <mat-option value=\"XAF\">XAF - CFA Franc BEAC</mat-option>\r\n            <mat-option value=\"XAG\">XAG - Silver Ounce</mat-option>\r\n            <mat-option value=\"XAU\">XAU - Gold Ounce</mat-option>\r\n            <mat-option value=\"XCD\">XCD - East Caribbean Dollar</mat-option>\r\n            <mat-option value=\"XDR\">XDR - Special Drawing Rights</mat-option>\r\n            <mat-option value=\"XOF\">XOF - CFA Franc BCEAO</mat-option>\r\n            <mat-option value=\"XPD\">XPD - Palladium Ounce</mat-option>\r\n            <mat-option value=\"XPF\">XPF - CFP Franc</mat-option>\r\n            <mat-option value=\"XPT\">XPT - Platinum Ounce</mat-option>\r\n            <mat-option value=\"YER\">YER - Yemeni Rial</mat-option>\r\n            <mat-option value=\"ZAR\">ZAR - South African Rand</mat-option>\r\n            <mat-option value=\"ZMW\">ZMW - Zambian Kwacha</mat-option>\r\n            <mat-option value=\"ZWL\">ZWL - Zimbabwean Dollar</mat-option>\r\n          </mat-select>\r\n        </mat-form-field>\r\n\r\n        <mat-form-field class=\"mat-block flex-1\">\r\n          <mat-label>Price</mat-label>\r\n          <input matInput type=\"number\" formControlName=\"price\" step=\"any\">\r\n        </mat-form-field>\r\n      </div>\r\n    </div>\r\n  </div>\r\n  <div mat-dialog-actions class=\"flex flex-row items-center justify-end\">\r\n    <button mat-button color=\"primary\" type=\"button\" [disabled]=\"isLoading$ | async\" (click)=\"cancel()\" cdkFocusInitial>\r\n      Cancel\r\n    </button>\r\n    <button mat-button mat-raised-button color=\"primary\" type=\"submit\" [disabled]=\"(isLoading$ | async) || editEntityForm.invalid || !editEntityForm.dirty\">\r\n      Save\r\n    </button>\r\n  </div>\r\n</form>\r\n",
+                "customCss": "/*=======================================================================*/\n/*==========  There are two examples: for edit and add entity  ==========*/\n/*=======================================================================*/\n/*========================  Edit entity example  ========================*/\n/*=======================================================================*/\n/*\n.edit-entity-form .boolean-value-input {\n    padding-left: 5px;\n}\n\n.edit-entity-form .boolean-value-input .checkbox-label {\n    color: rgba(0,0,0,0.54);\n    font-size: 12px;\n}\n\n.relations-list .header {\n    padding-right: 5px;\n    padding-bottom: 5px;\n    padding-left: 5px;\n}\n\n.relations-list .header .cell {\n    padding-right: 5px;\n    padding-left: 5px;\n    font-size: 12px;\n    font-weight: 700;\n    color: rgba(0, 0, 0, .54);\n    white-space: nowrap;\n}\n\n.relations-list .mat-form-field-infix {\n    width: auto !important;\n}\n\n.relations-list .body {\n    padding-right: 5px;\n    padding-bottom: 15px;\n    padding-left: 5px;\n}\n\n.relations-list .body .row {\n    padding-top: 5px;\n}\n\n.relations-list .body .cell {\n    padding-right: 5px;\n    padding-left: 5px;\n}\n\n.relations-list .body .md-button {\n    margin: 0;\n}\n*/\n/*========================================================================*/\n/*=========================  Add entity example  =========================*/\n/*========================================================================*/\n/*\n.add-entity-form .boolean-value-input {\n    padding-left: 5px;\n}\n\n.add-entity-form .boolean-value-input .checkbox-label {\n    color: rgba(0,0,0,0.54);\n    font-size: 12px;\n}\n\n.relations-list .header {\n    padding-right: 5px;\n    padding-bottom: 5px;\n    padding-left: 5px;\n}\n\n.relations-list .header .cell {\n    padding-right: 5px;\n    padding-left: 5px;\n    font-size: 12px;\n    font-weight: 700;\n    color: rgba(0, 0, 0, .54);\n    white-space: nowrap;\n}\n\n.relations-list .mat-form-field-infix {\n    width: auto !important;\n}\n\n.relations-list .body {\n    padding-right: 5px;\n    padding-bottom: 15px;\n    padding-left: 5px;\n}\n\n.relations-list .body .row {\n    padding-top: 5px;\n}\n\n.relations-list .body .cell {\n    padding-right: 5px;\n    padding-left: 5px;\n}\n\n.relations-list .body .md-button {\n    margin: 0;\n}\n*/\n",
+                "customFunction": "/*=======================================================================*/\r\n/*========================  Edit entity example  ========================*/\r\n/*=======================================================================*/\r\n\r\nlet $injector = widgetContext.$scope.$injector;\r\nlet customDialog = $injector.get(widgetContext.servicesMap.get('customDialog'));\r\nlet entityService = $injector.get(widgetContext.servicesMap.get('entityService'));\r\nlet assetService = $injector.get(widgetContext.servicesMap.get('assetService'));\r\nlet deviceService = $injector.get(widgetContext.servicesMap.get('deviceService'));\r\nlet attributeService = $injector.get(widgetContext.servicesMap.get('attributeService'));\r\nlet entityRelationService = $injector.get(widgetContext.servicesMap.get('entityRelationService'));\r\n\r\nopenEditEntityDialog();\r\n\r\nfunction openEditEntityDialog() {\r\n    customDialog.customDialog(htmlTemplate, EditEntityDialogController).subscribe();\r\n}\r\n\r\nfunction EditEntityDialogController(instance) {\r\n    let vm = instance;\r\n\r\n    vm.entityName = entityName;\r\n    vm.entityType = entityId.entityType;\r\n    vm.entitySearchDirection = {\r\n        from: \"FROM\",\r\n        to: \"TO\"\r\n    };\r\n    vm.attributes = {};\r\n    vm.oldRelationsData = [];\r\n    vm.relationsToDelete = [];\r\n    vm.entity = {};\r\n\r\n    // Updated form group with new attribute fields\r\n    vm.editEntityFormGroup = vm.fb.group({\r\n        entityName: ['', [vm.validators.required]],\r\n        attributes: vm.fb.group({\r\n            prodType: [null],\r\n            billingType: [null],\r\n            interval: [null],\r\n            currency: [null],\r\n            price: [null]\r\n        }),\r\n        oldRelations: vm.fb.array([]),\r\n        relations: vm.fb.array([])\r\n    });\r\n\r\n    getEntityInfo();\r\n\r\n    vm.cancel = function() {\r\n        vm.dialogRef.close(null);\r\n    };\r\n\r\n    vm.relations = function() {\r\n        return vm.editEntityFormGroup.get('relations');\r\n    };\r\n\r\n    vm.oldRelations = function() {\r\n        return vm.editEntityFormGroup.get('oldRelations');\r\n    };\r\n\r\n    vm.addRelation = function() {\r\n        vm.relations().push(vm.fb.group({\r\n            relatedEntity: [null, [vm.validators.required]],\r\n            relationType: [null, [vm.validators.required]],\r\n            direction: [null, [vm.validators.required]]\r\n        }));\r\n    };\r\n\r\n    function addOldRelation() {\r\n        vm.oldRelations().push(vm.fb.group({\r\n            relatedEntity: [{value: null, disabled: true}, [vm.validators.required]],\r\n            relationType: [{value: null, disabled: true}, [vm.validators.required]],\r\n            direction: [{value: null, disabled: true}, [vm.validators.required]]\r\n        }));\r\n    }\r\n\r\n    vm.removeRelation = function(index) {\r\n        vm.relations().removeAt(index);\r\n        vm.relations().markAsDirty();\r\n    };\r\n\r\n    vm.removeOldRelation = function(index, relation) {\r\n        vm.oldRelations().removeAt(index);\r\n        vm.relationsToDelete.push(relation);\r\n        vm.oldRelations().markAsDirty();\r\n    };\r\n\r\n    vm.save = function() {\r\n        vm.editEntityFormGroup.markAsPristine();\r\n        widgetContext.rxjs.forkJoin([\r\n            saveAttributes(entityId),\r\n            saveRelations(entityId),\r\n            saveEntity()\r\n        ]).subscribe(\r\n            function () {\r\n                widgetContext.updateAliases();\r\n                vm.dialogRef.close(null);\r\n            }\r\n        );\r\n    };\r\n\r\n    function getEntityAttributes(attributes) {\r\n        for (var i = 0; i < attributes.length; i++) {\r\n            if (attributes[i].key === 'price') {\r\n                // Convert to float and scale down by 100 before filling the price field\r\n                vm.attributes[attributes[i].key] = parseFloat(attributes[i].value) / 100;\r\n            } else {\r\n                vm.attributes[attributes[i].key] = attributes[i].value;\r\n            }\r\n        }\r\n    }\r\n\r\n    function getEntityRelations(relations) {\r\n        let relationsFrom = relations[0];\r\n        let relationsTo = relations[1];\r\n        for (let i = 0; i < relationsFrom.length; i++) {\r\n            let relation = {\r\n                direction: 'FROM',\r\n                relationType: relationsFrom[i].type,\r\n                relatedEntity: relationsFrom[i].to\r\n            };\r\n            vm.oldRelationsData.push(relation);\r\n            addOldRelation();\r\n        }\r\n        for (let i = 0; i < relationsTo.length; i++) {\r\n            let relation = {\r\n                direction: 'TO',\r\n                relationType: relationsTo[i].type,\r\n                relatedEntity: relationsTo[i].from\r\n            };\r\n            vm.oldRelationsData.push(relation);\r\n            addOldRelation();\r\n        }\r\n    }\r\n\r\n    function getEntityInfo() {\r\n         widgetContext.rxjs.forkJoin([\r\n             entityRelationService.findInfoByFrom(entityId),\r\n             entityRelationService.findInfoByTo(entityId),\r\n             attributeService.getEntityAttributes(entityId, 'SERVER_SCOPE'),\r\n             entityService.getEntity(entityId.entityType, entityId.id)\r\n         ]).subscribe(\r\n             function (data) {\r\n                 getEntityRelations(data.slice(0,2));\r\n                 getEntityAttributes(data[2]);\r\n                 vm.entity = data[3];\r\n                 vm.editEntityFormGroup.patchValue({\r\n                     entityName: vm.entity.name,\r\n                     entityType: vm.entityType,\r\n                     entityLabel: vm.entity.label,\r\n                     type: vm.entity.type,\r\n                     attributes: vm.attributes,\r\n                     oldRelations: vm.oldRelationsData\r\n                 }, {emitEvent: false});\r\n             }\r\n         );\r\n     }\r\n\r\n    function saveEntity() {\r\n        const formValues = vm.editEntityFormGroup.value;\r\n        if (vm.entity.label !== formValues.entityLabel){\r\n            vm.entity.label = formValues.entityLabel;\r\n            if (formValues.entityType == 'ASSET') {\r\n                return assetService.saveAsset(vm.entity);\r\n            } else if (formValues.entityType == 'DEVICE') {\r\n                return deviceService.saveDevice(vm.entity);\r\n            }\r\n        }\r\n        return widgetContext.rxjs.of([]);\r\n    }\r\n\r\n    function saveAttributes(entityId) {\r\n        let attributes = vm.editEntityFormGroup.get('attributes').value;\r\n        let attributesArray = [];\r\n        for (let key in attributes) {\r\n            // When saving, if the key is \"price\", multiply by 100 and convert to integer\r\n            let newValue = attributes[key];\r\n            if (key === 'price' && newValue != null) {\r\n                newValue = parseInt(parseFloat(newValue) * 100);\r\n            }\r\n            if (newValue !== vm.attributes[key]) {\r\n                attributesArray.push({key: key, value: newValue});\r\n            }\r\n        }\r\n        if (attributesArray.length > 0) {\r\n            return attributeService.saveEntityAttributes(entityId, \"SERVER_SCOPE\", attributesArray);\r\n        }\r\n        return widgetContext.rxjs.of([]);\r\n    }\r\n\r\n    function saveRelations(entityId) {\r\n        let relations = vm.editEntityFormGroup.get('relations').value;\r\n        let tasks = [];\r\n        for(let i = 0; i < relations.length; i++) {\r\n            let relation = {\r\n                type: relations[i].relationType,\r\n                typeGroup: 'COMMON'\r\n            };\r\n            if (relations[i].direction == 'FROM') {\r\n                relation.to = relations[i].relatedEntity;\r\n                relation.from = entityId;\r\n            } else {\r\n                relation.to = entityId;\r\n                relation.from = relations[i].relatedEntity;\r\n            }\r\n            tasks.push(entityRelationService.saveRelation(relation));\r\n        }\r\n        for (let i = 0; i < vm.relationsToDelete.length; i++) {\r\n            let relation = {\r\n                type: vm.relationsToDelete[i].relationType\r\n            };\r\n            if (vm.relationsToDelete[i].direction == 'FROM') {\r\n                relation.to = vm.relationsToDelete[i].relatedEntity;\r\n                relation.from = entityId;\r\n            } else {\r\n                relation.to = entityId;\r\n                relation.from = vm.relationsToDelete[i].relatedEntity;\r\n            }\r\n            tasks.push(entityRelationService.deleteRelation(relation.from, relation.type, relation.to));\r\n        }\r\n        if (tasks.length > 0) {\r\n            return widgetContext.rxjs.forkJoin(tasks);\r\n        }\r\n        return widgetContext.rxjs.of([]);\r\n    }\r\n}\r\n",
+                "customResources": [],
+                "openInSeparateDialog": false,
+                "openInPopover": false,
+                "id": "68c72ce1-f663-662b-f451-188cacc62c6d"
+              },
+              {
+                "name": "delete",
+                "icon": "delete",
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "type": "custom",
+                "customFunction": "var $injector = widgetContext.$scope.$injector;\nvar dialogs = $injector.get(widgetContext.servicesMap.get('dialogs'));\nvar assetService = $injector.get(widgetContext.servicesMap.get('assetService'));\n\nopenDeleteDeviceDialog();\n\nfunction openDeleteDeviceDialog() {\n  var title = 'Are you sure you want to delete the product ' + entityName + '?';\n  var content = 'Be careful, after the confirmation, the device and all related data will become unrecoverable!';\n  dialogs.confirm(title, content, 'Cancel', 'Delete').subscribe(\n    function(result) {\n      if (result) {\n        deleteDevice();\n      }\n    }\n  );\n}\n\nfunction deleteDevice() {\n  assetService.deleteAsset(entityId.id).subscribe(\n    function() {\n      widgetContext.updateAliases();\n    }\n  );\n}\n",
+                "openInSeparateDialog": false,
+                "openInPopover": false,
+                "id": "e218be5d-c5eb-d111-f26c-24a0ebc3a567"
+              }
+            ]
+          },
+          "showTitleIcon": false,
+          "titleIcon": "list",
+          "iconColor": null,
+          "titleFont": {
+            "size": 16,
+            "sizeUnit": "px",
+            "family": "Roboto",
+            "weight": "500",
+            "style": "normal"
+          },
+          "titleColor": null,
+          "enableDataExport": false,
+          "titleTooltip": "",
+          "widgetStyle": {},
+          "widgetCss": "",
+          "pageSize": 1024,
+          "noDataDisplayMessage": "",
+          "borderRadius": "8px"
+        },
+        "row": 0,
+        "col": 0,
+        "id": "c8433eb6-3412-1a0f-3ff5-498dedaf1cab"
+      },
+      "4ef95491-ce57-b477-8e20-327a4abdde25": {
+        "typeFullFqn": "system.input_widgets.update_multiple_attributes",
+        "type": "latest",
+        "sizeX": 7.5,
+        "sizeY": 3,
+        "config": {
+          "datasources": [
+            {
+              "type": "entity",
+              "name": "",
+              "entityAliasId": "39a074aa-07b2-0065-9adb-098a525bd422",
+              "dataKeys": [
+                {
+                  "name": "name",
+                  "type": "entityField",
+                  "label": "Name",
+                  "color": "#2196f3",
+                  "settings": {
+                    "dataKeyHidden": false,
+                    "dataKeyType": "server",
+                    "dataKeyValueType": "string",
+                    "required": true,
+                    "isEditable": "editable",
+                    "disabledOnDataKey": "",
+                    "appearance": "outline",
+                    "subscriptSizing": "fixed",
+                    "slideToggleLabelPosition": "after",
+                    "selectOptions": [],
+                    "step": 1,
+                    "minValue": null,
+                    "maxValue": null,
+                    "requiredErrorMessage": "",
+                    "minValueErrorMessage": "",
+                    "maxValueErrorMessage": "",
+                    "invalidDateErrorMessage": "",
+                    "invalidJsonErrorMessage": "",
+                    "dialogTitle": "",
+                    "saveButtonLabel": "",
+                    "cancelButtonLabel": "",
+                    "useCustomIcon": false,
+                    "icon": "",
+                    "customIcon": "",
+                    "useGetValueFunction": false,
+                    "getValueFunctionBody": "",
+                    "useSetValueFunction": false,
+                    "setValueFunctionBody": ""
+                  },
+                  "_hash": 0.19571622665456534,
+                  "aggregationType": null,
+                  "units": null,
+                  "decimals": null,
+                  "funcBody": null,
+                  "usePostProcessing": null,
+                  "postFuncBody": null
+                },
+                {
+                  "name": "billingType",
+                  "type": "attribute",
+                  "label": "billingType",
+                  "color": "#607d8b",
+                  "settings": {
+                    "dataKeyHidden": false,
+                    "dataKeyType": "server",
+                    "dataKeyValueType": "select",
+                    "required": true,
+                    "isEditable": "editable",
+                    "disabledOnDataKey": "",
+                    "appearance": "outline",
+                    "subscriptSizing": "fixed",
+                    "slideToggleLabelPosition": "after",
+                    "selectOptions": [
+                      {
+                        "value": "one_time",
+                        "label": "One Time"
+                      },
+                      {
+                        "value": "recurring",
+                        "label": "Recurring"
+                      }
+                    ],
+                    "step": 1,
+                    "minValue": null,
+                    "maxValue": null,
+                    "requiredErrorMessage": "",
+                    "minValueErrorMessage": "",
+                    "maxValueErrorMessage": "",
+                    "invalidDateErrorMessage": "",
+                    "invalidJsonErrorMessage": "",
+                    "dialogTitle": "",
+                    "saveButtonLabel": "",
+                    "cancelButtonLabel": "",
+                    "useCustomIcon": false,
+                    "icon": "",
+                    "customIcon": "",
+                    "useGetValueFunction": false,
+                    "getValueFunctionBody": "",
+                    "useSetValueFunction": false,
+                    "setValueFunctionBody": ""
+                  },
+                  "_hash": 0.4736685221785595,
+                  "aggregationType": null,
+                  "units": null,
+                  "decimals": null,
+                  "funcBody": null,
+                  "usePostProcessing": null,
+                  "postFuncBody": null
+                },
+                {
+                  "name": "interval",
+                  "type": "attribute",
+                  "label": "interval",
+                  "color": "#f44336",
+                  "settings": {
+                    "dataKeyHidden": false,
+                    "dataKeyType": "server",
+                    "dataKeyValueType": "select",
+                    "required": false,
+                    "isEditable": "editable",
+                    "disabledOnDataKey": "",
+                    "appearance": "outline",
+                    "subscriptSizing": "fixed",
+                    "slideToggleLabelPosition": "after",
+                    "selectOptions": [
+                      {
+                        "value": "day",
+                        "label": "Day"
+                      },
+                      {
+                        "value": "week",
+                        "label": "Week"
+                      },
+                      {
+                        "value": "month",
+                        "label": "Month"
+                      },
+                      {
+                        "value": "year",
+                        "label": "Year"
+                      }
+                    ],
+                    "step": 1,
+                    "minValue": null,
+                    "maxValue": null,
+                    "requiredErrorMessage": "",
+                    "minValueErrorMessage": "",
+                    "maxValueErrorMessage": "",
+                    "invalidDateErrorMessage": "",
+                    "invalidJsonErrorMessage": "",
+                    "dialogTitle": "",
+                    "saveButtonLabel": "",
+                    "cancelButtonLabel": "",
+                    "useCustomIcon": false,
+                    "icon": "",
+                    "customIcon": "",
+                    "useGetValueFunction": false,
+                    "getValueFunctionBody": "",
+                    "useSetValueFunction": false,
+                    "setValueFunctionBody": ""
+                  },
+                  "_hash": 0.4696155420388488,
+                  "aggregationType": null,
+                  "units": null,
+                  "decimals": null,
+                  "funcBody": null,
+                  "usePostProcessing": null,
+                  "postFuncBody": null
+                },
+                {
+                  "name": "currency",
+                  "type": "attribute",
+                  "label": "currency",
+                  "color": "#4caf50",
+                  "settings": {
+                    "dataKeyHidden": false,
+                    "dataKeyType": "server",
+                    "dataKeyValueType": "string",
+                    "required": true,
+                    "isEditable": "editable",
+                    "disabledOnDataKey": "",
+                    "appearance": "outline",
+                    "subscriptSizing": "fixed",
+                    "slideToggleLabelPosition": "after",
+                    "selectOptions": [],
+                    "step": 1,
+                    "minValue": null,
+                    "maxValue": null,
+                    "requiredErrorMessage": "",
+                    "minValueErrorMessage": "",
+                    "maxValueErrorMessage": "",
+                    "invalidDateErrorMessage": "",
+                    "invalidJsonErrorMessage": "",
+                    "dialogTitle": "",
+                    "saveButtonLabel": "",
+                    "cancelButtonLabel": "",
+                    "useCustomIcon": false,
+                    "icon": "",
+                    "customIcon": "",
+                    "useGetValueFunction": false,
+                    "getValueFunctionBody": "",
+                    "useSetValueFunction": false,
+                    "setValueFunctionBody": ""
+                  },
+                  "_hash": 0.01594250455117252,
+                  "aggregationType": null,
+                  "units": null,
+                  "decimals": null,
+                  "funcBody": null,
+                  "usePostProcessing": null,
+                  "postFuncBody": null
+                },
+                {
+                  "name": "price",
+                  "type": "attribute",
+                  "label": "price",
+                  "color": "#ffc107",
+                  "settings": {
+                    "dataKeyHidden": false,
+                    "dataKeyType": "server",
+                    "dataKeyValueType": "string",
+                    "required": true,
+                    "isEditable": "editable",
+                    "disabledOnDataKey": "",
+                    "appearance": "outline",
+                    "subscriptSizing": "fixed",
+                    "slideToggleLabelPosition": "after",
+                    "selectOptions": [],
+                    "step": 1,
+                    "minValue": null,
+                    "maxValue": null,
+                    "requiredErrorMessage": "",
+                    "minValueErrorMessage": "",
+                    "maxValueErrorMessage": "",
+                    "invalidDateErrorMessage": "",
+                    "invalidJsonErrorMessage": "",
+                    "dialogTitle": "",
+                    "saveButtonLabel": "",
+                    "cancelButtonLabel": "",
+                    "useCustomIcon": false,
+                    "icon": "",
+                    "customIcon": "",
+                    "useGetValueFunction": false,
+                    "getValueFunctionBody": "",
+                    "useSetValueFunction": false,
+                    "setValueFunctionBody": ""
+                  },
+                  "_hash": 0.548979905428546,
+                  "aggregationType": null,
+                  "units": null,
+                  "decimals": null,
+                  "funcBody": null,
+                  "usePostProcessing": null,
+                  "postFuncBody": null
+                }
+              ],
+              "alarmFilterConfig": {
+                "statusList": [
+                  "ACTIVE"
+                ]
+              }
+            }
+          ],
+          "timewindow": {
+            "displayValue": "",
+            "selectedTab": 0,
+            "realtime": {
+              "realtimeType": 1,
+              "interval": 1000,
+              "timewindowMs": 60000,
+              "quickInterval": "CURRENT_DAY",
+              "hideInterval": false,
+              "hideLastInterval": false,
+              "hideQuickInterval": false
+            },
+            "history": {
+              "historyType": 0,
+              "interval": 1000,
+              "timewindowMs": 60000,
+              "fixedTimewindow": {
+                "startTimeMs": 1730726812663,
+                "endTimeMs": 1730813212663
+              },
+              "quickInterval": "CURRENT_DAY",
+              "hideInterval": false,
+              "hideLastInterval": false,
+              "hideFixedInterval": false,
+              "hideQuickInterval": false
+            },
+            "aggregation": {
+              "type": "AVG",
+              "limit": 50000
+            }
+          },
+          "showTitle": false,
+          "backgroundColor": "#fff",
+          "color": "rgba(0, 0, 0, 0.87)",
+          "padding": "8px",
+          "settings": {
+            "groupTitle": "${entityName}",
+            "showActionButtons": true,
+            "fieldsAlignment": "row",
+            "fieldsInRow": 2,
+            "columnGap": 10,
+            "rowGap": 5
+          },
+          "title": "Update Multiple Attributes",
+          "dropShadow": false,
+          "enableFullscreen": false,
+          "enableDataExport": false,
+          "widgetStyle": {},
+          "titleStyle": {
+            "fontSize": "16px",
+            "fontWeight": 400
+          },
+          "useDashboardTimewindow": true,
+          "showLegend": false,
+          "actions": {},
+          "displayTimewindow": true,
+          "showTitleIcon": false,
+          "titleTooltip": "",
+          "widgetCss": "",
+          "pageSize": 1024,
+          "noDataDisplayMessage": ""
+        },
+        "row": 0,
+        "col": 0,
+        "id": "4ef95491-ce57-b477-8e20-327a4abdde25"
+      }
+    },
+    "states": {
+      "default": {
+        "name": "Payment Administration",
+        "root": true,
+        "layouts": {
+          "main": {
+            "widgets": {
+              "c8433eb6-3412-1a0f-3ff5-498dedaf1cab": {
+                "sizeX": 24,
+                "sizeY": 11,
+                "row": 0,
+                "col": 0
+              }
+            },
+            "gridSettings": {
+              "backgroundColor": "#eeeeee",
+              "columns": 24,
+              "margin": 10,
+              "outerMargin": true,
+              "backgroundSizeMode": "100%",
+              "autoFillHeight": true,
+              "backgroundImageUrl": null,
+              "mobileAutoFillHeight": false,
+              "mobileRowHeight": 70,
+              "layoutType": "default"
+            }
+          }
+        }
+      },
+      "edit_product": {
+        "name": "Edit Product",
+        "root": false,
+        "layouts": {
+          "main": {
+            "widgets": {
+              "4ef95491-ce57-b477-8e20-327a4abdde25": {
+                "sizeX": 24,
+                "sizeY": 11,
+                "row": 0,
+                "col": 0
+              }
+            },
+            "gridSettings": {
+              "backgroundColor": "#FFFFFF",
+              "columns": 24,
+              "margin": 10,
+              "outerMargin": true,
+              "backgroundSizeMode": "100%",
+              "autoFillHeight": true,
+              "backgroundImageUrl": null,
+              "mobileAutoFillHeight": false,
+              "mobileRowHeight": 70,
+              "layoutType": "default"
+            }
+          }
+        }
+      }
+    },
+    "entityAliases": {
+      "b3c223c0-955c-58fb-1728-a56a09413e85": {
+        "id": "b3c223c0-955c-58fb-1728-a56a09413e85",
+        "alias": "customer",
+        "filter": {
+          "type": "entityGroup",
+          "resolveMultiple": true,
+          "groupStateEntity": false,
+          "stateEntityParamName": null,
+          "defaultStateGroupType": null,
+          "defaultStateEntityGroup": null,
+          "groupType": "CUSTOMER",
+          "entityGroup": "efb837e0-b576-11ee-a6c2-a149ed03c64d"
+        }
+      },
+      "670d6edf-9e49-fda0-be41-ef47af3155ca": {
+        "id": "670d6edf-9e49-fda0-be41-ef47af3155ca",
+        "alias": "Product",
+        "filter": {
+          "type": "assetType",
+          "resolveMultiple": true,
+          "assetTypes": [
+            "Product"
+          ],
+          "assetNameFilter": ""
+        }
+      },
+      "39a074aa-07b2-0065-9adb-098a525bd422": {
+        "id": "39a074aa-07b2-0065-9adb-098a525bd422",
+        "alias": "selectedProduct",
+        "filter": {
+          "type": "stateEntity",
+          "resolveMultiple": false,
+          "stateEntityParamName": "selectedProduct",
+          "defaultStateEntity": null
+        }
+      }
+    },
+    "filters": {},
+    "timewindow": {
+      "displayValue": "",
+      "hideAggregation": false,
+      "hideAggInterval": false,
+      "hideTimezone": false,
+      "selectedTab": 0,
+      "realtime": {
+        "realtimeType": 0,
+        "interval": 1000,
+        "timewindowMs": 60000,
+        "quickInterval": "CURRENT_DAY"
+      },
+      "history": {
+        "historyType": 0,
+        "interval": 1000,
+        "timewindowMs": 60000,
+        "fixedTimewindow": {
+          "startTimeMs": 1730646537013,
+          "endTimeMs": 1730732937013
+        },
+        "quickInterval": "CURRENT_DAY"
+      },
+      "aggregation": {
+        "type": "AVG",
+        "limit": 50000
+      }
+    },
+    "settings": {
+      "stateControllerId": "entity",
+      "showTitle": false,
+      "showDashboardsSelect": true,
+      "showEntitiesSelect": true,
+      "showDashboardTimewindow": true,
+      "showDashboardExport": true,
+      "toolbarAlwaysOpen": true
+    }
+  },
+  "name": "Stripe Payment Administration",
+  "resources": null,
+  "id": {
+    "entityType": "DASHBOARD",
+    "id": "b682e4b0-9abe-11ef-b1a9-f3177b9e92b3"
+  },
+  "createdTime": 1730732936827,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "efb63c10-b576-11ee-a6c2-a149ed03c64d"
+  },
+  "customerId": null,
+  "assignedCustomers": null,
+  "externalId": null,
+  "version": 9,
+  "ownerId": {
+    "entityType": "TENANT",
+    "id": "efb63c10-b576-11ee-a6c2-a149ed03c64d"
+  }
+}
