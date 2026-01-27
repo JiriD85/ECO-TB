@@ -136,7 +136,7 @@ Plans:
 **Plans:** 1 plan
 
 Plans:
-- [ ] 05-01-PLAN.md — Add Room Sensor CO2 telemetry constants and device type handling
+- [x] 05-01-PLAN.md — Add Room Sensor CO2 telemetry constants and device type handling ✓
 
 **Success Criteria:**
 1. Room Sensor CO2 devices show CO2 (ppm), Temperature (C), Humidity (%), Battery (%)
@@ -150,11 +150,11 @@ Plans:
 ## Milestone: v1 Complete
 
 **Definition of Done:**
-- [ ] Alle 18 Requirements implemented
-- [ ] Dialog funktioniert für TENANT_ADMIN und CUSTOMER_USER
-- [ ] Auto-Refresh funktioniert zuverlässig
-- [ ] Styling konsistent mit ECO Dialogen
-- [ ] Code committed und zu ThingsBoard gesynct
+- [x] Alle 21 Requirements implemented (18 original + 3 LORA)
+- [x] Dialog funktioniert für TENANT_ADMIN und CUSTOMER_USER
+- [x] Auto-Refresh funktioniert zuverlässig
+- [x] Styling konsistent mit ECO Dialogen
+- [x] Code committed und zu ThingsBoard gesynct
 
 ---
 *Roadmap created: 2025-01-26*
