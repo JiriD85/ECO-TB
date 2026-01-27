@@ -2229,7 +2229,10 @@ const TIMESERIES_UNITS = {
   'CHC_S_TemperatureFlow': '°C',
   'CHC_S_TemperatureReturn': '°C',
   'CHC_S_Velocity': 'm/s',
-  'temperature': '°C'
+  'temperature': '°C',
+  'co2': 'ppm',
+  'humidity': '%',
+  'battery': '%'
 };
 
 const TIMESERIES_LABELS = {
@@ -2243,7 +2246,10 @@ const TIMESERIES_LABELS = {
   'CHC_S_TemperatureFlow': 'Flow Temp',
   'CHC_S_TemperatureReturn': 'Return Temp',
   'CHC_S_Velocity': 'Velocity',
-  'temperature': 'Temperature'
+  'temperature': 'Temperature',
+  'co2': 'CO2',
+  'humidity': 'Humidity',
+  'battery': 'Battery'
 };
 
 const measurementInfoHtmlTemplate = `<div class="measurement-info-dialog" style="width: 500px;">
