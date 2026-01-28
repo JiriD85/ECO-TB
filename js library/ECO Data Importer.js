@@ -2914,77 +2914,161 @@ mat-icon {
         </mat-form-field>
 
         <!-- Kit Info Badge -->
-        <div *ngIf="selectedKit" class="flex items-center gap-3" style="background: linear-gradient(135deg, #e8f4fd 0%, #f0f7ff 100%); border: 1px solid #305680; border-radius: 8px; padding: 12px; margin-bottom: 8px;">
+        <div *ngIf="selectedKit && isUltrasonic" class="flex items-center gap-3" style="background: linear-gradient(135deg, #e8f4fd 0%, #f0f7ff 100%); border: 1px solid #305680; border-radius: 8px; padding: 12px; margin-bottom: 8px;">
           <mat-icon style="color: #305680; font-size: 24px; width: 24px; height: 24px;">inventory_2</mat-icon>
           <div class="flex flex-col">
             <span style="font-weight: 600; color: #305680;">{{ selectedKit.name }}</span>
             <span style="font-size: 12px; color: #666;">{{ kitPFlows.length }} P-Flow(s), {{ kitSensors.length }} Sensor(s) available</span>
           </div>
         </div>
-
-        <!-- Section: P-Flow Selection -->
-        <div class="flex items-center gap-2 mb-1 mt-2" style="color: #305680;">
-          <mat-icon style="font-size: 18px; width: 18px; height: 18px;">sensors</mat-icon>
-          <span style="font-weight: 600; font-size: 14px;">2. Select P-Flow Device</span>
-          <span style="font-size: 12px; color: #d32f2f;">*</span>
-        </div>
-
-        <mat-form-field appearance="outline" class="w-full pflow-field">
-          <mat-label>P-Flow D116</mat-label>
-          <input *ngIf="assignedPFlow" matInput [value]="assignedPFlow.name"
-                 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" disabled>
-          <ng-container *ngIf="!assignedPFlow">
-            <input matInput formControlName="pflowDevice"
-                   [matAutocomplete]="pflowAuto"
-                   (input)="filterPFlows($event.target.value)"
-                   (focus)="filterPFlows('')"
-                   [placeholder]="selectedKit ? 'Select P-Flow' : 'Select a Diagnostic Kit first'">
-            <mat-icon matSuffix style="color: #666;">arrow_drop_down</mat-icon>
-            <mat-autocomplete #pflowAuto="matAutocomplete"
-                              [displayWith]="displayPFlow"
-                              (optionSelected)="onPFlowSelected($event.option.value)">
-              <mat-option *ngFor="let device of filteredPFlows" [value]="device">
-                <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%;">
-                  <div class="flex items-center gap-2" style="min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                    <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #2196f3;">sensors</mat-icon>
-                    <span>{{ device.name }}</span>
-                  </div>
-                  <div [ngStyle]="getActiveStyle(device)" style="font-size: 11px;">
-                    {{ getActiveLabel(device) }}
-                  </div>
-                </div>
-              </mat-option>
-            </mat-autocomplete>
-          </ng-container>
-          <button *ngIf="assignedPFlow" mat-icon-button matSuffix type="button" (click)="unassignPFlow()" matTooltip="Unassign P-Flow">
-            <mat-icon style="color: #d32f2f;">link_off</mat-icon>
-          </button>
-          <mat-error *ngIf="addDeviceFormGroup.get('stepper.assignmentStep.pflowDevice').hasError('required')">
-            {{'custom.projects.measurements.assigned.devices.add-devices.device-required' | translate}}
-          </mat-error>
-          <mat-hint *ngIf="!selectedKit && !assignedPFlow">Select a Diagnostic Kit first</mat-hint>
-          <mat-hint *ngIf="selectedKit && kitPFlows.length === 0 && !assignedPFlow">No P-Flows available in this kit</mat-hint>
-        </mat-form-field>
-
-        <!-- Assigned P-Flow Info -->
-        <div *ngIf="assignedPFlow" class="flex items-center gap-2" style="background: #e8f5e9; border-radius: 8px; padding: 8px 12px; margin-bottom: 8px;">
-          <mat-icon style="color: #2e7d32; font-size: 18px; width: 18px; height: 18px;">check_circle</mat-icon>
-          <span style="font-size: 13px; color: #2e7d32;">P-Flow assigned: {{ assignedPFlow.name }}</span>
-          <div [ngStyle]="getActiveStyle(assignedPFlow)" style="font-size: 11px; margin-left: auto;">
-            {{ getActiveLabel(assignedPFlow) }}
+        <div *ngIf="selectedKit && isLoRaWAN" class="flex items-center gap-3" style="background: linear-gradient(135deg, #f3e5f5 0%, #fce4ec 100%); border: 1px solid #7b1fa2; border-radius: 8px; padding: 12px; margin-bottom: 8px;">
+          <mat-icon style="color: #7b1fa2; font-size: 24px; width: 24px; height: 24px;">inventory_2</mat-icon>
+          <div class="flex flex-col">
+            <span style="font-weight: 600; color: #7b1fa2;">{{ selectedKit.name }}</span>
+            <span style="font-size: 12px; color: #666;">{{ kitRoomSensors.length }} Room Sensor(s) available</span>
           </div>
         </div>
 
+        <!-- Section: P-Flow Selection (Ultrasonic only) -->
+        <ng-container *ngIf="isUltrasonic">
+          <div class="flex items-center gap-2 mb-1 mt-2" style="color: #305680;">
+            <mat-icon style="font-size: 18px; width: 18px; height: 18px;">sensors</mat-icon>
+            <span style="font-weight: 600; font-size: 14px;">2. Select P-Flow Device</span>
+            <span style="font-size: 12px; color: #d32f2f;">*</span>
+          </div>
+
+          <mat-form-field appearance="outline" class="w-full pflow-field">
+            <mat-label>P-Flow D116</mat-label>
+            <input *ngIf="assignedPFlow" matInput [value]="assignedPFlow.name"
+                   style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" disabled>
+            <ng-container *ngIf="!assignedPFlow">
+              <input matInput formControlName="pflowDevice"
+                     [matAutocomplete]="pflowAuto"
+                     (input)="filterPFlows($event.target.value)"
+                     (focus)="filterPFlows('')"
+                     [placeholder]="selectedKit ? 'Select P-Flow' : 'Select a Diagnostic Kit first'">
+              <mat-icon matSuffix style="color: #666;">arrow_drop_down</mat-icon>
+              <mat-autocomplete #pflowAuto="matAutocomplete"
+                                [displayWith]="displayPFlow"
+                                (optionSelected)="onPFlowSelected($event.option.value)">
+                <mat-option *ngFor="let device of filteredPFlows" [value]="device">
+                  <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%;">
+                    <div class="flex items-center gap-2" style="min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                      <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #2196f3;">sensors</mat-icon>
+                      <span>{{ device.name }}</span>
+                    </div>
+                    <div [ngStyle]="getActiveStyle(device)" style="font-size: 11px;">
+                      {{ getActiveLabel(device) }}
+                    </div>
+                  </div>
+                </mat-option>
+              </mat-autocomplete>
+            </ng-container>
+            <button *ngIf="assignedPFlow" mat-icon-button matSuffix type="button" (click)="unassignPFlow()" matTooltip="Unassign P-Flow">
+              <mat-icon style="color: #d32f2f;">link_off</mat-icon>
+            </button>
+            <mat-error *ngIf="addDeviceFormGroup.get('stepper.assignmentStep.pflowDevice').hasError('required')">
+              {{'custom.projects.measurements.assigned.devices.add-devices.device-required' | translate}}
+            </mat-error>
+            <mat-hint *ngIf="!selectedKit && !assignedPFlow">Select a Diagnostic Kit first</mat-hint>
+            <mat-hint *ngIf="selectedKit && kitPFlows.length === 0 && !assignedPFlow">No P-Flows available in this kit</mat-hint>
+          </mat-form-field>
+
+          <!-- Assigned P-Flow Info -->
+          <div *ngIf="assignedPFlow" class="flex items-center gap-2" style="background: #e8f5e9; border-radius: 8px; padding: 8px 12px; margin-bottom: 8px;">
+            <mat-icon style="color: #2e7d32; font-size: 18px; width: 18px; height: 18px;">check_circle</mat-icon>
+            <span style="font-size: 13px; color: #2e7d32;">P-Flow assigned: {{ assignedPFlow.name }}</span>
+            <div [ngStyle]="getActiveStyle(assignedPFlow)" style="font-size: 11px; margin-left: auto;">
+              {{ getActiveLabel(assignedPFlow) }}
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- Section: Room Sensor CO2 Selection (LoRaWAN only) -->
+        <ng-container *ngIf="isLoRaWAN">
+          <div class="flex items-center justify-between mb-1 mt-2">
+            <div class="flex items-center gap-2" style="color: #7b1fa2;">
+              <mat-icon style="font-size: 18px; width: 18px; height: 18px;">co2</mat-icon>
+              <span style="font-weight: 600; font-size: 14px;">2. Room Sensor CO2</span>
+              <span style="font-size: 12px; color: #d32f2f;">*</span>
+            </div>
+            <button mat-stroked-button color="primary" type="button"
+                    (click)="addRoomSensor()"
+                    [disabled]="!selectedKit || kitRoomSensors.length === 0 || (assignedRoomSensors.length + selectedRoomSensors.length) >= 4"
+                    style="font-size: 12px;">
+              <mat-icon style="font-size: 18px; width: 18px; height: 18px;">add</mat-icon>
+              Add Sensor
+            </button>
+          </div>
+
+          <!-- Assigned Room Sensors -->
+          <div *ngFor="let sensor of assignedRoomSensors" class="flex items-center gap-2" style="background: #e8f5e9; border-radius: 8px; padding: 8px 12px; margin-bottom: 8px;">
+            <mat-icon style="color: #2e7d32; font-size: 18px; width: 18px; height: 18px;">check_circle</mat-icon>
+            <span style="font-size: 13px; color: #2e7d32; flex: 1;">{{ sensor.name }}</span>
+            <button mat-icon-button type="button" (click)="unassignRoomSensor(sensor)" matTooltip="Unassign Sensor" style="margin: -8px;">
+              <mat-icon style="color: #d32f2f; font-size: 18px; width: 18px; height: 18px;">link_off</mat-icon>
+            </button>
+          </div>
+
+          <!-- New Room Sensor Selection -->
+          <div *ngFor="let sensor of selectedRoomSensors; let i = index" class="flex items-start gap-2" style="background: #fafafa; border-radius: 8px; padding: 12px; margin-bottom: 8px;">
+            <mat-form-field appearance="outline" class="flex-1 pflow-field" style="margin-bottom: -1.25em;">
+              <mat-label>Room Sensor CO2 {{ assignedRoomSensors.length + i + 1 }}</mat-label>
+              <input matInput
+                     [ngModelOptions]="{standalone: true}"
+                     [(ngModel)]="sensor.device"
+                     [matAutocomplete]="roomSensorAuto"
+                     (input)="filterRoomSensors($event.target.value)"
+                     (focus)="filterRoomSensors('')"
+                     placeholder="Select sensor"
+                     [displayWith]="displayRoomSensor">
+              <mat-icon matSuffix style="color: #666;">arrow_drop_down</mat-icon>
+              <mat-autocomplete #roomSensorAuto="matAutocomplete"
+                                [displayWith]="displayRoomSensor"
+                                (optionSelected)="onRoomSensorChange()">
+                <mat-option *ngFor="let device of filteredRoomSensors" [value]="device">
+                  <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%;">
+                    <div class="flex items-center gap-2">
+                      <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #7b1fa2;">co2</mat-icon>
+                      <span>{{ device.name }}</span>
+                    </div>
+                    <div [ngStyle]="getActiveStyle(device)" style="font-size: 11px;">
+                      {{ getActiveLabel(device) }}
+                    </div>
+                  </div>
+                </mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="flex-1" style="margin-bottom: -1.25em;">
+              <mat-label>Label</mat-label>
+              <input matInput [ngModelOptions]="{standalone: true}" [(ngModel)]="sensor.sensorLabel" placeholder="e.g. Room 1">
+            </mat-form-field>
+            <button mat-icon-button type="button" (click)="removeRoomSensor(sensor)" matTooltip="Remove sensor" style="margin-top: 4px;">
+              <mat-icon style="color: #d32f2f;">delete</mat-icon>
+            </button>
+          </div>
+
+          <div *ngIf="!selectedKit" class="flex items-center gap-2" style="background: #f5f5f5; border-radius: 8px; padding: 12px; color: #666;">
+            <mat-icon>info</mat-icon>
+            <span style="font-size: 13px;">Select a Diagnostic Kit to add Room Sensors</span>
+          </div>
+
+          <div *ngIf="selectedKit && kitRoomSensors.length === 0 && assignedRoomSensors.length === 0" class="flex items-center gap-2" style="background: #f5f5f5; border-radius: 8px; padding: 12px; color: #666;">
+            <mat-icon>info</mat-icon>
+            <span style="font-size: 13px;">No Room Sensor CO2 devices available in this kit</span>
+          </div>
+        </ng-container>
+
         <!-- Measurement Label -->
-        <mat-form-field appearance="outline" class="w-full">
+        <mat-form-field appearance="outline" class="w-full" style="margin-top: 8px;">
           <mat-label>{{'custom.projects.measurements.assigned.devices.add-devices.measurement-label' | translate}}</mat-label>
           <input matInput formControlName="measurementLabel" placeholder="Optional label for this measurement">
           <mat-icon matSuffix style="color: #666;">label</mat-icon>
         </mat-form-field>
       </div>
 
-      <!-- Section: Temperature Sensors -->
-      <div class="flex flex-col gap-3" style="border-top: 1px solid #e0e0e0; padding-top: 16px; margin-top: 8px;">
+      <!-- Section: Temperature Sensors (Ultrasonic only) -->
+      <div *ngIf="isUltrasonic" class="flex flex-col gap-3" style="border-top: 1px solid #e0e0e0; padding-top: 16px; margin-top: 8px;">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2" style="color: #305680;">
             <mat-icon style="font-size: 18px; width: 18px; height: 18px;">thermostat</mat-icon>
@@ -3123,45 +3207,65 @@ mat-icon {
       deviceTypes: ["P-Flow D116", "Room Sensor CO2", "Temperature Sensor", "RESI", "IoT Gateway"]
     };
 
-    deviceService.findByQuery(deviceSearchQuery).subscribe(
-      function(devices) {
-        getRelatedVRPflows(measurementId).subscribe(
-          function(result) {
-            assignedDevicesVr = result;
-            let maxLimitPFlows = false;
-            let maxLimitRoomSensorCO2 = false;
-            const pFlows = devices.filter(device => device.type === "P-Flow D116");
-            const roomSensorCO2 = devices.filter(device => device.type === "Room Sensor CO2");
+    // Load measurementType attribute first
+    // measurementId is a string ID, need to create entity object for attribute service
+    const measurementEntityId = { id: measurementId, entityType: 'ASSET' };
+    attributeService.getEntityAttributes(measurementEntityId, 'SERVER_SCOPE', ['measurementType']).subscribe(
+      function(attrs) {
+        const measurementTypeAttr = attrs.find(a => a.key === 'measurementType');
+        const measurementType = measurementTypeAttr ? measurementTypeAttr.value : 'ultrasonic';
 
-            if (pFlows.length > 0) {
-              maxLimitPFlows = true;
-            }
-            if (roomSensorCO2.length > 99) {
-              maxLimitRoomSensorCO2 = true;
-            }
+        deviceService.findByQuery(deviceSearchQuery).subscribe(
+          function(devices) {
+            getRelatedVRPflows(measurementId).subscribe(
+              function(result) {
+                assignedDevicesVr = result;
+                let maxLimitPFlows = false;
+                let maxLimitRoomSensorCO2 = false;
+                const pFlows = devices.filter(device => device.type === "P-Flow D116");
+                const roomSensorCO2 = devices.filter(device => device.type === "Room Sensor CO2");
 
-            openAddDeviceDialog(maxLimitPFlows, maxLimitRoomSensorCO2, assignedDevicesVr);
+                if (pFlows.length > 0) {
+                  maxLimitPFlows = true;
+                }
+                // For lorawan: limit to 4 Room Sensor CO2
+                const isLoRaWAN = measurementType && measurementType.toLowerCase() === 'lorawan';
+                if (isLoRaWAN && roomSensorCO2.length >= 4) {
+                  maxLimitRoomSensorCO2 = true;
+                } else if (!isLoRaWAN && roomSensorCO2.length > 99) {
+                  maxLimitRoomSensorCO2 = true;
+                }
+
+                openAddDeviceDialog(maxLimitPFlows, maxLimitRoomSensorCO2, assignedDevicesVr, measurementType);
+              },
+              function(error) {
+                console.error("Error fetching VR devices:", error);
+                openAddDeviceDialog(false, false, [], measurementType);
+              }
+            );
           },
           function(error) {
-            console.error("Error fetching VR devices:", error);
-            openAddDeviceDialog(false, false, []);
+            console.error("Error fetching devices:", error);
+            openAddDeviceDialog(false, false, [], measurementType);
           }
         );
       },
       function(error) {
-        console.error("Error fetching devices:", error);
-        openAddDeviceDialog(false, false, []);
+        console.error("Error fetching measurementType:", error);
+        // Default to ultrasonic if attribute fetch fails
+        openAddDeviceDialog(false, false, [], 'ultrasonic');
       }
     );
   }
 
-  function openAddDeviceDialog(maxLimitPFlows, maxLimitRoomSensorCO2, assignedDevicesVr) {
+  function openAddDeviceDialog(maxLimitPFlows, maxLimitRoomSensorCO2, assignedDevicesVr, measurementType) {
     customDialog.customDialog(htmlTemplate, AddDeviceDialogController, {
       measurementId,
       measurementName: entityName,
       maxLimitPFlows,
       maxLimitRoomSensorCO2,
       assignedDevicesVr,
+      measurementType: measurementType || 'ultrasonic',
       onClose: onClose
     }).subscribe((result) => {
       if (typeof onClose === 'function') {
@@ -3177,7 +3281,8 @@ mat-icon {
       measurementName,
       maxLimitPFlows,
       maxLimitRoomSensorCO2,
-      assignedDevicesVr
+      assignedDevicesVr,
+      measurementType
     } = vm.data || {};
 
     const loadingSubject = new rxjs.BehaviorSubject(false);
@@ -3187,6 +3292,17 @@ mat-icon {
     vm.CO2Limit = !!maxLimitRoomSensorCO2;
     vm.asignedDevicesVr = assignedDevicesVr;
     vm.warningMessage = null;
+
+    // Determine measurement type - normalize lorawan/loraWan
+    vm.measurementType = measurementType || 'ultrasonic';
+    vm.isLoRaWAN = vm.measurementType.toLowerCase() === 'lorawan';
+    vm.isUltrasonic = !vm.isLoRaWAN;
+
+    // For LoRaWAN: Room Sensor CO2 devices (up to 4)
+    vm.kitRoomSensors = [];
+    vm.filteredRoomSensors = [];
+    vm.selectedRoomSensors = []; // Array of selected Room Sensor CO2 devices
+    vm.assignedRoomSensors = []; // Already assigned Room Sensor CO2
     vm.availableDevices = [];
     vm.availablePFlows = [];
     vm.availableSensors = [];
@@ -3262,7 +3378,7 @@ mat-icon {
       }
     };
 
-    // When a kit is selected, load P-Flows and Temperature Sensors for that kit
+    // When a kit is selected, load devices for that kit based on measurement type
     vm.onKitSelected = function(kit) {
       vm.selectedKit = kit;
       vm.addDeviceFormGroup.patchValue({ stepper: { assignmentStep: { pflowDevice: null } } }, { emitEvent: false });
@@ -3271,6 +3387,9 @@ mat-icon {
       vm.kitSensors = [];
       vm.filteredKitSensors = [];
       vm.selectedSensors = [];
+      vm.kitRoomSensors = [];
+      vm.filteredRoomSensors = [];
+      vm.selectedRoomSensors = [];
 
       if (!kit || !kit.id) {
         return;
@@ -3278,40 +3397,52 @@ mat-icon {
 
       loadingSubject.next(true);
 
-      // Find P-Flows that belong to this kit via Contains relation
-      // Direction FROM because relation is: Kit --Contains--> Device
-      const pflowSearchQuery = {
-        parameters: {
-          rootId: kit.id.id,
-          rootType: 'ASSET',
-          direction: 'FROM',
-          relationTypeGroup: 'COMMON',
-          maxLevel: 1
-        },
-        relationType: 'Contains',
-        deviceTypes: ['P-Flow D116']
-      };
+      // Build queries based on measurement type
+      const queries = {};
 
-      // Find Temperature Sensors that belong to this kit
-      const sensorSearchQuery = {
-        parameters: {
-          rootId: kit.id.id,
-          rootType: 'ASSET',
-          direction: 'FROM',
-          relationTypeGroup: 'COMMON',
-          maxLevel: 1
-        },
-        relationType: 'Contains',
-        deviceTypes: ['Temperature Sensor']
-      };
+      if (vm.isUltrasonic) {
+        // For ultrasonic: load P-Flows and Temperature Sensors
+        queries.pflowDevices = deviceService.findByQuery({
+          parameters: {
+            rootId: kit.id.id,
+            rootType: 'ASSET',
+            direction: 'FROM',
+            relationTypeGroup: 'COMMON',
+            maxLevel: 1
+          },
+          relationType: 'Contains',
+          deviceTypes: ['P-Flow D116']
+        });
+        queries.sensorDevices = deviceService.findByQuery({
+          parameters: {
+            rootId: kit.id.id,
+            rootType: 'ASSET',
+            direction: 'FROM',
+            relationTypeGroup: 'COMMON',
+            maxLevel: 1
+          },
+          relationType: 'Contains',
+          deviceTypes: ['Temperature Sensor']
+        });
+      } else if (vm.isLoRaWAN) {
+        // For LoRaWAN: load Room Sensor CO2
+        queries.roomSensorDevices = deviceService.findByQuery({
+          parameters: {
+            rootId: kit.id.id,
+            rootType: 'ASSET',
+            direction: 'FROM',
+            relationTypeGroup: 'COMMON',
+            maxLevel: 1
+          },
+          relationType: 'Contains',
+          deviceTypes: ['Room Sensor CO2']
+        });
+      }
 
-      // Load both P-Flows and Sensors in parallel
-      rxjs.forkJoin({
-        pflowDevices: deviceService.findByQuery(pflowSearchQuery),
-        sensorDevices: deviceService.findByQuery(sensorSearchQuery)
-      }).subscribe(
+      // Load devices in parallel
+      rxjs.forkJoin(queries).subscribe(
         function(result) {
-          // Process P-Flows - use devices directly from kit query
+          // Process P-Flows (ultrasonic only)
           if (result.pflowDevices && result.pflowDevices.length > 0) {
             vm.kitPFlows = result.pflowDevices.map(function(device) {
               return {
@@ -3327,7 +3458,7 @@ mat-icon {
             vm.filteredPFlows = [];
           }
 
-          // Process Temperature Sensors - use devices directly from kit query
+          // Process Temperature Sensors (ultrasonic only)
           if (result.sensorDevices && result.sensorDevices.length > 0) {
             vm.kitSensors = result.sensorDevices.map(function(device) {
               return {
@@ -3341,6 +3472,22 @@ mat-icon {
           } else {
             vm.kitSensors = [];
             vm.filteredKitSensors = [];
+          }
+
+          // Process Room Sensor CO2 (LoRaWAN only)
+          if (result.roomSensorDevices && result.roomSensorDevices.length > 0) {
+            vm.kitRoomSensors = result.roomSensorDevices.map(function(device) {
+              return {
+                name: device.name,
+                type: device.type,
+                label: device.label || device.name,
+                deviceId: device.id
+              };
+            });
+            vm.filteredRoomSensors = vm.kitRoomSensors.slice();
+          } else {
+            vm.kitRoomSensors = [];
+            vm.filteredRoomSensors = [];
           }
 
           // Check kit subscription status
@@ -3427,7 +3574,82 @@ mat-icon {
       }
     };
 
-    // Load all diagnostickits
+    // ============ LoRaWAN Room Sensor CO2 functions ============
+
+    // Filter Room Sensors based on search text
+    vm.filterRoomSensors = function(searchText) {
+      if (!vm.selectedKit) {
+        vm.filteredRoomSensors = [];
+        return;
+      }
+      // Exclude already selected and assigned sensors
+      const selectedIds = vm.selectedRoomSensors
+        .filter(s => s.device && s.device.deviceId)
+        .map(s => s.device.deviceId.id);
+      const assignedIds = vm.assignedRoomSensors.map(s => s.deviceId.id);
+      const excludeIds = [...selectedIds, ...assignedIds];
+
+      let available = vm.kitRoomSensors.filter(function(device) {
+        return !excludeIds.includes(device.deviceId.id);
+      });
+
+      if (searchText && searchText.length > 0) {
+        const lowerSearch = searchText.toLowerCase();
+        available = available.filter(function(device) {
+          return device.name.toLowerCase().includes(lowerSearch);
+        });
+      }
+      vm.filteredRoomSensors = available;
+    };
+
+    // Add a Room Sensor CO2 slot
+    vm.addRoomSensor = function() {
+      if (!vm.selectedKit || vm.kitRoomSensors.length === 0) return;
+      // Max 4 total (assigned + selected)
+      const totalCount = vm.assignedRoomSensors.length + vm.selectedRoomSensors.length;
+      if (totalCount >= 4) {
+        widgetContext.showErrorToast('Maximum 4 Room Sensor CO2 devices allowed per measurement.', 'top', 'left', 'maxRoomSensors');
+        return;
+      }
+      vm.selectedRoomSensors.push({
+        device: null,
+        sensorLabel: '',
+        isAssigned: false
+      });
+      vm.filterRoomSensors('');
+    };
+
+    // When a Room Sensor is selected from dropdown
+    vm.onRoomSensorChange = function() {
+      vm.filterRoomSensors('');
+    };
+
+    // Display function for Room Sensor autocomplete
+    vm.displayRoomSensor = function(device) {
+      return device ? device.name : '';
+    };
+
+    // Remove a selected (not yet assigned) Room Sensor
+    vm.removeRoomSensor = function(sensor) {
+      const idx = vm.selectedRoomSensors.indexOf(sensor);
+      if (idx > -1) {
+        vm.selectedRoomSensors.splice(idx, 1);
+        vm.filterRoomSensors('');
+      }
+    };
+
+    // Unassign an already assigned Room Sensor
+    vm.unassignRoomSensor = function(sensor) {
+      // Mark for removal - will be processed on save
+      sensor.markedForRemoval = true;
+      vm.filterRoomSensors('');
+    };
+
+    // ============ End LoRaWAN functions ============
+
+    // Load all diagnostickits filtered by measurement type
+    // LoRaWAN: only kits starting with "DR"
+    // Ultrasonic: only kits starting with "DB"
     vm.loadDiagnostickits = function() {
       const kitQuery = {
         entityFilter: {
@@ -3442,12 +3664,20 @@ mat-icon {
 
       entityService.findEntityDataByQuery(kitQuery).subscribe(
         function(data) {
-          vm.allKits = data.data.map(function(entityData) {
-            return {
-              id: entityData.entityId,
-              name: entityData.latest['ENTITY_FIELD'].name.value
-            };
-          });
+          // Determine kit prefix based on measurement type
+          const kitPrefix = vm.isLoRaWAN ? 'DR' : 'DB';
+
+          vm.allKits = data.data
+            .map(function(entityData) {
+              return {
+                id: entityData.entityId,
+                name: entityData.latest['ENTITY_FIELD'].name.value
+              };
+            })
+            .filter(function(kit) {
+              // Filter kits by prefix: DR for LoRaWAN, DB for Ultrasonic
+              return kit.name && kit.name.toUpperCase().startsWith(kitPrefix);
+            });
           vm.allKits.sort(function(a, b) {
             return a.name.localeCompare(b.name);
           });
@@ -3547,40 +3777,72 @@ mat-icon {
       }
 
       const formValues = vm.addDeviceFormGroup.getRawValue().stepper.assignmentStep;
-      const selectedPFlow = vm.assignedPFlow || formValues.pflowDevice;
-      const newSensors = vm.selectedSensors.filter(sensor => !sensor.isAssigned && sensor.device);
       const measurementLabel = formValues.measurementLabel || '';
-
-      if (!selectedPFlow) {
-        widgetContext.showErrorToast('Please select a P-Flow D116 device.', 'top', 'left', 'missingPflow');
-        return;
-      }
-
-      if (selectedPFlow.type !== 'P-Flow D116') {
-        widgetContext.showErrorToast('Only P-Flow D116 devices can be assigned as main device.', 'top', 'left', 'invalidPflow');
-        return;
-      }
-
       const assignments = [];
 
-      if (!vm.assignedPFlow) {
-        assignments.push(
-          entityGroupService.removeEntityFromEntityGroup(vm.unassignedDevicesGroup.id.id, selectedPFlow.deviceId.id)
-        );
-        assignments.push(saveDeviceToMeasurementRelation(measurementIdValue, selectedPFlow.deviceId));
-        assignments.push(saveAttributes(selectedPFlow.deviceId));
+      if (vm.isUltrasonic) {
+        // Ultrasonic: require P-Flow D116
+        const selectedPFlow = vm.assignedPFlow || formValues.pflowDevice;
+        const newSensors = vm.selectedSensors.filter(sensor => !sensor.isAssigned && sensor.device);
+
+        if (!selectedPFlow) {
+          widgetContext.showErrorToast('Please select a P-Flow D116 device.', 'top', 'left', 'missingPflow');
+          return;
+        }
+
+        if (selectedPFlow.type !== 'P-Flow D116') {
+          widgetContext.showErrorToast('Only P-Flow D116 devices can be assigned as main device.', 'top', 'left', 'invalidPflow');
+          return;
+        }
+
+        if (!vm.assignedPFlow) {
+          assignments.push(
+            entityGroupService.removeEntityFromEntityGroup(vm.unassignedDevicesGroup.id.id, selectedPFlow.deviceId.id)
+          );
+          assignments.push(saveDeviceToMeasurementRelation(measurementIdValue, selectedPFlow.deviceId));
+          assignments.push(saveAttributes(selectedPFlow.deviceId));
+        }
+
+        newSensors.forEach(function(sensor) {
+          assignments.push(
+            entityGroupService.removeEntityFromEntityGroup(vm.unassignedDevicesGroup.id.id, sensor.device.deviceId.id)
+          );
+          assignments.push(saveDeviceToMeasurementRelation(measurementIdValue, sensor.device.deviceId));
+          assignments.push(saveAttributes(sensor.device.deviceId));
+        });
+
+        assignments.push(saveSensorLabels(measurementIdValue));
+
+      } else if (vm.isLoRaWAN) {
+        // LoRaWAN: require at least one Room Sensor CO2
+        const newRoomSensors = vm.selectedRoomSensors.filter(sensor => sensor.device && sensor.device.deviceId);
+        const totalRoomSensors = vm.assignedRoomSensors.length + newRoomSensors.length;
+
+        if (totalRoomSensors === 0) {
+          widgetContext.showErrorToast('Please select at least one Room Sensor CO2 device.', 'top', 'left', 'missingRoomSensor');
+          return;
+        }
+
+        // Assign new Room Sensors
+        newRoomSensors.forEach(function(sensor) {
+          if (sensor.device.type !== 'Room Sensor CO2') {
+            widgetContext.showErrorToast('Only Room Sensor CO2 devices can be assigned to LoRaWAN measurements.', 'top', 'left', 'invalidRoomSensor');
+            return;
+          }
+          assignments.push(
+            entityGroupService.removeEntityFromEntityGroup(vm.unassignedDevicesGroup.id.id, sensor.device.deviceId.id)
+          );
+          assignments.push(saveDeviceToMeasurementRelation(measurementIdValue, sensor.device.deviceId));
+          assignments.push(saveAttributes(sensor.device.deviceId));
+        });
+
+        // Handle sensors marked for removal
+        vm.assignedRoomSensors.filter(s => s.markedForRemoval).forEach(function(sensor) {
+          assignments.push(unassignDeviceAsync(sensor));
+        });
       }
 
-      newSensors.forEach(function(sensor) {
-        assignments.push(
-          entityGroupService.removeEntityFromEntityGroup(vm.unassignedDevicesGroup.id.id, sensor.device.deviceId.id)
-        );
-        assignments.push(saveDeviceToMeasurementRelation(measurementIdValue, sensor.device.deviceId));
-        assignments.push(saveAttributes(sensor.device.deviceId));
-      });
-
       assignments.push(saveMeasurementLabel(measurementIdValue, measurementLabel));
-      assignments.push(saveSensorLabels(measurementIdValue));
 
       if (assignments.length === 0) {
         vm.dialogRef.close(null);
@@ -3592,6 +3854,16 @@ mat-icon {
         vm.dialogRef.close(null);
       });
     };
+
+    // Async version of unassign for use in forkJoin
+    function unassignDeviceAsync(device) {
+      return new rxjs.Observable(function(observer) {
+        unassignDevice(device, function() {
+          observer.next(true);
+          observer.complete();
+        });
+      });
+    }
 
     init();
 
@@ -3834,6 +4106,12 @@ mat-icon {
 
     function loadAssignedDevicesByRelation() {
       if (!measurementId || !measurementId.id) return;
+
+      // Include Room Sensor CO2 in the query for LoRaWAN support
+      const deviceTypes = vm.isLoRaWAN
+        ? ['Room Sensor CO2']
+        : ['P-Flow D116', 'Temperature Sensor', 'Room Sensor CO2'];
+
       const assignedQuery = {
         parameters: {
           rootId: measurementId.id,
@@ -3844,34 +4122,50 @@ mat-icon {
           fetchLastLevelOnly: false
         },
         relationType: 'Measurement',
-        deviceTypes: ['P-Flow D116', 'Temperature Sensor']
+        deviceTypes: deviceTypes
       };
 
       deviceService.findByQuery(assignedQuery).subscribe(
         function(devices) {
-          const pflow = (devices || []).find(d => d.type === 'P-Flow D116');
-          vm.assignedPFlow = pflow ? {
-            deviceId: pflow.id,
-            name: pflow.name,
-            type: pflow.type,
-            label: pflow.label
-          } : null;
-          vm.pFlowLimit = !!vm.assignedPFlow;
-          syncPFlowControl();
-          vm.selectedSensors = (devices || [])
-            .filter(d => d.type === 'Temperature Sensor')
-            .map(d => ({
-              device: {
+          if (vm.isUltrasonic) {
+            // Ultrasonic: handle P-Flow and Temperature Sensors
+            const pflow = (devices || []).find(d => d.type === 'P-Flow D116');
+            vm.assignedPFlow = pflow ? {
+              deviceId: pflow.id,
+              name: pflow.name,
+              type: pflow.type,
+              label: pflow.label
+            } : null;
+            vm.pFlowLimit = !!vm.assignedPFlow;
+            syncPFlowControl();
+            vm.selectedSensors = (devices || [])
+              .filter(d => d.type === 'Temperature Sensor')
+              .map(d => ({
+                device: {
+                  deviceId: d.id,
+                  name: d.name,
+                  type: d.type,
+                  label: d.label
+                },
+                sensorLabel: '',
+                isAssigned: true
+              }));
+            if (vm.selectedSensors.length > 0) {
+              vm.showSensorsStep = true;
+            }
+          } else if (vm.isLoRaWAN) {
+            // LoRaWAN: handle Room Sensor CO2
+            vm.assignedRoomSensors = (devices || [])
+              .filter(d => d.type === 'Room Sensor CO2')
+              .map(d => ({
                 deviceId: d.id,
                 name: d.name,
                 type: d.type,
-                label: d.label
-              },
-              sensorLabel: '',
-              isAssigned: true
-            }));
-          if (vm.selectedSensors.length > 0) {
-            vm.showSensorsStep = true;
+                label: d.label,
+                markedForRemoval: false
+              }));
+            // Update CO2 limit check
+            vm.CO2Limit = vm.assignedRoomSensors.length >= 4;
           }
           applySensorLabels();
           loadActiveForAssignedDevices();

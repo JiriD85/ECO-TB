@@ -325,10 +325,22 @@ const startProjectHtmlTemplate = `<form [formGroup]="startProjectFormGroup" (ngS
         </div>
       </div>
 
+      <!-- Ultrasonic: P-Flow required -->
       <div *ngIf="m.measurementType === 'ultrasonic' && m.devices.length === 0 && (m.progress === 'in preparation' || m.progress === 'planned')" class="flex items-center justify-between mt-2">
         <span class="flex items-center gap-1" style="color: #c62828; font-size: 12px;">
           <mat-icon style="font-size: 14px; width: 14px; height: 14px;">error</mat-icon>
           {{ 'custom.project-wizard.pflow-required' | translate }}
+        </span>
+        <button mat-raised-button color="primary" type="button" (click)="connectMeasurement(m)" style="font-size: 12px;">
+          <mat-icon style="font-size: 16px; width: 16px; height: 16px;">link</mat-icon>
+          {{ 'custom.project-wizard.connect' | translate }}
+        </button>
+      </div>
+      <!-- LoRaWAN: Room Sensor CO2 required -->
+      <div *ngIf="(m.measurementType === 'lorawan' || m.measurementType === 'loraWan') && m.devices.length === 0 && (m.progress === 'in preparation' || m.progress === 'planned')" class="flex items-center justify-between mt-2">
+        <span class="flex items-center gap-1" style="color: #7b1fa2; font-size: 12px;">
+          <mat-icon style="font-size: 14px; width: 14px; height: 14px;">co2</mat-icon>
+          {{ 'custom.project-wizard.room-sensor-required' | translate }}
         </span>
         <button mat-raised-button color="primary" type="button" (click)="connectMeasurement(m)" style="font-size: 12px;">
           <mat-icon style="font-size: 16px; width: 16px; height: 16px;">link</mat-icon>
@@ -913,16 +925,31 @@ export function openProjectWizardDialog(widgetContext, projectId, projectName, p
     };
 
     function updateValidation() {
-      // Only show warning for ultrasonic measurements that are in preparation or planned
+      // Check ultrasonic measurements without P-Flow D116
       var ultrasonicWithoutDevice = vm.measurements.filter(function(m) {
         return m.measurementType === 'ultrasonic' &&
                !m.hasDevice &&
                (m.progress === 'in preparation' || m.progress === 'planned');
       });
-      if (ultrasonicWithoutDevice.length > 0) {
+
+      // Check LoRaWAN measurements without Room Sensor CO2
+      var lorawanWithoutDevice = vm.measurements.filter(function(m) {
+        var mType = (m.measurementType || '').toLowerCase();
+        return mType === 'lorawan' &&
+               !m.hasDevice &&
+               (m.progress === 'in preparation' || m.progress === 'planned');
+      });
+
+      if (ultrasonicWithoutDevice.length > 0 || lorawanWithoutDevice.length > 0) {
         vm.canStart = false;
-        vm.validationError = 'Cannot start: ' + ultrasonicWithoutDevice.length +
-          ' ultrasonic measurement(s) without P-Flow D116 device assigned.';
+        var errors = [];
+        if (ultrasonicWithoutDevice.length > 0) {
+          errors.push(ultrasonicWithoutDevice.length + ' ultrasonic measurement(s) without P-Flow D116');
+        }
+        if (lorawanWithoutDevice.length > 0) {
+          errors.push(lorawanWithoutDevice.length + ' LoRaWAN measurement(s) without Room Sensor CO2');
+        }
+        vm.validationError = 'Cannot start: ' + errors.join(', ') + '.';
       } else {
         vm.canStart = true;
         vm.validationError = null;
