@@ -13046,6 +13046,7 @@
       "dialog-title": "Projekt",
       "no-measurements": "Keine Messungen für dieses Projekt gefunden.",
       "pflow-required": "P-Flow D116 erforderlich",
+      "room-sensor-required": "Room Sensor CO2 erforderlich",
       "connect": "Verbinden",
       "cancel": "Abbrechen",
       "start-project": "Projekt starten",

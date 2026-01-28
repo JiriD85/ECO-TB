@@ -12848,6 +12848,7 @@
       "dialog-title": "Project",
       "no-measurements": "No measurements found for this project.",
       "pflow-required": "P-Flow D116 required",
+      "room-sensor-required": "Room Sensor CO2 required",
       "connect": "Connect",
       "cancel": "Cancel",
       "start-project": "Start Project",
