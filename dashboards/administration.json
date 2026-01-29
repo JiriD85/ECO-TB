@@ -339,8 +339,8 @@
           "padding": "0px",
           "settings": {
             "useMarkdownTextFunction": true,
-            "markdownTextPattern": "<div style=\"width: 100%; height: 100%; padding: 0;\">\n   <tb-dashboard-state *ngIf=\"ctx.currentUser.authority === 'TENANT_ADMIN'\" [ctx]=\"ctx\" [syncParentStateParams]=\"true\" stateId=\"retail_companies\"></tb-dashboard-state>\n   <tb-dashboard-state *ngIf=\"ctx.currentUser.authority === 'CUSTOMER_USER'\" [ctx]=\"ctx\" [syncParentStateParams]=\"true\" stateId=\"customer_companies\"></tb-dashboard-state>\n</div>",
-            "markdownTextFunction": "// 20.03.2025 DOJ\nvar userRole = data[0].role;\n\nvar stateParams = ctx.stateController.getStateParams();\nvar currentUser = ctx.currentUser.authority === 'TENANT_ADMIN' || userRole === 'ECO Administrator';\nstateParams[\"userRole\"] = userRole;\n/*console.log(\"par:\", stateParams);*/\nctx.stateController.updateState(null, stateParams);\n\nreturn `<div style=\"width: 100%; height: 100%; padding: 0;\">`+\n   (currentUser?('<tb-dashboard-state [ctx]=\"ctx\" [syncParentStateParams]=\"true\" stateId=\"retail_companies\"></tb-dashboard-state>'):\n   ('<tb-dashboard-state [ctx]=\"ctx\" [syncParentStateParams]=\"true\" stateId=\"customer_companies\"></tb-dashboard-state>'))+\n'</div>';",
+            "markdownTextPattern": "<div style=\"width: 100%; height: 100%; padding: 0;\">\n   <tb-dashboard-state *ngIf=\"ctx.currentUser.authority === 'TENANT_ADMIN'\" [ctx]=\"ctx\" [syncParentStateParams]=\"true\" stateId=\"eco_administration\"></tb-dashboard-state>\n   <tb-dashboard-state *ngIf=\"ctx.currentUser.authority === 'CUSTOMER_USER'\" [ctx]=\"ctx\" [syncParentStateParams]=\"true\" stateId=\"customer_administration\"></tb-dashboard-state>\n</div>",
+            "markdownTextFunction": "// 29.01.2026 - Updated to use role attribute\nvar userRole = data[0] && data[0].role ? data[0].role : '';\n\nvar stateParams = ctx.stateController.getStateParams();\nstateParams[\"userRole\"] = userRole;\nctx.stateController.updateState(null, stateParams);\n\n// Determine state based on user role\nvar stateId = 'customer_administration'; // default\nif (userRole === 'ECO Administrator') {\n  stateId = 'eco_administration';\n} else if (userRole === 'Administrator') {\n  stateId = 'customer_administration';\n}\n\nreturn '<div style=\"width: 100%; height: 100%; padding: 0;\">' +\n  '<tb-dashboard-state [ctx]=\"ctx\" [syncParentStateParams]=\"true\" stateId=\"' + stateId + '\"></tb-dashboard-state>' +\n'</div>';",
             "applyDefaultMarkdownStyle": true,
             "markdownCss": ""
           },
@@ -13894,34 +13894,6 @@
           }
         }
       },
-      "retail_companies": {
-        "name": "Retail companies",
-        "root": false,
-        "layouts": {
-          "main": {
-            "widgets": {
-              "777ded27-e3b8-d901-ca42-3079a23f7a12": {
-                "sizeX": 24,
-                "sizeY": 12,
-                "row": 0,
-                "col": 0
-              }
-            },
-            "gridSettings": {
-              "backgroundColor": "#eeeeee",
-              "columns": 24,
-              "margin": 10,
-              "backgroundSizeMode": "100%",
-              "autoFillHeight": true,
-              "backgroundImageUrl": null,
-              "mobileAutoFillHeight": true,
-              "mobileRowHeight": 70,
-              "outerMargin": true,
-              "layoutType": "default"
-            }
-          }
-        }
-      },
       "Doktorkits": {
         "name": "Diagnostic Kits",
         "root": false,
@@ -15244,58 +15216,6 @@
           }
         }
       },
-      "customer_companies": {
-        "name": "Customer Administration",
-        "root": false,
-        "layouts": {
-          "main": {
-            "widgets": {
-              "646559d6-c1a5-ccee-b3fb-552496a7521b": {
-                "sizeX": 8,
-                "sizeY": 3,
-                "row": 0,
-                "col": 0
-              },
-              "5cf98db3-81f6-ad77-e161-e6e0f569a851": {
-                "sizeX": 8,
-                "sizeY": 6,
-                "row": 0,
-                "col": 8
-              },
-              "d0614cb8-3793-26e6-571c-61236d1a3252": {
-                "sizeX": 8,
-                "sizeY": 3,
-                "row": 0,
-                "col": 16
-              },
-              "fe3556b7-73a1-0009-cd3c-a9c6680ccd7a": {
-                "sizeX": 8,
-                "sizeY": 3,
-                "row": 3,
-                "col": 0
-              },
-              "6ec365fc-fe7f-18c5-0bfe-72fa77050c10": {
-                "sizeX": 8,
-                "sizeY": 3,
-                "row": 3,
-                "col": 16
-              }
-            },
-            "gridSettings": {
-              "backgroundColor": "#eeeeee",
-              "columns": 24,
-              "margin": 10,
-              "backgroundSizeMode": "100%",
-              "autoFillHeight": false,
-              "backgroundImageUrl": null,
-              "mobileAutoFillHeight": true,
-              "mobileRowHeight": 70,
-              "outerMargin": true,
-              "layoutType": "default"
-            }
-          }
-        }
-      },
       "Projects_customer": {
         "name": "Projects",
         "root": false,
@@ -15633,6 +15553,86 @@
               "margin": 10,
               "outerMargin": true,
               "backgroundSizeMode": "100%"
+            }
+          }
+        }
+      },
+      "eco_administration": {
+        "name": "ECO Administration",
+        "root": false,
+        "layouts": {
+          "main": {
+            "widgets": {
+              "777ded27-e3b8-d901-ca42-3079a23f7a12": {
+                "sizeX": 24,
+                "sizeY": 12,
+                "row": 0,
+                "col": 0
+              }
+            },
+            "gridSettings": {
+              "backgroundColor": "#eeeeee",
+              "columns": 24,
+              "margin": 10,
+              "backgroundSizeMode": "100%",
+              "autoFillHeight": true,
+              "backgroundImageUrl": null,
+              "mobileAutoFillHeight": true,
+              "mobileRowHeight": 70,
+              "outerMargin": true,
+              "layoutType": "default"
+            }
+          }
+        }
+      },
+      "customer_administration": {
+        "name": "Customer Administration",
+        "root": false,
+        "layouts": {
+          "main": {
+            "widgets": {
+              "646559d6-c1a5-ccee-b3fb-552496a7521b": {
+                "sizeX": 8,
+                "sizeY": 3,
+                "row": 0,
+                "col": 0
+              },
+              "5cf98db3-81f6-ad77-e161-e6e0f569a851": {
+                "sizeX": 8,
+                "sizeY": 6,
+                "row": 0,
+                "col": 8
+              },
+              "d0614cb8-3793-26e6-571c-61236d1a3252": {
+                "sizeX": 8,
+                "sizeY": 3,
+                "row": 0,
+                "col": 16
+              },
+              "fe3556b7-73a1-0009-cd3c-a9c6680ccd7a": {
+                "sizeX": 8,
+                "sizeY": 3,
+                "row": 3,
+                "col": 0
+              },
+              "6ec365fc-fe7f-18c5-0bfe-72fa77050c10": {
+                "sizeX": 8,
+                "sizeY": 3,
+                "row": 3,
+                "col": 16
+              }
+            },
+            "gridSettings": {
+              "backgroundColor": "#eeeeee",
+              "columns": 24,
+              "margin": 10,
+              "backgroundSizeMode": "100%",
+              "autoFillHeight": false,
+              "backgroundImageUrl": null,
+              "mobileAutoFillHeight": true,
+              "mobileRowHeight": 70,
+              "outerMargin": true,
+              "layoutType": "default"
             }
           }
         }
@@ -16517,7 +16517,7 @@
   "customerId": null,
   "assignedCustomers": null,
   "externalId": null,
-  "version": 103,
+  "version": 130,
   "ownerId": {
     "entityType": "TENANT",
     "id": "efb63c10-b576-11ee-a6c2-a149ed03c64d"
