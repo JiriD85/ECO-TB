@@ -6337,9 +6337,9 @@
   "resources": null,
   "id": {
     "entityType": "DASHBOARD",
-    "id": "36a64620-f7a0-11f0-adb4-33b9bcf3ddd0"
+    "id": "7d81d3b0-fb93-11f0-9979-9f3434877bb4"
   },
-  "createdTime": 1769092793218,
+  "createdTime": 1769527133291,
   "tenantId": {
     "entityType": "TENANT",
     "id": "efb63c10-b576-11ee-a6c2-a149ed03c64d"
@@ -6347,7 +6347,7 @@
   "customerId": null,
   "assignedCustomers": null,
   "externalId": null,
-  "version": 2,
+  "version": 20,
   "ownerId": {
     "entityType": "TENANT",
     "id": "efb63c10-b576-11ee-a6c2-a149ed03c64d"

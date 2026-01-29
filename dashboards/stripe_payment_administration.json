@@ -683,7 +683,7 @@
   "customerId": null,
   "assignedCustomers": null,
   "externalId": null,
-  "version": 9,
+  "version": 36,
   "ownerId": {
     "entityType": "TENANT",
     "id": "efb63c10-b576-11ee-a6c2-a149ed03c64d"

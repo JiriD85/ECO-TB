@@ -5,27 +5,257 @@
   "mobileOrder": null,
   "configuration": {
     "description": "",
-    "widgets": {},
+    "widgets": {
+      "ec1bc360-ac74-f2d8-59c8-52d17bd13a6e": {
+        "type": "alarm",
+        "sizeX": 10.5,
+        "sizeY": 6.5,
+        "config": {
+          "timewindow": {
+            "hideAggregation": false,
+            "hideAggInterval": false,
+            "hideTimezone": false,
+            "selectedTab": 0,
+            "realtime": {
+              "realtimeType": 0,
+              "interval": 1000,
+              "timewindowMs": 604800000,
+              "quickInterval": "CURRENT_DAY",
+              "hideInterval": false,
+              "hideLastInterval": false,
+              "hideQuickInterval": false
+            },
+            "history": {
+              "historyType": 0,
+              "interval": 1000,
+              "timewindowMs": 60000,
+              "fixedTimewindow": {
+                "startTimeMs": 1737884022023,
+                "endTimeMs": 1737970422023
+              },
+              "quickInterval": "CURRENT_DAY",
+              "hideInterval": false,
+              "hideLastInterval": false,
+              "hideFixedInterval": false,
+              "hideQuickInterval": false
+            },
+            "aggregation": {
+              "type": "NONE",
+              "limit": 200
+            }
+          },
+          "showTitle": true,
+          "backgroundColor": "rgb(255, 255, 255)",
+          "color": "rgba(0, 0, 0, 0.87)",
+          "padding": "8px",
+          "settings": {
+            "alarmsTitle": "Alarms",
+            "enableSelection": true,
+            "enableSearch": true,
+            "enableSelectColumnDisplay": true,
+            "enableFilter": true,
+            "enableStickyHeader": true,
+            "enableStickyAction": false,
+            "showCellActionsMenu": true,
+            "reserveSpaceForHiddenAction": "true",
+            "displayDetails": false,
+            "allowAcknowledgment": true,
+            "allowClear": true,
+            "allowAssign": true,
+            "displayActivity": true,
+            "displayPagination": false,
+            "defaultPageSize": 10,
+            "pageStepCount": 3,
+            "pageStepIncrement": 10,
+            "defaultSortOrder": "-startTime",
+            "useRowStyleFunction": false,
+            "rowStyleFunction": ""
+          },
+          "title": "New Alarms table",
+          "dropShadow": false,
+          "enableFullscreen": false,
+          "titleStyle": {
+            "fontSize": "24px",
+            "fontWeight": 700,
+            "padding": "5px 10px 5px 10px",
+            "height": "40px"
+          },
+          "useDashboardTimewindow": false,
+          "showLegend": false,
+          "alarmSource": {
+            "type": "entity",
+            "name": null,
+            "entityAliasId": "8c2518f2-1dcc-c0b5-a2e9-8a9d79da0e8b",
+            "filterId": null,
+            "dataKeys": [
+              {
+                "name": "startTime",
+                "type": "alarm",
+                "label": "Start time",
+                "color": "#607d8b",
+                "settings": {
+                  "columnWidth": "0px",
+                  "useCellStyleFunction": false,
+                  "cellStyleFunction": "",
+                  "useCellContentFunction": false,
+                  "cellContentFunction": "",
+                  "defaultColumnVisibility": "visible",
+                  "columnSelectionToDisplay": "enabled",
+                  "columnExportOption": "onlyVisible"
+                },
+                "_hash": 0.9100433241266481
+              },
+              {
+                "name": "originator",
+                "type": "alarm",
+                "label": "Originator",
+                "color": "#4caf50",
+                "settings": {
+                  "useCellStyleFunction": false,
+                  "cellStyleFunction": "",
+                  "useCellContentFunction": false,
+                  "cellContentFunction": ""
+                },
+                "_hash": 0.2780007688856758
+              },
+              {
+                "name": "type",
+                "type": "alarm",
+                "label": "Type",
+                "color": "#f44336",
+                "settings": {
+                  "useCellStyleFunction": false,
+                  "cellStyleFunction": "",
+                  "useCellContentFunction": false,
+                  "cellContentFunction": ""
+                },
+                "_hash": 0.7323586880398418
+              },
+              {
+                "name": "severity",
+                "type": "alarm",
+                "label": "Severity",
+                "color": "#ffc107",
+                "settings": {
+                  "useCellStyleFunction": false,
+                  "useCellContentFunction": false
+                },
+                "_hash": 0.09927019860088193
+              },
+              {
+                "name": "status",
+                "type": "alarm",
+                "label": "Status",
+                "color": "#607d8b",
+                "settings": {
+                  "useCellStyleFunction": false,
+                  "cellStyleFunction": "",
+                  "useCellContentFunction": false,
+                  "cellContentFunction": ""
+                },
+                "_hash": 0.6588418951443418
+              }
+            ],
+            "alarmFilterConfig": {
+              "statusList": [
+                "ACTIVE"
+              ]
+            }
+          },
+          "alarmsPollingInterval": 5,
+          "showTitleIcon": false,
+          "titleIcon": "notifications",
+          "iconColor": "rgba(0, 0, 0, 0.87)",
+          "iconSize": "28px",
+          "titleTooltip": "",
+          "widgetStyle": {},
+          "displayTimewindow": true,
+          "actions": {},
+          "datasources": [],
+          "enableDataExport": false,
+          "widgetCss": "div.tb-widget .tb-widget-title {\n    max-height: 100px !important;\n}\n",
+          "noDataDisplayMessage": "",
+          "alarmFilterConfig": {
+            "statusList": [
+              "ACTIVE"
+            ],
+            "severityList": [
+              "CRITICAL",
+              "MAJOR",
+              "MINOR",
+              "WARNING"
+            ],
+            "typeList": [],
+            "searchPropagatedAlarms": false,
+            "assignedToCurrentUser": false,
+            "assigneeId": null
+          },
+          "pageSize": 1024,
+          "borderRadius": "8px"
+        },
+        "row": 0,
+        "col": 0,
+        "id": "ec1bc360-ac74-f2d8-59c8-52d17bd13a6e",
+        "typeFullFqn": "system.alarm_widgets.alarms_table"
+      }
+    },
     "states": {
       "default": {
         "name": "Smart Diagnostics Alarming",
         "root": true,
         "layouts": {
           "main": {
-            "widgets": {},
+            "widgets": {
+              "ec1bc360-ac74-f2d8-59c8-52d17bd13a6e": {
+                "sizeX": 24,
+                "sizeY": 11,
+                "row": 0,
+                "col": 0
+              }
+            },
             "gridSettings": {
               "layoutType": "default",
               "backgroundColor": "#eeeeee",
               "columns": 24,
               "margin": 10,
               "outerMargin": true,
-              "backgroundSizeMode": "100%"
+              "backgroundSizeMode": "100%",
+              "minColumns": 24,
+              "viewFormat": "grid",
+              "autoFillHeight": true,
+              "rowHeight": 70,
+              "backgroundImageUrl": null,
+              "mobileAutoFillHeight": false,
+              "mobileRowHeight": 70
             }
           }
         }
       }
     },
-    "entityAliases": {},
+    "entityAliases": {
+      "09917637-f7f9-0b03-4c1f-f9926b99994b": {
+        "id": "09917637-f7f9-0b03-4c1f-f9926b99994b",
+        "alias": "Selected Measurement",
+        "filter": {
+          "type": "stateEntity",
+          "resolveMultiple": false,
+          "stateEntityParamName": "selectedMeasurement",
+          "defaultStateEntity": null
+        }
+      },
+      "8c2518f2-1dcc-c0b5-a2e9-8a9d79da0e8b": {
+        "id": "8c2518f2-1dcc-c0b5-a2e9-8a9d79da0e8b",
+        "alias": "User",
+        "filter": {
+          "type": "singleEntity",
+          "resolveMultiple": false,
+          "singleEntity": {
+            "entityType": "CURRENT_USER_OWNER",
+            "id": "13814000-1dd2-11b2-8080-808080808080"
+          }
+        }
+      }
+    },
     "filters": {},
     "timewindow": {
       "displayValue": "",
@@ -71,6 +301,23 @@
       "toolbarAlwaysOpen": true
     }
   },
-  "name": "Smart Diagnostics Alarming",
-  "resources": null
+  "name": "Alarming",
+  "resources": null,
+  "id": {
+    "entityType": "DASHBOARD",
+    "id": "d0291da0-f6be-11f0-9979-9f3434877bb4"
+  },
+  "createdTime": 1768995984506,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "efb63c10-b576-11ee-a6c2-a149ed03c64d"
+  },
+  "customerId": null,
+  "assignedCustomers": null,
+  "externalId": null,
+  "version": 130,
+  "ownerId": {
+    "entityType": "TENANT",
+    "id": "efb63c10-b576-11ee-a6c2-a149ed03c64d"
+  }
 }
