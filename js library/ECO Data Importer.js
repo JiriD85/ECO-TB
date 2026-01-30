@@ -2057,8 +2057,8 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
   // Get state params
   const stateParams = stateController.getStateParams();
 
-  // Check if user is Tenant Administrator
-  const isTenantAdmin = stateParams && stateParams.userRole === 'Tenant Administrators';
+  // Check if user is Tenant Administrator (check ThingsBoard authority, not custom userRole)
+  const isTenantAdmin = widgetContext.currentUser && widgetContext.currentUser.authority === 'TENANT_ADMIN';
 
 
   // Check if entityId is provided and is an ASSET - need to determine its type
@@ -3442,48 +3442,71 @@ mat-icon {
       // Load devices in parallel
       rxjs.forkJoin(queries).subscribe(
         function(result) {
-          // Process P-Flows (ultrasonic only)
-          if (result.pflowDevices && result.pflowDevices.length > 0) {
-            vm.kitPFlows = result.pflowDevices.map(function(device) {
-              return {
-                name: device.name,
-                type: device.type,
-                label: device.label || device.name,
-                deviceId: device.id
-              };
+          // Helper: Check if device is in "Unassigned Measurement Devices" group
+          function isDeviceUnassigned(deviceId) {
+            if (!vm.availableDevices || vm.availableDevices.length === 0) {
+              return true; // If no filter available, show all
+            }
+            const deviceIdStr = deviceId.id || deviceId;
+            return vm.availableDevices.some(function(d) {
+              return (d.deviceId.id || d.deviceId) === deviceIdStr;
             });
+          }
+
+          // Process P-Flows (ultrasonic only) - filter to only unassigned devices
+          if (result.pflowDevices && result.pflowDevices.length > 0) {
+            vm.kitPFlows = result.pflowDevices
+              .filter(function(device) {
+                return isDeviceUnassigned(device.id);
+              })
+              .map(function(device) {
+                return {
+                  name: device.name,
+                  type: device.type,
+                  label: device.label || device.name,
+                  deviceId: device.id
+                };
+              });
             vm.filteredPFlows = vm.kitPFlows.slice();
           } else {
             vm.kitPFlows = [];
             vm.filteredPFlows = [];
           }
 
-          // Process Temperature Sensors (ultrasonic only)
+          // Process Temperature Sensors (ultrasonic only) - filter to only unassigned devices
           if (result.sensorDevices && result.sensorDevices.length > 0) {
-            vm.kitSensors = result.sensorDevices.map(function(device) {
-              return {
-                name: device.name,
-                type: device.type,
-                label: device.label || device.name,
-                deviceId: device.id
-              };
-            });
+            vm.kitSensors = result.sensorDevices
+              .filter(function(device) {
+                return isDeviceUnassigned(device.id);
+              })
+              .map(function(device) {
+                return {
+                  name: device.name,
+                  type: device.type,
+                  label: device.label || device.name,
+                  deviceId: device.id
+                };
+              });
             vm.filteredKitSensors = vm.kitSensors.slice();
           } else {
             vm.kitSensors = [];
             vm.filteredKitSensors = [];
           }
 
-          // Process Room Sensor CO2 (LoRaWAN only)
+          // Process Room Sensor CO2 (LoRaWAN only) - filter to only unassigned devices
           if (result.roomSensorDevices && result.roomSensorDevices.length > 0) {
-            vm.kitRoomSensors = result.roomSensorDevices.map(function(device) {
-              return {
-                name: device.name,
-                type: device.type,
-                label: device.label || device.name,
-                deviceId: device.id
-              };
-            });
+            vm.kitRoomSensors = result.roomSensorDevices
+              .filter(function(device) {
+                return isDeviceUnassigned(device.id);
+              })
+              .map(function(device) {
+                return {
+                  name: device.name,
+                  type: device.type,
+                  label: device.label || device.name,
+                  deviceId: device.id
+                };
+              });
             vm.filteredRoomSensors = vm.kitRoomSensors.slice();
           } else {
             vm.kitRoomSensors = [];
@@ -3843,6 +3866,101 @@ mat-icon {
       }
 
       assignments.push(saveMeasurementLabel(measurementIdValue, measurementLabel));
+
+      // Save assignedKit attribute on PROJECT and assignedTo attribute on Diagnostickit
+      // Also create relation from Measurement to Diagnostickit
+      if (vm.selectedKit) {
+        const kitEntityId = vm.selectedKit.id || vm.selectedKit.entityId;
+        const kitId = kitEntityId
+          ? (typeof kitEntityId === 'string' ? { id: kitEntityId, entityType: 'ASSET' } : kitEntityId)
+          : null;
+
+        if (kitId) {
+          // Create relation from Measurement to Diagnostickit (type: Measurement)
+          const relation = {
+            from: measurementIdValue,
+            to: kitId,
+            type: 'Measurement',
+            typeGroup: 'COMMON'
+          };
+          assignments.push(entityRelationService.saveRelation(relation));
+        }
+
+        // Get parent Project from stateParams or via relation query, then save kit assignments
+        const stateParams = widgetContext.stateController.getStateParams() || {};
+        if (stateParams.selectedProject && stateParams.selectedProject.entityId) {
+          // Project available in state params
+          const projectId = stateParams.selectedProject.entityId;
+          const projectName = stateParams.selectedProject.entityName || '';
+          assignments.push(saveKitAssignmentsAsync(projectId, projectName, kitId));
+        } else {
+          // Query parent Project via relation (FROM Project TO Measurement, type: Measurement)
+          assignments.push(
+            entityRelationService.findByTo(measurementIdValue, 'Measurement').pipe(
+              rxjs.switchMap(function(relations) {
+                const projectRelation = relations.find(function(r) {
+                  return r.from && r.from.entityType === 'ASSET';
+                });
+                if (projectRelation) {
+                  return assetService.getAsset(projectRelation.from.id).pipe(
+                    rxjs.switchMap(function(project) {
+                      return saveKitAssignmentsAsync(projectRelation.from, project.name || '', kitId);
+                    })
+                  );
+                }
+                return rxjs.of(null);
+              })
+            )
+          );
+        }
+
+        function saveKitAssignmentsAsync(projectId, projectName, kitId) {
+          const projectEntityId = typeof projectId === 'string'
+            ? { id: projectId, entityType: 'ASSET' }
+            : projectId;
+
+          const saveOps = [];
+
+          // Save assignedKit on Project (kit name)
+          saveOps.push(
+            attributeService.saveEntityAttributes(projectEntityId, 'SERVER_SCOPE', [
+              { key: 'assignedKit', value: vm.selectedKit.name }
+            ])
+          );
+
+          // Save assignedTo on Diagnostickit (project name)
+          if (kitId) {
+            saveOps.push(
+              attributeService.saveEntityAttributes(kitId, 'SERVER_SCOPE', [
+                { key: 'assignedTo', value: projectName }
+              ])
+            );
+
+            // Remove kit from "Unassigned Diagnostic Kits" entity group
+            if (vm.customerId && vm.customerId.id) {
+              saveOps.push(
+                entityGroupService.getEntityGroupsByOwnerId(vm.customerId.entityType, vm.customerId.id, 'ASSET').pipe(
+                  rxjs.switchMap(function(assetGroups) {
+                    const unassignedKitsGroup = assetGroups.find(function(g) {
+                      return g.name === 'Unassigned Diagnostic Kits';
+                    });
+                    if (unassignedKitsGroup && unassignedKitsGroup.id) {
+                      return entityGroupService.removeEntityFromEntityGroup(unassignedKitsGroup.id.id, kitId.id);
+                    }
+                    return rxjs.of(null);
+                  }),
+                  rxjs.catchError(function(err) {
+                    console.warn('Could not remove kit from Unassigned Diagnostic Kits group:', err);
+                    return rxjs.of(null);
+                  })
+                )
+              );
+            }
+          }
+
+          return rxjs.forkJoin(saveOps);
+        }
+      }
 
       if (assignments.length === 0) {
         vm.dialogRef.close(null);
@@ -4362,8 +4480,8 @@ mat-icon {
       const attributesArray = [
         { key: "xPos", value: "0" },
         { key: "yPos", value: "0" },
-        { key: "measurement", value: measurementNameForAttr },
-        { key: "project", value: widgetContext.stateController.getStateParams()?.selectedProject?.entityName}
+        { key: "project", value: widgetContext.stateController.getStateParams()?.selectedProject?.entityName },
+        { key: "assignedTo", value: measurementNameForAttr }
       ];
       return attributeService.saveEntityAttributes(deviceId, 'SERVER_SCOPE', attributesArray);
     }
