@@ -4021,11 +4021,25 @@ mat-icon {
           console.error('Missing selectedCustomer and measurementId for Tenant Admin.');
         }
       } else {
-        vm.customerId = {
-          id: widgetContext.currentUser.customerId,
-          entityType: 'CUSTOMER'
-        };
-        vm.loadCustomerGroups();
+        // FIX: Extract customerId correctly - it can be a string or object
+        const rawCustomerId = widgetContext.currentUser.customerId;
+        let customerIdString;
+        if (typeof rawCustomerId === 'string') {
+          customerIdString = rawCustomerId;
+        } else if (rawCustomerId && rawCustomerId.id) {
+          customerIdString = rawCustomerId.id;
+        }
+
+        if (customerIdString) {
+          vm.customerId = {
+            id: customerIdString,
+            entityType: 'CUSTOMER'
+          };
+          // Call after function is defined below
+          setTimeout(() => vm.loadCustomerGroups(), 0);
+        } else {
+          console.error('Cannot determine customerId from currentUser:', rawCustomerId);
+        }
       }
 
       vm.loadCustomerGroups = function() {
