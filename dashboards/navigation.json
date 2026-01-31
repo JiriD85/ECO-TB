@@ -23,6 +23,20 @@
                   "ACTIVE"
                 ]
               }
+            },
+            {
+              "type": "entity",
+              "name": "",
+              "entityAliasId": "current-user-nav-alias",
+              "dataKeys": [
+                {
+                  "name": "role",
+                  "type": "attribute",
+                  "label": "role",
+                  "settings": {},
+                  "_hash": 0.123456
+                }
+              ]
             }
           ],
           "timewindow": {
@@ -63,7 +77,7 @@
           "settings": {
             "useMarkdownTextFunction": true,
             "markdownTextPattern": "### Markdown/HTML card\n - **Current entity**: ${entityName}.\n - **Current value**: ${Temperature}.",
-            "markdownTextFunction": "/*************************************************\n * mat-tab-group + tb-dashboard-state (works + visible)\n * Source of truth: stateParams.tabMode.entityName\n * Fix: enforce height on mat-tab body wrappers\n *************************************************/\n\nconst sc =\n  ctx.stateController ||\n  (ctx.$scope && (ctx.$scope.stateController || (ctx.$scope.$parent && ctx.$scope.$parent.stateController)));\n\nif (!sc || !ctx.$scope) {\n  return '<div style=\"padding:12px;color:#b00020;\">StateController / $scope nicht gefunden.</div>';\n}\n\nconst tabs = [\n  { id: 'home',        label: 'Home',        icon: 'home' },\n  { id: 'assessment',  label: 'Assessment',  icon: 'assignment_turned_in' },\n  { id: 'assetreport', label: 'Asset Report', icon: 'description' },\n  { id: 'measurement', label: 'Measurement', icon: 'straighten' },\n  { id: 'analysis',    label: 'Analysis',    icon: 'insights' },\n//  { id: 'monitoring',  label: 'Monitoring',  icon: 'dashboard' },\n  { id: 'alarming',    label: 'Alarming',    icon: 'notifications' },\n  { id: 'administration',  label: 'Administration',  icon: 'settings' }\n];\n\n// State IDs for tabs - all use internal states\nconst tabToStateId = {\n  home: 'home',\n  assessment: 'assessment',\n  assetreport: 'assetreport',\n  measurement: 'measurement',\n  analysis: 'analysis',\n//  monitoring: 'monitoring',\n  alarming: 'alarming',\n  administration: 'administration'\n};\n\n// tabMode initialisieren\nconst params = (typeof sc.getStateParams === 'function' ? (sc.getStateParams() || {}) : {});\nlet tabMode;\n\nif (params.tabMode && params.tabMode.entityName) {\n  tabMode = String(params.tabMode.entityName);\n} else {\n  tabMode = 'home';\n  params.tabMode = { entityName: tabMode };\n  sc.updateState(null, params);\n}\n\nif (!tabs.some(t => t.id === tabMode)) tabMode = 'home';\n\n// selectedIndex ableiten\nlet selectedIndex = 0;\nfor (let i = 0; i < tabs.length; i++) {\n  if (tabs[i].id === tabMode) { selectedIndex = i; break; }\n}\n\n// Handler auf ctx (damit Angular ihn findet)\nctx.tbNavSelectedIndex = selectedIndex;\n\nctx.tbNavOnTabChange = function(ev) {\n  try {\n    const idx = ev && typeof ev.index === 'number' ? ev.index : 0;\n    const t = tabs[idx] || tabs[0];\n\n    ctx.tbNavSelectedIndex = idx;\n\n    // Merge: bestehende Params behalten\n    const current = (typeof sc.getStateParams === 'function' ? (sc.getStateParams() || {}) : {});\n    const p = Object.assign({}, current);\n    p.tabMode = { entityName: t.id };\n\n    sc.updateState(null, p);\n\n    if (ctx.$scope && typeof ctx.$scope.$applyAsync === 'function') ctx.$scope.$applyAsync();\n  } catch (e) {\n    console.error('tbNavOnTabChange error', e);\n  }\n};\n\n// Styles: nur das Nötige für Höhe + Label\n(function injectStyles() {\n  const styleId = 'tb-mat-tabs-height-fix-v1';\n  if (document.getElementById(styleId)) return;\n\n  const css = `\n    .tb-tabs-root{\n      width:100%;\n      height:100%;\n      display:flex;\n      flex-direction:column;\n      min-height:0;\n    }\n\n    .tb-tabs-root mat-tab-group{\n      flex:1 1 auto;\n      min-height:0;\n      height:100%;\n    }\n\n    /* Entscheidend: Tab-Body Wrapper braucht echte Höhe */\n    .tb-tabs-root .mat-mdc-tab-body-wrapper{\n      flex:1 1 auto;\n      min-height:0;\n      height:100%;\n    }\n    .tb-tabs-root .mat-mdc-tab-body{\n      height:100%;\n      min-height:0;\n    }\n    .tb-tabs-root .mat-mdc-tab-body-content{\n      height:100%;\n      min-height:0;\n      overflow:hidden;\n    }\n\n    .tb-tab-label{\n      display:inline-flex;\n      align-items:center;\n      gap:8px;\n    }\n    .tb-tab-label mat-icon{\n      font-size:18px;\n      width:18px;\n      height:18px;\n      line-height:18px;\n    }\n\n    .tb-tab-body{\n      width:100%;\n      height:100%;\n      display:block;\n    }\n  `;\n\n  const styleEl = document.createElement('style');\n  styleEl.id = styleId;\n  styleEl.type = 'text/css';\n  styleEl.appendChild(document.createTextNode(css));\n  document.head.appendChild(styleEl);\n})();\n\n// Tabs HTML (Lazy Content)\nlet tabsHtml = '';\nfor (let i = 0; i < tabs.length; i++) {\n  const t = tabs[i];\n  const stateId = tabToStateId[t.id] || t.id;\n\n  tabsHtml += ''\n    + '<mat-tab>'\n    +   '<ng-template mat-tab-label>'\n    +     '<span class=\"tb-tab-label\">'\n    +       '<mat-icon>' + t.icon + '</mat-icon>'\n    +       '<span>' + t.label + '</span>'\n    +     '</span>'\n    +   '</ng-template>'\n    +   '<ng-template matTabContent>'\n    +     '<tb-dashboard-state class=\"tb-tab-body\" style=\"width:100%;height:100%;\"'\n    +       ' [ctx]=\"ctx\" [syncParentStateParams]=\"true\" stateId=\"' + stateId + '\">'\n    +     '</tb-dashboard-state>'\n    +   '</ng-template>'\n    + '</mat-tab>';\n}\n\nreturn ''\n  + '<section class=\"tb-tabs-root\">'\n  +   '<mat-tab-group mat-stretch-tabs=\"false\"'\n  +     ' [selectedIndex]=\"ctx.tbNavSelectedIndex\"'\n  +     ' (selectedTabChange)=\"ctx.tbNavOnTabChange($event)\">'\n  +     tabsHtml\n  +   '</mat-tab-group>'\n  + '</section>';\n",
+            "markdownTextFunction": "/*************************************************\n * mat-tab-group + tb-dashboard-state (works + visible)\n * Source of truth: stateParams.tabMode.entityName\n * Fix: enforce height on mat-tab body wrappers\n *************************************************/\n\nconst sc =\n  ctx.stateController ||\n  (ctx.$scope && (ctx.$scope.stateController || (ctx.$scope.$parent && ctx.$scope.$parent.stateController)));\n\nif (!sc || !ctx.$scope) {\n  return '<div style=\"padding:12px;color:#b00020;\">StateController / $scope nicht gefunden.</div>';\n}\n\n// Get user role from datasource\nlet userRole = '';\nif (data && data.length > 0) {\n  data.forEach(function(item) {\n    if (item.datasource && item.datasource.entityAliasId === 'current-user-nav-alias') {\n      userRole = item.role || '';\n    }\n  });\n}\n\n// Check if user can see Administration tab\nconst isTenantAdmin = ctx.currentUser && ctx.currentUser.authority === 'TENANT_ADMIN';\nconst adminRoles = ['ECO Administrator', 'Administrator', 'Belimo Retrofit Administrator', 'ECO Diagnostics Administrator'];\nconst isAdminRole = adminRoles.some(function(role) {\n  return userRole === role || userRole.toLowerCase() === role.toLowerCase();\n});\nconst canSeeAdmin = isTenantAdmin || isAdminRole;\n\n// Define all tabs\nconst allTabs = [\n  { id: 'home',        label: 'Home',        icon: 'home' },\n  { id: 'assessment',  label: 'Assessment',  icon: 'assignment_turned_in' },\n  { id: 'assetreport', label: 'Asset Report', icon: 'description' },\n  { id: 'measurement', label: 'Measurement', icon: 'straighten' },\n  { id: 'analysis',    label: 'Analysis',    icon: 'insights' },\n//  { id: 'monitoring',  label: 'Monitoring',  icon: 'dashboard' },\n  { id: 'alarming',    label: 'Alarming',    icon: 'notifications' },\n  { id: 'administration',  label: 'Administration',  icon: 'settings', adminOnly: true }\n];\n\n// Filter tabs based on permissions\nconst tabs = allTabs.filter(function(tab) {\n  if (tab.adminOnly) {\n    return canSeeAdmin;\n  }\n  return true;\n});\n\n// State IDs for tabs - all use internal states\nconst tabToStateId = {\n  home: 'home',\n  assessment: 'assessment',\n  assetreport: 'assetreport',\n  measurement: 'measurement',\n  analysis: 'analysis',\n//  monitoring: 'monitoring',\n  alarming: 'alarming',\n  administration: 'administration'\n};\n\n// tabMode initialisieren\nconst params = (typeof sc.getStateParams === 'function' ? (sc.getStateParams() || {}) : {});\nlet tabMode;\n\nif (params.tabMode && params.tabMode.entityName) {\n  tabMode = String(params.tabMode.entityName);\n} else {\n  tabMode = 'home';\n  params.tabMode = { entityName: tabMode };\n  sc.updateState(null, params);\n}\n\nif (!tabs.some(t => t.id === tabMode)) tabMode = 'home';\n\n// selectedIndex ableiten\nlet selectedIndex = 0;\nfor (let i = 0; i < tabs.length; i++) {\n  if (tabs[i].id === tabMode) { selectedIndex = i; break; }\n}\n\n// Handler auf ctx (damit Angular ihn findet)\nctx.tbNavSelectedIndex = selectedIndex;\n\nctx.tbNavOnTabChange = function(ev) {\n  try {\n    const idx = ev && typeof ev.index === 'number' ? ev.index : 0;\n    const t = tabs[idx] || tabs[0];\n\n    ctx.tbNavSelectedIndex = idx;\n\n    // Merge: bestehende Params behalten\n    const current = (typeof sc.getStateParams === 'function' ? (sc.getStateParams() || {}) : {});\n    const p = Object.assign({}, current);\n    p.tabMode = { entityName: t.id };\n\n    sc.updateState(null, p);\n\n    if (ctx.$scope && typeof ctx.$scope.$applyAsync === 'function') ctx.$scope.$applyAsync();\n  } catch (e) {\n    console.error('tbNavOnTabChange error', e);\n  }\n};\n\n// Styles: nur das Nötige für Höhe + Label\n(function injectStyles() {\n  const styleId = 'tb-mat-tabs-height-fix-v1';\n  if (document.getElementById(styleId)) return;\n\n  const css = `\n    .tb-tabs-root{\n      width:100%;\n      height:100%;\n      display:flex;\n      flex-direction:column;\n      min-height:0;\n    }\n\n    .tb-tabs-root mat-tab-group{\n      flex:1 1 auto;\n      min-height:0;\n      height:100%;\n    }\n\n    /* Entscheidend: Tab-Body Wrapper braucht echte Höhe */\n    .tb-tabs-root .mat-mdc-tab-body-wrapper{\n      flex:1 1 auto;\n      min-height:0;\n      height:100%;\n    }\n    .tb-tabs-root .mat-mdc-tab-body{\n      height:100%;\n      min-height:0;\n    }\n    .tb-tabs-root .mat-mdc-tab-body-content{\n      height:100%;\n      min-height:0;\n      overflow:hidden;\n    }\n\n    .tb-tab-label{\n      display:inline-flex;\n      align-items:center;\n      gap:8px;\n    }\n    .tb-tab-label mat-icon{\n      font-size:18px;\n      width:18px;\n      height:18px;\n      line-height:18px;\n    }\n\n    .tb-tab-body{\n      width:100%;\n      height:100%;\n      display:block;\n    }\n  `;\n\n  const styleEl = document.createElement('style');\n  styleEl.id = styleId;\n  styleEl.type = 'text/css';\n  styleEl.appendChild(document.createTextNode(css));\n  document.head.appendChild(styleEl);\n})();\n\n// Tabs HTML (Lazy Content)\nlet tabsHtml = '';\nfor (let i = 0; i < tabs.length; i++) {\n  const t = tabs[i];\n  const stateId = tabToStateId[t.id] || t.id;\n\n  tabsHtml += ''\n    + '<mat-tab>'\n    +   '<ng-template mat-tab-label>'\n    +     '<span class=\"tb-tab-label\">'\n    +       '<mat-icon>' + t.icon + '</mat-icon>'\n    +       '<span>' + t.label + '</span>'\n    +     '</span>'\n    +   '</ng-template>'\n    +   '<ng-template matTabContent>'\n    +     '<tb-dashboard-state class=\"tb-tab-body\" style=\"width:100%;height:100%;\"'\n    +       ' [ctx]=\"ctx\" [syncParentStateParams]=\"true\" stateId=\"' + stateId + '\">'\n    +     '</tb-dashboard-state>'\n    +   '</ng-template>'\n    + '</mat-tab>';\n}\n\nreturn ''\n  + '<section class=\"tb-tabs-root\">'\n  +   '<mat-tab-group mat-stretch-tabs=\"false\"'\n  +     ' [selectedIndex]=\"ctx.tbNavSelectedIndex\"'\n  +     ' (selectedTabChange)=\"ctx.tbNavOnTabChange($event)\">'\n  +     tabsHtml\n  +   '</mat-tab-group>'\n  + '</section>';\n",
             "applyDefaultMarkdownStyle": false,
             "markdownCss": ""
           },
@@ -136,7 +150,27 @@
           "widgetStyle": {},
           "widgetCss": "",
           "pageSize": 1024,
-          "noDataDisplayMessage": ""
+          "noDataDisplayMessage": "",
+          "actions": {
+            "headerButton": [
+              {
+                "name": "Open in new Tab",
+                "buttonType": "miniFab",
+                "icon": "open_in_new",
+                "buttonColor": "#ffffff",
+                "buttonFillColor": "var(--tb-primary-500)",
+                "customButtonStyle": {},
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "type": "openURL",
+                "openNewBrowserTab": true,
+                "url": "https://portal.retrofit.belimo.com/login",
+                "openInSeparateDialog": false,
+                "openInPopover": false,
+                "id": "89cffe2e-321b-6153-6f6a-2df12f659327"
+              }
+            ]
+          }
         },
         "row": 0,
         "col": 0,
@@ -780,79 +814,6 @@
         "col": 0,
         "id": "a678f68b-a9cc-db8c-1579-2794a0af750e"
       },
-      "02da89a4-ffe1-db20-dc1a-add382df5f2e": {
-        "typeFullFqn": "system.cards.html_card",
-        "type": "static",
-        "sizeX": 7.5,
-        "sizeY": 3,
-        "config": {
-          "datasources": [
-            {
-              "type": "static",
-              "name": "function",
-              "dataKeys": [
-                {
-                  "name": "f(x)",
-                  "type": "function",
-                  "label": "Random",
-                  "color": "#2196f3",
-                  "settings": {},
-                  "_hash": 0.15479322438769105,
-                  "funcBody": "var value = prevValue + Math.random() * 100 - 50;\nvar multiplier = Math.pow(10, 2 || 0);\nvar value = Math.round(value * multiplier) / multiplier;\nif (value < -1000) {\n\tvalue = -1000;\n} else if (value > 1000) {\n\tvalue = 1000;\n}\nreturn value;"
-                }
-              ]
-            }
-          ],
-          "timewindow": {
-            "realtime": {
-              "timewindowMs": 60000
-            }
-          },
-          "showTitle": false,
-          "backgroundColor": "rgb(255, 255, 255)",
-          "color": "rgba(0, 0, 0, 0.87)",
-          "padding": "0px",
-          "settings": {
-            "cardHtml": "<div style=\"width:100%; height:100%; margin:0; padding:0;\">\n  <iframe id=\"eco-dashboard-frame\"\n    src=\"\"\n    style=\"width:100%; height:100%; border:0;\"\n    loading=\"lazy\"\n    referrerpolicy=\"no-referrer\"\n    allow=\"fullscreen\"\n    allowfullscreen\n    sandbox=\"allow-scripts allow-same-origin allow-forms allow-popups\">\n  </iframe>\n</div>\n<script>\n(function() {\n  // Same-origin dashboard URL to avoid cross-domain cookie/session issues (tenant whitelabeling).\n  var origin = window.location.origin;\n  var dashboardId = \"d03133f0-f6be-11f0-9979-9f3434877bb4\";\n  // Single-page dashboard route hides the main ThingsBoard menu/sidebar.\n  // state=default loads the default dashboard state.\n  // hideToolbar=true (if supported) hides dashboard toolbar; alternatively enable \"Hide Toolbar\" in dashboard settings.\n  var url = origin + \"/dashboard/\" + dashboardId + \"?state=default&hideToolbar=true\";\n  document.getElementById(\"eco-dashboard-frame\").src = url;\n})();\n</script>\n",
-            "cardCss": ".card {\n  width: 100%;\n  height: 100%;\n  display: block;\n}\niframe {\n  width: 100%;\n  height: 100%;\n  border: 0;\n}"
-          },
-          "title": "HTML Card",
-          "dropShadow": false,
-          "enableFullscreen": false,
-          "enableDataExport": true,
-          "borderRadius": "0px",
-          "widgetStyle": {},
-          "widgetCss": "",
-          "pageSize": 1024,
-          "noDataDisplayMessage": "",
-          "actions": {
-            "headerButton": [
-              {
-                "name": "test",
-                "buttonType": "miniFab",
-                "icon": "open_in_new",
-                "buttonColor": "#ffffff",
-                "buttonFillColor": "var(--tb-primary-500)",
-                "customButtonStyle": {},
-                "useShowWidgetActionFunction": true,
-                "showWidgetActionFunction": "return false;",
-                "type": "openDashboard",
-                "targetDashboardStateId": "default",
-                "setEntityId": false,
-                "stateEntityParamName": null,
-                "openNewBrowserTab": false,
-                "targetDashboardId": "d03133f0-f6be-11f0-9979-9f3434877bb4",
-                "openInSeparateDialog": false,
-                "openInPopover": false,
-                "id": "bf5ca6c8-7346-228e-2e12-5b2a3c006f4c"
-              }
-            ]
-          }
-        },
-        "row": 0,
-        "col": 0,
-        "id": "02da89a4-ffe1-db20-dc1a-add382df5f2e"
-      },
       "8ece8969-fb30-f489-572e-41e529a369ff": {
         "typeFullFqn": "system.cards.html_card",
         "type": "static",
@@ -1232,6 +1193,76 @@
         "row": 0,
         "col": 0,
         "id": "51afa171-2f9e-200a-ec8a-5adf40fada75"
+      },
+      "7c3420e6-9fbb-a062-184f-fea59a10ea13": {
+        "typeFullFqn": "system.cards.html_card",
+        "type": "static",
+        "sizeX": 7.5,
+        "sizeY": 3,
+        "config": {
+          "datasources": [
+            {
+              "type": "static",
+              "name": "function",
+              "dataKeys": [
+                {
+                  "name": "f(x)",
+                  "type": "function",
+                  "label": "Random",
+                  "color": "#2196f3",
+                  "settings": {},
+                  "_hash": 0.15479322438769105,
+                  "funcBody": "var value = prevValue + Math.random() * 100 - 50;\nvar multiplier = Math.pow(10, 2 || 0);\nvar value = Math.round(value * multiplier) / multiplier;\nif (value < -1000) {\n\tvalue = -1000;\n} else if (value > 1000) {\n\tvalue = 1000;\n}\nreturn value;"
+                }
+              ]
+            }
+          ],
+          "timewindow": {
+            "realtime": {
+              "timewindowMs": 60000
+            }
+          },
+          "showTitle": false,
+          "backgroundColor": "rgb(255, 255, 255)",
+          "color": "rgba(0, 0, 0, 0.87)",
+          "padding": "8px",
+          "settings": {
+            "cardHtml": "<div style=\"width:100%; height:100%;\">\n  <iframe\n    src=\"https://eco-diagnostics.vercel.app\"\n    style=\"width:100%; height:100%; border:0;\"\n    loading=\"lazy\"\n    referrerpolicy=\"no-referrer\"\n    sandbox=\"allow-scripts allow-same-origin allow-forms allow-popups\">\n  </iframe>\n</div>\n",
+            "cardCss": ".card {\n    font-weight: bold;\n    font-size: 32px;\n    color: #999;\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}"
+          },
+          "title": "HTML Card",
+          "dropShadow": false,
+          "enableFullscreen": false,
+          "enableDataExport": true,
+          "borderRadius": "8px",
+          "widgetStyle": {},
+          "widgetCss": "",
+          "pageSize": 1024,
+          "noDataDisplayMessage": "",
+          "actions": {
+            "headerButton": [
+              {
+                "name": "Open in new Tab",
+                "buttonType": "miniFab",
+                "icon": "open_in_new",
+                "buttonColor": "#ffffff",
+                "buttonFillColor": "var(--tb-primary-500)",
+                "customButtonStyle": {},
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "type": "openURL",
+                "openNewBrowserTab": true,
+                "url": "https://eco-diagnostics.vercel.app",
+                "openInSeparateDialog": false,
+                "openInPopover": false,
+                "id": "c355a0b2-edff-c6d6-ae7e-c331fac7c2ca"
+              }
+            ]
+          }
+        },
+        "row": 0,
+        "col": 0,
+        "id": "7c3420e6-9fbb-a062-184f-fea59a10ea13"
       }
     },
     "states": {
@@ -1284,7 +1315,7 @@
               "backgroundColor": "#FFFFFF",
               "columns": 24,
               "margin": 10,
-              "outerMargin": true,
+              "outerMargin": false,
               "backgroundSizeMode": "100%",
               "minColumns": 24,
               "viewFormat": "grid",
@@ -1324,7 +1355,7 @@
               "backgroundColor": "#FFFFFF",
               "columns": 24,
               "margin": 10,
-              "outerMargin": true,
+              "outerMargin": false,
               "backgroundSizeMode": "100%",
               "minColumns": 24,
               "viewFormat": "grid",
@@ -1355,38 +1386,7 @@
               "backgroundColor": "#FFFFFF",
               "columns": 24,
               "margin": 10,
-              "outerMargin": true,
-              "backgroundSizeMode": "100%",
-              "minColumns": 24,
-              "viewFormat": "grid",
-              "autoFillHeight": true,
-              "rowHeight": 70,
-              "backgroundImageUrl": null,
-              "mobileAutoFillHeight": false,
-              "mobileRowHeight": 70
-            }
-          }
-        }
-      },
-      "analysis": {
-        "name": "Analysis",
-        "root": false,
-        "layouts": {
-          "main": {
-            "widgets": {
-              "02da89a4-ffe1-db20-dc1a-add382df5f2e": {
-                "sizeX": 24,
-                "sizeY": 12,
-                "row": 0,
-                "col": 0
-              }
-            },
-            "gridSettings": {
-              "layoutType": "default",
-              "backgroundColor": "#FFFFFF",
-              "columns": 24,
-              "margin": 10,
-              "outerMargin": true,
+              "outerMargin": false,
               "backgroundSizeMode": "100%",
               "minColumns": 24,
               "viewFormat": "grid",
@@ -1417,7 +1417,7 @@
               "backgroundColor": "#FFFFFF",
               "columns": 24,
               "margin": 10,
-              "outerMargin": true,
+              "outerMargin": false,
               "backgroundSizeMode": "100%",
               "minColumns": 24,
               "viewFormat": "grid",
@@ -1457,7 +1457,7 @@
               "backgroundColor": "#FFFFFF",
               "columns": 24,
               "margin": 10,
-              "outerMargin": true,
+              "outerMargin": false,
               "backgroundSizeMode": "100%",
               "minColumns": 24,
               "viewFormat": "grid",
@@ -1674,7 +1674,7 @@
               "backgroundColor": "#FFFFFF",
               "columns": 24,
               "margin": 10,
-              "outerMargin": true,
+              "outerMargin": false,
               "backgroundSizeMode": "100%",
               "minColumns": 24,
               "viewFormat": "grid",
@@ -1705,7 +1705,38 @@
               "backgroundColor": "#FFFFFF",
               "columns": 24,
               "margin": 10,
-              "outerMargin": true,
+              "outerMargin": false,
+              "backgroundSizeMode": "100%",
+              "minColumns": 24,
+              "viewFormat": "grid",
+              "autoFillHeight": true,
+              "rowHeight": 70,
+              "backgroundImageUrl": null,
+              "mobileAutoFillHeight": false,
+              "mobileRowHeight": 70
+            }
+          }
+        }
+      },
+      "analysis": {
+        "name": "Analysis",
+        "root": false,
+        "layouts": {
+          "main": {
+            "widgets": {
+              "7c3420e6-9fbb-a062-184f-fea59a10ea13": {
+                "sizeX": 24,
+                "sizeY": 12,
+                "row": 0,
+                "col": 0
+              }
+            },
+            "gridSettings": {
+              "layoutType": "default",
+              "backgroundColor": "#FFFFFF",
+              "columns": 24,
+              "margin": 10,
+              "outerMargin": false,
               "backgroundSizeMode": "100%",
               "minColumns": 24,
               "viewFormat": "grid",
@@ -1728,6 +1759,18 @@
           "resolveMultiple": false,
           "stateEntityParamName": "tabMode",
           "defaultStateEntity": null
+        }
+      },
+      "current-user-nav-alias": {
+        "id": "current-user-nav-alias",
+        "alias": "Current User",
+        "filter": {
+          "type": "singleEntity",
+          "resolveMultiple": false,
+          "singleEntity": {
+            "entityType": "CURRENT_USER",
+            "id": "13814000-1dd2-11b2-8080-808080808080"
+          }
         }
       }
     },
@@ -1796,8 +1839,11 @@
   },
   "customerId": null,
   "assignedCustomers": null,
-  "externalId": null,
-  "version": 102,
+  "externalId": {
+    "entityType": "DASHBOARD",
+    "id": "d0bcd220-f6be-11f0-adb4-33b9bcf3ddd0"
+  },
+  "version": 130,
   "ownerId": {
     "entityType": "TENANT",
     "id": "efb63c10-b576-11ee-a6c2-a149ed03c64d"
