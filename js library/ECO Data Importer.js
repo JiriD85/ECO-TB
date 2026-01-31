@@ -412,10 +412,11 @@ mat-icon {
   // 2) HTML Template
   const htmlTemplate = `
 <form [formGroup]="formGroup" class="add-device-to-asset-form" style="width: 1200px;">
-  <mat-toolbar class="flex items-center bg-primary text-white px-4" color="primary">
-    <h2 class="text-lg font-semibold">{{ 'custom.csv-importer.title' | translate }}</h2>
+  <mat-toolbar class="eco-dialog-header">
+    <mat-icon class="header-icon">close</mat-icon>
+    <h2 class="header-title">{{ 'custom.csv-importer.title' | translate }}</h2>
     <span class="flex-1"></span>
-    <button mat-icon-button (click)="cancel()" type="button">
+    <button mat-icon-button (click)="cancel()" type="button" class="close-btn">
       <mat-icon>close</mat-icon>
     </button>
   </mat-toolbar>
@@ -2212,11 +2213,11 @@ export function dataConnectorDialog(widgetContext, entityId, entityName) {
   // HTML for selection dialog with stepper
   const selectionTemplate = `
 <form [formGroup]="formGroup" style="width: 900px; max-width: 90vw; min-height: 520px; max-height: 85vh;">
-  <mat-toolbar class="flex items-center" color="primary">
-    <mat-icon style="margin-right: 12px;">link</mat-icon>
-    <h2 style="margin: 0; font-size: 18px;">{{ 'custom.data-connector.title' | translate }}</h2>
+  <mat-toolbar class="eco-dialog-header">
+    <mat-icon class="header-icon">link</mat-icon>
+    <h2 class="header-title">{{ 'custom.data-connector.title' | translate }}</h2>
     <span class="flex-1"></span>
-    <button mat-icon-button (click)="cancel()" type="button">
+    <button mat-icon-button (click)="cancel()" type="button" class="close-btn">
       <mat-icon>close</mat-icon>
     </button>
   </mat-toolbar>
@@ -2857,11 +2858,11 @@ mat-icon {
   const htmlTemplate = `
 <form #addEntityForm="ngForm" [formGroup]="addDeviceFormGroup"
       (ngSubmit)="save()" class="add-entity-form mx-auto" style="width: 600px;">
-  <mat-toolbar class="flex items-center" color="primary">
-    <mat-icon style="margin-right: 12px;">sensors</mat-icon>
-    <h2 style="margin: 0; font-size: 18px;">{{'custom.projects.measurements.assigned.devices.add-devices.add-device' | translate}}</h2>
+  <mat-toolbar class="eco-dialog-header">
+    <mat-icon class="header-icon">sensors</mat-icon>
+    <h2 class="header-title">{{'custom.projects.measurements.assigned.devices.add-devices.add-device' | translate}}</h2>
     <span class="flex-1"></span>
-    <button mat-icon-button (click)="cancel()" type="button">
+    <button mat-icon-button (click)="cancel()" type="button" class="close-btn">
       <mat-icon>close</mat-icon>
     </button>
   </mat-toolbar>

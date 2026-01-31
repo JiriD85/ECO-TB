@@ -33,13 +33,14 @@ export function openKitDevicesDialog(widgetContext, kitId, kitName) {
   overflow: hidden;
 }
 
-/* Header - matching Add Kit */
+/* Header - ECO Dialog Design System */
 .kit-devices-dialog .dialog-header {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 14px 20px;
-  background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
+  padding: 0 16px;
+  height: 56px;
+  background-color: var(--tb-primary-500);
   color: white;
 }
 .kit-devices-dialog .dialog-header mat-icon {
@@ -50,10 +51,11 @@ export function openKitDevicesDialog(widgetContext, kitId, kitName) {
 .kit-devices-dialog .dialog-header h2 {
   margin: 0;
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 500;
 }
 .kit-devices-dialog .close-header-btn {
   color: rgba(255,255,255,0.8) !important;
+  margin-left: auto;
 }
 .kit-devices-dialog .close-header-btn:hover {
   color: white !important;

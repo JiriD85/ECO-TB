@@ -214,6 +214,62 @@ export function getDeviceStatusStyle(hasDevice, deviceName) {
 }
 
 /**
+ * Gibt Icon, Farben und Label fuer Activity-Status zurueck
+ * Basierend auf lastActivityTime und Timeout
+ *
+ * @param {number|string} lastActivityTime - Unix timestamp in ms oder ISO string
+ * @param {number} timeoutMinutes - Timeout in Minuten (default: 5)
+ * @returns {Object} { icon, color, bgColor, label, isActive, formattedTime }
+ */
+export function getActivityStatusStyle(lastActivityTime, timeoutMinutes = 5) {
+  if (lastActivityTime === null || lastActivityTime === undefined || lastActivityTime === '') {
+    return {
+      icon: "help_outline",
+      color: "#94a3b8",
+      bgColor: "rgba(148, 163, 184, 0.12)",
+      label: "Unknown",
+      isActive: null,
+      formattedTime: null
+    };
+  }
+
+  const activityMs = typeof lastActivityTime === 'string'
+    ? new Date(lastActivityTime).getTime()
+    : Number(lastActivityTime);
+
+  const now = Date.now();
+  const diffMinutes = (now - activityMs) / 1000 / 60;
+  const isActive = diffMinutes < timeoutMinutes;
+
+  // Format timestamp
+  const date = new Date(activityMs);
+  const pad = (n) => n.toString().padStart(2, "0");
+  const formattedTime =
+    date.getFullYear() + "-" +
+    pad(date.getMonth() + 1) + "-" +
+    pad(date.getDate()) + " " +
+    pad(date.getHours()) + ":" +
+    pad(date.getMinutes()) + ":" +
+    pad(date.getSeconds());
+
+  let icon, color, bgColor, label;
+
+  if (isActive) {
+    icon = "wifi";
+    color = "#27AE60";
+    bgColor = "rgba(39, 174, 96, 0.12)";
+    label = "Active";
+  } else {
+    icon = "wifi_off";
+    color = "#EB5757";
+    bgColor = "rgba(235, 87, 87, 0.12)";
+    label = "Inactive";
+  }
+
+  return { icon, color, bgColor, label, isActive, formattedTime };
+}
+
+/**
  * Gibt Icon, Farben und Label fuer Timestamp-Anzeige zurueck
  *
  * @param {number|string} timestampMs - Unix timestamp in ms
@@ -804,13 +860,14 @@ export function getAddressSearchTemplate(options) {
 export function getProjectDialogHtml() {
   return '<form #addEntityForm="ngForm" [formGroup]="addProjectFormGroup"\n' +
     '      (ngSubmit)="save()" class="add-entity-form max-w-3xl mx-auto" style="width: 600px; max-width: 90vw;">\n' +
-    '  <mat-toolbar class="flex items-center bg-primary text-white px-4" color="primary">\n' +
-    '    <h2 class="text-lg font-semibold">{{ \'custom.add-project-dialog.title\' | translate }}</h2>\n' +
-    '    <span class="flex-1"></span>\n' +
-    '    <button mat-icon-button (click)="cancel()" type="button">\n' +
-    '      <mat-icon class="material-icons">close</mat-icon>\n' +
-    '    </button>\n' +
-    '  </mat-toolbar>\n' +
+    '  <mat-toolbar class="eco-dialog-header">
+    <mat-icon class="header-icon">close</mat-icon>
+    <h2 class="header-title">{{ \'custom.add-project-dialog.title\' | translate }}</h2>
+    <span class="flex-1"></span>
+    <button mat-icon-button (click)="cancel()" type="button" class="close-btn">
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-toolbar>\n' +
     '  <mat-progress-bar color="warn" mode="indeterminate" *ngIf="isLoading$ | async">\n' +
     '  </mat-progress-bar>\n' +
     '  <div style="height: 4px;" *ngIf="!(isLoading$ | async)"></div>\n' +
@@ -1323,4 +1380,447 @@ export function openAddProjectDialog(widgetContext) {
 
     config.openDialog();
   });
+}
+
+/**
+ * Deletes a project and all its measurements.
+ * Unassigns devices to "Unassigned Measurement Devices" group.
+ * Unassigns kits to "Unassigned Diagnostic Kits" group.
+ *
+ * @param {Object} widgetContext - ThingsBoard widget context
+ * @param {Object} projectId - Project entity ID {id: string, entityType: 'ASSET'}
+ * @param {string} projectName - Project name
+ * @param {Function} callback - Optional callback after delete
+ */
+export function deleteProject(widgetContext, projectId, projectName, callback) {
+  const $injector = widgetContext.$scope.$injector;
+  const dialogs = $injector.get(widgetContext.servicesMap.get('dialogs'));
+  const assetService = $injector.get(widgetContext.servicesMap.get('assetService'));
+  const deviceService = $injector.get(widgetContext.servicesMap.get('deviceService'));
+  const entityRelationService = $injector.get(widgetContext.servicesMap.get('entityRelationService'));
+  const entityGroupService = $injector.get(widgetContext.servicesMap.get('entityGroupService'));
+  const attributeService = $injector.get(widgetContext.servicesMap.get('attributeService'));
+  const rxjs = widgetContext.rxjs;
+
+  let customerId = null;
+  let measurements = [];
+  let allDevices = [];
+  let allKits = [];
+
+  // Step 1: Gather information about what will be deleted
+  gatherProjectInfo();
+
+  function gatherProjectInfo() {
+    // Find customer ID first
+    findCustomerId().then(function() {
+      // Find all measurements of this project using assetService.findByQuery
+      // This is the same pattern used in ECO Project Wizard fetchMeasurements
+      const measurementsQuery = {
+        parameters: {
+          rootId: projectId.id,
+          rootType: 'ASSET',
+          direction: 'FROM',
+          relationTypeGroup: 'COMMON',
+          maxLevel: 1,
+          fetchLastLevelOnly: false
+        },
+        relationType: 'Owns',
+        assetTypes: ['Measurement']
+      };
+
+      assetService.findByQuery(measurementsQuery).subscribe(
+        function(measurementAssets) {
+          measurements = measurementAssets || [];
+          console.log('Found measurements:', measurements.length);
+
+          if (measurements.length === 0) {
+            // No measurements, check for kits and show dialog
+            findKitsAndShowDialog();
+            return;
+          }
+
+          // Find all devices for all measurements
+          let devicePromises = measurements.map(function(measurement) {
+            return new Promise(function(resolve) {
+              // Find devices related to this measurement via 'Measurement' relation
+              const devicesQuery = {
+                parameters: {
+                  rootId: measurement.id.id,
+                  rootType: 'ASSET',
+                  direction: 'FROM',
+                  relationTypeGroup: 'COMMON',
+                  maxLevel: 1,
+                  fetchLastLevelOnly: false
+                },
+                relationType: 'Measurement',
+                deviceTypes: []  // All device types
+              };
+
+              deviceService.findByQuery(devicesQuery).subscribe(
+                function(devices) {
+                  resolve({ measurementId: measurement.id, devices: devices || [] });
+                },
+                function() {
+                  resolve({ measurementId: measurement.id, devices: [] });
+                }
+              );
+            });
+          });
+
+          Promise.all(devicePromises).then(function(results) {
+            results.forEach(function(result) {
+              allDevices = allDevices.concat(result.devices);
+            });
+            console.log('Found devices:', allDevices.length);
+            findKitsAndShowDialog();
+          });
+        },
+        function(error) {
+          console.error('Error finding measurements:', error);
+          showConfirmDialog();
+        }
+      );
+    });
+  }
+
+  function findCustomerId() {
+    return new Promise(function(resolve) {
+      if (widgetContext.currentUser.authority !== 'TENANT_ADMIN') {
+        customerId = { id: widgetContext.currentUser.customerId, entityType: 'CUSTOMER' };
+        resolve();
+        return;
+      }
+
+      // For TENANT_ADMIN: Find customer via Project -> Customer relation
+      entityRelationService.findByTo(projectId, 'Owns').subscribe(
+        function(relations) {
+          if (relations && relations.length > 0) {
+            customerId = relations[0].from;
+          }
+          resolve();
+        },
+        function() {
+          resolve();
+        }
+      );
+    });
+  }
+
+  function findKitsAndShowDialog() {
+    if (!customerId) {
+      showConfirmDialog();
+      return;
+    }
+
+    // Find kits assigned to this project via assignedTo attribute
+    entityGroupService.getEntityGroupsByOwnerId(customerId.entityType, customerId.id, 'ASSET').pipe(
+      rxjs.switchMap(function(assetGroups) {
+        const kitsGroup = assetGroups.find(function(g) {
+          return g.name === 'Diagnostic Kits';
+        });
+        if (!kitsGroup) {
+          return rxjs.of([]);
+        }
+        return entityGroupService.getEntityGroupEntities(kitsGroup.id.id, { page: 0, pageSize: 1000 });
+      }),
+      rxjs.switchMap(function(kitsPage) {
+        const kits = (kitsPage && kitsPage.data) ? kitsPage.data : [];
+        if (kits.length === 0) {
+          return rxjs.of([]);
+        }
+
+        // Get assignedTo attribute for each kit
+        const kitChecks = kits.map(function(kit) {
+          return attributeService.getEntityAttributes({ id: kit.id.id, entityType: 'ASSET' }, 'SERVER_SCOPE', ['assignedTo']).pipe(
+            rxjs.map(function(attrs) {
+              const assignedToAttr = attrs.find(function(a) { return a.key === 'assignedTo'; });
+              const assignedTo = assignedToAttr ? assignedToAttr.value : '';
+              if (assignedTo === projectName) {
+                return { kit: kit, assignedTo: assignedTo };
+              }
+              return null;
+            }),
+            rxjs.catchError(function() {
+              return rxjs.of(null);
+            })
+          );
+        });
+
+        return rxjs.forkJoin(kitChecks);
+      })
+    ).subscribe(
+      function(kitResults) {
+        allKits = (kitResults || []).filter(function(r) { return r !== null; });
+        showConfirmDialog();
+      },
+      function(error) {
+        console.error('Error finding kits:', error);
+        showConfirmDialog();
+      }
+    );
+  }
+
+  function showConfirmDialog() {
+    const title = 'Delete Project';
+    let content = 'Are you sure you want to delete the project "' + projectName + '"?';
+
+    const parts = [];
+    if (measurements.length > 0) {
+      parts.push(measurements.length + ' measurement' + (measurements.length > 1 ? 's' : '') + ' will be deleted');
+    }
+    if (allDevices.length > 0) {
+      parts.push(allDevices.length + ' device' + (allDevices.length > 1 ? 's' : '') + ' will be unassigned');
+    }
+    if (allKits.length > 0) {
+      parts.push(allKits.length + ' kit' + (allKits.length > 1 ? 's' : '') + ' will be unassigned');
+    }
+
+    if (parts.length > 0) {
+      content += '\n\n' + parts.join('\n');
+    }
+
+    dialogs.confirm(title, content, 'Cancel', 'Delete').subscribe(function(confirmed) {
+      if (confirmed) {
+        performDelete();
+      }
+    });
+  }
+
+  function performDelete() {
+    // Step 1: Unassign kits
+    unassignKits().then(function() {
+      // Step 2: Delete measurements (which unassigns devices)
+      deleteMeasurementsSequentially(0).then(function() {
+        // Step 3: Delete the project
+        deleteProjectAsset();
+      });
+    });
+  }
+
+  function unassignKits() {
+    return new Promise(function(resolve) {
+      if (allKits.length === 0 || !customerId) {
+        resolve();
+        return;
+      }
+
+      // Get or create "Unassigned Diagnostic Kits" group
+      entityGroupService.getEntityGroupsByOwnerId(customerId.entityType, customerId.id, 'ASSET').pipe(
+        rxjs.switchMap(function(assetGroups) {
+          let unassignedGroup = assetGroups.find(function(g) {
+            return g.name === 'Unassigned Diagnostic Kits';
+          });
+
+          if (unassignedGroup) {
+            return rxjs.of(unassignedGroup);
+          } else {
+            const newGroup = {
+              type: 'ASSET',
+              name: 'Unassigned Diagnostic Kits',
+              ownerId: customerId
+            };
+            return entityGroupService.saveEntityGroup(newGroup);
+          }
+        })
+      ).subscribe(
+        function(unassignedGroup) {
+          let processed = 0;
+          const total = allKits.length;
+
+          allKits.forEach(function(kitInfo) {
+            const kitId = kitInfo.kit.id;
+
+            // Add to unassigned group and clear assignedTo
+            rxjs.forkJoin([
+              entityGroupService.addEntityToEntityGroup(unassignedGroup.id.id, kitId.id),
+              attributeService.saveEntityAttributes({ id: kitId.id, entityType: 'ASSET' }, 'SERVER_SCOPE', [
+                { key: 'assignedTo', value: '' }
+              ])
+            ]).subscribe(
+              function() {
+                processed++;
+                if (processed >= total) {
+                  resolve();
+                }
+              },
+              function(error) {
+                console.error('Error unassigning kit:', error);
+                processed++;
+                if (processed >= total) {
+                  resolve();
+                }
+              }
+            );
+          });
+        },
+        function(error) {
+          console.error('Error getting unassigned kits group:', error);
+          resolve();
+        }
+      );
+    });
+  }
+
+  function deleteMeasurementsSequentially(index) {
+    return new Promise(function(resolve) {
+      if (index >= measurements.length) {
+        resolve();
+        return;
+      }
+
+      // measurements is array of asset objects from assetService.findByQuery
+      const measurement = measurements[index];
+      const measurementId = measurement.id;  // { id: "xxx", entityType: "ASSET" }
+
+      // Find devices for this measurement using deviceService.findByQuery
+      const devicesQuery = {
+        parameters: {
+          rootId: measurementId.id,
+          rootType: 'ASSET',
+          direction: 'FROM',
+          relationTypeGroup: 'COMMON',
+          maxLevel: 1,
+          fetchLastLevelOnly: false
+        },
+        relationType: 'Measurement',
+        deviceTypes: []
+      };
+
+      deviceService.findByQuery(devicesQuery).subscribe(
+        function(devices) {
+          if (devices && devices.length > 0 && customerId) {
+            // Unassign devices first
+            getOrCreateUnassignedDevicesGroup().then(function(unassignedGroupId) {
+              unassignDevices(devices, unassignedGroupId, measurementId).then(function() {
+                deleteMeasurementAsset(measurementId).then(function() {
+                  deleteMeasurementsSequentially(index + 1).then(resolve);
+                });
+              });
+            });
+          } else {
+            deleteMeasurementAsset(measurementId).then(function() {
+              deleteMeasurementsSequentially(index + 1).then(resolve);
+            });
+          }
+        },
+        function(error) {
+          console.error('Error finding devices for measurement:', error);
+          deleteMeasurementAsset(measurementId).then(function() {
+            deleteMeasurementsSequentially(index + 1).then(resolve);
+          });
+        }
+      );
+    });
+  }
+
+  function getOrCreateUnassignedDevicesGroup() {
+    return new Promise(function(resolve) {
+      entityGroupService.getEntityGroupsByOwnerId(customerId.entityType, customerId.id, 'DEVICE').subscribe(
+        function(deviceGroups) {
+          let unassignedGroup = deviceGroups.find(function(group) {
+            return group.name === 'Unassigned Measurement Devices';
+          });
+
+          if (unassignedGroup) {
+            resolve(unassignedGroup.id.id);
+          } else {
+            const newGroup = {
+              type: 'DEVICE',
+              name: 'Unassigned Measurement Devices',
+              ownerId: customerId
+            };
+            entityGroupService.saveEntityGroup(newGroup).subscribe(
+              function(created) {
+                resolve(created.id.id);
+              },
+              function(error) {
+                console.error('Error creating unassigned devices group:', error);
+                resolve(null);
+              }
+            );
+          }
+        },
+        function(error) {
+          console.error('Error getting device groups:', error);
+          resolve(null);
+        }
+      );
+    });
+  }
+
+  function unassignDevices(devices, unassignedGroupId, measurementId) {
+    return new Promise(function(resolve) {
+      if (!unassignedGroupId || devices.length === 0) {
+        resolve();
+        return;
+      }
+
+      let processed = 0;
+      const total = devices.length;
+
+      devices.forEach(function(device) {
+        // device is an asset object from deviceService.findByQuery
+        const deviceId = device.id;  // { id: "xxx", entityType: "DEVICE" }
+
+        // Add to unassigned group
+        entityGroupService.addEntityToEntityGroup(unassignedGroupId, deviceId.id).subscribe(
+          function() {
+            // Delete the relation
+            entityRelationService.deleteRelation(measurementId, 'Measurement', deviceId).subscribe(
+              function() {
+                // Remove position attributes
+                attributeService.deleteEntityAttributes(deviceId, 'SERVER_SCOPE', [{ key: 'xPos' }, { key: 'yPos' }]).subscribe(
+                  function() {
+                    processed++;
+                    if (processed >= total) resolve();
+                  },
+                  function() {
+                    processed++;
+                    if (processed >= total) resolve();
+                  }
+                );
+              },
+              function() {
+                processed++;
+                if (processed >= total) resolve();
+              }
+            );
+          },
+          function(error) {
+            console.error('Error adding device to group:', error);
+            processed++;
+            if (processed >= total) resolve();
+          }
+        );
+      });
+    });
+  }
+
+  function deleteMeasurementAsset(measurementId) {
+    return new Promise(function(resolve) {
+      assetService.deleteAsset(measurementId.id).subscribe(
+        function() {
+          resolve();
+        },
+        function(error) {
+          console.error('Error deleting measurement:', error);
+          resolve();
+        }
+      );
+    });
+  }
+
+  function deleteProjectAsset() {
+    assetService.deleteAsset(projectId.id).subscribe(
+      function() {
+        widgetContext.updateAliases();
+        if (callback) {
+          callback();
+        }
+      },
+      function(error) {
+        console.error('Error deleting project:', error);
+      }
+    );
+  }
 }

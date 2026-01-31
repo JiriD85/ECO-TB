@@ -183,12 +183,26 @@ gap-1, gap-2, gap-3, p-3, p-4, px-4, mb-2, mb-4, mt-2, mx-4
 text-lg, font-semibold
 ```
 
-Pattern for dialog with toolbar and close button:
+### ECO Design System
+
+**WICHTIG:** Für alle Custom Dialoge das ECO Design System verwenden!
+Siehe: [docs/ECO_DESIGN_SYSTEM.md](docs/ECO_DESIGN_SYSTEM.md)
+
+Grundprinzipien:
+- **Header:** `eco-dialog-header` Klasse mit `var(--tb-primary-500)` Background
+- **Content:** Section Cards mit weißem Hintergrund und Primary-Akzent links
+- **Form Fields:** `appearance="fill"`, Icons mit `matSuffix` (rechts)
+- **Border Radius:** 0 (keine Rundungen)
+- **Footer:** `dialog-footer` mit border-top und #fafafa Background
+
 ```html
-<mat-toolbar class="flex items-center" color="primary">
-  <h2>Title</h2>
+<mat-toolbar class="eco-dialog-header">
+  <mat-icon class="header-icon">icon_name</mat-icon>
+  <h2 class="header-title">Title</h2>
   <span class="flex-1"></span>
-  <button mat-icon-button (click)="cancel()"><mat-icon>close</mat-icon></button>
+  <button mat-icon-button (click)="cancel()" class="close-btn">
+    <mat-icon>close</mat-icon>
+  </button>
 </mat-toolbar>
 ```
 

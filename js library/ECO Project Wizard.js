@@ -182,11 +182,11 @@ function getActivityColor(active) {
 // ============================================================================
 
 const startProjectHtmlTemplate = `<form [formGroup]="startProjectFormGroup" (ngSubmit)="save()" class="start-project-form" style="width: 500px;">
-  <mat-toolbar class="flex items-center" color="primary">
-    <mat-icon style="margin-right: 12px;">rocket_launch</mat-icon>
-    <h2 style="margin: 0; font-size: 18px;">{{ 'custom.project-wizard.dialog-title' | translate }}</h2>
+  <mat-toolbar class="eco-dialog-header">
+    <mat-icon class="header-icon">rocket_launch</mat-icon>
+    <h2 class="header-title">{{ 'custom.project-wizard.dialog-title' | translate }}</h2>
     <span class="flex-1"></span>
-    <button mat-icon-button (click)="cancel()" type="button">
+    <button mat-icon-button (click)="cancel()" type="button" class="close-btn">
       <mat-icon>close</mat-icon>
     </button>
   </mat-toolbar>
@@ -362,11 +362,11 @@ const startProjectHtmlTemplate = `<form [formGroup]="startProjectFormGroup" (ngS
 </form>`;
 
 const finishHtmlTemplate = `<form [formGroup]="finishProjectFormGroup" (ngSubmit)="saveFinish()" style="width: 450px;">
-  <mat-toolbar class="flex items-center" color="warn">
-    <mat-icon style="margin-right: 12px;">stop_circle</mat-icon>
-    <h2 style="margin: 0; font-size: 18px;">{{ 'custom.project-wizard.finish-dialog-title' | translate }}: {{ projectName }}</h2>
+  <mat-toolbar class="eco-dialog-header">
+    <mat-icon class="header-icon">stop_circle</mat-icon>
+    <h2 class="header-title">{{ 'custom.project-wizard.finish-dialog-title' | translate }}: {{ projectName }}</h2>
     <span class="flex-1"></span>
-    <button mat-icon-button (click)="cancelFinish()" type="button">
+    <button mat-icon-button (click)="cancelFinish()" type="button" class="close-btn">
       <mat-icon>close</mat-icon>
     </button>
   </mat-toolbar>
@@ -511,6 +511,7 @@ export function openProjectWizardDialog(widgetContext, projectId, projectName, p
   const forkJoin = rxjs.forkJoin;
   const of = rxjs.of;
   const switchMap = rxjs.switchMap;
+  const catchError = rxjs.catchError;
 
   if (!projectId || !projectId.id) {
     console.error('Invalid projectId:', projectId);
@@ -925,6 +926,15 @@ export function openProjectWizardDialog(widgetContext, projectId, projectName, p
     };
 
     function updateValidation() {
+      var errors = [];
+
+      // Check if project has any measurements
+      if (!vm.measurements || vm.measurements.length === 0) {
+        vm.canStart = false;
+        vm.validationError = 'Cannot start: Project has no measurements.';
+        return;
+      }
+
       // Check ultrasonic measurements without P-Flow D116
       var ultrasonicWithoutDevice = vm.measurements.filter(function(m) {
         return m.measurementType === 'ultrasonic' &&
@@ -940,15 +950,15 @@ export function openProjectWizardDialog(widgetContext, projectId, projectName, p
                (m.progress === 'in preparation' || m.progress === 'planned');
       });
 
-      if (ultrasonicWithoutDevice.length > 0 || lorawanWithoutDevice.length > 0) {
+      if (ultrasonicWithoutDevice.length > 0) {
+        errors.push(ultrasonicWithoutDevice.length + ' ultrasonic measurement(s) without P-Flow D116');
+      }
+      if (lorawanWithoutDevice.length > 0) {
+        errors.push(lorawanWithoutDevice.length + ' LoRaWAN measurement(s) without Room Sensor CO2');
+      }
+
+      if (errors.length > 0) {
         vm.canStart = false;
-        var errors = [];
-        if (ultrasonicWithoutDevice.length > 0) {
-          errors.push(ultrasonicWithoutDevice.length + ' ultrasonic measurement(s) without P-Flow D116');
-        }
-        if (lorawanWithoutDevice.length > 0) {
-          errors.push(lorawanWithoutDevice.length + ' LoRaWAN measurement(s) without Room Sensor CO2');
-        }
         vm.validationError = 'Cannot start: ' + errors.join(', ') + '.';
       } else {
         vm.canStart = true;
@@ -957,6 +967,195 @@ export function openProjectWizardDialog(widgetContext, projectId, projectName, p
     }
 
     updateValidation();
+
+    // Helper function to reload measurements for the current project
+    function loadMeasurementsForProject(projIdVal) {
+      var projId = typeof projIdVal === 'string' ? projIdVal : (projIdVal.id || projIdVal);
+
+      var assetSearchQuery = {
+        parameters: {
+          rootId: projId,
+          rootType: 'ASSET',
+          direction: 'FROM',
+          relationTypeGroup: 'COMMON',
+          maxLevel: 1,
+          fetchLastLevelOnly: false
+        },
+        relationType: 'Owns',
+        assetTypes: ['Measurement']
+      };
+
+      assetService.findByQuery(assetSearchQuery).subscribe(
+        function(measurements) {
+          if (measurements.length === 0) {
+            vm.measurements = [];
+            updateValidation();
+            return;
+          }
+          reloadMeasurementDetails(measurements);
+        },
+        function(error) {
+          console.error('Error reloading measurements:', error);
+        }
+      );
+    }
+
+    function reloadMeasurementDetails(measurements) {
+      var measurementData = [];
+      var completed = 0;
+
+      measurements.forEach(function(measurement, index) {
+        var measurementId = measurement.id;
+
+        attributeService.getEntityAttributes(
+          measurementId,
+          'SERVER_SCOPE',
+          ['progress', 'measurementType', 'installationType', 'startTimeMs', 'endTimeMs']
+        ).subscribe(
+          function(attributes) {
+            var attrMap = {};
+            attributes.forEach(function(attr) { attrMap[attr.key] = attr.value; });
+
+            var deviceSearchQuery = {
+              parameters: {
+                rootId: measurementId.id,
+                rootType: 'ASSET',
+                direction: 'FROM',
+                relationTypeGroup: 'COMMON',
+                maxLevel: 1,
+                fetchLastLevelOnly: false
+              },
+              relationType: 'Measurement',
+              deviceTypes: ['P-Flow D116', 'Room Sensor CO2', 'Temperature Sensor', 'RESI']
+            };
+
+            deviceService.findByQuery(deviceSearchQuery).subscribe(
+              function(devices) {
+                var startTimeMs = attrMap['startTimeMs'];
+                var endTimeMs = attrMap['endTimeMs'];
+
+                var devicePromises = devices.map(function(device) {
+                  return loadDeviceAttributes(device).then(function(updatedDevice) {
+                    return resolveDeviceKit(updatedDevice);
+                  });
+                });
+
+                Promise.all(devicePromises).then(function(deviceResults) {
+                  var kitGroupsMap = {};
+                  var devicesWithKits = deviceResults.map(function(result) {
+                    var device = result.device;
+                    var kit = result.kit;
+                    var kitId = kit && kit.id ? kit.id : null;
+                    var kitKey = kitId && kitId.id ? kitId.id : 'no_kit';
+                    var kitName = kit ? kit.name : 'No Diagnostickit';
+
+                    if (!kitGroupsMap[kitKey]) {
+                      kitGroupsMap[kitKey] = {
+                        key: kitKey,
+                        id: kitId,
+                        name: kitName,
+                        devices: []
+                      };
+                    }
+
+                    kitGroupsMap[kitKey].devices.push({
+                      id: device.id,
+                      name: device.name,
+                      type: device.type,
+                      active: device.active !== undefined ? device.active : null,
+                      lastActivityTime: device.lastActivityTime !== undefined ? device.lastActivityTime : null
+                    });
+
+                    return {
+                      id: device.id,
+                      name: device.name,
+                      type: device.type,
+                      active: device.active !== undefined ? device.active : null,
+                      lastActivityTime: device.lastActivityTime !== undefined ? device.lastActivityTime : null,
+                      kit: kit ? { id: kit.id, name: kit.name } : null
+                    };
+                  });
+
+                  var kitGroups = Object.values(kitGroupsMap).sort(function(a, b) { return a.name.localeCompare(b.name); });
+
+                  measurementData.push({
+                    id: measurementId,
+                    name: measurement.name || 'Measurement ' + (index + 1),
+                    label: measurement.label || null,
+                    progress: attrMap['progress'] || 'in preparation',
+                    measurementType: attrMap['measurementType'] || null,
+                    installationType: attrMap['installationType'] || null,
+                    startTimeMs: startTimeMs,
+                    endTimeMs: endTimeMs,
+                    devices: devicesWithKits,
+                    kitGroups: kitGroups,
+                    hasDevice: devices.length > 0
+                  });
+
+                  completed++;
+                  if (completed === measurements.length) {
+                    measurementData.sort(function(a, b) { return a.name.localeCompare(b.name); });
+                    vm.measurements = measurementData;
+                    updateValidation();
+                  }
+                }).catch(function() {
+                  measurementData.push({
+                    id: measurementId,
+                    name: measurement.name || 'Measurement ' + (index + 1),
+                    label: measurement.label || null,
+                    progress: attrMap['progress'] || 'in preparation',
+                    measurementType: attrMap['measurementType'] || null,
+                    installationType: attrMap['installationType'] || null,
+                    startTimeMs: startTimeMs,
+                    endTimeMs: endTimeMs,
+                    devices: [],
+                    kitGroups: [],
+                    hasDevice: false
+                  });
+                  completed++;
+                  if (completed === measurements.length) {
+                    measurementData.sort(function(a, b) { return a.name.localeCompare(b.name); });
+                    vm.measurements = measurementData;
+                    updateValidation();
+                  }
+                });
+              },
+              function(error) {
+                console.error('Error fetching devices:', error);
+                measurementData.push({
+                  id: measurementId,
+                  name: measurement.name || 'Measurement ' + (index + 1),
+                  label: measurement.label || null,
+                  progress: attrMap['progress'] || 'in preparation',
+                  measurementType: attrMap['measurementType'] || null,
+                  installationType: attrMap['installationType'] || null,
+                  startTimeMs: attrMap['startTimeMs'],
+                  endTimeMs: attrMap['endTimeMs'],
+                  devices: [],
+                  kitGroups: [],
+                  hasDevice: false
+                });
+                completed++;
+                if (completed === measurements.length) {
+                  measurementData.sort(function(a, b) { return a.name.localeCompare(b.name); });
+                  vm.measurements = measurementData;
+                  updateValidation();
+                }
+              }
+            );
+          },
+          function(error) {
+            console.error('Error fetching attributes:', error);
+            completed++;
+            if (completed === measurements.length) {
+              measurementData.sort(function(a, b) { return a.name.localeCompare(b.name); });
+              vm.measurements = measurementData;
+              updateValidation();
+            }
+          }
+        );
+      });
+    }
 
     vm.startProjectFormGroup = vm.fb.group({});
 
@@ -975,18 +1174,15 @@ export function openProjectWizardDialog(widgetContext, projectId, projectName, p
         return;
       }
 
-      // Close the current dialog first
-      vm.dialogRef.close(null);
-
-      // Open the device assignment dialog
+      // Open the device assignment dialog (keep Project Wizard open)
       dataImporter.assignDeviceToMeasurement(
         dialogWidgetContext,
         measurement.id,
         measurement.name,
         function() {
-          // After device assignment, refresh the project wizard
-          if (typeof onClose === 'function') {
-            onClose();
+          // After device assignment, refresh the measurements in the project wizard
+          if (projectId) {
+            loadMeasurementsForProject(projectId);
           }
         }
       );
@@ -1009,6 +1205,7 @@ export function openProjectWizardDialog(widgetContext, projectId, projectName, p
             measurements: vm.measurements,
             projectId: projectId,
             projectName: vm.projectName,
+            projectLabel: vm.projectLabel,
             projectStartTimeMs: vm.projectStartTimeMs,
             onClose: onClose
           }
@@ -1039,6 +1236,43 @@ export function openProjectWizardDialog(widgetContext, projectId, projectName, p
             { key: 'progress', value: 'active' },
             { key: 'startTimeMs', value: now }
           ];
+
+          // Save assignedDevices on measurement (devices + kits)
+          var assignedEntities = [];
+
+          // Add devices
+          if (m.devices && m.devices.length > 0) {
+            m.devices.forEach(function(device) {
+              assignedEntities.push({
+                id: device.id.id,
+                name: device.name,
+                type: device.type,
+                entityType: 'DEVICE'
+              });
+            });
+          }
+
+          // Add kits (from kitGroups, excluding 'no_kit')
+          if (m.kitGroups && m.kitGroups.length > 0) {
+            m.kitGroups.forEach(function(kit) {
+              if (kit.key !== 'no_kit' && kit.id) {
+                assignedEntities.push({
+                  id: kit.id.id,
+                  name: kit.name,
+                  type: 'Diagnostickit',
+                  entityType: 'ASSET'
+                });
+              }
+            });
+          }
+
+          if (assignedEntities.length > 0) {
+            measurementAttributes.push({
+              key: 'assignedDevices',
+              value: JSON.stringify(assignedEntities)
+            });
+          }
+
           updateOperations.push(
             attributeService.saveEntityAttributes(m.id, 'SERVER_SCOPE', measurementAttributes)
           );
@@ -1068,6 +1302,7 @@ export function openProjectWizardDialog(widgetContext, projectId, projectName, p
     var data = vm.data || {};
     var projectId = data.projectId;
     var projectName = data.projectName;
+    var projectLabel = data.projectLabel || projectName;
     var measurements = data.measurements || [];
     var projectStartTimeMs = data.projectStartTimeMs;
     var onClose = data.onClose;
@@ -1123,6 +1358,7 @@ export function openProjectWizardDialog(widgetContext, projectId, projectName, p
 
       var updateOperations = [];
 
+      // Update Project: progress, endTimeMs (keep assignedKit for historical reference)
       updateOperations.push(
         attributeService.saveEntityAttributes(projectId, 'SERVER_SCOPE', [
           { key: 'progress', value: progress },
@@ -1139,7 +1375,9 @@ export function openProjectWizardDialog(widgetContext, projectId, projectName, p
         );
       });
 
-      updateOperations.push(unassignDevices(measurements));
+      // Unassign devices and kits, update measurement history
+      var startMs = projectStartTimeMs ? Number(projectStartTimeMs) : null;
+      updateOperations.push(unassignDevicesAndKits(measurements, projectName, projectLabel, startMs, endTimeMs));
 
       forkJoin(updateOperations).subscribe(
         function() {
@@ -1157,11 +1395,8 @@ export function openProjectWizardDialog(widgetContext, projectId, projectName, p
       );
     };
 
-    function unassignDevices(measurementsList) {
-      var measurementsWithDevices = measurementsList.filter(function(m) {
-        return m.devices && m.devices.length > 0;
-      });
-      if (!measurementsWithDevices.length) {
+    function unassignDevicesAndKits(measurementsList, projName, projLabel, startMs, endMs) {
+      if (!measurementsList || !measurementsList.length) {
         return of([]);
       }
 
@@ -1172,57 +1407,217 @@ export function openProjectWizardDialog(widgetContext, projectId, projectName, p
             return of([]);
           }
 
-          return getUnassignedDevicesGroup(customerId).pipe(
-            switchMap(function(group) {
-              if (!group || !group.id || !group.id.id) {
-                return of([]);
-              }
+          // Get both entity groups in parallel
+          return forkJoin({
+            deviceGroup: getOrCreateEntityGroup(customerId, 'DEVICE', 'Unassigned Measurement Devices'),
+            kitGroup: getOrCreateEntityGroup(customerId, 'ASSET', 'Unassigned Diagnostic Kits')
+          }).pipe(
+            switchMap(function(groups) {
+              var deviceGroup = groups.deviceGroup;
+              var kitGroup = groups.kitGroup;
 
-              var operations = [];
-              var deviceIds = [];
-
-              measurementsWithDevices.forEach(function(m) {
-                m.devices.forEach(function(device) {
-                  var fromEntity = { id: m.id.id, entityType: 'ASSET' };
-                  var toEntity = { id: device.id.id, entityType: 'DEVICE' };
-                  operations.push(
-                    entityRelationService.deleteRelation(fromEntity, 'Measurement', toEntity)
-                  );
-                  deviceIds.push(device.id.id);
-                });
+              // First: Collect all kit IDs from all measurements to avoid duplicates
+              var kitRelationQueries = measurementsList.map(function(m) {
+                var measurementId = { id: m.id.id, entityType: 'ASSET' };
+                return entityRelationService.findByFrom(measurementId, 'Measurement').pipe(
+                  switchMap(function(relations) {
+                    var kitRelation = relations.find(function(r) {
+                      return r.to && r.to.entityType === 'ASSET';
+                    });
+                    return of(kitRelation ? { kitId: kitRelation.to, measurementId: measurementId } : null);
+                  }),
+                  catchError(function() { return of(null); })
+                );
               });
 
-              var uniqueDeviceIds = Array.from(new Set(deviceIds));
-              if (uniqueDeviceIds.length) {
-                operations.push(
-                  entityGroupService.addEntitiesToEntityGroup(group.id.id, uniqueDeviceIds)
-                );
-              }
+              return forkJoin(kitRelationQueries).pipe(
+                switchMap(function(kitResults) {
+                  // Deduplicate kits by ID
+                  var uniqueKits = {};
+                  var measurementKitRelations = [];
 
-              return operations.length ? forkJoin(operations) : of([]);
+                  kitResults.forEach(function(result) {
+                    if (result && result.kitId) {
+                      var kitIdStr = result.kitId.id;
+                      if (!uniqueKits[kitIdStr]) {
+                        uniqueKits[kitIdStr] = result.kitId;
+                      }
+                      // Track all Measurement → Kit relations for deletion
+                      measurementKitRelations.push({
+                        measurementId: result.measurementId,
+                        kitId: result.kitId
+                      });
+                    }
+                  });
+
+                  var operations = [];
+
+                  // Process devices for each measurement
+                  measurementsList.forEach(function(m) {
+                    var measurementId = { id: m.id.id, entityType: 'ASSET' };
+
+                    if (m.devices && m.devices.length > 0) {
+                      var deviceIds = [];
+
+                      // Save assignedDevices on the Measurement (devices + kits)
+                      var assignedEntities = [];
+
+                      // Add devices
+                      m.devices.forEach(function(device) {
+                        assignedEntities.push({
+                          id: device.id.id,
+                          name: device.name,
+                          type: device.type,
+                          entityType: 'DEVICE'
+                        });
+                      });
+
+                      // Add kits (from kitGroups if available)
+                      if (m.kitGroups && m.kitGroups.length > 0) {
+                        m.kitGroups.forEach(function(kit) {
+                          if (kit.key !== 'no_kit' && kit.id) {
+                            assignedEntities.push({
+                              id: kit.id.id,
+                              name: kit.name,
+                              type: 'Diagnostickit',
+                              entityType: 'ASSET'
+                            });
+                          }
+                        });
+                      }
+
+                      operations.push(
+                        attributeService.saveEntityAttributes(measurementId, 'SERVER_SCOPE', [
+                          { key: 'assignedDevices', value: JSON.stringify(assignedEntities) }
+                        ])
+                      );
+
+                      m.devices.forEach(function(device) {
+                        var deviceId = { id: device.id.id, entityType: 'DEVICE' };
+                        deviceIds.push(device.id.id);
+
+                        // Update device measurementHistory and clear assignedTo
+                        operations.push(
+                          updateMeasurementHistory(deviceId, 'DEVICE', {
+                            measurementName: m.name,
+                            measurementLabel: m.label || m.name,
+                            startTimeMs: startMs,
+                            endTimeMs: endMs
+                          }, true)
+                        );
+
+                        // Delete Measurement → Device relation
+                        operations.push(
+                          entityRelationService.deleteRelation(measurementId, 'Measurement', deviceId)
+                        );
+                      });
+
+                      // Add devices to Unassigned group
+                      var uniqueDeviceIds = Array.from(new Set(deviceIds));
+                      if (deviceGroup && deviceGroup.id && uniqueDeviceIds.length) {
+                        operations.push(
+                          entityGroupService.addEntitiesToEntityGroup(deviceGroup.id.id, uniqueDeviceIds)
+                        );
+                      }
+                    }
+                  });
+
+                  // Delete all Measurement → Kit relations
+                  measurementKitRelations.forEach(function(rel) {
+                    operations.push(
+                      entityRelationService.deleteRelation(rel.measurementId, 'Measurement', rel.kitId)
+                    );
+                  });
+
+                  // Process each unique kit ONCE
+                  var uniqueKitIds = Object.keys(uniqueKits);
+                  uniqueKitIds.forEach(function(kitIdStr) {
+                    var kitId = uniqueKits[kitIdStr];
+
+                    // Update kit's measurementHistory and clear assignedTo (only once per kit!)
+                    operations.push(
+                      updateMeasurementHistory(kitId, 'ASSET', {
+                        projectName: projName,
+                        projectLabel: projLabel,
+                        startTimeMs: startMs,
+                        endTimeMs: endMs
+                      }, true)
+                    );
+
+                    // Add kit to Unassigned Diagnostic Kits group
+                    if (kitGroup && kitGroup.id) {
+                      operations.push(
+                        entityGroupService.addEntitiesToEntityGroup(kitGroup.id.id, [kitId.id])
+                      );
+                    }
+                  });
+
+                  return operations.length ? forkJoin(operations) : of([]);
+                })
+              );
             })
           );
         })
       );
     }
 
-    function getUnassignedDevicesGroup(customerId) {
+    function updateMeasurementHistory(entityId, entityType, historyEntry, clearAssignedTo) {
+      return attributeService.getEntityAttributes(entityId, 'SERVER_SCOPE', ['measurementHistory']).pipe(
+        switchMap(function(attrs) {
+          var historyAttr = attrs.find(function(a) { return a.key === 'measurementHistory'; });
+          var history = [];
+
+          if (historyAttr && historyAttr.value) {
+            try {
+              history = typeof historyAttr.value === 'string' ? JSON.parse(historyAttr.value) : historyAttr.value;
+              if (!Array.isArray(history)) history = [];
+            } catch (e) {
+              history = [];
+            }
+          }
+
+          // Append new entry
+          history.push(historyEntry);
+
+          var attrsToSave = [
+            { key: 'measurementHistory', value: JSON.stringify(history) }
+          ];
+
+          // Optionally clear assignedTo (for kits and devices)
+          if (clearAssignedTo) {
+            attrsToSave.push({ key: 'assignedTo', value: 'None' });
+          }
+
+          return attributeService.saveEntityAttributes(entityId, 'SERVER_SCOPE', attrsToSave);
+        }),
+        catchError(function(err) {
+          console.error('Error updating measurementHistory:', err);
+          return of(null);
+        })
+      );
+    }
+
+    function getOrCreateEntityGroup(customerId, entityType, groupName) {
       return entityGroupService.getEntityGroupsByOwnerId(
         customerId.entityType,
         customerId.id,
-        'DEVICE'
+        entityType
       ).pipe(
         switchMap(function(groups) {
-          var group = groups.find(function(g) { return g.name === 'Unassigned Measurement Devices'; });
+          var group = groups.find(function(g) { return g.name === groupName; });
           if (group) {
             return of(group);
           }
           var newGroup = {
-            type: 'DEVICE',
-            name: 'Unassigned Measurement Devices',
+            type: entityType,
+            name: groupName,
             ownerId: customerId
           };
           return entityGroupService.saveEntityGroup(newGroup);
+        }),
+        catchError(function(err) {
+          console.error('Error getting/creating entity group:', groupName, err);
+          return of(null);
         })
       );
     }
@@ -1234,11 +1629,11 @@ export function openProjectWizardDialog(widgetContext, projectId, projectName, p
 // ============================================================================
 
 const addMeasurementHtmlTemplate = `<form [formGroup]="addMeasurementFormGroup" (ngSubmit)="save()" class="add-entity-form" style="width: 500px; max-width: 90vw;">
-  <mat-toolbar class="flex items-center" color="primary">
-    <mat-icon style="margin-right: 12px;">assessment</mat-icon>
-    <h2 style="margin: 0; font-size: 18px;">{{'custom.projects.measurements.add-measurement' | translate}}</h2>
+  <mat-toolbar class="eco-dialog-header">
+    <mat-icon class="header-icon">assessment</mat-icon>
+    <h2 class="header-title">{{'custom.projects.measurements.add-measurement' | translate}}</h2>
     <span class="flex-1"></span>
-    <button mat-icon-button (click)="cancel()" type="button">
+    <button mat-icon-button (click)="cancel()" type="button" class="close-btn">
       <mat-icon>close</mat-icon>
     </button>
   </mat-toolbar>
@@ -1646,11 +2041,11 @@ export function openAddMeasurementDialog(widgetContext, projectId, projectName, 
 // ============================================================================
 
 const measurementParametersHtmlTemplate = `<form [formGroup]="parametersFormGroup" (ngSubmit)="save()" class="measurement-parameters-form" style="width: 600px;">
-  <mat-toolbar class="flex items-center" color="primary">
-    <mat-icon style="margin-right: 12px;">tune</mat-icon>
-    <h2 style="margin: 0; font-size: 18px;">Edit Measurement Parameters</h2>
+  <mat-toolbar class="eco-dialog-header">
+    <mat-icon class="header-icon">tune</mat-icon>
+    <h2 class="header-title">Edit Measurement Parameters</h2>
     <span class="flex-1"></span>
-    <button mat-icon-button (click)="cancel()" type="button">
+    <button mat-icon-button (click)="cancel()" type="button" class="close-btn">
       <mat-icon>close</mat-icon>
     </button>
   </mat-toolbar>
@@ -1673,6 +2068,50 @@ const measurementParametersHtmlTemplate = `<form [formGroup]="parametersFormGrou
       <mat-form-field appearance="fill" class="w-full">
         <mat-label>Label</mat-label>
         <input matInput formControlName="entityLabel" placeholder="Display name for this measurement">
+      </mat-form-field>
+      <mat-form-field appearance="fill" class="w-full">
+        <mat-label>Measurement Type</mat-label>
+        <mat-select formControlName="measurementType" [disabled]="!canEditMeasurementType">
+          <mat-select-trigger>
+            <div class="flex items-center gap-2">
+              <mat-icon *ngIf="parametersFormGroup.get('measurementType')?.value === 'ultrasonic'" style="font-size: 18px; width: 18px; height: 18px; color: #c62828;">sensors</mat-icon>
+              <mat-icon *ngIf="parametersFormGroup.get('measurementType')?.value === 'lorawan'" style="font-size: 18px; width: 18px; height: 18px; color: #7b1fa2;">wifi</mat-icon>
+              <mat-icon *ngIf="parametersFormGroup.get('measurementType')?.value === 'import'" style="font-size: 18px; width: 18px; height: 18px; color: #1565c0;">upload_file</mat-icon>
+              <mat-icon *ngIf="parametersFormGroup.get('measurementType')?.value === 'interpolation'" style="font-size: 18px; width: 18px; height: 18px; color: #00695c;">timeline</mat-icon>
+              <span *ngIf="parametersFormGroup.get('measurementType')?.value === 'ultrasonic'">Ultrasonic</span>
+              <span *ngIf="parametersFormGroup.get('measurementType')?.value === 'lorawan'">LoRaWAN</span>
+              <span *ngIf="parametersFormGroup.get('measurementType')?.value === 'import'">Import</span>
+              <span *ngIf="parametersFormGroup.get('measurementType')?.value === 'interpolation'">Interpolation</span>
+            </div>
+          </mat-select-trigger>
+          <mat-option value="ultrasonic">
+            <div class="flex items-center gap-2">
+              <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #c62828;">sensors</mat-icon>
+              <span>Ultrasonic</span>
+            </div>
+          </mat-option>
+          <mat-option value="lorawan">
+            <div class="flex items-center gap-2">
+              <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #7b1fa2;">wifi</mat-icon>
+              <span>LoRaWAN</span>
+            </div>
+          </mat-option>
+          <mat-option value="import">
+            <div class="flex items-center gap-2">
+              <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #1565c0;">upload_file</mat-icon>
+              <span>Import</span>
+            </div>
+          </mat-option>
+          <mat-option value="interpolation">
+            <div class="flex items-center gap-2">
+              <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #00695c;">timeline</mat-icon>
+              <span>Interpolation</span>
+            </div>
+          </mat-option>
+        </mat-select>
+        <mat-hint *ngIf="!canEditMeasurementType">
+          Type can only be changed in preparation/planned status
+        </mat-hint>
       </mat-form-field>
     </fieldset>
 
@@ -1736,7 +2175,7 @@ const measurementParametersHtmlTemplate = `<form [formGroup]="parametersFormGrou
       <div class="flex gap-2">
         <mat-form-field appearance="fill" style="flex: 1;">
           <mat-label>Dimension</mat-label>
-          <mat-select formControlName="dimension" required>
+          <mat-select formControlName="dimension">
             <mat-option *ngFor="let dim of dimensionOptions" [value]="dim">{{ dim }}</mat-option>
           </mat-select>
         </mat-form-field>
@@ -1766,14 +2205,14 @@ const measurementParametersHtmlTemplate = `<form [formGroup]="parametersFormGrou
       <div class="flex gap-2">
         <mat-form-field appearance="fill" style="flex: 1;">
           <mat-label>Installation Type</mat-label>
-          <mat-select formControlName="installationType" required>
+          <mat-select formControlName="installationType">
             <mat-option value="heating">Heating</mat-option>
             <mat-option value="cooling">Cooling</mat-option>
           </mat-select>
         </mat-form-field>
         <mat-form-field appearance="fill" style="flex: 1.5;">
           <mat-label>Installation Type Options</mat-label>
-          <mat-select formControlName="installationTypeOptions" required>
+          <mat-select formControlName="installationTypeOptions">
             <ng-container *ngIf="parametersFormGroup.get('installationType')?.value === 'heating'">
               <mat-option value="radiatorHeating">Radiator Heating</mat-option>
               <mat-option value="floorHeating">Floor Heating</mat-option>
@@ -1810,7 +2249,7 @@ const measurementParametersHtmlTemplate = `<form [formGroup]="parametersFormGrou
       <div class="flex gap-2">
         <mat-form-field appearance="fill" style="flex: 1.5;">
           <mat-label>Outside Temp. Threshold</mat-label>
-          <mat-select formControlName="loadCourseFilterTemperature" required>
+          <mat-select formControlName="loadCourseFilterTemperature">
             <mat-option value="above">Above</mat-option>
             <mat-option value="below">Below</mat-option>
           </mat-select>
@@ -1974,6 +2413,7 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
     vm.measurementId = config.measurementId;
     vm.entityName = config.entityName || '';
     vm.originalEntityLabel = config.entityLabel || '';
+    vm.canEditMeasurementType = true; // Will be set based on progress
 
     vm.dimensionOptions = ['DN15', 'DN20', 'DN25', 'DN32', 'DN40', 'DN50', 'DN65', 'DN80', 'DN100', 'DN125', 'DN150'];
     vm.weekDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
@@ -1982,6 +2422,7 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
     vm.parametersFormGroup = vm.fb.group({
       // Measurement info
       entityLabel: [''],
+      measurementType: ['ultrasonic'],
       // Status fields
       progress: ['in preparation'],
       startDate: [null],
@@ -1989,17 +2430,17 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
       endDate: [null],
       endTime: [null],
       // Dimension fields
-      dimension: [null, [vm.validators.required]],
+      dimension: [null],
       nominalFlow: [null],
       deltaTAnalysisFloorVolume: [null],
       deltaTAnalysisPumpEnergy: [null],
       // Installation fields
-      installationType: [null, [vm.validators.required]],
-      installationTypeOptions: ['', [vm.validators.required]],
+      installationType: [null],
+      installationTypeOptions: [''],
       // Analysis fields
       standardOutdoorTemperature: [null],
       deltaT: [null],
-      loadCourseFilterTemperature: [null, [vm.validators.required]],
+      loadCourseFilterTemperature: [null],
       loadCourseFilterTemperatureValue: [null],
       loadCourseFilterMaxPower: [null],
       area: [null],
@@ -2035,10 +2476,19 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
 
       // Measurement info
       vm.parametersFormGroup.get('entityLabel').setValue(vm.originalEntityLabel);
+      if (attributeMap.measurementType) {
+        vm.parametersFormGroup.get('measurementType').setValue(attributeMap.measurementType);
+      }
 
       // Status fields
       if (attributeMap.progress) {
         vm.parametersFormGroup.get('progress').setValue(attributeMap.progress);
+        // MeasurementType can only be edited in preparation/planned status
+        vm.canEditMeasurementType = (attributeMap.progress === 'in preparation' || attributeMap.progress === 'planned');
+        // Programmatically disable the measurementType control (template [disabled] doesn't work reliably)
+        if (!vm.canEditMeasurementType) {
+          vm.parametersFormGroup.get('measurementType').disable();
+        }
       }
       if (attributeMap.startTimeMs) {
         const startDateTime = new Date(Number(attributeMap.startTimeMs));
@@ -2209,6 +2659,7 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
       const endDateTime = parseDateTime(formData.endDate, formData.endTime);
 
       const attributesArray = [
+        { key: 'measurementType', value: formData.measurementType },
         { key: 'progress', value: formData.progress },
         { key: 'startTimeMs', value: startDateTime ? startDateTime.getTime() : null },
         { key: 'endTimeMs', value: endDateTime ? endDateTime.getTime() : null },
@@ -2337,11 +2788,11 @@ const TIMESERIES_LABELS = {
 };
 
 const measurementInfoHtmlTemplate = `<div class="measurement-info-dialog" style="width: 500px;">
-  <mat-toolbar class="flex items-center" style="background-color: var(--tb-primary-500); color: white;">
-    <mat-icon style="margin-right: 12px;">sensors</mat-icon>
-    <h2 style="margin: 0; font-size: 18px;">Live Data</h2>
+  <mat-toolbar class="eco-dialog-header">
+    <mat-icon class="header-icon">sensors</mat-icon>
+    <h2 class="header-title">Live Data</h2>
     <span class="flex-1"></span>
-    <button mat-icon-button (click)="cancel()" type="button">
+    <button mat-icon-button (click)="cancel()" type="button" class="close-btn">
       <mat-icon>close</mat-icon>
     </button>
   </mat-toolbar>
@@ -3372,11 +3823,11 @@ export function openEditProjectDialog(widgetContext, projectId, projectName, pro
     const htmlTemplate = `
 <form #editProjectForm="ngForm" [formGroup]="editProjectFormGroup"
       (ngSubmit)="save()" class="edit-project-form" style="width: 600px; max-width: 90vw;">
-  <mat-toolbar class="flex items-center" color="primary">
-    <mat-icon style="margin-right: 12px;">edit</mat-icon>
-    <h2 style="margin: 0; font-size: 18px;">Edit Project</h2>
+  <mat-toolbar class="eco-dialog-header">
+    <mat-icon class="header-icon">edit</mat-icon>
+    <h2 class="header-title">Edit Project</h2>
     <span class="flex-1"></span>
-    <button mat-icon-button (click)="cancel()" type="button">
+    <button mat-icon-button (click)="cancel()" type="button" class="close-btn">
       <mat-icon>close</mat-icon>
     </button>
   </mat-toolbar>
