@@ -181,7 +181,70 @@ function getActivityColor(active) {
 // HTML TEMPLATES
 // ============================================================================
 
-const startProjectHtmlTemplate = `<form [formGroup]="startProjectFormGroup" (ngSubmit)="save()" class="start-project-form" style="width: 500px;">
+const startProjectHtmlTemplate = `<style>
+/* ECO Design System - Embedded Styles for Project Wizard */
+.start-project-form .eco-dialog-header,
+mat-toolbar.eco-dialog-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 0 16px !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  background-color: #305680 !important;
+  background: #305680 !important;
+  color: white !important;
+}
+.start-project-form .eco-dialog-header .header-icon,
+mat-toolbar.eco-dialog-header .header-icon {
+  font-size: 22px !important;
+  width: 22px !important;
+  height: 22px !important;
+  color: white !important;
+}
+.start-project-form .eco-dialog-header .header-title,
+mat-toolbar.eco-dialog-header .header-title {
+  margin: 0 !important;
+  font-size: 17px !important;
+  font-weight: 500 !important;
+  color: white !important;
+}
+.start-project-form .eco-dialog-header .close-btn,
+mat-toolbar.eco-dialog-header .close-btn {
+  color: rgba(255,255,255,0.8) !important;
+  margin-left: auto !important;
+}
+.start-project-form .eco-dialog-header .close-btn:hover,
+mat-toolbar.eco-dialog-header .close-btn:hover {
+  color: white !important;
+  background: rgba(255,255,255,0.1) !important;
+}
+.start-project-form .eco-dialog-header mat-icon,
+mat-toolbar.eco-dialog-header mat-icon {
+  color: white !important;
+}
+.start-project-form .dialog-content,
+.dialog-content {
+  padding: 16px 20px !important;
+  background: #f8fafc !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  max-height: 70vh !important;
+  overflow-y: auto !important;
+}
+.start-project-form .dialog-footer,
+.dialog-footer {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 12px 20px !important;
+  border-top: 1px solid #e2e8f0 !important;
+  background: #fafafa !important;
+}
+</style>
+<form [formGroup]="startProjectFormGroup" (ngSubmit)="save()" class="start-project-form" style="width: 500px;">
   <mat-toolbar class="eco-dialog-header">
     <mat-icon class="header-icon">rocket_launch</mat-icon>
     <h2 class="header-title">{{ 'custom.project-wizard.dialog-title' | translate }}</h2>
@@ -194,7 +257,7 @@ const startProjectHtmlTemplate = `<form [formGroup]="startProjectFormGroup" (ngS
   <mat-progress-bar color="warn" mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
   <div style="height: 4px;" *ngIf="!isLoading"></div>
 
-  <div mat-dialog-content class="flex flex-col p-4" style="max-height: 60vh; overflow-y: auto;">
+  <div class="dialog-content">
     <!-- Project Info Container -->
     <div class="project-info-card" style="border: 2px solid #305680; border-radius: 8px; padding: 16px; margin-bottom: 16px; background: linear-gradient(135deg, #f8fafc 0%, #e8f4fd 100%);">
       <div class="flex items-center gap-2">
@@ -350,7 +413,7 @@ const startProjectHtmlTemplate = `<form [formGroup]="startProjectFormGroup" (ngS
     </div>
   </div>
 
-  <div class="flex justify-end items-center gap-2 p-4" style="border-top: 1px solid #e0e0e0; background: #fafafa;">
+  <div class="dialog-footer">
     <button mat-button type="button" (click)="cancel()">{{ 'custom.project-wizard.cancel' | translate }}</button>
     <button *ngIf="projectProgress === 'in preparation'" mat-raised-button color="primary" type="submit" [disabled]="!canStart || isLoading">
       <mat-icon style="font-size: 18px; margin-right: 4px;">play_arrow</mat-icon> {{ 'custom.project-wizard.start-project' | translate }}
@@ -374,13 +437,13 @@ const finishHtmlTemplate = `<form [formGroup]="finishProjectFormGroup" (ngSubmit
   <mat-progress-bar color="warn" mode="indeterminate" *ngIf="isFinishLoading"></mat-progress-bar>
   <div style="height: 4px;" *ngIf="!isFinishLoading"></div>
 
-  <div mat-dialog-content class="flex flex-col p-4 gap-3">
+  <div class="dialog-content">
     <div class="flex items-center gap-2 p-3" style="background-color: #fff3e0; color: #e65100; border-radius: 4px;">
       <mat-icon>warning</mat-icon>
       <span>{{ 'custom.project-wizard.finish-warning' | translate }}</span>
     </div>
 
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="fill">
       <mat-label>{{ 'custom.project-wizard.progress' | translate }}</mat-label>
       <mat-select formControlName="progress">
         <mat-option value="finished">{{ 'custom.project-wizard.finished' | translate }}</mat-option>
@@ -389,33 +452,33 @@ const finishHtmlTemplate = `<form [formGroup]="finishProjectFormGroup" (ngSubmit
     </mat-form-field>
 
     <div class="flex gap-2">
-      <mat-form-field appearance="outline" class="flex-1">
+      <mat-form-field appearance="fill" class="flex-1">
         <mat-label>{{ 'custom.project-wizard.start-date' | translate }}</mat-label>
         <input matInput [matDatepicker]="startDatePicker" formControlName="startDate" readonly>
         <mat-datepicker-toggle matSuffix [for]="startDatePicker" disabled></mat-datepicker-toggle>
         <mat-datepicker #startDatePicker disabled></mat-datepicker>
       </mat-form-field>
-      <mat-form-field appearance="outline" style="width: 120px;">
+      <mat-form-field appearance="fill" style="width: 120px;">
         <mat-label>{{ 'custom.project-wizard.start-time' | translate }}</mat-label>
         <input matInput type="time" formControlName="startTime" readonly>
       </mat-form-field>
     </div>
 
     <div class="flex gap-2">
-      <mat-form-field appearance="outline" class="flex-1">
+      <mat-form-field appearance="fill" class="flex-1">
         <mat-label>{{ 'custom.project-wizard.end-date' | translate }}</mat-label>
         <input matInput [matDatepicker]="endDatePicker" formControlName="endDate">
         <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle>
         <mat-datepicker #endDatePicker></mat-datepicker>
       </mat-form-field>
-      <mat-form-field appearance="outline" style="width: 120px;">
+      <mat-form-field appearance="fill" style="width: 120px;">
         <mat-label>{{ 'custom.project-wizard.end-time' | translate }}</mat-label>
         <input matInput type="time" formControlName="endTime">
       </mat-form-field>
     </div>
   </div>
 
-  <div class="flex justify-end items-center gap-2 p-4" style="border-top: 1px solid #e0e0e0; background: #fafafa;">
+  <div class="dialog-footer">
     <button mat-button type="button" (click)="cancelFinish()">{{ 'custom.project-wizard.cancel' | translate }}</button>
     <button mat-raised-button color="warn" type="submit" [disabled]="isFinishLoading">
       <mat-icon style="font-size: 18px; margin-right: 4px;">save</mat-icon> {{ 'custom.project-wizard.save' | translate }}
@@ -423,7 +486,121 @@ const finishHtmlTemplate = `<form [formGroup]="finishProjectFormGroup" (ngSubmit
   </div>
 </form>`;
 
-const startProjectCss = `.measurement-card:hover {
+const startProjectCss = `
+/* ECO Design System - Dialog Styles */
+
+/* Header - Blue background (high specificity) */
+.start-project-form .eco-dialog-header,
+mat-toolbar.eco-dialog-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 0 16px !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  background-color: #305680 !important;
+  background: #305680 !important;
+  color: white !important;
+}
+.start-project-form .eco-dialog-header .header-icon,
+mat-toolbar.eco-dialog-header .header-icon {
+  font-size: 22px !important;
+  width: 22px !important;
+  height: 22px !important;
+  color: white !important;
+}
+.start-project-form .eco-dialog-header .header-title,
+mat-toolbar.eco-dialog-header .header-title {
+  margin: 0 !important;
+  font-size: 17px !important;
+  font-weight: 500 !important;
+  color: white !important;
+}
+.start-project-form .eco-dialog-header .close-btn,
+mat-toolbar.eco-dialog-header .close-btn {
+  color: rgba(255,255,255,0.8) !important;
+  margin-left: auto !important;
+}
+.start-project-form .eco-dialog-header .close-btn:hover,
+mat-toolbar.eco-dialog-header .close-btn:hover {
+  color: white !important;
+  background: rgba(255,255,255,0.1) !important;
+}
+.start-project-form .eco-dialog-header mat-icon,
+mat-toolbar.eco-dialog-header mat-icon {
+  color: white !important;
+}
+
+/* Content Area - Scrollable */
+.start-project-form .dialog-content,
+.dialog-content {
+  padding: 16px 20px !important;
+  background: #f8fafc !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  max-height: 70vh !important;
+  overflow-y: auto !important;
+}
+
+/* Footer */
+.start-project-form .dialog-footer,
+.dialog-footer {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 12px 20px !important;
+  border-top: 1px solid #e2e8f0 !important;
+  background: #fafafa !important;
+}
+
+/* Section Cards */
+.start-project-form .section-card,
+.section-card {
+  background: white !important;
+  border: 1px solid #e2e8f0 !important;
+  border-left: 3px solid #305680 !important;
+  border-radius: 0 !important;
+}
+
+.start-project-form .section-header,
+.section-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 10px 14px !important;
+  background: #f1f5f9 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  color: #334155 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.3px !important;
+}
+
+.start-project-form .section-header mat-icon,
+.section-header mat-icon {
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  color: #305680 !important;
+}
+
+.start-project-form .section-body,
+.section-body {
+  padding: 12px 14px !important;
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.form-col {
+  flex: 1;
+}
+.measurement-card:hover {
   background: #f0f0f0 !important;
 }
 .measurement-name {
@@ -1628,7 +1805,51 @@ export function openProjectWizardDialog(widgetContext, projectId, projectName, p
 // ADD MEASUREMENT DIALOG
 // ============================================================================
 
-const addMeasurementHtmlTemplate = `<form [formGroup]="addMeasurementFormGroup" (ngSubmit)="save()" class="add-entity-form" style="width: 500px; max-width: 90vw;">
+const addMeasurementHtmlTemplate = `<style>
+/* ECO Design System - Embedded Styles for Add Measurement */
+.add-entity-form .eco-dialog-header,
+mat-toolbar.eco-dialog-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 0 16px !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  background-color: #305680 !important;
+  background: #305680 !important;
+  color: white !important;
+}
+.add-entity-form .eco-dialog-header .header-icon,
+mat-toolbar.eco-dialog-header .header-icon {
+  font-size: 22px !important;
+  width: 22px !important;
+  height: 22px !important;
+  color: white !important;
+}
+.add-entity-form .eco-dialog-header .header-title,
+mat-toolbar.eco-dialog-header .header-title {
+  margin: 0 !important;
+  font-size: 17px !important;
+  font-weight: 500 !important;
+  color: white !important;
+}
+.add-entity-form .eco-dialog-header .close-btn,
+mat-toolbar.eco-dialog-header .close-btn {
+  color: rgba(255,255,255,0.8) !important;
+  margin-left: auto !important;
+}
+.add-entity-form .eco-dialog-header mat-icon,
+mat-toolbar.eco-dialog-header mat-icon {
+  color: white !important;
+}
+.add-entity-form .dialog-content { padding: 16px 20px !important; background: #f8fafc !important; }
+.add-entity-form .dialog-footer { display: flex !important; justify-content: flex-end !important; gap: 12px !important; padding: 12px 20px !important; border-top: 1px solid #e2e8f0 !important; }
+.add-entity-form .section-card { background: white !important; border: 1px solid #e2e8f0 !important; border-left: 3px solid #305680 !important; }
+.add-entity-form .section-header { display: flex !important; align-items: center !important; gap: 8px !important; padding: 10px 14px !important; background: #f1f5f9 !important; border-bottom: 1px solid #e2e8f0 !important; font-weight: 600 !important; font-size: 13px !important; color: #334155 !important; text-transform: uppercase !important; }
+.add-entity-form .section-header mat-icon { font-size: 18px !important; width: 18px !important; height: 18px !important; color: #305680 !important; }
+.add-entity-form .section-body { padding: 12px 14px !important; }
+</style>
+<form [formGroup]="addMeasurementFormGroup" (ngSubmit)="save()" class="add-entity-form" style="width: 500px; max-width: 90vw;">
   <mat-toolbar class="eco-dialog-header">
     <mat-icon class="header-icon">assessment</mat-icon>
     <h2 class="header-title">{{'custom.projects.measurements.add-measurement' | translate}}</h2>
@@ -1641,14 +1862,15 @@ const addMeasurementHtmlTemplate = `<form [formGroup]="addMeasurementFormGroup" 
   <mat-progress-bar color="warn" mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
   <div style="height: 4px;" *ngIf="!isLoading"></div>
 
-  <div mat-dialog-content class="flex flex-col gap-3 p-4">
+  <div class="dialog-content">
 
     <!-- Measurement Info Section -->
-    <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 0;">
-      <legend class="flex items-center gap-2" style="font-weight: 600; color: #305680; padding: 0 8px;">
-        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">info</mat-icon>
-        Measurement Info
-      </legend>
+    <div class="section-card">
+      <div class="section-header">
+        <mat-icon>info</mat-icon>
+        <span>Measurement Info</span>
+      </div>
+      <div class="section-body">
       <mat-form-field appearance="fill" class="w-full disabled-field">
         <mat-label>{{'custom.projects.measurements.measurement-title' | translate}}</mat-label>
         <input matInput formControlName="name" readonly>
@@ -1659,14 +1881,16 @@ const addMeasurementHtmlTemplate = `<form [formGroup]="addMeasurementFormGroup" 
         <input matInput formControlName="label" placeholder="e.g. Main Heating Circuit">
         <mat-hint>Optional descriptive label</mat-hint>
       </mat-form-field>
-    </fieldset>
+    </div>
+    </div>
 
     <!-- Configuration Section -->
-    <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 0;">
-      <legend class="flex items-center gap-2" style="font-weight: 600; color: #305680; padding: 0 8px;">
-        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">settings</mat-icon>
-        Configuration
-      </legend>
+    <div class="section-card">
+      <div class="section-header">
+        <mat-icon>settings</mat-icon>
+        <span>Configuration</span>
+      </div>
+      <div class="section-body">
 
       <!-- Measurement Type -->
       <mat-form-field appearance="fill" class="w-full">
@@ -1754,11 +1978,12 @@ const addMeasurementHtmlTemplate = `<form [formGroup]="addMeasurementFormGroup" 
           <span style="font-size: 12px; color: #666;">Assign a P-Flow device after creation</span>
         </div>
       </div>
-    </fieldset>
+    </div>
+    </div>
 
   </div>
 
-  <div class="flex justify-end items-center gap-2 p-4" style="border-top: 1px solid #e0e0e0; background: #fafafa;">
+  <div class="dialog-footer">
     <button mat-button type="button" [disabled]="isLoading" (click)="cancel()">
       {{'action.cancel' | translate}}
     </button>
@@ -2040,7 +2265,88 @@ export function openAddMeasurementDialog(widgetContext, projectId, projectName, 
 // MEASUREMENT PARAMETERS DIALOG
 // ============================================================================
 
-const measurementParametersHtmlTemplate = `<form [formGroup]="parametersFormGroup" (ngSubmit)="save()" class="measurement-parameters-form" style="width: 600px;">
+const measurementParametersHtmlTemplate = `<style>
+/* ECO Design System - Embedded Styles for Measurement Parameters */
+.measurement-parameters-form .eco-dialog-header,
+mat-toolbar.eco-dialog-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 0 16px !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  background-color: #305680 !important;
+  background: #305680 !important;
+  color: white !important;
+}
+.measurement-parameters-form .eco-dialog-header .header-icon,
+mat-toolbar.eco-dialog-header .header-icon {
+  font-size: 22px !important;
+  width: 22px !important;
+  height: 22px !important;
+  color: white !important;
+}
+.measurement-parameters-form .eco-dialog-header .header-title,
+mat-toolbar.eco-dialog-header .header-title {
+  margin: 0 !important;
+  font-size: 17px !important;
+  font-weight: 500 !important;
+  color: white !important;
+}
+.measurement-parameters-form .eco-dialog-header .close-btn,
+mat-toolbar.eco-dialog-header .close-btn {
+  color: rgba(255,255,255,0.8) !important;
+  margin-left: auto !important;
+}
+.measurement-parameters-form .eco-dialog-header mat-icon,
+mat-toolbar.eco-dialog-header mat-icon {
+  color: white !important;
+}
+.measurement-parameters-form .dialog-content {
+  padding: 16px 20px !important;
+  background: #f8fafc !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  max-height: 70vh !important;
+  overflow-y: auto !important;
+}
+.measurement-parameters-form .dialog-footer {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 12px !important;
+  padding: 12px 20px !important;
+  border-top: 1px solid #e2e8f0 !important;
+  background: #fafafa !important;
+}
+.measurement-parameters-form .section-card {
+  background: white !important;
+  border: 1px solid #e2e8f0 !important;
+  border-left: 3px solid #305680 !important;
+}
+.measurement-parameters-form .section-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 10px 14px !important;
+  background: #f1f5f9 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  color: #334155 !important;
+  text-transform: uppercase !important;
+}
+.measurement-parameters-form .section-header mat-icon {
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  color: #305680 !important;
+}
+.measurement-parameters-form .section-body {
+  padding: 12px 14px !important;
+}
+</style>
+<form [formGroup]="parametersFormGroup" (ngSubmit)="save()" class="measurement-parameters-form" style="width: 600px;">
   <mat-toolbar class="eco-dialog-header">
     <mat-icon class="header-icon">tune</mat-icon>
     <h2 class="header-title">Edit Measurement Parameters</h2>
@@ -2053,14 +2359,15 @@ const measurementParametersHtmlTemplate = `<form [formGroup]="parametersFormGrou
   <mat-progress-bar color="warn" mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
   <div style="height: 4px;" *ngIf="!isLoading"></div>
 
-  <div mat-dialog-content class="flex flex-col p-4" style="max-height: 70vh; overflow-y: auto;">
+  <div class="dialog-content">
 
     <!-- Measurement Info Section -->
-    <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
-      <legend class="flex items-center gap-2" style="font-weight: 600; color: #305680; padding: 0 8px;">
-        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">sensors</mat-icon>
-        Measurement
-      </legend>
+    <div class="section-card">
+      <div class="section-header">
+        <mat-icon>sensors</mat-icon>
+        <span>Measurement</span>
+      </div>
+      <div class="section-body">
       <mat-form-field appearance="fill" class="w-full">
         <mat-label>Name (System)</mat-label>
         <input matInput [value]="entityName" readonly disabled>
@@ -2113,14 +2420,16 @@ const measurementParametersHtmlTemplate = `<form [formGroup]="parametersFormGrou
           Type can only be changed in preparation/planned status
         </mat-hint>
       </mat-form-field>
-    </fieldset>
+    </div>
+    </div>
 
     <!-- Status Section (Progress, Start/End Time) -->
-    <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
-      <legend class="flex items-center gap-2" style="font-weight: 600; color: #305680; padding: 0 8px;">
-        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">timeline</mat-icon>
-        Status
-      </legend>
+    <div class="section-card">
+      <div class="section-header">
+        <mat-icon>timeline</mat-icon>
+        <span>Status</span>
+      </div>
+      <div class="section-body">
 
       <!-- Progress -->
       <mat-form-field appearance="fill" class="w-full">
@@ -2137,13 +2446,13 @@ const measurementParametersHtmlTemplate = `<form [formGroup]="parametersFormGrou
       <div class="flex gap-2">
         <mat-form-field appearance="fill" style="flex: 1.5;">
           <mat-label>Start Date</mat-label>
-          <mat-datetimepicker-toggle [for]="startDatePicker" matPrefix></mat-datetimepicker-toggle>
+          <mat-datetimepicker-toggle [for]="startDatePicker" matSuffix></mat-datetimepicker-toggle>
           <mat-datetimepicker #startDatePicker type="date" openOnFocus="true"></mat-datetimepicker>
           <input matInput formControlName="startDate" [matDatetimepicker]="startDatePicker">
         </mat-form-field>
         <mat-form-field appearance="fill" style="flex: 1;">
           <mat-label>Start Time</mat-label>
-          <mat-datetimepicker-toggle [for]="startTimePicker" matPrefix></mat-datetimepicker-toggle>
+          <mat-datetimepicker-toggle [for]="startTimePicker" matSuffix></mat-datetimepicker-toggle>
           <mat-datetimepicker #startTimePicker type="time" openOnFocus="true"></mat-datetimepicker>
           <input matInput formControlName="startTime" [matDatetimepicker]="startTimePicker">
         </mat-form-field>
@@ -2153,25 +2462,27 @@ const measurementParametersHtmlTemplate = `<form [formGroup]="parametersFormGrou
       <div class="flex gap-2">
         <mat-form-field appearance="fill" style="flex: 1.5;">
           <mat-label>End Date</mat-label>
-          <mat-datetimepicker-toggle [for]="endDatePicker" matPrefix></mat-datetimepicker-toggle>
+          <mat-datetimepicker-toggle [for]="endDatePicker" matSuffix></mat-datetimepicker-toggle>
           <mat-datetimepicker #endDatePicker type="date" openOnFocus="true"></mat-datetimepicker>
           <input matInput formControlName="endDate" [matDatetimepicker]="endDatePicker">
         </mat-form-field>
         <mat-form-field appearance="fill" style="flex: 1;">
           <mat-label>End Time</mat-label>
-          <mat-datetimepicker-toggle [for]="endTimePicker" matPrefix></mat-datetimepicker-toggle>
+          <mat-datetimepicker-toggle [for]="endTimePicker" matSuffix></mat-datetimepicker-toggle>
           <mat-datetimepicker #endTimePicker type="time" openOnFocus="true"></mat-datetimepicker>
           <input matInput formControlName="endTime" [matDatetimepicker]="endTimePicker">
         </mat-form-field>
       </div>
-    </fieldset>
+    </div>
+    </div>
 
     <!-- Dimension Section -->
-    <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
-      <legend class="flex items-center gap-2" style="font-weight: 600; color: #305680; padding: 0 8px;">
-        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">straighten</mat-icon>
-        Dimension
-      </legend>
+    <div class="section-card">
+      <div class="section-header">
+        <mat-icon>straighten</mat-icon>
+        <span>Dimension</span>
+      </div>
+      <div class="section-body">
       <div class="flex gap-2">
         <mat-form-field appearance="fill" style="flex: 1;">
           <mat-label>Dimension</mat-label>
@@ -2194,14 +2505,16 @@ const measurementParametersHtmlTemplate = `<form [formGroup]="parametersFormGrou
           <input matInput formControlName="deltaTAnalysisPumpEnergy" type="number">
         </mat-form-field>
       </div>
-    </fieldset>
+    </div>
+    </div>
 
     <!-- Installation Section -->
-    <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
-      <legend class="flex items-center gap-2" style="font-weight: 600; color: #305680; padding: 0 8px;">
-        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">build</mat-icon>
-        Installation
-      </legend>
+    <div class="section-card">
+      <div class="section-header">
+        <mat-icon>build</mat-icon>
+        <span>Installation</span>
+      </div>
+      <div class="section-body">
       <div class="flex gap-2">
         <mat-form-field appearance="fill" style="flex: 1;">
           <mat-label>Installation Type</mat-label>
@@ -2228,14 +2541,16 @@ const measurementParametersHtmlTemplate = `<form [formGroup]="parametersFormGrou
           </mat-select>
         </mat-form-field>
       </div>
-    </fieldset>
+    </div>
+    </div>
 
     <!-- Analysis Section -->
-    <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
-      <legend class="flex items-center gap-2" style="font-weight: 600; color: #305680; padding: 0 8px;">
-        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">analytics</mat-icon>
-        Analysis
-      </legend>
+    <div class="section-card">
+      <div class="section-header">
+        <mat-icon>analytics</mat-icon>
+        <span>Analysis</span>
+      </div>
+      <div class="section-body">
       <div class="flex gap-2">
         <mat-form-field appearance="fill" style="flex: 2;">
           <mat-label>Standard Outdoor Temp.</mat-label>
@@ -2275,14 +2590,16 @@ const measurementParametersHtmlTemplate = `<form [formGroup]="parametersFormGrou
           <input matInput formControlName="unit" type="text">
         </mat-form-field>
       </div>
-    </fieldset>
+    </div>
+    </div>
 
     <!-- Weekly Operating Schedule -->
-    <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
-      <legend class="flex items-center gap-2" style="font-weight: 600; color: #305680; padding: 0 8px;">
-        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">schedule</mat-icon>
-        Weekly Operating Schedule
-      </legend>
+    <div class="section-card">
+      <div class="section-header">
+        <mat-icon>schedule</mat-icon>
+        <span>Weekly Operating Schedule</span>
+      </div>
+      <div class="section-body">
       <div formGroupName="weeklyOperatingSchedule" class="flex justify-between items-center gap-1">
         <mat-checkbox formControlName="monday">Mon</mat-checkbox>
         <mat-checkbox formControlName="tuesday">Tue</mat-checkbox>
@@ -2292,14 +2609,16 @@ const measurementParametersHtmlTemplate = `<form [formGroup]="parametersFormGrou
         <mat-checkbox formControlName="saturday">Sat</mat-checkbox>
         <mat-checkbox formControlName="sunday">Sun</mat-checkbox>
       </div>
-    </fieldset>
+    </div>
+    </div>
 
     <!-- Alarm Thresholds -->
-    <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
-      <legend class="flex items-center gap-2" style="font-weight: 600; color: #305680; padding: 0 8px;">
-        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">notification_important</mat-icon>
-        Alarm Thresholds
-      </legend>
+    <div class="section-card">
+      <div class="section-header">
+        <mat-icon>notification_important</mat-icon>
+        <span>Alarm Thresholds</span>
+      </div>
+      <div class="section-body">
       <div class="flex gap-2">
         <mat-form-field appearance="fill" class="flex-1">
           <mat-label>Max Volume Flow Critical</mat-label>
@@ -2330,11 +2649,12 @@ const measurementParametersHtmlTemplate = `<form [formGroup]="parametersFormGrou
           <input matInput formControlName="minTemperatureDifferenceMajorThreshold" type="number">
         </mat-form-field>
       </div>
-    </fieldset>
+    </div>
+    </div>
 
   </div>
 
-  <div class="flex justify-end items-center gap-2 p-4" style="border-top: 1px solid #e0e0e0; background: #fafafa;">
+  <div class="dialog-footer">
     <button mat-button type="button" [disabled]="isLoading" (click)="cancel()">
       Cancel
     </button>
@@ -2787,7 +3107,62 @@ const TIMESERIES_LABELS = {
   'battery': 'Battery'
 };
 
-const measurementInfoHtmlTemplate = `<div class="measurement-info-dialog" style="width: 500px;">
+const measurementInfoHtmlTemplate = `<style>
+/* ECO Design System - Embedded Styles for Live Data Dialog */
+.measurement-info-dialog .eco-dialog-header,
+mat-toolbar.eco-dialog-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 0 16px !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  background-color: #305680 !important;
+  background: #305680 !important;
+  color: white !important;
+}
+.measurement-info-dialog .eco-dialog-header .header-icon,
+mat-toolbar.eco-dialog-header .header-icon {
+  font-size: 22px !important;
+  width: 22px !important;
+  height: 22px !important;
+  color: white !important;
+}
+.measurement-info-dialog .eco-dialog-header .header-title,
+mat-toolbar.eco-dialog-header .header-title {
+  margin: 0 !important;
+  font-size: 17px !important;
+  font-weight: 500 !important;
+  color: white !important;
+}
+.measurement-info-dialog .eco-dialog-header .close-btn,
+mat-toolbar.eco-dialog-header .close-btn {
+  color: rgba(255,255,255,0.8) !important;
+  margin-left: auto !important;
+}
+.measurement-info-dialog .eco-dialog-header mat-icon,
+mat-toolbar.eco-dialog-header mat-icon {
+  color: white !important;
+}
+.measurement-info-dialog .dialog-content {
+  padding: 16px 20px !important;
+  background: #f8fafc !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  max-height: 70vh !important;
+  overflow-y: auto !important;
+}
+.measurement-info-dialog .dialog-footer {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 12px !important;
+  padding: 12px 20px !important;
+  border-top: 1px solid #e2e8f0 !important;
+  background: #fafafa !important;
+}
+</style>
+<div class="measurement-info-dialog" style="width: 500px;">
   <mat-toolbar class="eco-dialog-header">
     <mat-icon class="header-icon">sensors</mat-icon>
     <h2 class="header-title">Live Data</h2>
@@ -2800,7 +3175,7 @@ const measurementInfoHtmlTemplate = `<div class="measurement-info-dialog" style=
   <mat-progress-bar color="warn" mode="indeterminate" *ngIf="isLoading || isRefreshing"></mat-progress-bar>
   <div style="height: 4px;" *ngIf="!isLoading && !isRefreshing"></div>
 
-  <div mat-dialog-content class="flex flex-col p-4">
+  <div class="dialog-content">
     <!-- Entity Info Card -->
     <div class="entity-info-card" style="border: 2px solid #305680; border-radius: 8px; padding: 16px; margin-bottom: 16px; background: linear-gradient(135deg, #f8fafc 0%, #e8f4fd 100%);">
       <div class="flex items-center gap-2 mb-2">
@@ -2961,7 +3336,7 @@ const measurementInfoHtmlTemplate = `<div class="measurement-info-dialog" style=
     </div>
   </div>
 
-  <div class="flex justify-end items-center gap-2 p-4" style="border-top: 1px solid #e0e0e0; background: #fafafa;">
+  <div class="dialog-footer">
     <button mat-raised-button type="button" (click)="goToDetails()"
             style="background-color: #305680; color: white;">
       <mat-icon style="margin-right: 4px; font-size: 18px; width: 18px; height: 18px;">dashboard</mat-icon>
@@ -3834,26 +4209,29 @@ export function openEditProjectDialog(widgetContext, projectId, projectName, pro
   <mat-progress-bar color="warn" mode="indeterminate" *ngIf="isLoading$ | async">
   </mat-progress-bar>
   <div style="height: 4px;" *ngIf="!(isLoading$ | async)"></div>
-  <div mat-dialog-content class="flex flex-col gap-3 p-4">
+  <div class="dialog-content">
 
     <!-- Customer Section -->
-    <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 0;">
-      <legend class="flex items-center gap-2" style="font-weight: 600; color: #305680; padding: 0 8px;">
-        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">business</mat-icon>
-        Customer
-      </legend>
+    <div class="section-card">
+      <div class="section-header">
+        <mat-icon>business</mat-icon>
+        <span>Customer</span>
+      </div>
+      <div class="section-body">
       <mat-form-field appearance="fill" class="w-full disabled-field">
         <mat-label>Customer</mat-label>
         <input matInput formControlName="customerName" readonly>
       </mat-form-field>
-    </fieldset>
+    </div>
+    </div>
 
     <!-- Project Info Section -->
-    <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 0;">
-      <legend class="flex items-center gap-2" style="font-weight: 600; color: #305680; padding: 0 8px;">
-        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">folder</mat-icon>
-        Project Info
-      </legend>
+    <div class="section-card">
+      <div class="section-header">
+        <mat-icon>folder</mat-icon>
+        <span>Project Info</span>
+      </div>
+      <div class="section-body">
       <tb-image-input formControlName="projectPicture" label="Project Picture" noImageText="No picture selected"></tb-image-input>
       <mat-form-field appearance="fill" class="w-full disabled-field">
         <mat-label>Project ID</mat-label>
@@ -3863,14 +4241,16 @@ export function openEditProjectDialog(widgetContext, projectId, projectName, pro
         <mat-label>Label</mat-label>
         <input matInput formControlName="entityLabel">
       </mat-form-field>
-    </fieldset>
+    </div>
+    </div>
 
     <!-- Address Section -->
-    <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 0;">
-      <legend class="flex items-center gap-2" style="font-weight: 600; color: #305680; padding: 0 8px;">
-        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">location_on</mat-icon>
-        Address
-      </legend>
+    <div class="section-card">
+      <div class="section-header">
+        <mat-icon>location_on</mat-icon>
+        <span>Address</span>
+      </div>
+      <div class="section-body">
       <mat-form-field appearance="fill" class="w-full">
         <mat-label>Project address</mat-label>
         <input matInput formControlName="address" [matAutocomplete]="addrAuto" autocomplete="off">
@@ -3902,14 +4282,16 @@ export function openEditProjectDialog(widgetContext, projectId, projectName, pro
           <input matInput formControlName="longitude">
         </mat-form-field>
       </div>
-    </fieldset>
+    </div>
+    </div>
 
     <!-- Status Section -->
-    <fieldset class="fieldset" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 0;">
-      <legend class="flex items-center gap-2" style="font-weight: 600; color: #305680; padding: 0 8px;">
-        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">timeline</mat-icon>
-        Status
-      </legend>
+    <div class="section-card">
+      <div class="section-header">
+        <mat-icon>timeline</mat-icon>
+        <span>Status</span>
+      </div>
+      <div class="section-body">
       <mat-form-field appearance="fill" class="w-full">
         <mat-label>Progress</mat-label>
         <mat-select formControlName="progress">
@@ -3922,13 +4304,13 @@ export function openEditProjectDialog(widgetContext, projectId, projectName, pro
       <div class="flex gap-2">
         <mat-form-field appearance="fill" style="flex: 1.5;">
           <mat-label>Start Date</mat-label>
-          <mat-datetimepicker-toggle [for]="startDatePicker" matPrefix></mat-datetimepicker-toggle>
+          <mat-datetimepicker-toggle [for]="startDatePicker" matSuffix></mat-datetimepicker-toggle>
           <mat-datetimepicker #startDatePicker type="date" openOnFocus="true"></mat-datetimepicker>
           <input matInput formControlName="startDate" [matDatetimepicker]="startDatePicker">
         </mat-form-field>
         <mat-form-field appearance="fill" style="flex: 1;">
           <mat-label>Start Time</mat-label>
-          <mat-datetimepicker-toggle [for]="startTimePicker" matPrefix></mat-datetimepicker-toggle>
+          <mat-datetimepicker-toggle [for]="startTimePicker" matSuffix></mat-datetimepicker-toggle>
           <mat-datetimepicker #startTimePicker type="time" openOnFocus="true"></mat-datetimepicker>
           <input matInput formControlName="startTime" [matDatetimepicker]="startTimePicker">
         </mat-form-field>
@@ -3936,21 +4318,22 @@ export function openEditProjectDialog(widgetContext, projectId, projectName, pro
       <div class="flex gap-2">
         <mat-form-field appearance="fill" style="flex: 1.5;">
           <mat-label>End Date</mat-label>
-          <mat-datetimepicker-toggle [for]="endDatePicker" matPrefix></mat-datetimepicker-toggle>
+          <mat-datetimepicker-toggle [for]="endDatePicker" matSuffix></mat-datetimepicker-toggle>
           <mat-datetimepicker #endDatePicker type="date" openOnFocus="true"></mat-datetimepicker>
           <input matInput formControlName="endDate" [matDatetimepicker]="endDatePicker">
         </mat-form-field>
         <mat-form-field appearance="fill" style="flex: 1;">
           <mat-label>End Time</mat-label>
-          <mat-datetimepicker-toggle [for]="endTimePicker" matPrefix></mat-datetimepicker-toggle>
+          <mat-datetimepicker-toggle [for]="endTimePicker" matSuffix></mat-datetimepicker-toggle>
           <mat-datetimepicker #endTimePicker type="time" openOnFocus="true"></mat-datetimepicker>
           <input matInput formControlName="endTime" [matDatetimepicker]="endTimePicker">
         </mat-form-field>
       </div>
-    </fieldset>
+    </div>
+    </div>
 
   </div>
-  <div class="flex justify-end items-center gap-2 p-4" style="border-top: 1px solid #e0e0e0; background: #fafafa;">
+  <div class="dialog-footer">
     <button mat-button (click)="cancel()" type="button">Cancel</button>
     <button mat-raised-button color="primary" type="submit"
             [disabled]="(isLoading$ | async) || editProjectFormGroup.invalid || !editProjectFormGroup.dirty">
@@ -3961,6 +4344,92 @@ export function openEditProjectDialog(widgetContext, projectId, projectName, pro
 </form>`;
 
     const cssTemplate = `
+/* ECO Design System - Core Styles */
+mat-toolbar.eco-dialog-header,
+.eco-dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  background-color: var(--tb-primary-500) !important;
+  background: var(--tb-primary-500) !important;
+  color: white !important;
+}
+.eco-dialog-header .header-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  color: white !important;
+}
+.eco-dialog-header .header-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 500;
+  color: white !important;
+}
+.eco-dialog-header .close-btn {
+  color: rgba(255,255,255,0.8) !important;
+  margin-left: auto;
+}
+.eco-dialog-header .close-btn:hover {
+  color: white !important;
+  background: rgba(255,255,255,0.1) !important;
+}
+
+.dialog-content {
+  padding: 16px 20px !important;
+  background: #f8fafc !important;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.section-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid var(--tb-primary-500);
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #f1f5f9;
+  border-bottom: 1px solid #e2e8f0;
+  font-weight: 600;
+  font-size: 13px;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.section-header mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--tb-primary-500);
+}
+.section-body {
+  padding: 12px 14px;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-top: 1px solid #e2e8f0;
+  background: #fafafa;
+}
+
+.flex-1 { flex: 1; }
+.w-full { width: 100%; }
+
+/* Form field styling */
 .edit-project-form .mdc-text-field--filled.mdc-text-field--disabled {
   background-color: rgba(244, 249, 254, 0.5) !important;
 }
@@ -3978,10 +4447,6 @@ export function openEditProjectDialog(widgetContext, projectId, projectName, pro
 }
 .edit-project-form .disabled-field {
   background-color: rgba(244, 249, 254, 0.5) !important;
-}
-mat-icon {
-  vertical-align: middle;
-  margin-right: 4px;
 }`;
 
     customDialog.customDialog(htmlTemplate, EditProjectDialogController, cssTemplate).subscribe();
