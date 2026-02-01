@@ -77,6 +77,38 @@ node sync/sync.js sync --js
 # This will backup only the changed JS file and sync JS libraries
 ```
 
+### Claude Workflow Rules (WICHTIG!)
+
+**PFLICHT-Regeln für Claude beim Bearbeiten von Dateien:**
+
+1. **Manuelle Sicherung VOR Bearbeitung** - Nur die spezifische Datei sichern:
+   ```bash
+   # Vor Bearbeitung einer JS Library
+   cp "js library/ECO Project Wizard.js" "backups/manual/ECO Project Wizard_$(date +%Y%m%d_%H%M%S).js"
+
+   # Vor Bearbeitung eines Dashboards
+   cp "dashboards/measurements.json" "backups/manual/measurements_$(date +%Y%m%d_%H%M%S).json"
+   ```
+
+2. **Vor Bearbeitung IMMER pullen** - Aktuelle Version vom Server holen:
+   ```bash
+   node sync/sync.js pull "Dashboard Name"
+   node sync/sync.js pull-js "Library Name"
+   ```
+
+3. **Nur geänderte Dateien pushen** - NIEMALS unveränderte Dateien synchronisieren:
+   - Vor jedem Sync prüfen: Was habe ich tatsächlich geändert?
+   - Nur diese Datei(en) synchronisieren
+   - Bei Dashboards: `node sync/sync.js push <name>` (nicht `sync --dashboards`)
+
+4. **Keine Batch-Syncs** - Niemals alle Ressourcen auf einmal synchronisieren wenn nur eine Datei geändert wurde
+
+**Reihenfolge bei Änderungen:**
+1. `pull` - Aktuelle Version holen
+2. `cp` - Manuelle Sicherung erstellen
+3. Änderungen durchführen
+4. `push` / `sync` - Nur die geänderte Datei synchronisieren
+
 ### Environment Setup
 
 Requires `.env` file with ThingsBoard credentials:
@@ -183,19 +215,84 @@ gap-1, gap-2, gap-3, p-3, p-4, px-4, mb-2, mb-4, mt-2, mx-4
 text-lg, font-semibold
 ```
 
-### ECO Design System
+### ECO Design System & UI Components
 
-**WICHTIG:** Für alle Custom Dialoge das ECO Design System verwenden!
-Siehe: [docs/ECO_DESIGN_SYSTEM.md](docs/ECO_DESIGN_SYSTEM.md)
+**WICHTIG:** Claude agiert als UI-Experte für dieses Projekt. Bei JEDER Bearbeitung von Dialogen, Actions oder Libraries MUSS die Design-Vorlage konsultiert werden!
 
-Grundprinzipien:
-- **Header:** `eco-dialog-header` Klasse mit `var(--tb-primary-500)` Background
-- **Content:** Section Cards mit weißem Hintergrund und Primary-Akzent links
-- **Form Fields:** `appearance="fill"`, Icons mit `matSuffix` (rechts)
-- **Border Radius:** 0 (keine Rundungen)
-- **Footer:** `dialog-footer` mit border-top und #fafafa Background
+#### Design-Vorlagen (IMMER verwenden!)
+
+| Dokument | Inhalt |
+|----------|--------|
+| **[docs/dialog-ui-components.md](docs/dialog-ui-components.md)** | Komplette UI-Komponenten-Referenz mit HTML/CSS |
+| [docs/ECO_DESIGN_SYSTEM.md](docs/ECO_DESIGN_SYSTEM.md) | Allgemeine Design-Prinzipien |
+
+#### UI-Experten-Regeln
+
+1. **VOR dem Erstellen/Bearbeiten von Dialogen:**
+   - `docs/dialog-ui-components.md` lesen
+   - Passende Komponenten aus der Vorlage verwenden
+   - Basis-CSS IMMER inkludieren (Header, Content, Footer)
+
+2. **Dialog-Grundstruktur (PFLICHT):**
+   ```html
+   <div class="ui-demo-dialog">
+     <mat-toolbar class="eco-dialog-header">...</mat-toolbar>
+     <div class="dialog-content">...</div>
+     <div class="dialog-footer">...</div>
+   </div>
+   ```
+
+3. **Pflicht-CSS für jeden Dialog:**
+   ```css
+   .eco-dialog-header {
+     background-color: var(--tb-primary-500);
+     color: white;
+     /* ... siehe Vorlage */
+   }
+   .dialog-content {
+     max-height: 70vh;
+     overflow-y: auto;
+     /* ... siehe Vorlage */
+   }
+   ```
+
+4. **Bei neuen Actions:**
+   - ALLE Felder von existierender Action kopieren
+   - Nur `id`, `name`, `icon`, `customHtml`, `customCss` ändern
+   - NIEMALS Action von Grund auf neu erstellen
+
+5. **PFLICHT-SKILL für Actions: `/update-tb-action`**
+   - **IMMER** den Skill `/update-tb-action <action-name>` verwenden wenn:
+     - Eine bestehende Action bearbeitet wird
+     - Eine neue Action erstellt wird
+     - Dialog-HTML, CSS oder JS geändert wird
+   - Der Skill garantiert:
+     - Design Guidelines werden angewendet
+     - Code wird vor Push validiert
+     - Keine Syntax-Fehler im Production-Code
+   - **NIEMALS** Action-Code direkt ändern und pushen ohne Validierung!
+
+#### Verfügbare UI-Komponenten
+
+**Formular-Elemente (Demo 1):**
+- Text Inputs, Dropdowns, Autocomplete
+- Date/Time Pickers
+- Checkboxes, Radio Buttons, Slide Toggles
+- Buttons (alle Varianten)
+- Progress Indicators, Chips, Stepper
+
+**Display-Elemente (Demo 2):**
+- Cards mit Werten
+- Expansion Panel
+- Selection List
+- Data Table mit Status-Chips
+- Toolbar, Search Input
+- Bottom Navigation, Tree Structure
+
+#### Schnellreferenz
 
 ```html
+<!-- Blauer Header -->
 <mat-toolbar class="eco-dialog-header">
   <mat-icon class="header-icon">icon_name</mat-icon>
   <h2 class="header-title">Title</h2>
@@ -204,6 +301,21 @@ Grundprinzipien:
     <mat-icon>close</mat-icon>
   </button>
 </mat-toolbar>
+
+<!-- Section Card -->
+<div class="section-card">
+  <div class="section-header">
+    <mat-icon>icon</mat-icon>
+    <span>Section Title</span>
+  </div>
+  <div class="section-body">
+    <!-- Content -->
+  </div>
+</div>
+
+<!-- Status Chips -->
+<span class="status-chip status-online">Online</span>
+<span class="status-chip status-offline">Offline</span>
 ```
 
 ### JS Libraries
@@ -260,6 +372,179 @@ Rule chains define message processing flow:
 - `connections` array with `fromIndex` and `toIndex`
 - Node types: filter, transformation, action, external
 
+#### ThingsBoard API über Rule Chains aufrufen (WICHTIG!)
+
+**Problem:** Customer Users können bestimmte API-Endpoints nicht direkt aufrufen (z.B. Permission erstellen).
+**Lösung:** API-Calls über Rule Chain mit System-JWT-Token ausführen.
+
+**Korrekte Rule Chain Struktur (4 Nodes):**
+
+```
+[Input] → [Save Original] → [Login API] → [Prepare Body + Token] → [API Call]
+```
+
+**WICHTIG:** Nach einem REST API Call wird `msg` mit dem Response überschrieben!
+Deshalb MUSS vor dem Login ein Script Node die Original-Daten in metadata speichern.
+
+**Node 1: Save Original - Original-Daten speichern UND Login-Body setzen**
+```javascript
+// TBEL Script - MUSS vor Login ausgeführt werden!
+// 1. Original-Daten in metadata speichern
+metadata.originalData = JSON.stringify(msg.createPermission);
+// 2. msg mit Login-Credentials überschreiben (wird Body für Login API)
+var loginBody = { username: "api-user@example.com", password: "password123" };
+return { msg: loginBody, metadata: metadata, msgType: msgType };
+```
+**WICHTIG:** Die `msg` wird als Body für den nächsten REST API Call verwendet!
+
+**Node 2: Login API Call**
+```
+Type: REST API Call
+Name: Login
+URL: https://diagnostics.ecoenergygroup.com/api/auth/login
+Method: POST
+Headers:
+  Content-Type: application/json
+Body: {"username":"system@email.com","password":"password123"}
+```
+Nach diesem Node: `msg` = Login Response mit token!
+
+**Node 3: Script - Token extrahieren UND Request Body vorbereiten**
+```javascript
+// TBEL Script - Token aus msg (=Login Response) extrahieren
+var jwtToken = msg.token;
+
+// Original-Daten aus metadata wiederherstellen (wurden in Node 1 gespeichert!)
+var permData = JSON.parse(metadata.originalData);
+
+// Permission Request Body bauen
+var permissionRequest = {
+    userGroupId: { entityType: 'ENTITY_GROUP', id: permData.userGroupId },
+    roleId: { entityType: 'ROLE', id: permData.roleId }
+};
+
+if (permData.entityGroupId != null) {
+    permissionRequest.entityGroupId = { entityType: 'ENTITY_GROUP', id: permData.entityGroupId };
+    permissionRequest.entityGroupType = permData.entityGroupType;
+}
+
+// Neuer msg wird zum Body des nächsten API Calls
+return { msg: permissionRequest, metadata: metadata, msgType: msgType };
+```
+
+**Node 3: Create Permission API Call**
+```
+Type: REST API Call
+Name: Create Permission
+URL: https://diagnostics.ecoenergygroup.com/api/groupPermission
+Method: POST
+Headers:
+  Content-Type: application/json
+  X-Authorization: Bearer ${jwtToken}
+Body: (verwendet msg aus vorherigem Node)
+```
+
+**KRITISCH - Metadaten-Variablen:**
+- `${jwtToken}` - Referenziert `metadata.jwtToken` (aus Script Node)
+- `${ss_key}` - Server Scope Attribute mit `ss_` Prefix NUR wenn via "Fetch Attributes" Node geladen
+- Bei Attribut-Update Events: Attribute sind direkt in `msg` verfügbar (OHNE Prefix!)
+- Variablen werden in URL, Headers ersetzt, aber NICHT im Body (Body = msg)
+
+**Häufige Fehler:**
+1. Token im Body statt in metadata speichern
+2. `${systemJwtToken}` verwenden (existiert NICHT!)
+3. Body als String statt als Object zurückgeben
+
+Quellen:
+- [GitHub Issue #4204](https://github.com/thingsboard/thingsboard/issues/4204)
+- [GitHub Issue #2913](https://github.com/thingsboard/thingsboard/issues/2913)
+
+#### Rule Chain: Create Permission on Attribute
+
+**Zweck:** Erstellt Permissions für Customer Users die keine direkten API-Rechte haben.
+
+**Trigger:** Device Attribut `createPermission` wird gesetzt.
+
+**Pfade:**
+```
+Input → Route by Attribute (switch)
+  ├── permission → Login → Prepare → Create Permission API
+  ├── EntityGroup → Login → Prepare → Create EntityGroup API
+  └── addEntities → Login → Prepare → Add Entities API
+```
+
+**Trigger Device:** `e5e10f60-fef5-11f0-a0ee-33b9bcf3ddd0` (Permission Trigger Device)
+
+**Code-Pattern zum Triggern:**
+```javascript
+function createPermissionViaTrigger(userGroupId, roleId, entityGroupId, entityGroupType) {
+  const permissionTriggerDevice = {
+    entityType: 'DEVICE',
+    id: 'e5e10f60-fef5-11f0-a0ee-33b9bcf3ddd0'
+  };
+
+  const permissionData = {
+    userGroupId: userGroupId,
+    roleId: roleId
+  };
+
+  if (entityGroupId) {
+    permissionData.entityGroupId = entityGroupId;
+    permissionData.entityGroupType = entityGroupType;
+  }
+
+  return attributeService.saveEntityAttributes(
+    permissionTriggerDevice,
+    'SERVER_SCOPE',
+    [{ key: 'createPermission', value: JSON.stringify(permissionData) }]
+  );
+}
+```
+
+**Verbindung mit Root Rule Chain:**
+- Das Device Profile muss die "Create Permission on Attribute" Rule Chain zugewiesen haben
+- ODER die Root Rule Chain muss POST_ATTRIBUTES_REQUEST an diese Rule Chain weiterleiten
+
+#### Debug Mode für Rule Chain Nodes
+
+**Debug aktivieren (in JSON):**
+```json
+{
+  "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+  "name": "Login Permission",
+  "debugSettings": {
+    "allEnabled": true
+  },
+  ...
+}
+```
+
+**Debug über API aktivieren:**
+```bash
+# 1. Rule Chain holen
+GET /api/ruleChain/{ruleChainId}/metadata
+
+# 2. Node debugSettings ändern und speichern
+POST /api/ruleChain/metadata
+{
+  "ruleChainId": { "id": "...", "entityType": "RULE_CHAIN" },
+  "nodes": [
+    {
+      "id": { "id": "...", "entityType": "RULE_NODE" },
+      "debugSettings": { "allEnabled": true },
+      ...
+    }
+  ]
+}
+```
+
+**Debug Events ansehen:**
+1. Rule Chain öffnen → Node doppelklicken → Events Tab
+2. Event Type: "Debug" auswählen
+3. Zeitraum: "last 1 hour" oder erweitern
+
+**WICHTIG:** Debug Mode erzeugt viele Events und sollte in Production nur temporär aktiviert werden!
+
 ## Entity Model
 
 **Hierarchy:** Customer → Project → Measurement → Device
@@ -298,13 +583,21 @@ Created via "Project Users" dialog in Administration Dashboard. Each project vie
 1. **User Group:** `Viewers: [ProjectName]` (owned by Customer)
 2. **Asset Group:** `Project Assets: [ProjectName]` (contains Project + Measurements)
 
-**Permissions assigned:**
+**Permission assigned (NUR EINE!):**
 
 | Permission | Role Type | Role Name | Target |
 |------------|-----------|-----------|--------|
-| Login & Profile | GENERIC | Belimo Retrofit Viewers | - |
-| Dashboard Access | GROUP | Belimo Retrofit Read Only | Dashboard Group "Belimo Retrofit" |
 | Project/Asset Access | GROUP | Belimo Retrofit Read Only | Asset Group "Project Assets: [ProjectName]" |
+
+**WICHTIG - Project Viewer braucht NUR die Asset Group Permission:**
+- KEINE GENERIC Permission erstellen (kein `null, null` für entityGroupId)
+- KEINE Dashboard Group Permission (Dashboard-Zugriff kommt über andere Mechanismen)
+- NUR die GROUP Permission mit "Belimo Retrofit Read Only" auf die Asset Group
+
+**Warum nur Asset Group Permission?**
+- Die GENERIC Role "Belimo Retrofit Viewers" wird über die User Group Membership zugewiesen
+- Dashboard-Zugriff ist bereits durch die User Group konfiguriert
+- Zusätzliche GENERIC Permissions würden zu viele Rechte geben
 
 ### GENERIC Role: Belimo Retrofit Viewers
 
@@ -354,3 +647,17 @@ See [AGENTS.md](AGENTS.md) for Claude + Codex workflow details.
 
 Task specifications in `tasks/TASK_NAME.md` with format from `tasks/TEMPLATE.md`.
 Status progression: draft → ready → in-progress → completed → review
+
+## Backlog / Future Improvements
+
+### Project Viewer Management (btn-add-user, btn-manage-project-users)
+
+**Low Priority:**
+
+1. **Measurement-Synchronisation**
+   - Problem: Neue Measurements nach Viewer-Erstellung sind nicht automatisch in der Asset Group
+   - Lösung: Bei Dialog-Öffnung (btn-manage-project-users) Asset Group mit aktuellen Measurements synchronisieren
+
+2. **Cleanup bei Entfernung**
+   - Wenn letzter User aus Viewer Group entfernt wird: User Group + Asset Group + Permissions automatisch löschen?
+   - Bei Viewer Group Löschung: Asset Group und Permissions auch aufräumen?
