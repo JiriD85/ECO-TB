@@ -83,7 +83,7 @@
           "settings": {
             "useMarkdownTextFunction": true,
             "markdownTextPattern": "### Markdown/HTML card\n - **Current entity**: ${entityName}.\n - **Current value**: ${Temperature}.",
-            "markdownTextFunction": "/*************************************************\n * mat-tab-group + tb-dashboard-state (works + visible)\n * Source of truth: stateParams.tabMode.entityName\n * Fix: enforce height on mat-tab body wrappers\n *************************************************/\n\nconst sc =\n  ctx.stateController ||\n  (ctx.$scope && (ctx.$scope.stateController || (ctx.$scope.$parent && ctx.$scope.$parent.stateController)));\n\nif (!sc || !ctx.$scope) {\n  return '<div style=\"padding:12px;color:#b00020;\">StateController / $scope nicht gefunden.</div>';\n}\n\n// Get user role from datasource - look for role in any data item\nlet userRole = '';\nif (data && data.length > 0) {\n  data.forEach(function(item) {\n    if (item.role && !userRole) {\n      userRole = item.role;\n    }\n  });\n}\nconsole.log('Navigation: userRole =', userRole, 'isTenantAdmin =', ctx.currentUser && ctx.currentUser.authority === 'TENANT_ADMIN');\n\n// Check if user can see Administration tab\nconst isTenantAdmin = ctx.currentUser && ctx.currentUser.authority === 'TENANT_ADMIN';\nconst adminRoles = ['ECO Administrator', 'Administrator', 'Belimo Retrofit Administrators', 'ECO Diagnostics Administrator'];\nconst isAdminRole = adminRoles.some(function(role) {\n  return userRole === role || userRole.toLowerCase() === role.toLowerCase();\n});\nconst canSeeAdmin = isTenantAdmin || isAdminRole;\n\n// Define all tabs\nconst allTabs = [\n  { id: 'home',        label: 'Home',        icon: 'home' },\n  { id: 'assessment',  label: 'Assessment',  icon: 'assignment_turned_in' },\n  { id: 'assetreport', label: 'Asset Report', icon: 'description' },\n  { id: 'measurement', label: 'Measurement', icon: 'straighten' },\n  { id: 'analysis',    label: 'Analysis',    icon: 'insights' },\n//  { id: 'monitoring',  label: 'Monitoring',  icon: 'dashboard' },\n  { id: 'alarming',    label: 'Alarming',    icon: 'notifications' },\n  { id: 'administration',  label: 'Administration',  icon: 'settings', adminOnly: true }\n];\n\n// Filter tabs based on permissions\nconst tabs = allTabs.filter(function(tab) {\n  if (tab.adminOnly) {\n    return canSeeAdmin;\n  }\n  return true;\n});\n\n// State IDs for tabs - all use internal states\nconst tabToStateId = {\n  home: 'home',\n  assessment: 'assessment',\n  assetreport: 'assetreport',\n  measurement: 'measurement',\n  analysis: 'analysis',\n//  monitoring: 'monitoring',\n  alarming: 'alarming',\n  administration: 'administration'\n};\n\n// tabMode initialisieren\nconst params = (typeof sc.getStateParams === 'function' ? (sc.getStateParams() || {}) : {});\nlet tabMode;\n\nif (params.tabMode && params.tabMode.entityName) {\n  tabMode = String(params.tabMode.entityName);\n} else {\n  tabMode = 'home';\n  params.tabMode = { entityName: tabMode };\n  sc.updateState(null, params);\n}\n\nif (!tabs.some(t => t.id === tabMode)) tabMode = 'home';\n\n// selectedIndex ableiten\nlet selectedIndex = 0;\nfor (let i = 0; i < tabs.length; i++) {\n  if (tabs[i].id === tabMode) { selectedIndex = i; break; }\n}\n\n// Handler auf ctx (damit Angular ihn findet)\nctx.tbNavSelectedIndex = selectedIndex;\n\nctx.tbNavOnTabChange = function(ev) {\n  try {\n    const idx = ev && typeof ev.index === 'number' ? ev.index : 0;\n    const t = tabs[idx] || tabs[0];\n\n    ctx.tbNavSelectedIndex = idx;\n\n    // Merge: bestehende Params behalten\n    const current = (typeof sc.getStateParams === 'function' ? (sc.getStateParams() || {}) : {});\n    const p = Object.assign({}, current);\n    p.tabMode = { entityName: t.id };\n\n    sc.updateState(null, p);\n\n    if (ctx.$scope && typeof ctx.$scope.$applyAsync === 'function') ctx.$scope.$applyAsync();\n  } catch (e) {\n    console.error('tbNavOnTabChange error', e);\n  }\n};\n\n// Styles: nur das Nötige für Höhe + Label\n(function injectStyles() {\n  const styleId = 'tb-mat-tabs-height-fix-v1';\n  if (document.getElementById(styleId)) return;\n\n  const css = `\n    .tb-tabs-root{\n      width:100%;\n      height:100%;\n      display:flex;\n      flex-direction:column;\n      min-height:0;\n    }\n\n    .tb-tabs-root mat-tab-group{\n      flex:1 1 auto;\n      min-height:0;\n      height:100%;\n    }\n\n    /* Entscheidend: Tab-Body Wrapper braucht echte Höhe */\n    .tb-tabs-root .mat-mdc-tab-body-wrapper{\n      flex:1 1 auto;\n      min-height:0;\n      height:100%;\n    }\n    .tb-tabs-root .mat-mdc-tab-body{\n      height:100%;\n      min-height:0;\n    }\n    .tb-tabs-root .mat-mdc-tab-body-content{\n      height:100%;\n      min-height:0;\n      overflow:hidden;\n    }\n\n    .tb-tab-label{\n      display:inline-flex;\n      align-items:center;\n      gap:8px;\n    }\n    .tb-tab-label mat-icon{\n      font-size:18px;\n      width:18px;\n      height:18px;\n      line-height:18px;\n    }\n\n    .tb-tab-body{\n      width:100%;\n      height:100%;\n      display:block;\n    }\n  `;\n\n  const styleEl = document.createElement('style');\n  styleEl.id = styleId;\n  styleEl.type = 'text/css';\n  styleEl.appendChild(document.createTextNode(css));\n  document.head.appendChild(styleEl);\n})();\n\n// Tabs HTML (Lazy Content)\nlet tabsHtml = '';\nfor (let i = 0; i < tabs.length; i++) {\n  const t = tabs[i];\n  const stateId = tabToStateId[t.id] || t.id;\n\n  tabsHtml += ''\n    + '<mat-tab>'\n    +   '<ng-template mat-tab-label>'\n    +     '<span class=\"tb-tab-label\">'\n    +       '<mat-icon>' + t.icon + '</mat-icon>'\n    +       '<span>' + t.label + '</span>'\n    +     '</span>'\n    +   '</ng-template>'\n    +   '<ng-template matTabContent>'\n    +     '<tb-dashboard-state class=\"tb-tab-body\" style=\"width:100%;height:100%;\"'\n    +       ' [ctx]=\"ctx\" [syncParentStateParams]=\"true\" stateId=\"' + stateId + '\">'\n    +     '</tb-dashboard-state>'\n    +   '</ng-template>'\n    + '</mat-tab>';\n}\n\nreturn ''\n  + '<section class=\"tb-tabs-root\">'\n  +   '<mat-tab-group mat-stretch-tabs=\"false\"'\n  +     ' [selectedIndex]=\"ctx.tbNavSelectedIndex\"'\n  +     ' (selectedTabChange)=\"ctx.tbNavOnTabChange($event)\">'\n  +     tabsHtml\n  +   '</mat-tab-group>'\n  + '</section>';\n",
+            "markdownTextFunction": "/*************************************************\n * mat-tab-group + tb-dashboard-state (works + visible)\n * Source of truth: stateParams.tabMode.entityName\n * Fix: enforce height on mat-tab body wrappers\n *************************************************/\n\nconst sc =\n  ctx.stateController ||\n  (ctx.$scope && (ctx.$scope.stateController || (ctx.$scope.$parent && ctx.$scope.$parent.stateController)));\n\nif (!sc || !ctx.$scope) {\n  return '<div style=\"padding:12px;color:#b00020;\">StateController / $scope nicht gefunden.</div>';\n}\n\n// Get user role from datasource - look for role in any data item\nlet userRole = '';\nif (data && data.length > 0) {\n  data.forEach(function(item) {\n    if (item.role && !userRole) {\n      userRole = item.role;\n    }\n  });\n}\nconsole.log('Navigation: userRole =', userRole, 'isTenantAdmin =', ctx.currentUser && ctx.currentUser.authority === 'TENANT_ADMIN');\n\n// Check if user can see Administration tab\nconst isTenantAdmin = ctx.currentUser && ctx.currentUser.authority === 'TENANT_ADMIN';\nconst adminRoles = ['ECO Administrator', 'Administrator', 'Belimo Retrofit Administrators', 'ECO Diagnostics Administrator'];\nconst isAdminRole = adminRoles.some(function(role) {\n  return userRole === role || userRole.toLowerCase() === role.toLowerCase();\n});\nconst canSeeAdmin = isTenantAdmin || isAdminRole;\n\n// Define all tabs\nconst allTabs = [\n  { id: 'home',        label: 'Home',        icon: 'home' },\n  { id: 'assessment',  label: 'Assessment',  icon: 'assignment_turned_in' },\n  { id: 'assetreport', label: 'Asset Report', icon: 'description' },\n  { id: 'measurement', label: 'Measurement', icon: 'straighten' },\n  { id: 'analysis',    label: 'Analysis',    icon: 'insights' },\n//  { id: 'monitoring',  label: 'Monitoring',  icon: 'dashboard' },\n  { id: 'alarming',    label: 'Alarming',    icon: 'notifications' },\n  { id: 'administration',  label: 'Administration',  icon: 'settings', adminOnly: true }\n];\n\n// Filter tabs based on permissions\nconst tabs = allTabs.filter(function(tab) {\n  if (tab.adminOnly) {\n    return canSeeAdmin;\n  }\n  return true;\n});\n\n// State IDs for tabs - all use internal states\nconst tabToStateId = {\n  home: 'home',\n  assessment: 'assessment',\n  assetreport: 'assetreport',\n  measurement: 'measurement',\n  analysis: 'analysis',\n//  monitoring: 'monitoring',\n  alarming: 'alarming',\n  administration: 'administration'\n};\n\n// tabMode initialisieren\nconst params = (typeof sc.getStateParams === 'function' ? (sc.getStateParams() || {}) : {});\nlet tabMode;\n\nif (params.tabMode && params.tabMode.entityName) {\n  tabMode = String(params.tabMode.entityName);\n} else {\n  tabMode = 'home';\n  params.tabMode = { entityName: tabMode };\n  sc.updateState(null, params);\n}\n\nif (!tabs.some(t => t.id === tabMode)) tabMode = 'home';\n\n// selectedIndex ableiten\nlet selectedIndex = 0;\nfor (let i = 0; i < tabs.length; i++) {\n  if (tabs[i].id === tabMode) { selectedIndex = i; break; }\n}\n\n// Handler auf ctx (damit Angular ihn findet)\nctx.tbNavSelectedIndex = selectedIndex;\n\nctx.tbNavOnTabChange = function(ev) {\n  try {\n    const idx = ev && typeof ev.index === 'number' ? ev.index : 0;\n    const t = tabs[idx] || tabs[0];\n\n    ctx.tbNavSelectedIndex = idx;\n\n    // Merge: bestehende Params behalten\n    const current = (typeof sc.getStateParams === 'function' ? (sc.getStateParams() || {}) : {});\n    const p = Object.assign({}, current);\n    p.tabMode = { entityName: t.id };\n\n    sc.updateState(null, p);\n\n    if (ctx.$scope && typeof ctx.$scope.$applyAsync === 'function') ctx.$scope.$applyAsync();\n  } catch (e) {\n    console.error('tbNavOnTabChange error', e);\n  }\n};\n\n// Styles: nur das Nötige für Höhe + Label\n(function injectStyles() {\n  const styleId = 'tb-mat-tabs-height-fix-v1';\n  if (document.getElementById(styleId)) return;\n\n  const css = `\n    .tb-tabs-root{\n      width:100%;\n      height:100%;\n      display:flex;\n      flex-direction:column;\n      min-height:0;\n    }\n\n    .tb-tabs-root mat-tab-group{\n      flex:1 1 auto;\n      min-height:0;\n      height:100%;\n    }\n\n    /* Entscheidend: Tab-Body Wrapper braucht echte Höhe */\n    .tb-tabs-root .mat-mdc-tab-body-wrapper{\n      flex:1 1 auto;\n      min-height:0;\n      height:100%;\n    }\n    .tb-tabs-root .mat-mdc-tab-body{\n      height:100%;\n      min-height:0;\n    }\n    .tb-tabs-root .mat-mdc-tab-body-content{\n      height:100%;\n      min-height:0;\n      overflow:auto;\n    }\n\n    .tb-tab-label{\n      display:inline-flex;\n      align-items:center;\n      gap:8px;\n    }\n    .tb-tab-label mat-icon{\n      font-size:18px;\n      width:18px;\n      height:18px;\n      line-height:18px;\n    }\n\n    .tb-tab-body{\n      width:100%;\n      height:100%;\n      display:block;\n    }\n  `;\n\n  const styleEl = document.createElement('style');\n  styleEl.id = styleId;\n  styleEl.type = 'text/css';\n  styleEl.appendChild(document.createTextNode(css));\n  document.head.appendChild(styleEl);\n})();\n\n// Tabs HTML (Lazy Content)\nlet tabsHtml = '';\nfor (let i = 0; i < tabs.length; i++) {\n  const t = tabs[i];\n  const stateId = tabToStateId[t.id] || t.id;\n\n  tabsHtml += ''\n    + '<mat-tab>'\n    +   '<ng-template mat-tab-label>'\n    +     '<span class=\"tb-tab-label\">'\n    +       '<mat-icon>' + t.icon + '</mat-icon>'\n    +       '<span>' + t.label + '</span>'\n    +     '</span>'\n    +   '</ng-template>'\n    +   '<ng-template matTabContent>'\n    +     '<tb-dashboard-state class=\"tb-tab-body\" style=\"width:100%;height:100%;\"'\n    +       ' [ctx]=\"ctx\" [syncParentStateParams]=\"true\" stateId=\"' + stateId + '\">'\n    +     '</tb-dashboard-state>'\n    +   '</ng-template>'\n    + '</mat-tab>';\n}\n\nreturn ''\n  + '<section class=\"tb-tabs-root\">'\n  +   '<mat-tab-group mat-stretch-tabs=\"false\"'\n  +     ' [selectedIndex]=\"ctx.tbNavSelectedIndex\"'\n  +     ' (selectedTabChange)=\"ctx.tbNavOnTabChange($event)\">'\n  +     tabsHtml\n  +   '</mat-tab-group>'\n  + '</section>';\n",
             "applyDefaultMarkdownStyle": false,
             "markdownCss": ""
           },
@@ -285,8 +285,8 @@
       "9094f048-ccc5-b9d7-9dd0-6ef0a20851c9": {
         "typeFullFqn": "system.cards.markdown_card",
         "type": "latest",
-        "sizeX": 5,
-        "sizeY": 3.5,
+        "sizeX": 24,
+        "sizeY": 12,
         "config": {
           "datasources": [
             {
@@ -339,8 +339,8 @@
             "useMarkdownTextFunction": true,
             "markdownTextPattern": "### Markdown/HTML card\n - **Current entity**: ${entityName}.\n - **Current value**: ${Temperature}.",
             "markdownTextFunction": "return `\n<div class=\"tile-container\">\n\n  <!-- RetroFIT+ -->\n  <div class=\"eco-card\" id=\"assessment\">\n    <div class=\"card-accent\"></div>\n    <div class=\"card-content\">\n      <div class=\"card-icon-wrapper\">\n        <mat-icon>assignment_turned_in</mat-icon>\n      </div>\n      <span class=\"card-number\">01</span>\n      <h3 class=\"card-title\">RetroFIT+</h3>\n      <p class=\"card-description\">BELIMO RetroFIT+ assessment tool</p>\n    </div>\n    <div class=\"card-footer\">\n      <span class=\"card-link\">Mehr erfahren <mat-icon class=\"arrow-icon\">arrow_forward</mat-icon></span>\n    </div>\n  </div>\n\n  <!-- Anlagenbericht -->\n  <div class=\"eco-card\" id=\"asset-report\">\n    <div class=\"card-accent\"></div>\n    <div class=\"card-content\">\n      <div class=\"card-icon-wrapper\">\n        <mat-icon>description</mat-icon>\n      </div>\n      <span class=\"card-number\">02</span>\n      <h3 class=\"card-title\">Anlagenbericht</h3>\n      <p class=\"card-description\">Schematische Erhebung der Technikanlage und Definition der Messpunkte.</p>\n    </div>\n    <div class=\"card-footer\">\n      <span class=\"card-link\">Mehr erfahren <mat-icon class=\"arrow-icon\">arrow_forward</mat-icon></span>\n    </div>\n  </div>\n\n  <!-- Messung -->\n  <div class=\"eco-card\" id=\"measurement\">\n    <div class=\"card-accent\"></div>\n    <div class=\"card-content\">\n      <div class=\"card-icon-wrapper\">\n        <mat-icon>straighten</mat-icon>\n      </div>\n      <span class=\"card-number\">03</span>\n      <h3 class=\"card-title\">Messung</h3>\n      <p class=\"card-description\">Live-Überwachung von Anlagen, Zählern und Sensorik.</p>\n    </div>\n    <div class=\"card-footer\">\n      <span class=\"card-link\">Mehr erfahren <mat-icon class=\"arrow-icon\">arrow_forward</mat-icon></span>\n    </div>\n  </div>\n\n  <!-- Analyse -->\n  <div class=\"eco-card\" id=\"analysis\">\n    <div class=\"card-accent\"></div>\n    <div class=\"card-content\">\n      <div class=\"card-icon-wrapper\">\n        <mat-icon>insights</mat-icon>\n      </div>\n      <span class=\"card-number\">04</span>\n      <h3 class=\"card-title\">Analyse</h3>\n      <p class=\"card-description\">Aufbereitung der Energiedaten für den Energiebericht.</p>\n    </div>\n    <div class=\"card-footer\">\n      <span class=\"card-link\">Mehr erfahren <mat-icon class=\"arrow-icon\">arrow_forward</mat-icon></span>\n    </div>\n  </div>\n\n  <!-- Cockpit -->\n  <div class=\"eco-card\" id=\"monitoring\">\n    <div class=\"card-accent\"></div>\n    <div class=\"card-content\">\n      <div class=\"card-icon-wrapper\">\n        <mat-icon>dashboard</mat-icon>\n      </div>\n      <span class=\"card-number\">05</span>\n      <h3 class=\"card-title\">Cockpit</h3>\n      <p class=\"card-description\">Energiemonitoring und Energiemanagement.</p>\n    </div>\n    <div class=\"card-footer\">\n      <span class=\"card-link\">Mehr erfahren <mat-icon class=\"arrow-icon\">arrow_forward</mat-icon></span>\n    </div>\n  </div>\n\n</div>\n`;",
-            "applyDefaultMarkdownStyle": true,
-            "markdownCss": "/* ═══════════════════════════════════════════════════════════════\n   ECO ENERGY - CLEAN/MINIMAL HOME TILES\n   ═══════════════════════════════════════════════════════════════ */\n\n:host {\n    display: block;\n    height: 100%;\n}\n\n/* ─── Container ─── */\n.tile-container {\n    display: flex;\n    gap: 1.25rem;\n    width: 100%;\n    height: 100%;\n    justify-content: center;\n    align-items: center;\n    padding: 1rem;\n    box-sizing: border-box;\n}\n\n/* ─── Card Base ─── */\n.eco-card {\n    background: #ffffff;\n    border-radius: 12px;\n    box-shadow:\n        0 1px 3px rgba(0, 0, 0, 0.04),\n        0 4px 12px rgba(0, 0, 0, 0.06);\n    border: 1px solid rgba(0, 0, 0, 0.06);\n\n    display: flex;\n    flex-direction: column;\n\n    width: 100%;\n    max-width: 240px;\n    min-height: 280px;\n\n    position: relative;\n    overflow: hidden;\n    cursor: pointer;\n\n    transition:\n        transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),\n        box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);\n}\n\n.eco-card:hover {\n    transform: translateY(-4px);\n    box-shadow:\n        0 4px 12px rgba(0, 0, 0, 0.08),\n        0 12px 32px rgba(0, 0, 0, 0.12);\n}\n\n/* ─── Accent Line ─── */\n.card-accent {\n    height: 4px;\n    background: linear-gradient(90deg,\n        var(--tb-primary-500) 0%,\n        var(--tb-primary-400, #5c9ce6) 100%);\n    flex-shrink: 0;\n}\n\n.eco-card:hover .card-accent {\n    height: 5px;\n}\n\n/* ─── Content Area ─── */\n.card-content {\n    flex: 1;\n    padding: 1.5rem 1.5rem 1rem;\n    display: flex;\n    flex-direction: column;\n    position: relative;\n}\n\n/* ─── Icon ─── */\n.card-icon-wrapper {\n    width: 48px;\n    height: 48px;\n    border-radius: 12px;\n    background: linear-gradient(135deg,\n        rgba(66, 133, 244, 0.08) 0%,\n        rgba(66, 133, 244, 0.04) 100%);\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    margin-bottom: 1rem;\n    transition: background 0.25s ease;\n}\n\n.card-icon-wrapper mat-icon {\n    font-size: 24px;\n    width: 24px;\n    height: 24px;\n    color: var(--tb-primary-500);\n    transition: transform 0.25s ease;\n}\n\n.eco-card:hover .card-icon-wrapper {\n    background: linear-gradient(135deg,\n        rgba(66, 133, 244, 0.12) 0%,\n        rgba(66, 133, 244, 0.06) 100%);\n}\n\n.eco-card:hover .card-icon-wrapper mat-icon {\n    transform: scale(1.1);\n}\n\n/* ─── Number Badge ─── */\n.card-number {\n    position: absolute;\n    top: 1.25rem;\n    right: 1.25rem;\n    font-size: 0.625rem;\n    font-weight: 600;\n    letter-spacing: 0.05em;\n    color: rgba(0, 0, 0, 0.25);\n    background: rgba(0, 0, 0, 0.03);\n    padding: 0.25rem 0.5rem;\n    border-radius: 4px;\n}\n\n/* ─── Typography ─── */\n.card-title {\n    font-size: 1.125rem;\n    font-weight: 600;\n    color: #1a1a2e;\n    margin: 0 0 0.5rem 0;\n    letter-spacing: -0.01em;\n    line-height: 1.3;\n}\n\n.card-description {\n    font-size: 0.8125rem;\n    line-height: 1.55;\n    color: #6b7280;\n    margin: 0;\n    flex: 1;\n}\n\n/* ─── Footer ─── */\n.card-footer {\n    padding: 1rem 1.5rem 1.25rem;\n    border-top: 1px solid rgba(0, 0, 0, 0.04);\n}\n\n.card-link {\n    display: inline-flex;\n    align-items: center;\n    gap: 0.375rem;\n    font-size: 0.8125rem;\n    font-weight: 500;\n    color: var(--tb-primary-500);\n    transition: gap 0.2s ease;\n}\n\n.card-link .arrow-icon {\n    font-size: 16px;\n    width: 16px;\n    height: 16px;\n    transition: transform 0.2s ease;\n}\n\n.eco-card:hover .card-link {\n    gap: 0.625rem;\n}\n\n.eco-card:hover .card-link .arrow-icon {\n    transform: translateX(2px);\n}\n\n/* ─── Responsive ─── */\n@media (max-width: 1400px) {\n    .eco-card {\n        max-width: 220px;\n        min-height: 260px;\n    }\n\n    .card-content {\n        padding: 1.25rem 1.25rem 0.75rem;\n    }\n\n    .card-icon-wrapper {\n        width: 44px;\n        height: 44px;\n    }\n\n    .card-title {\n        font-size: 1rem;\n    }\n\n    .card-description {\n        font-size: 0.75rem;\n    }\n}\n\n@media (max-width: 1200px) {\n    .tile-container {\n        flex-wrap: wrap;\n        gap: 1rem;\n    }\n\n    .eco-card {\n        flex: 1 1 calc(33.333% - 1rem);\n        max-width: none;\n        min-height: 240px;\n    }\n}\n\n@media (max-width: 900px) {\n    .eco-card {\n        flex: 1 1 calc(50% - 1rem);\n    }\n}\n\n@media (max-width: 600px) {\n    .eco-card {\n        flex: 1 1 100%;\n    }\n}\n"
+            "applyDefaultMarkdownStyle": false,
+            "markdownCss": "/* ═══════════════════════════════════════════════════════════════\n   ECO ENERGY - DESKTOP HOME TILES (≥960px)\n   Industrial Precision Design | 5 Horizontal Cards\n   Font: DM Sans | Accent: #1976D2 | Grid: Flex\n   ═══════════════════════════════════════════════════════════════ */\n\n@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@500&display=swap');\n\n:host {\n    display: block;\n    height: 100%;\n    --eco-primary: #1976D2;\n    --eco-primary-light: #42A5F5;\n    --eco-primary-dark: #0D47A1;\n    --eco-surface: #FFFFFF;\n    --eco-bg: #F5F7FA;\n    --eco-text: #1A1F36;\n    --eco-text-muted: #5E6278;\n    --eco-border: rgba(0, 0, 0, 0.06);\n    --eco-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);\n    --eco-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);\n    --eco-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);\n    --eco-radius: 8px;\n    --eco-transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);\n}\n\n/* ─── Container ─── */\n.tile-container {\n    display: flex;\n    flex-wrap: nowrap;\n    gap: 1.25rem;\n    width: 100%;\n    height: 100%;\n    justify-content: center;\n    align-items: center;\n    padding: 2rem;\n    box-sizing: border-box;\n    background: var(--eco-bg);\n}\n\n/* ─── Card Base ─── */\n.eco-card {\n    flex: 1;\n    max-width: 240px;\n    min-width: 180px;\n    height: 280px;\n    background: var(--eco-surface);\n    border-radius: var(--eco-radius);\n    box-shadow: var(--eco-shadow-md);\n    border: 1px solid var(--eco-border);\n    display: flex;\n    flex-direction: column;\n    position: relative;\n    overflow: hidden;\n    cursor: pointer;\n    transition:\n        transform var(--eco-transition),\n        box-shadow var(--eco-transition);\n}\n\n.eco-card:hover {\n    transform: translateY(-8px);\n    box-shadow: var(--eco-shadow-lg);\n}\n\n.eco-card:active {\n    transform: translateY(-4px);\n    transition-duration: 0.1s;\n}\n\n/* ─── Accent Line ─── */\n.card-accent {\n    height: 4px;\n    background: linear-gradient(90deg,\n        var(--eco-primary) 0%,\n        var(--eco-primary-light) 100%);\n    flex-shrink: 0;\n    position: relative;\n    overflow: hidden;\n}\n\n.card-accent::after {\n    content: '';\n    position: absolute;\n    top: 0;\n    left: -100%;\n    width: 100%;\n    height: 100%;\n    background: linear-gradient(90deg,\n        transparent 0%,\n        rgba(255, 255, 255, 0.4) 50%,\n        transparent 100%);\n    transition: left 0.6s ease;\n}\n\n.eco-card:hover .card-accent::after {\n    left: 100%;\n}\n\n/* ─── Content ─── */\n.card-content {\n    flex: 1;\n    padding: 1.5rem 1.25rem 1rem;\n    display: flex;\n    flex-direction: column;\n    position: relative;\n}\n\n/* ─── Number Badge ─── */\n.card-number {\n    position: absolute;\n    top: 1rem;\n    right: 1rem;\n    font-family: 'JetBrains Mono', monospace;\n    font-size: 0.625rem;\n    font-weight: 500;\n    letter-spacing: 0.05em;\n    color: var(--eco-primary);\n    background: rgba(25, 118, 210, 0.08);\n    padding: 0.25rem 0.5rem;\n    border-radius: 4px;\n    transition: transform var(--eco-transition);\n}\n\n.eco-card:hover .card-number {\n    transform: translateY(-2px);\n}\n\n/* ─── Icon ─── */\n.card-icon-wrapper {\n    width: 48px;\n    height: 48px;\n    border-radius: 10px;\n    background: linear-gradient(135deg,\n        rgba(25, 118, 210, 0.1) 0%,\n        rgba(25, 118, 210, 0.04) 100%);\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    margin-bottom: 1rem;\n    transition: all var(--eco-transition);\n}\n\n.card-icon-wrapper mat-icon {\n    font-size: 24px;\n    width: 24px;\n    height: 24px;\n    color: var(--eco-primary);\n    transition: transform var(--eco-transition);\n}\n\n.eco-card:hover .card-icon-wrapper {\n    background: linear-gradient(135deg,\n        rgba(25, 118, 210, 0.15) 0%,\n        rgba(25, 118, 210, 0.08) 100%);\n}\n\n.eco-card:hover .card-icon-wrapper mat-icon {\n    transform: scale(1.1);\n}\n\n/* ─── Typography ─── */\n.card-title {\n    font-family: 'DM Sans', sans-serif;\n    font-size: 1rem;\n    font-weight: 600;\n    color: var(--eco-text);\n    margin: 0 0 0.5rem;\n    line-height: 1.3;\n    letter-spacing: -0.01em;\n}\n\n.card-description {\n    font-family: 'DM Sans', sans-serif;\n    font-size: 0.8125rem;\n    line-height: 1.55;\n    color: var(--eco-text-muted);\n    margin: 0;\n    flex: 1;\n    display: -webkit-box;\n    -webkit-line-clamp: 3;\n    -webkit-box-orient: vertical;\n    overflow: hidden;\n}\n\n/* ─── Footer ─── */\n.card-footer {\n    padding: 0.875rem 1.25rem;\n    border-top: 1px solid var(--eco-border);\n    background: rgba(0, 0, 0, 0.01);\n}\n\n.card-link {\n    font-family: 'DM Sans', sans-serif;\n    display: inline-flex;\n    align-items: center;\n    gap: 0.375rem;\n    font-size: 0.8125rem;\n    font-weight: 500;\n    color: var(--eco-primary);\n    text-decoration: none;\n    transition: gap var(--eco-transition);\n}\n\n.card-link .arrow-icon {\n    font-size: 16px;\n    width: 16px;\n    height: 16px;\n    transition: transform var(--eco-transition);\n}\n\n.eco-card:hover .card-link {\n    gap: 0.625rem;\n}\n\n.eco-card:hover .card-link .arrow-icon {\n    transform: translateX(2px);\n}\n"
           },
           "title": "Markdown/HTML Card",
           "showTitleIcon": false,
@@ -1269,6 +1269,364 @@
         "row": 0,
         "col": 0,
         "id": "7c3420e6-9fbb-a062-184f-fea59a10ea13"
+      },
+      "6fea78ac-b89f-4eba-8b79-97bfbe11c7c6": {
+        "typeFullFqn": "system.cards.markdown_card",
+        "type": "latest",
+        "sizeX": 24,
+        "sizeY": 12,
+        "config": {
+          "datasources": [
+            {
+              "type": "entity",
+              "name": "",
+              "dataKeys": [],
+              "alarmFilterConfig": {
+                "statusList": [
+                  "ACTIVE"
+                ]
+              }
+            }
+          ],
+          "timewindow": {
+            "displayValue": "",
+            "selectedTab": 0,
+            "realtime": {
+              "realtimeType": 1,
+              "interval": 1000,
+              "timewindowMs": 60000,
+              "quickInterval": "CURRENT_DAY",
+              "hideInterval": false,
+              "hideLastInterval": false,
+              "hideQuickInterval": false
+            },
+            "history": {
+              "historyType": 0,
+              "interval": 1000,
+              "timewindowMs": 60000,
+              "fixedTimewindow": {
+                "startTimeMs": 1765453220664,
+                "endTimeMs": 1765539620664
+              },
+              "quickInterval": "CURRENT_DAY",
+              "hideInterval": false,
+              "hideLastInterval": false,
+              "hideFixedInterval": false,
+              "hideQuickInterval": false
+            },
+            "aggregation": {
+              "type": "AVG",
+              "limit": 50000
+            }
+          },
+          "showTitle": false,
+          "backgroundColor": "#fff",
+          "color": "rgba(0, 0, 0, 0.87)",
+          "padding": "0px",
+          "settings": {
+            "useMarkdownTextFunction": true,
+            "markdownTextPattern": "### Markdown/HTML card\n - **Current entity**: ${entityName}.\n - **Current value**: ${Temperature}.",
+            "markdownTextFunction": "return `\n<div class=\"tile-container\">\n\n  <!-- RetroFIT+ -->\n  <div class=\"eco-card\" id=\"assessment\">\n    <div class=\"card-accent\"></div>\n    <div class=\"card-content\">\n      <div class=\"card-icon-wrapper\">\n        <mat-icon>assignment_turned_in</mat-icon>\n      </div>\n      <span class=\"card-number\">01</span>\n      <h3 class=\"card-title\">RetroFIT+</h3>\n      <p class=\"card-description\">BELIMO RetroFIT+ assessment tool</p>\n    </div>\n    <div class=\"card-footer\">\n      <span class=\"card-link\">Mehr erfahren <mat-icon class=\"arrow-icon\">arrow_forward</mat-icon></span>\n    </div>\n  </div>\n\n  <!-- Anlagenbericht -->\n  <div class=\"eco-card\" id=\"asset-report\">\n    <div class=\"card-accent\"></div>\n    <div class=\"card-content\">\n      <div class=\"card-icon-wrapper\">\n        <mat-icon>description</mat-icon>\n      </div>\n      <span class=\"card-number\">02</span>\n      <h3 class=\"card-title\">Anlagenbericht</h3>\n      <p class=\"card-description\">Schematische Erhebung der Technikanlage und Definition der Messpunkte.</p>\n    </div>\n    <div class=\"card-footer\">\n      <span class=\"card-link\">Mehr erfahren <mat-icon class=\"arrow-icon\">arrow_forward</mat-icon></span>\n    </div>\n  </div>\n\n  <!-- Messung -->\n  <div class=\"eco-card\" id=\"measurement\">\n    <div class=\"card-accent\"></div>\n    <div class=\"card-content\">\n      <div class=\"card-icon-wrapper\">\n        <mat-icon>straighten</mat-icon>\n      </div>\n      <span class=\"card-number\">03</span>\n      <h3 class=\"card-title\">Messung</h3>\n      <p class=\"card-description\">Live-Überwachung von Anlagen, Zählern und Sensorik.</p>\n    </div>\n    <div class=\"card-footer\">\n      <span class=\"card-link\">Mehr erfahren <mat-icon class=\"arrow-icon\">arrow_forward</mat-icon></span>\n    </div>\n  </div>\n\n  <!-- Analyse -->\n  <div class=\"eco-card\" id=\"analysis\">\n    <div class=\"card-accent\"></div>\n    <div class=\"card-content\">\n      <div class=\"card-icon-wrapper\">\n        <mat-icon>insights</mat-icon>\n      </div>\n      <span class=\"card-number\">04</span>\n      <h3 class=\"card-title\">Analyse</h3>\n      <p class=\"card-description\">Aufbereitung der Energiedaten für den Energiebericht.</p>\n    </div>\n    <div class=\"card-footer\">\n      <span class=\"card-link\">Mehr erfahren <mat-icon class=\"arrow-icon\">arrow_forward</mat-icon></span>\n    </div>\n  </div>\n\n  <!-- Cockpit -->\n  <div class=\"eco-card\" id=\"monitoring\">\n    <div class=\"card-accent\"></div>\n    <div class=\"card-content\">\n      <div class=\"card-icon-wrapper\">\n        <mat-icon>dashboard</mat-icon>\n      </div>\n      <span class=\"card-number\">05</span>\n      <h3 class=\"card-title\">Cockpit</h3>\n      <p class=\"card-description\">Energiemonitoring und Energiemanagement.</p>\n    </div>\n    <div class=\"card-footer\">\n      <span class=\"card-link\">Mehr erfahren <mat-icon class=\"arrow-icon\">arrow_forward</mat-icon></span>\n    </div>\n  </div>\n\n</div>\n`;",
+            "applyDefaultMarkdownStyle": false,
+            "markdownCss": "/* ═══════════════════════════════════════════════════════════════\n   ECO ENERGY - TABLET HOME TILES (600-959px)\n   Industrial Precision Design | 3+2 Grid Layout\n   Font: DM Sans | Accent: #1976D2 | Touch-Optimized\n   ═══════════════════════════════════════════════════════════════ */\n\n@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@500&display=swap');\n\n:host {\n    display: block;\n    height: 100%;\n    --eco-primary: #1976D2;\n    --eco-primary-light: #42A5F5;\n    --eco-surface: #FFFFFF;\n    --eco-bg: #F5F7FA;\n    --eco-text: #1A1F36;\n    --eco-text-muted: #5E6278;\n    --eco-border: rgba(0, 0, 0, 0.06);\n    --eco-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);\n    --eco-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);\n    --eco-radius: 8px;\n    --eco-transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);\n}\n\n/* ─── Container: 3+2 Grid ─── */\n.tile-container {\n    display: flex;\n    flex-wrap: wrap;\n    gap: 1rem;\n    width: 100%;\n    height: 100%;\n    justify-content: center;\n    align-content: center;\n    padding: 1.25rem;\n    box-sizing: border-box;\n    background: var(--eco-bg);\n    overflow-y: auto;\n}\n\n/* ─── Card Base ─── */\n.eco-card {\n    flex: 0 0 calc(33.333% - 0.75rem);\n    min-height: 200px;\n    max-height: 240px;\n    background: var(--eco-surface);\n    border-radius: var(--eco-radius);\n    box-shadow: var(--eco-shadow-md);\n    border: 1px solid var(--eco-border);\n    display: flex;\n    flex-direction: column;\n    position: relative;\n    overflow: hidden;\n    cursor: pointer;\n    transition: transform var(--eco-transition), box-shadow var(--eco-transition);\n}\n\n/* Bottom row: 2 cards centered, slightly wider */\n.eco-card:nth-child(4),\n.eco-card:nth-child(5) {\n    flex: 0 0 calc(40% - 0.5rem);\n    max-width: 280px;\n}\n\n.eco-card:active {\n    transform: scale(0.98);\n}\n\n/* ─── Accent Line ─── */\n.card-accent {\n    height: 3px;\n    background: linear-gradient(90deg,\n        var(--eco-primary) 0%,\n        var(--eco-primary-light) 100%);\n    flex-shrink: 0;\n}\n\n/* ─── Content ─── */\n.card-content {\n    flex: 1;\n    padding: 1rem;\n    display: flex;\n    flex-direction: column;\n    position: relative;\n    min-height: 0;\n}\n\n/* ─── Number Badge ─── */\n.card-number {\n    position: absolute;\n    top: 0.75rem;\n    right: 0.75rem;\n    font-family: 'JetBrains Mono', monospace;\n    font-size: 0.5625rem;\n    font-weight: 500;\n    letter-spacing: 0.05em;\n    color: var(--eco-primary);\n    background: rgba(25, 118, 210, 0.08);\n    padding: 0.1875rem 0.375rem;\n    border-radius: 3px;\n}\n\n/* ─── Icon ─── */\n.card-icon-wrapper {\n    width: 40px;\n    height: 40px;\n    border-radius: 8px;\n    background: linear-gradient(135deg,\n        rgba(25, 118, 210, 0.1) 0%,\n        rgba(25, 118, 210, 0.04) 100%);\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    margin-bottom: 0.75rem;\n    flex-shrink: 0;\n}\n\n.card-icon-wrapper mat-icon {\n    font-size: 20px;\n    width: 20px;\n    height: 20px;\n    color: var(--eco-primary);\n}\n\n/* ─── Typography ─── */\n.card-title {\n    font-family: 'DM Sans', sans-serif;\n    font-size: 0.9375rem;\n    font-weight: 600;\n    color: var(--eco-text);\n    margin: 0 0 0.375rem;\n    line-height: 1.3;\n    letter-spacing: -0.01em;\n}\n\n.card-description {\n    font-family: 'DM Sans', sans-serif;\n    font-size: 0.75rem;\n    line-height: 1.5;\n    color: var(--eco-text-muted);\n    margin: 0;\n    flex: 1;\n    display: -webkit-box;\n    -webkit-line-clamp: 2;\n    -webkit-box-orient: vertical;\n    overflow: hidden;\n}\n\n/* ─── Footer ─── */\n.card-footer {\n    padding: 0.625rem 1rem;\n    border-top: 1px solid var(--eco-border);\n    flex-shrink: 0;\n}\n\n.card-link {\n    font-family: 'DM Sans', sans-serif;\n    display: inline-flex;\n    align-items: center;\n    gap: 0.25rem;\n    font-size: 0.75rem;\n    font-weight: 500;\n    color: var(--eco-primary);\n    text-decoration: none;\n}\n\n.card-link .arrow-icon {\n    font-size: 14px;\n    width: 14px;\n    height: 14px;\n}\n"
+          },
+          "title": "Markdown/HTML Card",
+          "showTitleIcon": false,
+          "iconColor": "rgba(0, 0, 0, 0.87)",
+          "iconSize": "24px",
+          "titleTooltip": "",
+          "dropShadow": false,
+          "enableFullscreen": false,
+          "widgetStyle": {},
+          "titleStyle": {
+            "fontSize": "16px",
+            "fontWeight": 400
+          },
+          "showLegend": false,
+          "useDashboardTimewindow": true,
+          "displayTimewindow": true,
+          "actions": {
+            "elementClick": [
+              {
+                "name": "assessment",
+                "icon": "more_horiz",
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "type": "openDashboardState",
+                "targetDashboardStateId": "info-assessment",
+                "setEntityId": true,
+                "stateEntityParamName": null,
+                "openRightLayout": false,
+                "dialogTitle": "Belimo Retrofit+",
+                "dialogHideDashboardToolbar": true,
+                "dialogWidth": null,
+                "dialogHeight": null,
+                "openInSeparateDialog": true,
+                "openInPopover": false,
+                "id": "1d4e63e6-b09f-736c-90fd-cbaaeaa45d5b"
+              },
+              {
+                "name": "asset-report",
+                "icon": "more_horiz",
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "type": "openDashboardState",
+                "targetDashboardStateId": "info-assetreport",
+                "setEntityId": true,
+                "stateEntityParamName": null,
+                "openRightLayout": false,
+                "dialogTitle": "ECO Energy Asset Report",
+                "dialogHideDashboardToolbar": true,
+                "dialogWidth": null,
+                "dialogHeight": null,
+                "openInSeparateDialog": true,
+                "openInPopover": false,
+                "id": "61096b82-afda-1f0f-6f91-c2be587bad01"
+              },
+              {
+                "name": "measurement",
+                "icon": "more_horiz",
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "type": "openDashboardState",
+                "targetDashboardStateId": "info-measurement",
+                "setEntityId": true,
+                "stateEntityParamName": null,
+                "openRightLayout": false,
+                "dialogTitle": "Smart Measurement",
+                "dialogHideDashboardToolbar": true,
+                "dialogWidth": null,
+                "dialogHeight": null,
+                "openInSeparateDialog": true,
+                "openInPopover": false,
+                "id": "7a6fcd82-18c5-65a6-2fc9-204bd165c9c1"
+              },
+              {
+                "name": "analysis",
+                "icon": "more_horiz",
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "type": "openDashboardState",
+                "targetDashboardStateId": "info-analysis",
+                "setEntityId": true,
+                "stateEntityParamName": null,
+                "openRightLayout": false,
+                "dialogTitle": "Smart Analysis",
+                "dialogHideDashboardToolbar": true,
+                "dialogWidth": null,
+                "dialogHeight": null,
+                "openInSeparateDialog": true,
+                "openInPopover": false,
+                "id": "775e434a-dc0b-8897-11fe-4a2e53919dcd"
+              },
+              {
+                "name": "monitoring",
+                "icon": "more_horiz",
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "type": "openDashboardState",
+                "targetDashboardStateId": "info-monitoring",
+                "setEntityId": true,
+                "stateEntityParamName": null,
+                "openRightLayout": false,
+                "dialogTitle": "Smart Monitoring",
+                "dialogHideDashboardToolbar": true,
+                "dialogWidth": null,
+                "dialogHeight": null,
+                "openInSeparateDialog": true,
+                "openInPopover": false,
+                "id": "b10e2efa-5bb6-cbab-4a0e-5a9f839f829f"
+              }
+            ]
+          },
+          "enableDataExport": false,
+          "borderRadius": "8px",
+          "widgetCss": "",
+          "pageSize": 1024,
+          "noDataDisplayMessage": ""
+        },
+        "row": 0,
+        "col": 0,
+        "id": "9094f048-ccc5-b9d7-9dd0-6ef0a20851c9"
+      },
+      "8fcef910-6a17-4022-9186-0675867a098b": {
+        "typeFullFqn": "system.cards.markdown_card",
+        "type": "latest",
+        "sizeX": 24,
+        "sizeY": 12,
+        "config": {
+          "datasources": [
+            {
+              "type": "entity",
+              "name": "",
+              "dataKeys": [],
+              "alarmFilterConfig": {
+                "statusList": [
+                  "ACTIVE"
+                ]
+              }
+            }
+          ],
+          "timewindow": {
+            "displayValue": "",
+            "selectedTab": 0,
+            "realtime": {
+              "realtimeType": 1,
+              "interval": 1000,
+              "timewindowMs": 60000,
+              "quickInterval": "CURRENT_DAY",
+              "hideInterval": false,
+              "hideLastInterval": false,
+              "hideQuickInterval": false
+            },
+            "history": {
+              "historyType": 0,
+              "interval": 1000,
+              "timewindowMs": 60000,
+              "fixedTimewindow": {
+                "startTimeMs": 1765453220664,
+                "endTimeMs": 1765539620664
+              },
+              "quickInterval": "CURRENT_DAY",
+              "hideInterval": false,
+              "hideLastInterval": false,
+              "hideFixedInterval": false,
+              "hideQuickInterval": false
+            },
+            "aggregation": {
+              "type": "AVG",
+              "limit": 50000
+            }
+          },
+          "showTitle": false,
+          "backgroundColor": "#fff",
+          "color": "rgba(0, 0, 0, 0.87)",
+          "padding": "0px",
+          "settings": {
+            "useMarkdownTextFunction": true,
+            "markdownTextPattern": "### Markdown/HTML card\n - **Current entity**: ${entityName}.\n - **Current value**: ${Temperature}.",
+            "markdownTextFunction": "return `\n<div class=\"tile-container\">\n\n  <!-- RetroFIT+ -->\n  <div class=\"eco-card\" id=\"assessment\">\n    <div class=\"card-accent\"></div>\n    <div class=\"card-content\">\n      <div class=\"card-icon-wrapper\">\n        <mat-icon>assignment_turned_in</mat-icon>\n      </div>\n      <span class=\"card-number\">01</span>\n      <h3 class=\"card-title\">RetroFIT+</h3>\n      <p class=\"card-description\">BELIMO RetroFIT+ assessment tool</p>\n    </div>\n    <div class=\"card-footer\">\n      <span class=\"card-link\">Mehr erfahren <mat-icon class=\"arrow-icon\">arrow_forward</mat-icon></span>\n    </div>\n  </div>\n\n  <!-- Anlagenbericht -->\n  <div class=\"eco-card\" id=\"asset-report\">\n    <div class=\"card-accent\"></div>\n    <div class=\"card-content\">\n      <div class=\"card-icon-wrapper\">\n        <mat-icon>description</mat-icon>\n      </div>\n      <span class=\"card-number\">02</span>\n      <h3 class=\"card-title\">Anlagenbericht</h3>\n      <p class=\"card-description\">Schematische Erhebung der Technikanlage und Definition der Messpunkte.</p>\n    </div>\n    <div class=\"card-footer\">\n      <span class=\"card-link\">Mehr erfahren <mat-icon class=\"arrow-icon\">arrow_forward</mat-icon></span>\n    </div>\n  </div>\n\n  <!-- Messung -->\n  <div class=\"eco-card\" id=\"measurement\">\n    <div class=\"card-accent\"></div>\n    <div class=\"card-content\">\n      <div class=\"card-icon-wrapper\">\n        <mat-icon>straighten</mat-icon>\n      </div>\n      <span class=\"card-number\">03</span>\n      <h3 class=\"card-title\">Messung</h3>\n      <p class=\"card-description\">Live-Überwachung von Anlagen, Zählern und Sensorik.</p>\n    </div>\n    <div class=\"card-footer\">\n      <span class=\"card-link\">Mehr erfahren <mat-icon class=\"arrow-icon\">arrow_forward</mat-icon></span>\n    </div>\n  </div>\n\n  <!-- Analyse -->\n  <div class=\"eco-card\" id=\"analysis\">\n    <div class=\"card-accent\"></div>\n    <div class=\"card-content\">\n      <div class=\"card-icon-wrapper\">\n        <mat-icon>insights</mat-icon>\n      </div>\n      <span class=\"card-number\">04</span>\n      <h3 class=\"card-title\">Analyse</h3>\n      <p class=\"card-description\">Aufbereitung der Energiedaten für den Energiebericht.</p>\n    </div>\n    <div class=\"card-footer\">\n      <span class=\"card-link\">Mehr erfahren <mat-icon class=\"arrow-icon\">arrow_forward</mat-icon></span>\n    </div>\n  </div>\n\n  <!-- Cockpit -->\n  <div class=\"eco-card\" id=\"monitoring\">\n    <div class=\"card-accent\"></div>\n    <div class=\"card-content\">\n      <div class=\"card-icon-wrapper\">\n        <mat-icon>dashboard</mat-icon>\n      </div>\n      <span class=\"card-number\">05</span>\n      <h3 class=\"card-title\">Cockpit</h3>\n      <p class=\"card-description\">Energiemonitoring und Energiemanagement.</p>\n    </div>\n    <div class=\"card-footer\">\n      <span class=\"card-link\">Mehr erfahren <mat-icon class=\"arrow-icon\">arrow_forward</mat-icon></span>\n    </div>\n  </div>\n\n</div>\n`;",
+            "applyDefaultMarkdownStyle": false,
+            "markdownCss": "/* ECO ENERGY - MOBILE HOME TILES (≤599px) */\n\n.tile-container {\n    display: flex !important;\n    flex-direction: column !important;\n    gap: 12px !important;\n    width: 100% !important;\n    height: 100% !important;\n    padding: 16px !important;\n    box-sizing: border-box !important;\n    background: #F5F7FA !important;\n    overflow-y: auto !important;\n    -webkit-overflow-scrolling: touch !important;\n}\n\n.eco-card {\n    flex-shrink: 0 !important;\n    min-height: 80px !important;\n    background: #FFFFFF !important;\n    border-radius: 8px !important;\n    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;\n    border: 1px solid rgba(0, 0, 0, 0.06) !important;\n    display: flex !important;\n    flex-direction: row !important;\n    align-items: stretch !important;\n    position: relative !important;\n    overflow: hidden !important;\n    cursor: pointer !important;\n}\n\n.eco-card:active {\n    transform: scale(0.98) !important;\n    background: #FAFBFC !important;\n}\n\n.card-accent {\n    width: 4px !important;\n    min-height: 100% !important;\n    background: linear-gradient(180deg, #1976D2 0%, #42A5F5 100%) !important;\n    flex-shrink: 0 !important;\n}\n\n.card-content {\n    flex: 1 !important;\n    padding: 12px 16px !important;\n    display: grid !important;\n    grid-template-columns: 44px 1fr !important;\n    grid-template-rows: auto auto !important;\n    gap: 4px 14px !important;\n    align-items: center !important;\n    min-width: 0 !important;\n    position: relative !important;\n}\n\n.card-icon-wrapper {\n    grid-row: 1 / 3 !important;\n    grid-column: 1 !important;\n    width: 44px !important;\n    height: 44px !important;\n    border-radius: 10px !important;\n    background: linear-gradient(135deg, rgba(25, 118, 210, 0.1) 0%, rgba(25, 118, 210, 0.04) 100%) !important;\n    display: flex !important;\n    align-items: center !important;\n    justify-content: center !important;\n    flex-shrink: 0 !important;\n}\n\n.card-icon-wrapper mat-icon {\n    font-size: 22px !important;\n    width: 22px !important;\n    height: 22px !important;\n    color: #1976D2 !important;\n}\n\n.card-number {\n    position: absolute !important;\n    top: 8px !important;\n    right: 8px !important;\n    font-family: 'JetBrains Mono', 'Roboto Mono', monospace !important;\n    font-size: 10px !important;\n    font-weight: 500 !important;\n    letter-spacing: 0.08em !important;\n    color: #FFFFFF !important;\n    background: #1976D2 !important;\n    padding: 3px 6px !important;\n    border-radius: 3px !important;\n}\n\n.card-title {\n    grid-row: 1 !important;\n    grid-column: 2 !important;\n    font-family: 'DM Sans', 'Roboto', sans-serif !important;\n    font-size: 15px !important;\n    font-weight: 600 !important;\n    color: #1A1F36 !important;\n    margin: 0 !important;\n    line-height: 1.3 !important;\n    letter-spacing: -0.01em !important;\n    white-space: nowrap !important;\n    overflow: hidden !important;\n    text-overflow: ellipsis !important;\n    align-self: end !important;\n    padding-right: 32px !important;\n}\n\n.card-description {\n    grid-row: 2 !important;\n    grid-column: 2 !important;\n    font-family: 'DM Sans', 'Roboto', sans-serif !important;\n    font-size: 12px !important;\n    line-height: 1.4 !important;\n    color: #5E6278 !important;\n    margin: 0 !important;\n    display: -webkit-box !important;\n    -webkit-line-clamp: 1 !important;\n    -webkit-box-orient: vertical !important;\n    overflow: hidden !important;\n    align-self: start !important;\n}\n\n.card-footer {\n    display: flex !important;\n    align-items: center !important;\n    justify-content: center !important;\n    padding: 0 12px !important;\n    flex-shrink: 0 !important;\n    border-left: 1px solid rgba(0, 0, 0, 0.06) !important;\n}\n\n.card-link {\n    display: flex !important;\n    align-items: center !important;\n    color: #1976D2 !important;\n    text-decoration: none !important;\n    font-size: 0 !important;\n}\n\n.card-link .arrow-icon {\n    font-size: 20px !important;\n    width: 20px !important;\n    height: 20px !important;\n}\n"
+          },
+          "title": "Markdown/HTML Card",
+          "showTitleIcon": false,
+          "iconColor": "rgba(0, 0, 0, 0.87)",
+          "iconSize": "24px",
+          "titleTooltip": "",
+          "dropShadow": false,
+          "enableFullscreen": false,
+          "widgetStyle": {},
+          "titleStyle": {
+            "fontSize": "16px",
+            "fontWeight": 400
+          },
+          "showLegend": false,
+          "useDashboardTimewindow": true,
+          "displayTimewindow": true,
+          "actions": {
+            "elementClick": [
+              {
+                "name": "assessment",
+                "icon": "more_horiz",
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "type": "openDashboardState",
+                "targetDashboardStateId": "info-assessment",
+                "setEntityId": true,
+                "stateEntityParamName": null,
+                "openRightLayout": false,
+                "dialogTitle": "Belimo Retrofit+",
+                "dialogHideDashboardToolbar": true,
+                "dialogWidth": null,
+                "dialogHeight": null,
+                "openInSeparateDialog": true,
+                "openInPopover": false,
+                "id": "1d4e63e6-b09f-736c-90fd-cbaaeaa45d5b"
+              },
+              {
+                "name": "asset-report",
+                "icon": "more_horiz",
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "type": "openDashboardState",
+                "targetDashboardStateId": "info-assetreport",
+                "setEntityId": true,
+                "stateEntityParamName": null,
+                "openRightLayout": false,
+                "dialogTitle": "ECO Energy Asset Report",
+                "dialogHideDashboardToolbar": true,
+                "dialogWidth": null,
+                "dialogHeight": null,
+                "openInSeparateDialog": true,
+                "openInPopover": false,
+                "id": "61096b82-afda-1f0f-6f91-c2be587bad01"
+              },
+              {
+                "name": "measurement",
+                "icon": "more_horiz",
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "type": "openDashboardState",
+                "targetDashboardStateId": "info-measurement",
+                "setEntityId": true,
+                "stateEntityParamName": null,
+                "openRightLayout": false,
+                "dialogTitle": "Smart Measurement",
+                "dialogHideDashboardToolbar": true,
+                "dialogWidth": null,
+                "dialogHeight": null,
+                "openInSeparateDialog": true,
+                "openInPopover": false,
+                "id": "7a6fcd82-18c5-65a6-2fc9-204bd165c9c1"
+              },
+              {
+                "name": "analysis",
+                "icon": "more_horiz",
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "type": "openDashboardState",
+                "targetDashboardStateId": "info-analysis",
+                "setEntityId": true,
+                "stateEntityParamName": null,
+                "openRightLayout": false,
+                "dialogTitle": "Smart Analysis",
+                "dialogHideDashboardToolbar": true,
+                "dialogWidth": null,
+                "dialogHeight": null,
+                "openInSeparateDialog": true,
+                "openInPopover": false,
+                "id": "775e434a-dc0b-8897-11fe-4a2e53919dcd"
+              },
+              {
+                "name": "monitoring",
+                "icon": "more_horiz",
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "type": "openDashboardState",
+                "targetDashboardStateId": "info-monitoring",
+                "setEntityId": true,
+                "stateEntityParamName": null,
+                "openRightLayout": false,
+                "dialogTitle": "Smart Monitoring",
+                "dialogHideDashboardToolbar": true,
+                "dialogWidth": null,
+                "dialogHeight": null,
+                "openInSeparateDialog": true,
+                "openInPopover": false,
+                "id": "b10e2efa-5bb6-cbab-4a0e-5a9f839f829f"
+              }
+            ]
+          },
+          "enableDataExport": false,
+          "borderRadius": "8px",
+          "widgetCss": "",
+          "pageSize": 1024,
+          "noDataDisplayMessage": ""
+        },
+        "row": 0,
+        "col": 0,
+        "id": "9094f048-ccc5-b9d7-9dd0-6ef0a20851c9"
       }
     },
     "states": {
@@ -1299,6 +1657,58 @@
               "backgroundImageUrl": null,
               "mobileAutoFillHeight": false,
               "mobileRowHeight": 70
+            },
+            "breakpoints": {
+              "sm": {
+                "gridSettings": {
+                  "layoutType": "default",
+                  "backgroundColor": "#eeeeee",
+                  "columns": 24,
+                  "margin": 10,
+                  "outerMargin": true,
+                  "backgroundSizeMode": "100%",
+                  "minColumns": 24,
+                  "viewFormat": "grid",
+                  "autoFillHeight": true,
+                  "rowHeight": 70,
+                  "backgroundImageUrl": null,
+                  "mobileAutoFillHeight": false,
+                  "mobileRowHeight": 70
+                },
+                "widgets": {
+                  "1dd6b46f-3282-d932-e25d-d495ef9c2432": {
+                    "sizeX": 24,
+                    "sizeY": 13,
+                    "row": 0,
+                    "col": 0
+                  }
+                }
+              },
+              "xs": {
+                "gridSettings": {
+                  "layoutType": "default",
+                  "backgroundColor": "#eeeeee",
+                  "columns": 24,
+                  "margin": 10,
+                  "outerMargin": true,
+                  "backgroundSizeMode": "100%",
+                  "minColumns": 24,
+                  "viewFormat": "grid",
+                  "autoFillHeight": true,
+                  "rowHeight": 70,
+                  "backgroundImageUrl": null,
+                  "mobileAutoFillHeight": false,
+                  "mobileRowHeight": 70
+                },
+                "widgets": {
+                  "1dd6b46f-3282-d932-e25d-d495ef9c2432": {
+                    "sizeX": 24,
+                    "sizeY": 13,
+                    "row": 0,
+                    "col": 0
+                  }
+                }
+              }
             }
           }
         }
@@ -1472,6 +1882,76 @@
               "backgroundImageUrl": null,
               "mobileAutoFillHeight": false,
               "mobileRowHeight": 70
+            },
+            "breakpoints": {
+              "sm": {
+                "gridSettings": {
+                  "layoutType": "default",
+                  "backgroundColor": "#FFFFFF",
+                  "columns": 24,
+                  "margin": 10,
+                  "outerMargin": false,
+                  "backgroundSizeMode": "100%",
+                  "minColumns": 24,
+                  "viewFormat": "grid",
+                  "autoFillHeight": true,
+                  "rowHeight": 70,
+                  "backgroundImageUrl": null,
+                  "mobileAutoFillHeight": false,
+                  "mobileRowHeight": 70
+                },
+                "widgets": {
+                  "c02e9712-3220-aaf0-60a7-fecd55515eb9": {
+                    "sizeX": 24,
+                    "sizeY": 12,
+                    "row": 12,
+                    "col": 0,
+                    "resizable": true,
+                    "mobileHide": true,
+                    "desktopHide": true
+                  },
+                  "6fea78ac-b89f-4eba-8b79-97bfbe11c7c6": {
+                    "sizeX": 24,
+                    "sizeY": 12,
+                    "row": 0,
+                    "col": 0
+                  }
+                }
+              },
+              "xs": {
+                "gridSettings": {
+                  "layoutType": "default",
+                  "backgroundColor": "#FFFFFF",
+                  "columns": 24,
+                  "margin": 10,
+                  "outerMargin": false,
+                  "backgroundSizeMode": "100%",
+                  "minColumns": 24,
+                  "viewFormat": "grid",
+                  "autoFillHeight": true,
+                  "rowHeight": 70,
+                  "backgroundImageUrl": null,
+                  "mobileAutoFillHeight": false,
+                  "mobileRowHeight": 70
+                },
+                "widgets": {
+                  "c02e9712-3220-aaf0-60a7-fecd55515eb9": {
+                    "sizeX": 24,
+                    "sizeY": 12,
+                    "row": 12,
+                    "col": 0,
+                    "resizable": true,
+                    "mobileHide": true,
+                    "desktopHide": true
+                  },
+                  "8fcef910-6a17-4022-9186-0675867a098b": {
+                    "sizeX": 24,
+                    "sizeY": 12,
+                    "row": 0,
+                    "col": 0
+                  }
+                }
+              }
             }
           }
         }
@@ -1849,7 +2329,7 @@
     "entityType": "DASHBOARD",
     "id": "d0bcd220-f6be-11f0-adb4-33b9bcf3ddd0"
   },
-  "version": 134,
+  "version": 141,
   "ownerId": {
     "entityType": "TENANT",
     "id": "efb63c10-b576-11ee-a6c2-a149ed03c64d"
