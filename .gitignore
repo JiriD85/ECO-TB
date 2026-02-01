@@ -21,3 +21,4 @@ node_modules/
 
 # Backups (können groß werden)
 backups/
+scripts_backup/
