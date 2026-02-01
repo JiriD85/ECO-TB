@@ -4,6 +4,15 @@
 
 ---
 
+## Verwandte Dokumentation
+
+| Dokument | Beschreibung |
+|----------|--------------|
+| **[dialog-ui-components.md](dialog-ui-components.md)** | Komplette UI-Komponenten-Referenz mit kopierbaren HTML/CSS Snippets |
+| [markdown-widget-patterns.md](markdown-widget-patterns.md) | Patterns für Markdown/HTML Card Widgets |
+
+---
+
 ## Grundprinzipien
 
 | Eigenschaft | Wert |
