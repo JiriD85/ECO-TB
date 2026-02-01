@@ -1,0 +1,188 @@
+{
+  "ruleChain": {
+    "name": "Create Permission on Attribute",
+    "type": "CORE",
+    "firstRuleNodeId": null,
+    "root": false,
+    "debugMode": true,
+    "configuration": null,
+    "additionalInfo": {
+      "description": "Creates GROUP_PERMISSION when a User Group receives the 'createPermission' attribute. Triggered by Customer Users who cannot create permissions directly."
+    }
+  },
+  "metadata": {
+    "firstNodeIndex": 0,
+    "nodes": [
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbJsSwitchNode",
+        "name": "Check createPermission",
+        "debugSettings": {
+          "allEnabled": true
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "if (msg.createPermission != null) {\n    return ['hasPermission'];\n} else {\n    return ['other'];\n}"
+        },
+        "additionalInfo": {
+          "description": "Check if the message contains createPermission attribute",
+          "layoutX": 200,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Prepare Permission Request",
+        "debugSettings": {
+          "allEnabled": true
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "// Extract permission data from the createPermission attribute\nvar permData = msg.createPermission;\n\n// Build the permission request body\nvar permissionRequest = {\n    userGroupId: {\n        entityType: 'ENTITY_GROUP',\n        id: permData.userGroupId\n    },\n    roleId: {\n        entityType: 'ROLE',\n        id: permData.roleId\n    }\n};\n\n// Add entityGroupId if present (for GROUP role permissions)\nif (permData.entityGroupId != null) {\n    permissionRequest.entityGroupId = {\n        entityType: 'ENTITY_GROUP',\n        id: permData.entityGroupId\n    };\n    permissionRequest.entityGroupType = permData.entityGroupType;\n}\n\nreturn { msg: permissionRequest, metadata: metadata, msgType: msgType };"
+        },
+        "additionalInfo": {
+          "description": "Transform the attribute data into a permission request body",
+          "layoutX": 500,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "Create Permission API",
+        "debugSettings": {
+          "allEnabled": true
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 5,
+        "configuration": {
+          "restEndpointUrlPattern": "${TB_BASE_URL}/api/groupPermission",
+          "requestMethod": "POST",
+          "useSimpleClientHttpFactory": false,
+          "parseToPlainText": false,
+          "ignoreRequestBody": false,
+          "enableProxy": false,
+          "useSystemProxyProperties": false,
+          "proxyScheme": null,
+          "proxyHost": null,
+          "proxyPort": 0,
+          "proxyUser": null,
+          "proxyPassword": null,
+          "readTimeoutMs": 5000,
+          "maxParallelRequestsCount": 0,
+          "headers": {
+            "Content-Type": "application/json",
+            "X-Authorization": "Bearer ${systemJwtToken}"
+          },
+          "useRedisQueueForMsgPersistence": false,
+          "trimQueue": false,
+          "maxQueueSize": 0,
+          "credentials": {
+            "type": "anonymous"
+          }
+        },
+        "additionalInfo": {
+          "description": "Call ThingsBoard API to create the group permission using system token",
+          "layoutX": 800,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "Log Success",
+        "debugSettings": {
+          "allEnabled": true
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "return 'Permission created successfully: ' + JSON.stringify(msg);"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1100,
+          "layoutY": 150
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "Log Error",
+        "debugSettings": {
+          "allEnabled": true
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "return 'Permission creation failed: ' + JSON.stringify(msg) + ' Error: ' + metadata.error;"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1100,
+          "layoutY": 300
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.telemetry.TbMsgDeleteAttributesNode",
+        "name": "Delete Trigger Attribute",
+        "debugSettings": {
+          "allEnabled": true
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "scope": "SERVER_SCOPE",
+          "keys": ["createPermission"],
+          "sendAttributesDeletedNotification": false,
+          "notifyDevice": false
+        },
+        "additionalInfo": {
+          "description": "Clean up the trigger attribute after processing",
+          "layoutX": 1100,
+          "layoutY": 50
+        }
+      }
+    ],
+    "connections": [
+      {
+        "fromIndex": 0,
+        "toIndex": 1,
+        "type": "hasPermission"
+      },
+      {
+        "fromIndex": 1,
+        "toIndex": 2,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 3,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 4,
+        "type": "Failure"
+      },
+      {
+        "fromIndex": 3,
+        "toIndex": 5,
+        "type": "Success"
+      }
+    ],
+    "ruleChainConnections": null
+  }
+}
