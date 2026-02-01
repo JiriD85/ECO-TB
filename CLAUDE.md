@@ -8,6 +8,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Platform:** ThingsBoard 4.2 PE (Professional Edition)
 **Purpose:** HVAC/Building Automation Monitoring and Control System
 
+**System-Dokumentation:** [docs/SYSTEM_MODEL.md](docs/SYSTEM_MODEL.md) - Entity-Modell, Kit-Typen, Telemetrie, Rollen
+
 ## Common Commands
 
 ### ThingsBoard Sync Tool
