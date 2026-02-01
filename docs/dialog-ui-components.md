@@ -2,8 +2,33 @@
 
 > Diese Vorlage enthält alle UI-Komponenten für ThingsBoard Custom Dialogs.
 > Claude verwendet diese Referenz bei JEDER Dialog-Bearbeitung.
+>
+> **Design-Philosophie:** Clean/Minimal - Subtile Schatten, 12px Border-Radius, elegante Transitions.
 
 **Verwandte Docs:** [ECO_DESIGN_SYSTEM.md](ECO_DESIGN_SYSTEM.md) | [markdown-widget-patterns.md](markdown-widget-patterns.md)
+
+## Design Tokens
+
+```css
+/* Font */
+--eco-font: "Roboto", "Helvetica Neue", sans-serif;
+
+/* Colors */
+--eco-text-primary: #1a1a2e;
+--eco-text-body: #4b5563;
+--eco-text-secondary: #6b7280;
+--eco-text-muted: #9ca3af;
+--eco-bg: #f8fafc;
+--eco-surface: #ffffff;
+--eco-border: rgba(0, 0, 0, 0.06);
+
+/* Border Radius */
+--eco-radius-sm: 6px;
+--eco-radius-md: 12px;
+
+/* Transitions */
+--eco-transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+```
 
 ## Dialog Grundstruktur
 
@@ -32,29 +57,37 @@
 ## Basis CSS (IMMER inkludieren)
 
 ```css
+/* ═══════════════════════════════════════════════════════════════
+   ECO DESIGN SYSTEM - BASE STYLES
+   Font: Roboto | Border-Radius: 12px | Transitions: 0.25s ease
+   ═══════════════════════════════════════════════════════════════ */
+
 /* Header - Blue background */
 .eco-dialog-header {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 0 16px;
-  height: 52px;
+  height: 56px;
   background-color: var(--tb-primary-500);
   color: white;
+  font-family: "Roboto", "Helvetica Neue", sans-serif;
 }
 .eco-dialog-header .header-icon {
-  font-size: 22px;
-  width: 22px;
-  height: 22px;
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
 }
 .eco-dialog-header .header-title {
   margin: 0;
-  font-size: 17px;
+  font-size: 1.125rem;
   font-weight: 500;
+  letter-spacing: -0.01em;
 }
 .eco-dialog-header .close-btn {
   color: rgba(255,255,255,0.8) !important;
   margin-left: auto;
+  transition: all 0.2s ease;
 }
 .eco-dialog-header .close-btn:hover {
   color: white !important;
@@ -63,16 +96,36 @@
 
 /* Content Area - Scrollable */
 .dialog-content {
-  padding: 16px 20px !important;
+  padding: 1.5rem !important;
   background: #f8fafc !important;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 1rem;
   max-height: 70vh;
   overflow-y: auto;
+  font-family: "Roboto", "Helvetica Neue", sans-serif;
 }
 
-/* Section Cards */
+/* Modern Cards (for home tiles, feature cards) */
+.eco-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.eco-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    0 12px 32px rgba(0, 0, 0, 0.12);
+}
+
+/* Section Cards (for form dialogs) */
 .section-card {
   background: white;
   border: 1px solid #e2e8f0;
@@ -82,11 +135,11 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 14px;
-  background: #f1f5f9;
+  padding: 12px 16px;
+  background: #f8fafc;
   border-bottom: 1px solid #e2e8f0;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: #334155;
   text-transform: uppercase;
   letter-spacing: 0.3px;
@@ -98,7 +151,10 @@
   color: var(--tb-primary-500);
 }
 .section-body {
-  padding: 12px 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 /* Footer */
@@ -107,9 +163,54 @@
   justify-content: flex-end;
   align-items: center;
   gap: 12px;
-  padding: 12px 20px;
-  border-top: 1px solid #e2e8f0;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
   background: #fafafa;
+}
+
+/* Modern Buttons */
+.eco-btn {
+  padding: 0.625rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 6px;
+  background: #ffffff;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: "Roboto", "Helvetica Neue", sans-serif;
+}
+.eco-btn:hover {
+  border-color: rgba(0, 0, 0, 0.24);
+  background: rgba(0, 0, 0, 0.02);
+}
+.eco-btn--primary {
+  border-color: var(--tb-primary-500);
+  background: var(--tb-primary-500);
+  color: #ffffff;
+}
+.eco-btn--primary:hover {
+  background: var(--tb-primary-600, #1976d2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.25);
+}
+
+/* Typography */
+.eco-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  letter-spacing: -0.01em;
+}
+.eco-text {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: #4b5563;
+}
+.eco-text-muted {
+  font-size: 0.8125rem;
+  color: #6b7280;
 }
 
 /* Utilities */

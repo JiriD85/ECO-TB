@@ -1,6 +1,7 @@
 # ECO Design System
 
 > Einheitliche Designsprache für alle ThingsBoard Custom Dialoge im ECO Projekt.
+> **Design-Philosophie:** Clean/Minimal - Weißraum, subtile Schatten, elegante Übergänge.
 
 ---
 
@@ -17,10 +18,13 @@
 
 | Eigenschaft | Wert |
 |-------------|------|
-| **Border Radius** | `0` (keine Rundungen) |
+| **Border Radius** | `12px` (Cards), `6px` (Buttons, Inputs) |
 | **Form Appearance** | `fill` |
 | **Icon Position** | `matSuffix` (rechts) |
 | **Primary Color** | `var(--tb-primary-500)` |
+| **Font Family** | `"Roboto", "Helvetica Neue", sans-serif` |
+| **Shadows** | Subtile mehrstufige Box-Shadows |
+| **Transitions** | `0.25s cubic-bezier(0.4, 0, 0.2, 1)` |
 
 ---
 
@@ -67,7 +71,8 @@
 ### Primary (ThingsBoard)
 | Name | Variable | Verwendung |
 |------|----------|------------|
-| Primary | `var(--tb-primary-500)` | Header, Buttons, Akzente |
+| Primary | `var(--tb-primary-500)` | Header, Buttons, Akzente, Links |
+| Primary Light | `rgba(66, 133, 244, 0.08)` | Icon Backgrounds, Hover States |
 
 ### Semantic Colors
 | Name | Hex | Verwendung |
@@ -80,12 +85,30 @@
 ### Neutral Colors
 | Name | Hex | Verwendung |
 |------|-----|------------|
-| Background | `#f8fafc` | Dialog Content, Form Fields |
-| Surface | `#ffffff` | Cards, Section Bodies |
-| Border | `#e2e8f0` | Borders, Dividers |
-| Text Primary | `#334155` | Haupttext, Labels |
-| Text Secondary | `#64748b` | Hints, Field Labels |
-| Text Muted | `#94a3b8` | Placeholder, Disabled |
+| Background | `#f8fafc` | Dialog Content, Page Background |
+| Surface | `#ffffff` | Cards, Dialogs |
+| Border | `rgba(0, 0, 0, 0.06)` | Subtile Borders |
+| Border Visible | `#e2e8f0` | Sichtbare Dividers |
+| Text Primary | `#1a1a2e` | Haupttext, Titel |
+| Text Body | `#4b5563` | Fließtext, Beschreibungen |
+| Text Secondary | `#6b7280` | Subtitles, Labels |
+| Text Muted | `#9ca3af` | Placeholder, Meta-Info |
+
+### Shadows
+```css
+/* Card Shadow (Default) */
+box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.06);
+
+/* Card Shadow (Hover) */
+box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    0 12px 32px rgba(0, 0, 0, 0.12);
+
+/* Button Shadow (Primary Hover) */
+box-shadow: 0 4px 12px rgba(33, 150, 243, 0.25);
+```
 
 ---
 
@@ -154,7 +177,96 @@
 }
 ```
 
-### 3.3 Section Cards
+### 3.3 Modern Cards (Clean/Minimal)
+
+Für Home-Kacheln, Feature-Cards und ähnliche Elemente:
+
+```html
+<div class="eco-card">
+  <div class="card-accent"></div>
+  <div class="card-content">
+    <div class="card-icon-wrapper">
+      <mat-icon>icon_name</mat-icon>
+    </div>
+    <h3 class="card-title">Card Title</h3>
+    <p class="card-description">Description text here.</p>
+  </div>
+  <div class="card-footer">
+    <span class="card-link">Action <mat-icon>arrow_forward</mat-icon></span>
+  </div>
+</div>
+```
+
+```css
+.eco-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.eco-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    0 12px 32px rgba(0, 0, 0, 0.12);
+}
+
+.card-accent {
+  height: 4px;
+  background: linear-gradient(90deg,
+    var(--tb-primary-500) 0%,
+    var(--tb-primary-400, #5c9ce6) 100%);
+}
+
+.card-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg,
+    rgba(66, 133, 244, 0.08) 0%,
+    rgba(66, 133, 244, 0.04) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-icon-wrapper mat-icon {
+  font-size: 24px;
+  color: var(--tb-primary-500);
+}
+
+.card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin: 0 0 0.5rem 0;
+}
+
+.card-description {
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: #6b7280;
+}
+
+.card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--tb-primary-500);
+}
+```
+
+### 3.4 Section Cards (Form Dialogs)
+
+Für Formulare und Dialoge mit Gruppen:
 
 ```html
 <div class="section-card">
@@ -541,6 +653,97 @@
 
 ```html
 <mat-spinner diameter="40"></mat-spinner>
+```
+
+### Custom Stepper (Clean/Minimal)
+
+Für Wizard-Dialoge und mehrstufige Prozesse:
+
+```html
+<div class="stepper-progress">
+  <button class="stepper-dot is-active" data-step="0">1</button>
+  <div class="stepper-line"></div>
+  <button class="stepper-dot" data-step="1">2</button>
+  <div class="stepper-line"></div>
+  <button class="stepper-dot" data-step="2">3</button>
+</div>
+```
+
+```css
+.stepper-progress {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0.5rem 0;
+}
+
+.stepper-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.12);
+  background: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stepper-dot:hover {
+  border-color: rgba(0, 0, 0, 0.24);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.stepper-dot.is-active {
+  border-color: var(--tb-primary-500);
+  background: var(--tb-primary-500);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+  transform: scale(1.05);
+}
+
+.stepper-line {
+  height: 2px;
+  flex: 1;
+  background: rgba(0, 0, 0, 0.08);
+  margin: 0 -1px;
+}
+
+/* Navigation Buttons */
+.stepper-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.stepper-btn {
+  padding: 0.625rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 6px;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.stepper-btn--primary {
+  border-color: var(--tb-primary-500);
+  background: var(--tb-primary-500);
+  color: #ffffff;
+}
+
+.stepper-btn--primary:hover {
+  background: var(--tb-primary-600, #1976d2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.25);
+}
 ```
 
 ---
