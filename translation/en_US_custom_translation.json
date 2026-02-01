@@ -11922,7 +11922,13 @@
         "title": "Reports"
       },
       "projects": {
-        "title": "Projects"
+        "title": "Projects",
+        "status": {
+          "in-preparation": "In Preparation",
+          "active": "Active",
+          "finished": "Finished",
+          "aborted": "Aborted"
+        }
       },
       "state-filter": {
         "preparation": {
@@ -12381,6 +12387,9 @@
       "nav": {
         "raw-data": "Raw Data",
         "load-analysis": "Load Analysis"
+      },
+      "kits": {
+        "title": "Diagnostic Kits"
       }
     },
     "measurement": {
@@ -12457,6 +12466,9 @@
       }
     },
     "retrofit-companies": {
+      "section-company-info": "Company Information",
+      "section-address": "Address",
+      "section-contact": "Contact Information",
       "manage-gateways": "Manage gateways",
       "manage-devices": "Manage devices",
       "manage-projects": "Manage projects",
@@ -12614,7 +12626,13 @@
       "delete": {
         "title": "Are you sure you want to delete the Diagnostickit {{entityName}}?",
         "content": "Be careful! After the confirmation, the Diagnostickit will be deleted and all related devices will be unassigned."
-      }
+      },
+      "select-kit": "Select Kit",
+      "target-customer": "Target Customer",
+      "transfer-details": "Transfer Details",
+      "preview": "Preview",
+      "transfer": "Transfer",
+      "attention": "Attention"
     },
     "kit-device": {
       "active": "Active",
@@ -12903,6 +12921,19 @@
     "timestamp": {
       "start": "Start",
       "end": "End"
+    },
+    "shared": {
+      "assigned": "Assigned",
+      "unassigned": "Unassigned",
+      "manage": "Manage"
+    },
+    "user": {
+      "roles": {
+        "user": "User",
+        "engineer": "Engineer",
+        "administrator": "Administrator"
+      },
+      "title": "Users"
     }
   },
   "paginator": {
