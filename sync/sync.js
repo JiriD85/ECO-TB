@@ -128,7 +128,7 @@ async function syncCommand(args) {
   logger.log('Sync completed');
 }
 
-async function syncDashboards(api) {
+async function syncDashboards(api, fileFilter = null) {
   const dirPath = path.join(process.cwd(), SOURCE_DIRS.dashboards);
   let files;
   try {
@@ -141,6 +141,22 @@ async function syncDashboards(api) {
   if (!files.length) {
     logger.warn('No dashboards found');
     return;
+  }
+
+  // Filter files if specific names provided
+  if (fileFilter && fileFilter.length > 0) {
+    files = files.filter(f => {
+      const basename = path.basename(f, '.json').toLowerCase();
+      // Exact match or filter matches the full basename
+      return fileFilter.some(filter => {
+        const filterLower = filter.toLowerCase().replace('.json', '');
+        return basename === filterLower || basename === filterLower.replace(/-/g, '_');
+      });
+    });
+    if (!files.length) {
+      logger.warn('No matching dashboards found for filter: ' + fileFilter.join(', '));
+      return;
+    }
   }
 
   // Get existing dashboards from server
@@ -417,6 +433,24 @@ async function pullTranslations(api, locales = []) {
   logger.log(`Pull completed: ${downloadedCount} translation(s)`);
 }
 
+async function pushCommand(args) {
+  // Push specific dashboards by name
+  const names = args.filter((arg) => !arg.startsWith('--'));
+
+  if (names.length === 0) {
+    logger.error('Usage: node sync/sync.js push <dashboard-name> [dashboard-name2...]');
+    logger.log('Example: node sync/sync.js push administration');
+    process.exit(1);
+  }
+
+  const config = loadConfig();
+  const api = new ThingsBoardApi({ ...config, logger });
+  await api.login();
+
+  await syncDashboards(api, names);
+  logger.log('Push completed');
+}
+
 async function backupCommand() {
   const { createBackup } = require('./backup');
   await createBackup(logger);
@@ -635,7 +669,8 @@ function printUsage() {
   logger.log('Usage: node sync/sync.js <command> [options]');
   logger.log('');
   logger.log('Commands:');
-  logger.log('  sync [options]       Push local files to ThingsBoard');
+  logger.log('  sync [options]       Push ALL local files to ThingsBoard');
+  logger.log('  push <name...>       Push SPECIFIC dashboard(s) to ThingsBoard');
   logger.log('  pull [titles...]     Download dashboards from ThingsBoard');
   logger.log('  pull-js [names...]   Download JS modules from ThingsBoard');
   logger.log('  pull-i18n [locales]  Download custom translations');
@@ -654,11 +689,16 @@ function printUsage() {
   logger.log('  --translations, --i18n  Sync only translations');
   logger.log('  --all                Sync everything (default)');
   logger.log('');
+  logger.log('Push options:');
+  logger.log('  <name>               Dashboard filename (partial match)');
+  logger.log('');
   logger.log('Pull options:');
   logger.log('  --all                Download all items');
   logger.log('  <title/name/locale>  Download items matching pattern');
   logger.log('');
   logger.log('Examples:');
+  logger.log('  node sync/sync.js push administration');
+  logger.log('  node sync/sync.js push measurements navigation');
   logger.log('  node sync/sync.js sync --dashboards');
   logger.log('  node sync/sync.js sync --js');
   logger.log('  node sync/sync.js sync --i18n');
@@ -681,6 +721,9 @@ async function main() {
     switch (command) {
       case 'sync':
         await syncCommand(args);
+        break;
+      case 'push':
+        await pushCommand(args);
         break;
       case 'pull':
         await pullCommand(args);
