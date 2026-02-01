@@ -661,3 +661,26 @@ Status progression: draft → ready → in-progress → completed → review
 2. **Cleanup bei Entfernung**
    - Wenn letzter User aus Viewer Group entfernt wird: User Group + Asset Group + Permissions automatisch löschen?
    - Bei Viewer Group Löschung: Asset Group und Permissions auch aufräumen?
+
+### Platform Features
+
+1. **Übersetzung Custom Actions (i18n)**
+   - Alle Custom Action Dialoge mit i18n-Keys versehen
+   - Texte in de_DE_custom_translation.json und en_US_custom_translation.json auslagern
+   - Einheitliche Übersetzungsstruktur für alle Dialoge
+
+2. **Alarming**
+   - Dashboard-Widgets für Alarm-Anzeige und -Verwaltung
+   - Rule Chain Logik für Alarm-Auslösung und -Eskalation
+   - Benachrichtigungen (Email, Push, etc.)
+
+3. **Derived Telemetry & Calculated Fields**
+   - Rule Chain Nodes für berechnete Telemetrie-Werte
+   - Aggregationen und Ableitungen aus bestehenden Datenpunkten
+   - Calculated Attributes basierend auf Telemetrie
+
+4. **Parameter Fields Anpassung**
+   - Project: Zusätzliche/angepasste Felder
+   - Measurement: Erweiterte Konfigurationsoptionen
+   - Customer: Kundenspezifische Attribute
+   - Device: Geräteparameter und Konfiguration
