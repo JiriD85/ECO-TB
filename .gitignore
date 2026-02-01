@@ -22,3 +22,22 @@ node_modules/
 # Backups (können groß werden)
 backups/
 scripts_backup/
+
+# Nicht-getrackte Dashboards (Test/Dev/Kunden-spezifisch)
+dashboards/belimo_brunner_straße.json
+dashboards/data_explorer.json
+dashboards/data_propagation.json
+dashboards/iot_gateways.json
+dashboards/license_overview.json
+dashboards/load_profile_analysis_test.json
+dashboards/retrofit.json
+dashboards/smart_diagnostics.json
+dashboards/smart_diagnostics_dev.json
+dashboards/smart_diagnostics_dev_alper.json
+dashboards/stripe_subscriptions.json
+dashboards/temperature_sensor_mobile.json
+dashboards/test_historical_data.json
+dashboards/timewindow_test.json
+
+# Temporäre Pläne
+IMPLEMENTATION_PLAN.md
