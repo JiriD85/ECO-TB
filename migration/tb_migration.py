@@ -133,16 +133,20 @@ class MigrationTool:
 
         all_projects = []
         all_measurements = []
+        total_customers = len(customers)
 
-        for customer in customers:
+        for i, customer in enumerate(customers, 1):
             customer_id = customer['id']['id']
             customer_name = customer['name']
+
+            # Progress bar for customers
+            self._print_progress(i, total_customers, f"Customer: {customer_name[:30]:<30}")
 
             # Get projects for this customer
             projects = self._get_assets_by_type(customer_id, 'Project')
             measurements = self._get_assets_by_type(customer_id, 'Measurement')
 
-            for project in projects:
+            for j, project in enumerate(projects, 1):
                 project['customerName'] = customer_name
                 project['vr_devices'] = self._find_vr_devices(project)
                 project['measurements'] = self._get_project_measurements(project['id']['id'], measurements)
@@ -153,11 +157,24 @@ class MigrationTool:
                 measurement['vr_devices'] = self._find_vr_devices(measurement)
                 all_measurements.append(measurement)
 
+        # Clear progress line
+        print("\r" + " " * 80 + "\r", end="")
+        print(f"✅ Scanned {total_customers} customers, {len(all_projects)} projects, {len(all_measurements)} measurements\n")
+
         self.projects = all_projects
         self.measurements = all_measurements
 
         # Print summary
         self._print_scan_summary()
+
+    def _print_progress(self, current: int, total: int, label: str = ""):
+        """Print a progress bar"""
+        bar_length = 30
+        progress = current / total
+        filled = int(bar_length * progress)
+        bar = "█" * filled + "░" * (bar_length - filled)
+        percent = int(progress * 100)
+        print(f"\r[{bar}] {percent:3d}% ({current}/{total}) {label}", end="", flush=True)
 
     def _get_all_customers(self) -> list:
         """Get all customers"""
