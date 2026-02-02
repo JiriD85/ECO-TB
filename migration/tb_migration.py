@@ -6,14 +6,18 @@ Funktionen:
 - Alle Projects und Measurements abfragen
 - VR Devices erkennen
 - Daten sichern (Backup)
-- Migration pro Project durchführen
+- Migration pro Project durchführen (Attribute + Telemetrie)
+- Resume bei Unterbrechung
 - Rollback bei Problemen
 
 Usage:
-    python tb_migration.py scan                    # Scan alle Projects/Measurements
-    python tb_migration.py backup <project_name>  # Backup eines Projects
-    python tb_migration.py migrate <project_name> # Migration durchführen
-    python tb_migration.py rollback <project_name> # Rollback aus Backup
+    python tb_migration.py scan                              # Scan alle Projects/Measurements
+    python tb_migration.py migrate <project_name>            # Dry-Run Migration
+    python tb_migration.py migrate <project_name> --execute  # Echte Migration
+    python tb_migration.py resume <project_name>             # Unterbrochene Migration fortsetzen
+    python tb_migration.py status <project_name>             # Migrations-Status anzeigen
+    python tb_migration.py rollback <project_name>           # Rollback aus Backup
+    python tb_migration.py backups                           # Alle Backups auflisten
 """
 
 import os
@@ -113,7 +117,13 @@ class ThingsBoardAPI:
         try:
             response = requests.post(url, headers=self._headers(), json=data)
             response.raise_for_status()
+            # Handle empty responses (e.g., telemetry upload returns 200 with no body)
+            if response.status_code == 200 and not response.text:
+                return {}
             return response.json()
+        except requests.exceptions.JSONDecodeError:
+            # Successful but no JSON response
+            return {}
         except Exception as e:
             print(f"❌ POST {endpoint} failed: {e}")
             return None
@@ -510,6 +520,20 @@ class MigrationTool:
             'telemetry_backup': {}  # {measurement_name: {vr_device_id: {key: [(ts, val), ...]}}}
         }
 
+        # Migration state tracking for resume capability
+        state_file = backup_path / 'migration_state.json'
+        state = {
+            'status': 'in_progress',
+            'started_at': timestamp,
+            'project_name': project_name,
+            'dry_run': dry_run,
+            'completed_measurements': [],
+            'current_measurement': None,
+            'completed_vr_devices': {},  # {measurement_name: [vr_device_ids]}
+            'errors': []
+        }
+        self._save_state(state_file, state)
+
         # Migration steps
         print("📋 Migration Plan (with automatic backup):")
         print("   1. Backup + Migrate Project attributes")
@@ -529,16 +553,40 @@ class MigrationTool:
             m_name = m['name']
             print(f"\n📦 [{i}/{total_measurements}] Measurement: {m_name}")
 
-            # Migrate attributes and telemetry, collect backup data
-            m_backup, telemetry_backup = self._migrate_measurement_with_backup(m, dry_run)
-            backup_data['measurements'].append(m_backup)
-            if telemetry_backup:
-                backup_data['telemetry_backup'][m_name] = telemetry_backup
+            # Update state: current measurement
+            state['current_measurement'] = m_name
+            self._save_state(state_file, state)
+
+            try:
+                # Migrate attributes and telemetry, collect backup data
+                m_backup, telemetry_backup = self._migrate_measurement_with_backup(
+                    m, dry_run, state, state_file
+                )
+                backup_data['measurements'].append(m_backup)
+                if telemetry_backup:
+                    backup_data['telemetry_backup'][m_name] = telemetry_backup
+
+                # Mark measurement as completed
+                state['completed_measurements'].append(m_name)
+                state['current_measurement'] = None
+                self._save_state(state_file, state)
+
+            except Exception as e:
+                error_msg = f"Error migrating {m_name}: {str(e)}"
+                print(f"   ❌ {error_msg}")
+                state['errors'].append(error_msg)
+                self._save_state(state_file, state)
+                # Continue with next measurement
 
         # Save backup file
         backup_file = backup_path / 'backup.json'
         with open(backup_file, 'w', encoding='utf-8') as f:
             json.dump(backup_data, f, indent=2, ensure_ascii=False, default=str)
+
+        # Mark migration as completed
+        state['status'] = 'completed' if not state['errors'] else 'completed_with_errors'
+        state['completed_at'] = datetime.now().strftime("%Y%m%d_%H%M%S")
+        self._save_state(state_file, state)
 
         print(f"\n💾 Backup saved to: {backup_path}")
 
@@ -578,7 +626,8 @@ class MigrationTool:
 
         return backup
 
-    def _migrate_measurement_with_backup(self, measurement: dict, dry_run: bool) -> tuple:
+    def _migrate_measurement_with_backup(self, measurement: dict, dry_run: bool,
+                                          state: dict = None, state_file: Path = None) -> tuple:
         """Migrate a measurement with backup, returns (attribute_backup, telemetry_backup)"""
         m_id = measurement['id']['id']
         m_name = measurement['name']
@@ -631,8 +680,10 @@ class MigrationTool:
 
         backup['migrated_attributes'] = migrated_attrs
 
-        # Migrate telemetry from VR devices (with backup)
-        telemetry_backup = self._migrate_telemetry_with_backup(measurement, dry_run)
+        # Migrate telemetry from VR devices (with backup and state tracking)
+        telemetry_backup = self._migrate_telemetry_with_backup(
+            measurement, dry_run, state, state_file
+        )
 
         return backup, telemetry_backup
 
@@ -651,11 +702,17 @@ class MigrationTool:
                 entity['name'] = new_name
                 self.api.post("/api/asset", entity)
 
+    def _save_state(self, state_file: Path, state: dict):
+        """Save migration state to file for resume capability"""
+        with open(state_file, 'w', encoding='utf-8') as f:
+            json.dump(state, f, indent=2, ensure_ascii=False)
+
     # =========================================================================
     # TELEMETRY MIGRATION
     # =========================================================================
 
-    def _migrate_telemetry_with_backup(self, measurement: dict, dry_run: bool) -> dict:
+    def _migrate_telemetry_with_backup(self, measurement: dict, dry_run: bool,
+                                        state: dict = None, state_file: Path = None) -> dict:
         """Migrate telemetry from VR devices to Measurement, returns backup data"""
         m_id = measurement['id']['id']
         m_name = measurement['name']
@@ -669,12 +726,21 @@ class MigrationTool:
 
         print(f"   📊 Migrating telemetry from {len(vr_devices)} VR device(s)...")
 
+        # Initialize state tracking for this measurement
+        if state is not None and m_name not in state['completed_vr_devices']:
+            state['completed_vr_devices'][m_name] = []
+
         total_points = 0
         total_vr = len(vr_devices)
 
         for vr_idx, vr in enumerate(vr_devices, 1):
             vr_id = vr['id']
             vr_name = vr['name']
+
+            # Skip if already completed (for resume)
+            if state is not None and vr_id in state['completed_vr_devices'].get(m_name, []):
+                print(f"      [{vr_idx}/{total_vr}] ⏭️  {vr_name} (already migrated)")
+                continue
 
             # Determine device type from name suffix
             device_type = self._get_device_type(vr_name)
@@ -726,6 +792,11 @@ class MigrationTool:
 
                 if not dry_run:
                     self._write_telemetry(m_id, 'ASSET', new_key, telemetry)
+
+            # Mark VR device as completed in state
+            if state is not None and state_file is not None:
+                state['completed_vr_devices'][m_name].append(vr_id)
+                self._save_state(state_file, state)
 
         print(f"   ✅ Total: {total_points} data points {'to migrate' if dry_run else 'migrated'}")
         return telemetry_backup
@@ -915,6 +986,162 @@ class MigrationTool:
     # LIST BACKUPS
     # =========================================================================
 
+    def resume_migration(self, project_name: str):
+        """Resume an interrupted migration"""
+        print(f"\n🔄 Resuming migration for project: {project_name}\n")
+
+        # Find latest backup with in_progress state
+        backups = sorted(BACKUP_DIR.glob(f"{project_name}_*"), reverse=True)
+        if not backups:
+            print(f"❌ No backup found for '{project_name}'")
+            return False
+
+        # Find one with in_progress state
+        state_data = None
+        backup_path = None
+        for bp in backups:
+            state_file = bp / 'migration_state.json'
+            if state_file.exists():
+                with open(state_file, 'r') as f:
+                    s = json.load(f)
+                if s.get('status') == 'in_progress':
+                    state_data = s
+                    backup_path = bp
+                    break
+
+        if not state_data:
+            print(f"❌ No interrupted migration found for '{project_name}'")
+            print("   All migrations are either completed or no state file exists.")
+            return False
+
+        print(f"📁 Found interrupted migration: {backup_path.name}")
+        print(f"   Started: {state_data.get('started_at')}")
+        print(f"   Completed measurements: {len(state_data.get('completed_measurements', []))}")
+        print(f"   Current measurement: {state_data.get('current_measurement')}")
+        print(f"   Errors so far: {len(state_data.get('errors', []))}")
+
+        # Resume using the existing state
+        response = input("\nResume this migration? (yes/no): ")
+        if response.lower() != 'yes':
+            print("❌ Resume cancelled")
+            return False
+
+        # Re-run migration with the state (it will skip completed items)
+        return self._resume_with_state(project_name, backup_path, state_data)
+
+    def _resume_with_state(self, project_name: str, backup_path: Path, state: dict):
+        """Resume migration using existing state"""
+        print(f"\n🚀 Resuming migration for project: {project_name}\n")
+
+        # Find project
+        project = self._find_project_by_name(project_name)
+        if not project:
+            print(f"❌ Project '{project_name}' not found")
+            return False
+
+        state_file = backup_path / 'migration_state.json'
+        dry_run = state.get('dry_run', False)
+
+        # Load existing backup data or create new
+        backup_file = backup_path / 'backup.json'
+        if backup_file.exists():
+            with open(backup_file, 'r') as f:
+                backup_data = json.load(f)
+        else:
+            backup_data = {
+                'timestamp': state.get('started_at'),
+                'project_name': project_name,
+                'project_id': project['id']['id'],
+                'dry_run': dry_run,
+                'project': {},
+                'measurements': [],
+                'telemetry_backup': {}
+            }
+
+        # Continue with measurements
+        measurements = project.get('measurements', [])
+        total_measurements = len(measurements)
+        completed = state.get('completed_measurements', [])
+
+        for i, m in enumerate(measurements, 1):
+            m_name = m['name']
+
+            # Skip already completed
+            if m_name in completed:
+                print(f"\n📦 [{i}/{total_measurements}] Measurement: {m_name} ⏭️  (already completed)")
+                continue
+
+            print(f"\n📦 [{i}/{total_measurements}] Measurement: {m_name}")
+
+            state['current_measurement'] = m_name
+            self._save_state(state_file, state)
+
+            try:
+                m_backup, telemetry_backup = self._migrate_measurement_with_backup(
+                    m, dry_run, state, state_file
+                )
+                backup_data['measurements'].append(m_backup)
+                if telemetry_backup:
+                    backup_data['telemetry_backup'][m_name] = telemetry_backup
+
+                state['completed_measurements'].append(m_name)
+                state['current_measurement'] = None
+                self._save_state(state_file, state)
+
+            except Exception as e:
+                error_msg = f"Error migrating {m_name}: {str(e)}"
+                print(f"   ❌ {error_msg}")
+                state['errors'].append(error_msg)
+                self._save_state(state_file, state)
+
+        # Save backup file
+        with open(backup_file, 'w', encoding='utf-8') as f:
+            json.dump(backup_data, f, indent=2, ensure_ascii=False, default=str)
+
+        # Mark migration as completed
+        state['status'] = 'completed' if not state['errors'] else 'completed_with_errors'
+        state['completed_at'] = datetime.now().strftime("%Y%m%d_%H%M%S")
+        self._save_state(state_file, state)
+
+        print(f"\n💾 Backup saved to: {backup_path}")
+        print("\n✅ Migration resumed and completed!")
+        return True
+
+    def show_migration_status(self, project_name: str):
+        """Show migration status for a project"""
+        print(f"\n📊 Migration Status for: {project_name}\n")
+
+        backups = sorted(BACKUP_DIR.glob(f"{project_name}_*"), reverse=True)
+        if not backups:
+            print(f"   No migrations found for '{project_name}'")
+            return
+
+        for bp in backups:
+            state_file = bp / 'migration_state.json'
+            if state_file.exists():
+                with open(state_file, 'r') as f:
+                    s = json.load(f)
+
+                status_icon = {
+                    'in_progress': '🔄',
+                    'completed': '✅',
+                    'completed_with_errors': '⚠️'
+                }.get(s.get('status'), '❓')
+
+                print(f"{status_icon} {bp.name}")
+                print(f"   Status: {s.get('status')}")
+                print(f"   Started: {s.get('started_at')}")
+                if s.get('completed_at'):
+                    print(f"   Completed: {s.get('completed_at')}")
+                print(f"   Dry run: {s.get('dry_run')}")
+                print(f"   Measurements done: {len(s.get('completed_measurements', []))}")
+                if s.get('errors'):
+                    print(f"   Errors: {len(s.get('errors'))}")
+                print()
+            else:
+                print(f"❓ {bp.name} (no state file)")
+                print()
+
     def list_backups(self):
         """List all backups"""
         print("\n📁 Available Backups:\n")
@@ -980,6 +1207,20 @@ def main():
 
     elif command == 'backups':
         tool.list_backups()
+
+    elif command == 'resume':
+        if len(sys.argv) < 3:
+            print("Usage: python tb_migration.py resume <project_name>")
+            sys.exit(1)
+        project_name = sys.argv[2]
+        tool.resume_migration(project_name)
+
+    elif command == 'status':
+        if len(sys.argv) < 3:
+            print("Usage: python tb_migration.py status <project_name>")
+            sys.exit(1)
+        project_name = sys.argv[2]
+        tool.show_migration_status(project_name)
 
     else:
         print(f"Unknown command: {command}")
