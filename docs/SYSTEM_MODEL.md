@@ -3,6 +3,9 @@
 > Referenz-Dokumentation für das ThingsBoard-basierte HVAC-Diagnosesystem.
 > Stand: Februar 2026
 
+**Verwandte Dokumente:**
+- [ATTRIBUTE_SCHEMA.md](ATTRIBUTE_SCHEMA.md) - Konsolidiertes Attribut-Schema mit Optimierungen
+
 ---
 
 ## 1. Entity-Hierarchie
@@ -19,7 +22,8 @@ Tenant (ECO Energy Group)
     ├── Measurement (Asset)
     │   ├── Relation "Measurement" → Device (nur während aktiver Messung!)
     │   ├── Timeseries: Messdaten (CHC_*, Wetterdaten)
-    │   └── Attribute: measurementType, installationType, progress...
+    │   └── Attribute: dataSource, circuitType, systemType, progress...
+    │       (siehe ATTRIBUTE_SCHEMA.md für vollständige Liste)
     │
     ├── Diagnostickit (Asset)
     │   ├── Relation "Contains" → Device(s)
@@ -78,26 +82,22 @@ Repräsentiert einen einzelnen Messpunkt innerhalb eines Projekts.
 
 **Asset Profile:** `Measurement`
 
-**Attribute:**
+> **Vollständige Attribut-Liste:** Siehe [ATTRIBUTE_SCHEMA.md](ATTRIBUTE_SCHEMA.md)
+
+**Wichtigste Attribute:**
 
 | Attribut | Typ | Beschreibung |
 |----------|-----|--------------|
 | `measurementType` | string | `ultrasonic`, `interpolation`, `import` |
 | `installationType` | string | `heating`, `cooling` |
-| `installationTypeOptions` | string | Anlagenart: `radiator`, `floorHeating`, `districtHeating`, etc. |
-| `progress` | string | Phase: `in preparation`, `active`, `finished`, `aborted` |
-| `state` | string | Alarm-Status: `normal`, `minor`, `major`, `critical` |
-| `startTimeMs` | number | Messungsbeginn (Unix timestamp ms) |
-| `endTimeMs` | number | Messungsende (Unix timestamp ms) |
-| `address` | string | Standortadresse |
-| `latitude` | string | Breitengrad |
-| `longitude` | string | Längengrad |
-| `locationName` | string | Bezeichnung des Messpunkts |
-| `dimension` | string | Rohrdimension: `DN20`, `DN25`, `DN32`, `DN40`, etc. |
-| `nominalFlow` | number | Nenn-Volumenstrom |
-| `units` | string | Einheitensystem: `metric` |
-| `weeklySchedule` | object | Betriebstage: `{monday: true, ...}` |
-| `assignedDevices` | JSON | Zugewiesene Geräte (für Audit Trail) |
+| `systemType` | string | `radiator`, `floorHeating`, `fanCoil`, `ahuCoil`, `districtHeating`, `chiller` |
+| `measurementRole` | string | `generator`, `circuit`, `subDistribution` |
+| `hydraulicScheme` | string | `direct`, `mixingValve`, `injection`, `separator`, `buffer` |
+| `progress` | string | `in preparation`, `active`, `finished`, `aborted` |
+| `state` | string | `normal`, `minor`, `major`, `critical` |
+| `designDeltaT` | number | Auslegungs-ΔT (K) |
+| `designFlowTemp` | number | Auslegungs-Vorlauftemperatur (°C) |
+| `flowOnThreshold` | number | Durchfluss-Schwelle für ON/OFF (m³/h) |
 
 **Measurement Types:**
 
@@ -208,29 +208,34 @@ Beispiele:
 
 ## 4. Telemetrie
 
-### 4.1 Am Device (P-Flow, Temperature Sensor)
+> **Vollständige Referenz:** Siehe [ATTRIBUTE_SCHEMA.md](ATTRIBUTE_SCHEMA.md)
 
-**Key-Schema:** `CHC_<Kategorie>_<Messwert>`
+### 4.1 Naming Convention
 
-| Prefix | Bedeutung | Beispiele |
-|--------|-----------|-----------|
-| `CHC_S_` | Sensor (Momentanwerte) | `VolumeFlow`, `Velocity`, `TemperatureFlow`, `TemperatureReturn`, `TemperatureDiff`, `Power_Heating`, `Power_Cooling` |
-| `CHC_M_` | Measured (Berechnete Werte) | `Power_Heating`, `Power_Cooling`, `Energy_Heating`, `Energy_Cooling`, `Volume` |
-| `CHC_C_` | Cumulative (Kumulierte Werte) | `Energy_Heating`, `Energy_Cooling`, `Volume`, `Volume_Net` |
+| Typ | Konvention | Beispiele |
+|-----|------------|-----------|
+| **Attribute** | camelCase | `designFlowTemp`, `systemType` |
+| **Telemetrie** | snake_case + Einheit | `T_flow_C`, `P_th_kW` |
 
-**Geplante Änderung:** Normalisierung der Keys, `heating`/`cooling` wird abhängig von `installationType` zusammengefasst.
+### 4.2 Telemetrie-Keys (Neu)
 
-### 4.2 Am Measurement
+| Key | Einheit | Beschreibung |
+|-----|---------|--------------|
+| `T_flow_C` | °C | Vorlauftemperatur |
+| `T_return_C` | °C | Rücklauftemperatur |
+| `dT_K` | K | Temperaturdifferenz |
+| `Vdot_m3h` | m³/h | Volumenstrom |
+| `P_th_kW` | kW | Thermische Leistung |
+| `E_th_kWh` | kWh | Energie-Zählerstand |
+| `T_outside_C` | °C | Außentemperatur |
 
-| Key | Beschreibung |
-|-----|--------------|
-| `outsideTemp` | Außentemperatur (Wetterdaten) |
-| `outsideHumidity` | Außenluftfeuchtigkeit |
-| `outsideMinTemp`, `outsideMaxTemp` | Tagesextreme |
-| `windSpeed`, `windDeg`, `windGust` | Winddaten |
-| `pressure` | Luftdruck |
-| `clouds` | Bewölkung |
-| `weather` | Wetterbeschreibung |
+### 4.3 Derived Telemetrie (Rule Chain)
+
+| Key | Typ | Beschreibung |
+|-----|-----|--------------|
+| `is_on` | boolean | Anlage läuft |
+| `load_class` | string | Lastklasse (`low`, `mid`, `high`) |
+| `dT_flag` | string | ΔT-Bewertung (`ok`, `warn`, `severe`) |
 
 ---
 
@@ -303,22 +308,41 @@ Für jeden Project Viewer wird erstellt:
 
 ## 8. Geplante Änderungen
 
+> **Neues Schema definiert:** Siehe [ATTRIBUTE_SCHEMA.md](ATTRIBUTE_SCHEMA.md)
+
 ### 8.1 VR Devices entfernen
 
 **Aktuell:** Virtuelle Device-Kopien (`*_VR`) mit Project/Measurement-Prefix
 **Neu:** Keine VR Devices, Telemetrie direkt am Measurement
 
-### 8.2 Telemetrie-Key Normalisierung
+### 8.2 Telemetrie-Key Migration
 
-**Aktuell:** Separate Keys für `heating`/`cooling`
-**Neu:** Einheitliche Keys, Interpretation abhängig von `installationType`
+**Alt (CHC-Prefix):** `CHC_S_TemperatureFlow`, `CHC_S_Power_Heating`, etc.
+**Neu (snake_case + Einheit):** `T_flow_C`, `P_th_kW`, `dT_K`, etc.
 
-### 8.3 Attribut-Umbenennung
+### 8.3 Attribut-Änderungen
 
-| Aktuell | Neu (Vorschlag) |
-|---------|-----------------|
-| `installationType` | `operationMode` (heating/cooling) |
-| `installationTypeOptions` | `systemType` (radiator, floorHeating, etc.) |
+| Aktuell | Neu | Status |
+|---------|-----|--------|
+| `installationType` | `installationType` | ✅ Behalten |
+| `measurementType` | `measurementType` | ✅ Behalten |
+| `installationTypeOptions` | `systemType` | Umbenennen |
+| `sensorLabel1/2` | `auxSensor1/2` | Umbenennen (JSON) |
+| `deltaT` | `designDeltaT` | Umbenennen |
+| `deltaTAnalysis*` | - | Entfernen |
+| `loadCourseFilter*` | - | Entfernen |
+
+### 8.4 Neue Attribute
+
+| Attribut | Kategorie |
+|----------|-----------|
+| `measurementRole` | Hydraulik |
+| `hydraulicScheme` | Hydraulik |
+| `fluidType` | Hydraulik |
+| `designFlowTemp`, `designReturnTemp` | Auslegung |
+| `designPower`, `designFlow` | Auslegung |
+| `flowOnThreshold`, `hysteresisMinutes` | Betrieb |
+| `pumpPresent`, `pumpControlType`, `pumpRatedPower` | Pumpe |
 
 ---
 
