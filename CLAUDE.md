@@ -10,6 +10,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **System-Dokumentation:** [docs/SYSTEM_MODEL.md](docs/SYSTEM_MODEL.md) - Entity-Modell, Kit-Typen, Telemetrie, Rollen
 
+**UI-Dokumentation:**
+- [docs/ECO_RESPONSIVE_DESIGN.md](docs/ECO_RESPONSIVE_DESIGN.md) - **Responsive Design Implementierung** (PFLICHT-Lektüre!)
+- [docs/thingsboard-responsive-layouts.md](docs/thingsboard-responsive-layouts.md) - Breakpoints, States, Widget Copies
+- [docs/ECO_DESIGN_SYSTEM.md](docs/ECO_DESIGN_SYSTEM.md) - Design Tokens, Farben, Typografie
+- [docs/dialog-ui-components.md](docs/dialog-ui-components.md) - Dialog-Komponenten und CSS
+
 ## Common Commands
 
 ### ThingsBoard Sync Tool
