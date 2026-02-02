@@ -690,11 +690,11 @@ class MigrationTool:
                 if not dry_run:
                     self._save_attribute(m_id, 'ASSET', new_key, value)
 
-        # locationName → Entity Label
+        # locationName → Entity Label (NOT name!)
         if 'locationName' in attr_dict and attr_dict['locationName']:
             print(f"   📝 locationName → Entity Label: {attr_dict['locationName']}")
             if not dry_run:
-                self._rename_entity(m_id, 'ASSET', attr_dict['locationName'])
+                self._set_entity_label(m_id, 'ASSET', attr_dict['locationName'])
 
         backup['migrated_attributes'] = migrated_attrs
 
@@ -712,12 +712,12 @@ class MigrationTool:
             {key: value}
         )
 
-    def _rename_entity(self, entity_id: str, entity_type: str, new_name: str):
-        """Rename an entity"""
+    def _set_entity_label(self, entity_id: str, entity_type: str, label: str):
+        """Set entity label (NOT the name!)"""
         if entity_type == 'ASSET':
             entity = self.api.get(f"/api/asset/{entity_id}")
             if entity:
-                entity['name'] = new_name
+                entity['label'] = label  # IMPORTANT: Set label, NOT name!
                 self.api.post("/api/asset", entity)
 
     def _save_state(self, state_file: Path, state: dict):
