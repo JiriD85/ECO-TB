@@ -1,0 +1,238 @@
+// ============================================================
+// Normalize Data - TBEL Script
+// Transforms CHC_* keys to canonical names, checks data quality,
+// and calculates derived telemetry (is_on, load_class, dT_flag)
+//
+// Used in: RESI Device Rule Chain > "Normalize Data" Node
+// ROBUST: Handles missing data points and attributes gracefully
+// ============================================================
+
+var newValues = {};
+var dataQuality = "ok";
+
+// Safely get values - could be nested or flat structure
+var values = msg;
+if (msg["values"] != null) {
+    values = msg["values"];
+}
+
+// ============================================================
+// Get Attributes from Metadata (fetched by previous node)
+// All attributes are optional - use defaults if missing
+// ============================================================
+
+var installationType = "heating";
+if (metadata["ss_installationType"] != null) {
+    installationType = metadata["ss_installationType"];
+}
+
+// flowOnThreshold in m³/h (default: 0.05) - metadata values are strings!
+var flowOnThreshold = 0.05;
+if (metadata["ss_flowOnThreshold"] != null && metadata["ss_flowOnThreshold"] != "") {
+    flowOnThreshold = parseDouble(metadata["ss_flowOnThreshold"]);
+}
+
+// designPower in kW (optional - needed for load_class) - metadata values are strings!
+var designPower = null;
+if (metadata["ss_designPower"] != null && metadata["ss_designPower"] != "") {
+    designPower = parseDouble(metadata["ss_designPower"]);
+}
+
+// designDeltaT in K (optional - needed for dT_flag) - metadata values are strings!
+var designDeltaT = null;
+if (metadata["ss_designDeltaT"] != null && metadata["ss_designDeltaT"] != "") {
+    designDeltaT = parseDouble(metadata["ss_designDeltaT"]);
+}
+
+// deviceName for TS1/TS2 detection
+var deviceName = "";
+if (metadata["deviceName"] != null) {
+    deviceName = metadata["deviceName"];
+}
+
+// ============================================================
+// Absolute limits for outlier detection
+// ============================================================
+var MAX_POWER_KW = 10000;
+var MAX_ENERGY_KWH = 100000;
+var MIN_TEMP_C = -50;
+var MAX_TEMP_C = 200;
+var MAX_FLOW_M3H = 1000;
+
+// ============================================================
+// Key Mapping: CHC_* → Canonical Names
+// ============================================================
+
+// --- Temperature keys ---
+if (values["CHC_S_TemperatureFlow"] != null) {
+    newValues["T_flow_C"] = values["CHC_S_TemperatureFlow"];
+}
+if (values["CHC_S_TemperatureReturn"] != null) {
+    newValues["T_return_C"] = values["CHC_S_TemperatureReturn"];
+}
+
+// Calculate dT_K: prefer existing value, otherwise calculate from T_flow - T_return
+if (values["CHC_S_TemperatureDiff"] != null) {
+    newValues["dT_K"] = values["CHC_S_TemperatureDiff"];
+} else if (newValues["T_flow_C"] != null && newValues["T_return_C"] != null) {
+    var dT = newValues["T_flow_C"] - newValues["T_return_C"];
+    newValues["dT_K"] = Math.round(dT * 1000) / 1000;
+}
+
+// --- Flow keys ---
+// VolumeFlow comes in l/h, convert to m³/h (divide by 1000)
+if (values["CHC_S_VolumeFlow"] != null) {
+    newValues["Vdot_m3h"] = values["CHC_S_VolumeFlow"] / 1000;
+}
+if (values["CHC_S_Velocity"] != null) {
+    newValues["v_ms"] = values["CHC_S_Velocity"];
+}
+
+// --- Power: select based on installationType ---
+if (installationType == "cooling") {
+    if (values["CHC_S_Power_Cooling"] != null) {
+        newValues["P_th_kW"] = values["CHC_S_Power_Cooling"];
+    }
+} else {
+    if (values["CHC_S_Power_Heating"] != null) {
+        newValues["P_th_kW"] = values["CHC_S_Power_Heating"];
+    }
+}
+
+// --- Energy meter: select based on installationType ---
+if (installationType == "cooling") {
+    if (values["CHC_M_Energy_Cooling"] != null) {
+        newValues["E_th_kWh"] = values["CHC_M_Energy_Cooling"];
+    }
+} else {
+    if (values["CHC_M_Energy_Heating"] != null) {
+        newValues["E_th_kWh"] = values["CHC_M_Energy_Heating"];
+    }
+}
+
+// --- Volume meter ---
+if (values["CHC_M_Volume"] != null) {
+    newValues["V_m3"] = values["CHC_M_Volume"];
+}
+
+// --- Auxiliary temperature sensors (TS1/TS2 devices) ---
+if (values["temperature"] != null) {
+    if (deviceName.endsWith("_TS1")) {
+        newValues["auxT1_C"] = values["temperature"];
+    } else if (deviceName.endsWith("_TS2")) {
+        newValues["auxT2_C"] = values["temperature"];
+    } else {
+        newValues["temperature"] = values["temperature"];
+    }
+}
+
+// ============================================================
+// Derived Telemetry
+// ============================================================
+
+// --- is_on: System running if flow > threshold ---
+if (newValues["Vdot_m3h"] != null) {
+    newValues["is_on"] = newValues["Vdot_m3h"] > flowOnThreshold;
+}
+
+// --- load_class: low/mid/high based on power vs design ---
+var loadClass = null;
+if (newValues["P_th_kW"] != null && designPower != null && designPower > 0) {
+    var loadPct = (newValues["P_th_kW"] / designPower) * 100;
+    if (loadPct < 30) {
+        loadClass = "low";
+    } else if (loadPct < 60) {
+        loadClass = "mid";
+    } else {
+        loadClass = "high";
+    }
+    newValues["load_class"] = loadClass;
+}
+
+// --- dT_flag: ok/warn/severe based on actual vs design delta-T ---
+// Only evaluate at mid/high load (skip low load)
+if (newValues["dT_K"] != null && designDeltaT != null && designDeltaT > 0) {
+    // Only calculate if load_class is mid or high (or if we don't have load_class)
+    var shouldEvaluate = (loadClass == null) || (loadClass == "mid") || (loadClass == "high");
+
+    if (shouldEvaluate) {
+        var dTRatio = newValues["dT_K"] / designDeltaT;
+        if (dTRatio >= 0.8) {
+            newValues["dT_flag"] = "ok";
+        } else if (dTRatio >= 0.6) {
+            newValues["dT_flag"] = "warn";
+        } else {
+            newValues["dT_flag"] = "severe";
+        }
+    }
+}
+
+// ============================================================
+// Outlier Detection (only check if value exists)
+// ============================================================
+
+// Check Power
+if (newValues["P_th_kW"] != null) {
+    if (newValues["P_th_kW"] < 0 || newValues["P_th_kW"] > MAX_POWER_KW) {
+        dataQuality = "error";
+    }
+}
+
+// Check Energy (meter value should be positive)
+if (newValues["E_th_kWh"] != null) {
+    if (newValues["E_th_kWh"] < 0 || newValues["E_th_kWh"] > MAX_ENERGY_KWH) {
+        dataQuality = "error";
+    }
+}
+
+// Check Temperatures
+if (newValues["T_flow_C"] != null) {
+    if (newValues["T_flow_C"] < MIN_TEMP_C || newValues["T_flow_C"] > MAX_TEMP_C) {
+        dataQuality = "error";
+    }
+}
+if (newValues["T_return_C"] != null) {
+    if (newValues["T_return_C"] < MIN_TEMP_C || newValues["T_return_C"] > MAX_TEMP_C) {
+        dataQuality = "error";
+    }
+}
+if (newValues["auxT1_C"] != null) {
+    if (newValues["auxT1_C"] < MIN_TEMP_C || newValues["auxT1_C"] > MAX_TEMP_C) {
+        dataQuality = "error";
+    }
+}
+if (newValues["auxT2_C"] != null) {
+    if (newValues["auxT2_C"] < MIN_TEMP_C || newValues["auxT2_C"] > MAX_TEMP_C) {
+        dataQuality = "error";
+    }
+}
+
+// Check Flow
+if (newValues["Vdot_m3h"] != null) {
+    if (newValues["Vdot_m3h"] < 0 || newValues["Vdot_m3h"] > MAX_FLOW_M3H) {
+        dataQuality = "error";
+    }
+}
+
+// ============================================================
+// Set data_quality flag
+// ============================================================
+newValues["data_quality"] = dataQuality;
+
+// ============================================================
+// Build output message
+// ============================================================
+var newMsg = {};
+
+// Preserve timestamp if present
+if (msg["ts"] != null) {
+    newMsg["ts"] = msg["ts"];
+}
+
+// Only output if we have at least one value (besides data_quality)
+if (newValues.size() > 1) {
+    newMsg["values"] = newValues;
+    return {msg: newMsg, metadata: metadata, msgType: msgType};
+} else {
+    return {msg: {}, metadata: metadata, msgType: msgType};
+}

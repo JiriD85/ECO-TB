@@ -2,7 +2,10 @@
   "ruleChain": {
     "name": "RESI Device",
     "type": "CORE",
-    "firstRuleNodeId": null,
+    "firstRuleNodeId": {
+      "entityType": "RULE_NODE",
+      "id": "53db3350-737f-11ef-8a75-b31459678eb5"
+    },
     "root": false,
     "debugMode": false,
     "configuration": null,
@@ -11,10 +14,23 @@
     }
   },
   "metadata": {
-    "version": 77,
+    "ruleChainId": {
+      "entityType": "RULE_CHAIN",
+      "id": "43153980-737f-11ef-8a75-b31459678eb5"
+    },
+    "version": 92,
     "firstNodeIndex": 4,
     "nodes": [
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "53da48f0-737f-11ef-8a75-b31459678eb5"
+        },
+        "createdTime": 1726417617663,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
         "type": "org.thingsboard.rule.engine.filter.TbMsgTypeSwitchNode",
         "name": "Post Telemetry",
         "debugSettings": {
@@ -28,6 +44,7 @@
         "configuration": {
           "version": 0
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "",
           "layoutX": 574,
@@ -35,6 +52,15 @@
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "53da7000-737f-11ef-8a75-b31459678eb5"
+        },
+        "createdTime": 1726417617664,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
         "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
         "name": "Process Meters",
         "debugSettings": {
@@ -50,6 +76,7 @@
           "jsScript": "// Define temperature pairs and their corresponding difference label\r\nvar temperaturePairs = [\r\n    {\r\n        flow: \"CHC_S_TemperatureFlow\",\r\n        return: \"CHC_S_TemperatureReturn\",\r\n        difference: \"CHC_S_TemperatureDiff\"\r\n    },\r\n    {\r\n        flow: \"H_S_TemperatureFlow\",\r\n        return: \"H_S_TemperatureReturn\",\r\n        difference: \"H_S_TemperatureDiff\"\r\n    }\r\n];\r\n\r\n// Function to calculate and add temperature differences to the message\r\nfunction addTemperatureDifferences(msg) {\r\n    // Check if msg contains \"values\" and if it is not empty\r\n    if (msg && msg.values) {\r\n        temperaturePairs.forEach(pair => {\r\n            // Check if both temperature readings are present in the message\r\n            if (msg.values.hasOwnProperty(pair.flow) && msg.values.hasOwnProperty(pair.return)) {\r\n                // Calculate the temperature difference\r\n                var flowTemp = msg.values[pair.flow];\r\n                var returnTemp = msg.values[pair.return];\r\n                var tempDifference = (flowTemp - returnTemp).toFixed(3); // Keeping the absolute value and rounding to 3 decimal places\r\n\r\n                // Add the calculated temperature difference to the message values\r\n                msg.values[pair.difference] = parseFloat(tempDifference);\r\n            }\r\n        });\r\n    }\r\n    // Forward the modified message\r\n    return msg;\r\n}\r\n\r\n// Function to split message into individual device messages and process temperature differences\r\nfunction splitMessage(msg, meterMetadata, msgType) {\r\n    const results = [];\r\n\r\n    for (const deviceName in msg) {\r\n        if (msg.hasOwnProperty(deviceName)) {\r\n            // Replace \"_LTE\" with \"_GW\" in the device name\r\n            const updatedDeviceName = deviceName.replace(/_LTE$/, \"_gw\");\r\n\r\n            msg[deviceName].forEach(record => {\r\n                const meterData = {\r\n                    ts: record.ts,\r\n                    values: record.values\r\n                };\r\n\r\n                // Process temperature differences for this record\r\n                const updatedMeterData = addTemperatureDifferences(meterData);\r\n\r\n                // Create a copy of the meterMetadata object\r\n                const metadata = { ...meterMetadata };\r\n\r\n                // Add deviceName and timestamps to metadata\r\n                metadata.deviceName = updatedDeviceName;\r\n                metadata.ts = record.ts;\r\n                metadata.ts_end = record.ts;\r\n                metadata.ts_start = metadata.ts_end - 1800000;\r\n\r\n                // Push the message with the updated meter data and metadata\r\n                results.push({ msg: updatedMeterData, metadata: metadata, msgType: msgType });\r\n            });\r\n        }\r\n    }\r\n    return results;\r\n}\r\n\r\n// Check if msg is null or undefined and process it\r\nif (msg) {\r\n    return splitMessage(msg, metadata, msgType);\r\n} else {\r\n    return { msg: \"Invalid message structure\", metadata: metadata, msgType: msgType };\r\n}\r\n",
           "tbelScript": "return {msg: msg, metadata: metadata, msgType: msgType};"
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "",
           "layoutX": 578,
@@ -57,6 +84,15 @@
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "53dabe20-737f-11ef-8a75-b31459678eb5"
+        },
+        "createdTime": 1726417617666,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
         "type": "org.thingsboard.rule.engine.transform.TbChangeOriginatorNode",
         "name": "Change Device",
         "debugSettings": {
@@ -84,6 +120,7 @@
           },
           "preserveOriginatorIfCustomer": true
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "",
           "layoutX": 581,
@@ -91,6 +128,15 @@
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "53db0c40-737f-11ef-8a75-b31459678eb5"
+        },
+        "createdTime": 1726417617668,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
         "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
         "name": "Process Datapoints Multi",
         "debugSettings": null,
@@ -102,6 +148,7 @@
           "jsScript": "var data = msg.data;\r\nvar telemetryMessages = [];\r\n\r\n// Use an object to group data by T_MUC timestamp\r\nvar groupedByTimestamp = {};\r\n\r\n// Function to extract 'value' and 'tsLastDBEntry' from a JSON string in the metadata\r\nfunction extractMetadataValue(metadataField) {\r\n    if (!metadataField || metadataField.length === 0) {\r\n        return { value: null, tsLastDBEntry: null };\r\n    }\r\n    try {\r\n        // Parse the JSON string into an array\r\n        var parsedMetadata = JSON.parse(metadataField);\r\n        // Assuming the array is sorted and the first object is the one we're interested in\r\n        var firstEntry = parsedMetadata[0];\r\n        return {\r\n            value: firstEntry.value !== undefined ? parseFloat(firstEntry.value).toFixed(3) : null,\r\n            tsLastDBEntry: firstEntry.ts !== undefined ? firstEntry.ts : null\r\n        };\r\n    } catch (error) {\r\n        console.error(\"Error parsing metadata field:\", error);\r\n        return { value: null, tsLastDBEntry: null };\r\n    }\r\n}\r\n\r\n// Mapping of meter readings to their corresponding consumption calculation keys\r\nvar meterToConsumptionMapping = {\r\n    \"CHC_M_Energy_Cooling\": \"CHC_C_Energy_Cooling\",\r\n    \"CHC_M_Energy_Heating\": \"CHC_C_Energy_Heating\",\r\n    \"CHC_M_Volume\": \"CHC_C_Volume\",\r\n    \"H_M_Energy_Heating\": \"H_C_Energy_Heating\",\r\n    \"H_M_Volume\": \"H_C_Volume\",\r\n    \"E_M_ActiveEnergyTotal\": \"E_C_ActiveEnergyTotal\",\r\n    \"W_M_Volume\": \"W_C_Volume\",\r\n    \"WW_M_Volume\": \"WW_C_Volume\",\r\n    \"CW_M_Volume\": \"CW_C_Volume\",\r\n    \"G_M_Volume\": \"G_C_Volume\"\r\n};\r\n\r\nvar energyDatapoint = {\r\n    \"CHC_M_Energy_Cooling\": \"CHC_S_Power_Cooling\",\r\n    \"CHC_M_Energy_Heating\": \"CHC_S_Power_Heating\",\r\n    \"H_M_Energy_Heating\": \"H_S_Power\",\r\n    \"E_M_ActiveEnergyTotal\": \"E_S_Power\"\r\n}\r\n\r\n// Conversion factors based on the unit\r\nvar energyConversionFactors = {\r\n    \"Wh\": 0.001,\r\n    \"kJ\": 0.0002777777,\r\n    \"kWh\": 1,\r\n    \"GWh\": 1000\r\n};\r\n\r\n// Extract ss_energyUnit from metadata\r\nvar ss_energyUnit = metadata.ss_energyUnit || \"kWh\";\r\nvar conversionFactor = energyConversionFactors[ss_energyUnit] || 1;\r\n\r\n// Initialize previous values for all meter types using metadata, defaulting to null\r\nvar previousValues = {};\r\nObject.keys(meterToConsumptionMapping).forEach(meterKey => {\r\n    var metadataField = metadata[meterKey];\r\n    var { value, tsLastDBEntry } = extractMetadataValue(metadataField);\r\n    previousValues[meterKey] = { value, tsLastDBEntry };\r\n});\r\n\r\nif (Array.isArray(data)) {\r\n    data.forEach(dataItem => {\r\n        if (dataItem && dataItem.entry && Array.isArray(dataItem.entry)) {\r\n            var dataItemUser = dataItem.USER || dataItem.DESCRIPTION;\r\n\r\n            dataItem.entry.forEach(entry => {\r\n                var timestamp = entry.T_MUC * 1000; // Message timestamp\r\n                var value = parseFloat(entry.VAL) * dataItem.SCALE; // Parse as float\r\n\r\n                // Group by timestamp\r\n                if (!groupedByTimestamp[timestamp]) {\r\n                    groupedByTimestamp[timestamp] = {\r\n                        timestamp,\r\n                        values: {},\r\n                        metadata: JSON.parse(JSON.stringify(metadata))\r\n                    };\r\n                }\r\n                \r\n                // Apply conversion if the USER contains \"Energy\"\r\n                if (typeof dataItemUser === 'string' && dataItemUser.includes(\"Energy\")) {\r\n                    value *= conversionFactor;\r\n                }\r\n\r\n                // Store values by their USER or DESCRIPTION, formatted with three decimal places\r\n                groupedByTimestamp[timestamp].values[dataItemUser] = value.toFixed(3);\r\n            });\r\n        }\r\n    });\r\n\r\n    const sortedTimestamps = Object.keys(groupedByTimestamp).sort((a, b) => parseInt(a, 10) - parseInt(b, 10));\r\n\r\n    sortedTimestamps.forEach(timestamp => {\r\n        const group = groupedByTimestamp[timestamp];\r\n        var telemetryObject = {};\r\n    \r\n        Object.keys(group.values).forEach(meterKey => {\r\n            var meterValue = parseFloat(group.values[meterKey]);\r\n            // Always add the meter reading to the message\r\n            telemetryObject[meterKey] = meterValue;\r\n    \r\n            var consumptionKey = meterToConsumptionMapping[meterKey];\r\n            var powerKey = energyDatapoint[meterKey];\r\n            if (consumptionKey) {\r\n                var { value: previousValue, tsLastDBEntry } = previousValues[meterKey];\r\n    \r\n                // Initialize consumptionValue as 0\r\n                var consumptionValue = 0;\r\n                var timeDeltaHour = (parseInt(timestamp) - parseInt(tsLastDBEntry))/1000/3600;\r\n                var powerValue = 0;\r\n                // Calculate consumption only if tsLastDBEntry < current entry's timestamp\r\n                if (previousValue !== null && tsLastDBEntry < timestamp) {\r\n                    consumptionValue = meterValue - parseFloat(previousValue);\r\n                    if (typeof meterKey === 'string' && meterKey.toLowerCase().includes(\"energy\")) {\r\n                         powerValue = consumptionValue / timeDeltaHour;\r\n                    }\r\n                }\r\n                // Add the consumption calculation to the message, formatting to three decimal places\r\n                telemetryObject[consumptionKey] = parseFloat(consumptionValue.toFixed(3));\r\n                telemetryObject[powerKey] = parseFloat(powerValue.toFixed(3))\r\n    \r\n                // Update previous value and tsLastDBEntry for the meter type\r\n                previousValues[meterKey].value = meterValue.toFixed(3);\r\n                previousValues[meterKey].tsLastDBEntry = timestamp;\r\n            }\r\n        });\r\n    \r\n        group.metadata.ts = group.timestamp;\r\n        telemetryMessages.push({ msg: telemetryObject, metadata: group.metadata, msgType: msgType });\r\n    });\r\n\r\n    \r\n} else {\r\n    console.log(\"Error: 'data' is not an array.\");\r\n}\r\n\r\nreturn telemetryMessages;\r\n",
           "tbelScript": "var dataPoints = msg[0][\"dataPoints\"];\r\nvar readings = [];\r\n\r\ndataPoints.forEach(dataPoint => {\r\n    var dataPointMetadata = {\r\n        description: dataPoint[\"DESCRIPTION\"],\r\n        unit: dataPoint[\"UNIT\"],\r\n        scale: dataPoint[\"SCALE\"],\r\n        user: dataPoint[\"USER\"] || msg[0][\"user\"]\r\n    };\r\n\r\n    dataPoint[\"entry\"].forEach(entry => {\r\n        var timestamp = entry[\"T\"] === 0 ? entry[\"T_MUC\"] : entry[\"T\"];\r\n        var value = entry[\"VAL\"] * dataPointMetadata.scale;\r\n        readings.push({ts: timestamp, values: {[dataPointMetadata.description]: value}});\r\n    });\r\n});\r\n\r\nreturn {msg: readings, metadata: metadata, msgType: msgType};\r\n"
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "",
           "layoutX": 1832,
@@ -109,6 +156,15 @@
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "53db3350-737f-11ef-8a75-b31459678eb5"
+        },
+        "createdTime": 1726417617669,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
         "type": "org.thingsboard.rule.engine.profile.TbDeviceProfileNode",
         "name": "Device Profile",
         "debugSettings": null,
@@ -119,6 +175,7 @@
           "persistAlarmRulesState": false,
           "fetchAlarmRulesStateOnStart": "false"
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "",
           "layoutX": 274,
@@ -126,6 +183,15 @@
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "53db8170-737f-11ef-8a75-b31459678eb5"
+        },
+        "createdTime": 1726417617671,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
         "type": "org.thingsboard.rule.engine.action.TbCreateAlarmNode",
         "name": "Create Inactivity Alarm",
         "debugSettings": null,
@@ -147,6 +213,7 @@
           "propagateToTenant": false,
           "dynamicSeverity": false
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "",
           "layoutX": 659,
@@ -154,6 +221,15 @@
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "53dba880-737f-11ef-8a75-b31459678eb5"
+        },
+        "createdTime": 1726417617672,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
         "type": "org.thingsboard.rule.engine.action.TbClearAlarmNode",
         "name": "Clear Inactivity Alarm",
         "debugSettings": null,
@@ -166,6 +242,7 @@
           "alarmDetailsBuildTbel": "var details = {};\nif (metadata.prevAlarmDetails != null) {\n    details = JSON.parse(metadata.prevAlarmDetails);\n    //remove prevAlarmDetails from metadata\n    metadata.remove('prevAlarmDetails');\n    //now metadata is the same as it comes IN this rule node\n}\n\n\nreturn details;",
           "alarmType": "Inactivity Timeout"
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "",
           "layoutX": 822,
@@ -173,6 +250,15 @@
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "53dbcf90-737f-11ef-8a75-b31459678eb5"
+        },
+        "createdTime": 1726417617673,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
         "type": "org.thingsboard.rule.engine.metadata.TbGetTelemetryNode",
         "name": "Get Last Meter Telemetry",
         "debugSettings": null,
@@ -204,6 +290,7 @@
           "endInterval": 1,
           "endIntervalTimeUnit": "MILLISECONDS"
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "",
           "layoutX": 1836,
@@ -211,6 +298,15 @@
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "53dbf6a1-737f-11ef-8a75-b31459678eb5"
+        },
+        "createdTime": 1726417617674,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
         "type": "org.thingsboard.rule.engine.action.TbLogNode",
         "name": "Log RPC from Device",
         "debugSettings": null,
@@ -222,12 +318,22 @@
           "jsScript": "return '\\nIncoming message:\\n' + JSON.stringify(msg) + '\\nIncoming metadata:\\n' + JSON.stringify(metadata);",
           "tbelScript": "return '\\nIncoming message:\\n' + JSON.stringify(msg) + '\\nIncoming metadata:\\n' + JSON.stringify(metadata);"
         },
+        "externalId": null,
         "additionalInfo": {
           "layoutX": 1235,
           "layoutY": 158
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "53dc1db0-737f-11ef-8a75-b31459678eb5"
+        },
+        "createdTime": 1726417617675,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
         "type": "org.thingsboard.rule.engine.action.TbLogNode",
         "name": "Log Other",
         "debugSettings": null,
@@ -239,12 +345,22 @@
           "jsScript": "return '\\nIncoming message:\\n' + JSON.stringify(msg) + '\\nIncoming metadata:\\n' + JSON.stringify(metadata);",
           "tbelScript": "return '\\nIncoming message:\\n' + JSON.stringify(msg) + '\\nIncoming metadata:\\n' + JSON.stringify(metadata);"
         },
+        "externalId": null,
         "additionalInfo": {
           "layoutX": 1234,
           "layoutY": 219
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "53dc44c0-737f-11ef-8a75-b31459678eb5"
+        },
+        "createdTime": 1726417617676,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
         "type": "org.thingsboard.rule.engine.rpc.TbSendRPCRequestNode",
         "name": "RPC Call Request",
         "debugSettings": null,
@@ -254,12 +370,22 @@
         "configuration": {
           "timeoutInSeconds": 60
         },
+        "externalId": null,
         "additionalInfo": {
           "layoutX": 1233,
           "layoutY": 282
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "53dce100-737f-11ef-8a75-b31459678eb5"
+        },
+        "createdTime": 1726417617680,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
         "type": "org.thingsboard.rule.engine.filter.TbJsSwitchNode",
         "name": "Check if msg empty",
         "debugSettings": {
@@ -275,6 +401,7 @@
           "jsScript": "// Check if msg is an empty object\r\nif (Object.keys(msg).length === 0) {\r\n    return [\"empty msg\"];\r\n}\r\n// Check if msg is not an empty object\r\nelse if (Object.keys(msg).length > 0) {\r\n    return [\"msg\"];\r\n} else {\r\n    return [\"other\"];\r\n}",
           "tbelScript": "function nextRelation(metadata, msg) {\n    return ['one','nine'];\n}\nif(msgType == 'POST_TELEMETRY_REQUEST') {\n    return ['two'];\n}\nreturn nextRelation(metadata, msg);"
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "",
           "layoutX": 312,
@@ -282,6 +409,15 @@
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "53dd2f20-737f-11ef-8a75-b31459678eb5"
+        },
+        "createdTime": 1726417617682,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
         "type": "org.thingsboard.rule.engine.transform.TbChangeOriginatorNode",
         "name": "Switch To Kit",
         "debugSettings": null,
@@ -307,6 +443,7 @@
             ]
           }
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "",
           "layoutX": 1584,
@@ -314,6 +451,15 @@
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "53dd2f21-737f-11ef-8a75-b31459678eb5"
+        },
+        "createdTime": 1726417617682,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
         "type": "org.thingsboard.rule.engine.transform.TbChangeOriginatorNode",
         "name": "Switch to Measurement",
         "debugSettings": null,
@@ -339,6 +485,7 @@
             ]
           }
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "",
           "layoutX": 1584,
@@ -346,6 +493,15 @@
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "53dd5630-737f-11ef-8a75-b31459678eb5"
+        },
+        "createdTime": 1726417617683,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
         "type": "org.thingsboard.rule.engine.telemetry.TbMsgTimeseriesNode",
         "name": "Save Timeseries",
         "debugSettings": null,
@@ -359,13 +515,23 @@
             "type": "ON_EVERY_MESSAGE"
           }
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "",
-          "layoutX": 709,
-          "layoutY": 1036
+          "layoutX": 628,
+          "layoutY": 1027
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "7294c650-9079-11ef-a6f0-a734c8222d8b"
+        },
+        "createdTime": 1729603675957,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
         "type": "org.thingsboard.rule.engine.telemetry.TbMsgTimeseriesNode",
         "name": "Save Timeseries",
         "debugSettings": {
@@ -383,13 +549,23 @@
             "type": "ON_EVERY_MESSAGE"
           }
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "",
-          "layoutX": 446,
-          "layoutY": 778
+          "layoutX": 370,
+          "layoutY": 675
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "c4deb170-a373-11ef-8910-3b2c7230fc7c"
+        },
+        "createdTime": 1731690309127,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
         "type": "org.thingsboard.rule.engine.transform.TbRenameKeysNode",
         "name": "Rename Power Keys",
         "debugSettings": {
@@ -407,13 +583,23 @@
             "CHC_C_Power_Heating": "CHC_S_Power_Heating"
           }
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "",
-          "layoutX": 199,
-          "layoutY": 657
+          "layoutX": 101,
+          "layoutY": 644
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "bdffba70-a65c-11ef-8910-3b2c7230fc7c"
+        },
+        "createdTime": 1732010272663,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
         "type": "org.thingsboard.rule.engine.transform.TbChangeOriginatorNode",
         "name": "Switch to Measurement",
         "debugSettings": {
@@ -443,16 +629,30 @@
             ]
           }
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "",
-          "layoutX": 708,
-          "layoutY": 944
+          "layoutX": 626,
+          "layoutY": 938
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "4d1c8df0-d8b2-11ef-8fe7-4355475c5d5b"
+        },
+        "createdTime": 1737544578127,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
         "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
         "name": "Rename Temperature Keys for TS1&TS2",
-        "debugSettings": null,
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1770048966881
+        },
         "singletonMode": false,
         "queueName": null,
         "configurationVersion": 0,
@@ -461,13 +661,23 @@
           "jsScript": "// Extend your code as follows:\r\nif (metadata.deviceName && metadata.deviceName.includes('_TS1')) {\r\n    if (msg.values && msg.values.hasOwnProperty('temperature')) {\r\n        msg.values.temperature1 = msg.values.temperature;\r\n        delete msg.values.temperature;\r\n    }\r\n} else if (metadata.deviceName && metadata.deviceName.includes('_TS2')) {\r\n    if (msg.values && msg.values.hasOwnProperty('temperature')) {\r\n        msg.values.temperature2 = msg.values.temperature;\r\n        delete msg.values.temperature;\r\n    }\r\n}\r\n\r\nreturn { \r\n    msg: msg, \r\n    metadata: metadata, \r\n    msgType: msgType \r\n};\r\n",
           "tbelScript": "return {msg: msg, metadata: metadata, msgType: msgType};"
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "",
-          "layoutX": 706,
-          "layoutY": 850
+          "layoutX": 629,
+          "layoutY": 851
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "fdfce170-fe72-11ef-b054-af79bed58c9c"
+        },
+        "createdTime": 1741695531271,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
         "type": "org.thingsboard.rule.engine.transform.TbChangeOriginatorNode",
         "name": "Switch to Measurement VR Device",
         "debugSettings": {
@@ -497,6 +707,7 @@
             ]
           }
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "",
           "layoutX": 937,
@@ -504,6 +715,15 @@
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "fdfd0880-fe72-11ef-b054-af79bed58c9c"
+        },
+        "createdTime": 1741695531272,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
         "type": "org.thingsboard.rule.engine.telemetry.TbMsgTimeseriesNode",
         "name": "Save Timeseries",
         "debugSettings": {
@@ -521,6 +741,7 @@
             "type": "ON_EVERY_MESSAGE"
           }
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "",
           "layoutX": 941,
@@ -528,6 +749,15 @@
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "bb28e950-ff28-11ef-b901-499c3b8ae2fe"
+        },
+        "createdTime": 1741773587557,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
         "type": "org.thingsboard.rule.engine.filter.TbCheckRelationNode",
         "name": "Check relation to Measurement",
         "debugSettings": {
@@ -545,6 +775,7 @@
           "entityId": null,
           "relationType": "VR"
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "",
           "layoutX": 708,
@@ -552,6 +783,15 @@
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "8dd345a0-25bf-11f0-8436-8dc140bcab5a"
+        },
+        "createdTime": 1746016509690,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
         "type": "org.thingsboard.rule.engine.action.TbDeviceStateNode",
         "name": "Set Activity",
         "debugSettings": null,
@@ -561,13 +801,23 @@
         "configuration": {
           "event": "ACTIVITY_EVENT"
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "",
-          "layoutX": 1021,
-          "layoutY": 570
+          "layoutX": 874,
+          "layoutY": 507
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "0920eec0-ebd5-11f0-867c-33b9bcf3ddd0"
+        },
+        "createdTime": 1767796066220,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
         "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
         "name": "Skip negative Consumption/Energy/Power",
         "debugSettings": {
@@ -583,13 +833,23 @@
           "jsScript": "return {msg: msg, metadata: metadata, msgType: msgType};",
           "tbelScript": "return {msg: msg, metadata: metadata, msgType: msgType};"
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "",
-          "layoutX": 198,
-          "layoutY": 748
+          "layoutX": 99,
+          "layoutY": 742
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "4f640330-f626-11f0-adb4-33b9bcf3ddd0"
+        },
+        "createdTime": 1768930484963,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
         "type": "org.thingsboard.rule.engine.filter.TbCheckRelationNode",
         "name": "Check relation to Measurement",
         "debugSettings": {
@@ -605,6 +865,7 @@
           "direction": "TO",
           "relationType": "Measurement"
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "",
           "layoutX": 708,
@@ -612,6 +873,15 @@
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "4f640331-f626-11f0-adb4-33b9bcf3ddd0"
+        },
+        "createdTime": 1768930484963,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
         "type": "org.thingsboard.rule.engine.transform.TbChangeOriginatorNode",
         "name": "Switch to Measurement",
         "debugSettings": {
@@ -641,13 +911,23 @@
             ]
           }
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "",
-          "layoutX": 1230,
-          "layoutY": 851
+          "layoutX": 1241,
+          "layoutY": 642
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "4f640332-f626-11f0-adb4-33b9bcf3ddd0"
+        },
+        "createdTime": 1768930484963,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
         "type": "org.thingsboard.rule.engine.telemetry.TbMsgTimeseriesNode",
         "name": "Save Timeseries",
         "debugSettings": {
@@ -665,10 +945,80 @@
             "type": "ON_EVERY_MESSAGE"
           }
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "",
-          "layoutX": 1232,
-          "layoutY": 956
+          "layoutX": 1251,
+          "layoutY": 960
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "37350430-0049-11f1-9979-9f3434877bb4"
+        },
+        "createdTime": 1770044988403,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Normalize Data",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1770048977979
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return {msg: msg, metadata: metadata, msgType: msgType};",
+          "tbelScript": "// ============================================================\n// Normalize Data - TBEL Script\n// Transforms CHC_* keys to canonical names, checks data quality,\n// and calculates derived telemetry (is_on, load_class, dT_flag)\n//\n// Used in: RESI Device Rule Chain > \"Normalize Data\" Node\n// ROBUST: Handles missing data points and attributes gracefully\n// ============================================================\n\nvar newValues = {};\nvar dataQuality = \"ok\";\n\n// Safely get values - could be nested or flat structure\nvar values = msg;\nif (msg[\"values\"] != null) {\n    values = msg[\"values\"];\n}\n\n// ============================================================\n// Get Attributes from Metadata (fetched by previous node)\n// All attributes are optional - use defaults if missing\n// ============================================================\n\nvar installationType = \"heating\";\nif (metadata[\"ss_installationType\"] != null) {\n    installationType = metadata[\"ss_installationType\"];\n}\n\n// flowOnThreshold in m³/h (default: 0.05) - metadata values are strings!\nvar flowOnThreshold = 0.05;\nif (metadata[\"ss_flowOnThreshold\"] != null && metadata[\"ss_flowOnThreshold\"] != \"\") {\n    flowOnThreshold = parseDouble(metadata[\"ss_flowOnThreshold\"]);\n}\n\n// designPower in kW (optional - needed for load_class) - metadata values are strings!\nvar designPower = null;\nif (metadata[\"ss_designPower\"] != null && metadata[\"ss_designPower\"] != \"\") {\n    designPower = parseDouble(metadata[\"ss_designPower\"]);\n}\n\n// designDeltaT in K (optional - needed for dT_flag) - metadata values are strings!\nvar designDeltaT = null;\nif (metadata[\"ss_designDeltaT\"] != null && metadata[\"ss_designDeltaT\"] != \"\") {\n    designDeltaT = parseDouble(metadata[\"ss_designDeltaT\"]);\n}\n\n// deviceName for TS1/TS2 detection\nvar deviceName = \"\";\nif (metadata[\"deviceName\"] != null) {\n    deviceName = metadata[\"deviceName\"];\n}\n\n// ============================================================\n// Absolute limits for outlier detection\n// ============================================================\nvar MAX_POWER_KW = 10000;\nvar MAX_ENERGY_KWH = 100000;\nvar MIN_TEMP_C = -50;\nvar MAX_TEMP_C = 200;\nvar MAX_FLOW_M3H = 1000;\n\n// ============================================================\n// Key Mapping: CHC_* → Canonical Names\n// ============================================================\n\n// --- Temperature keys ---\nif (values[\"CHC_S_TemperatureFlow\"] != null) {\n    newValues[\"T_flow_C\"] = values[\"CHC_S_TemperatureFlow\"];\n}\nif (values[\"CHC_S_TemperatureReturn\"] != null) {\n    newValues[\"T_return_C\"] = values[\"CHC_S_TemperatureReturn\"];\n}\n\n// Calculate dT_K: prefer existing value, otherwise calculate from T_flow - T_return\nif (values[\"CHC_S_TemperatureDiff\"] != null) {\n    newValues[\"dT_K\"] = values[\"CHC_S_TemperatureDiff\"];\n} else if (newValues[\"T_flow_C\"] != null && newValues[\"T_return_C\"] != null) {\n    var dT = newValues[\"T_flow_C\"] - newValues[\"T_return_C\"];\n    newValues[\"dT_K\"] = Math.round(dT * 1000) / 1000;\n}\n\n// --- Flow keys ---\n// VolumeFlow comes in l/h, convert to m³/h (divide by 1000)\nif (values[\"CHC_S_VolumeFlow\"] != null) {\n    newValues[\"Vdot_m3h\"] = values[\"CHC_S_VolumeFlow\"] / 1000;\n}\nif (values[\"CHC_S_Velocity\"] != null) {\n    newValues[\"v_ms\"] = values[\"CHC_S_Velocity\"];\n}\n\n// --- Power: select based on installationType ---\nif (installationType == \"cooling\") {\n    if (values[\"CHC_S_Power_Cooling\"] != null) {\n        newValues[\"P_th_kW\"] = values[\"CHC_S_Power_Cooling\"];\n    }\n} else {\n    if (values[\"CHC_S_Power_Heating\"] != null) {\n        newValues[\"P_th_kW\"] = values[\"CHC_S_Power_Heating\"];\n    }\n}\n\n// --- Energy meter: select based on installationType ---\nif (installationType == \"cooling\") {\n    if (values[\"CHC_M_Energy_Cooling\"] != null) {\n        newValues[\"E_th_kWh\"] = values[\"CHC_M_Energy_Cooling\"];\n    }\n} else {\n    if (values[\"CHC_M_Energy_Heating\"] != null) {\n        newValues[\"E_th_kWh\"] = values[\"CHC_M_Energy_Heating\"];\n    }\n}\n\n// --- Volume meter ---\nif (values[\"CHC_M_Volume\"] != null) {\n    newValues[\"V_m3\"] = values[\"CHC_M_Volume\"];\n}\n\n// --- Auxiliary temperature sensors (TS1/TS2 devices) ---\nif (values[\"temperature\"] != null) {\n    if (deviceName.endsWith(\"_TS1\")) {\n        newValues[\"auxT1_C\"] = values[\"temperature\"];\n    } else if (deviceName.endsWith(\"_TS2\")) {\n        newValues[\"auxT2_C\"] = values[\"temperature\"];\n    } else {\n        newValues[\"temperature\"] = values[\"temperature\"];\n    }\n}\n\n// ============================================================\n// Derived Telemetry\n// ============================================================\n\n// --- is_on: System running if flow > threshold ---\nif (newValues[\"Vdot_m3h\"] != null) {\n    newValues[\"is_on\"] = newValues[\"Vdot_m3h\"] > flowOnThreshold;\n}\n\n// --- load_class: low/mid/high based on power vs design ---\nvar loadClass = null;\nif (newValues[\"P_th_kW\"] != null && designPower != null && designPower > 0) {\n    var loadPct = (newValues[\"P_th_kW\"] / designPower) * 100;\n    if (loadPct < 30) {\n        loadClass = \"low\";\n    } else if (loadPct < 60) {\n        loadClass = \"mid\";\n    } else {\n        loadClass = \"high\";\n    }\n    newValues[\"load_class\"] = loadClass;\n}\n\n// --- dT_flag: ok/warn/severe based on actual vs design delta-T ---\n// Only evaluate at mid/high load (skip low load)\nif (newValues[\"dT_K\"] != null && designDeltaT != null && designDeltaT > 0) {\n    // Only calculate if load_class is mid or high (or if we don't have load_class)\n    var shouldEvaluate = (loadClass == null) || (loadClass == \"mid\") || (loadClass == \"high\");\n\n    if (shouldEvaluate) {\n        var dTRatio = newValues[\"dT_K\"] / designDeltaT;\n        if (dTRatio >= 0.8) {\n            newValues[\"dT_flag\"] = \"ok\";\n        } else if (dTRatio >= 0.6) {\n            newValues[\"dT_flag\"] = \"warn\";\n        } else {\n            newValues[\"dT_flag\"] = \"severe\";\n        }\n    }\n}\n\n// ============================================================\n// Outlier Detection (only check if value exists)\n// ============================================================\n\n// Check Power\nif (newValues[\"P_th_kW\"] != null) {\n    if (newValues[\"P_th_kW\"] < 0 || newValues[\"P_th_kW\"] > MAX_POWER_KW) {\n        dataQuality = \"error\";\n    }\n}\n\n// Check Energy (meter value should be positive)\nif (newValues[\"E_th_kWh\"] != null) {\n    if (newValues[\"E_th_kWh\"] < 0 || newValues[\"E_th_kWh\"] > MAX_ENERGY_KWH) {\n        dataQuality = \"error\";\n    }\n}\n\n// Check Temperatures\nif (newValues[\"T_flow_C\"] != null) {\n    if (newValues[\"T_flow_C\"] < MIN_TEMP_C || newValues[\"T_flow_C\"] > MAX_TEMP_C) {\n        dataQuality = \"error\";\n    }\n}\nif (newValues[\"T_return_C\"] != null) {\n    if (newValues[\"T_return_C\"] < MIN_TEMP_C || newValues[\"T_return_C\"] > MAX_TEMP_C) {\n        dataQuality = \"error\";\n    }\n}\nif (newValues[\"auxT1_C\"] != null) {\n    if (newValues[\"auxT1_C\"] < MIN_TEMP_C || newValues[\"auxT1_C\"] > MAX_TEMP_C) {\n        dataQuality = \"error\";\n    }\n}\nif (newValues[\"auxT2_C\"] != null) {\n    if (newValues[\"auxT2_C\"] < MIN_TEMP_C || newValues[\"auxT2_C\"] > MAX_TEMP_C) {\n        dataQuality = \"error\";\n    }\n}\n\n// Check Flow\nif (newValues[\"Vdot_m3h\"] != null) {\n    if (newValues[\"Vdot_m3h\"] < 0 || newValues[\"Vdot_m3h\"] > MAX_FLOW_M3H) {\n        dataQuality = \"error\";\n    }\n}\n\n// ============================================================\n// Set data_quality flag\n// ============================================================\nnewValues[\"data_quality\"] = dataQuality;\n\n// ============================================================\n// Build output message\n// ============================================================\nvar newMsg = {};\n\n// Preserve timestamp if present\nif (msg[\"ts\"] != null) {\n    newMsg[\"ts\"] = msg[\"ts\"];\n}\n\n// Only output if we have at least one value (besides data_quality)\nif (newValues.size() > 1) {\n    newMsg[\"values\"] = newValues;\n    return {msg: newMsg, metadata: metadata, msgType: msgType};\n} else {\n    return {msg: {}, metadata: metadata, msgType: msgType};\n}\n"
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1428,
+          "layoutY": 868
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "e65d68d0-0049-11f1-9979-9f3434877bb4"
+        },
+        "createdTime": 1770045282269,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "43153980-737f-11ef-8a75-b31459678eb5"
+        },
+        "type": "org.thingsboard.rule.engine.metadata.TbGetAttributesNode",
+        "name": "Get Measurement Attributes",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "tellFailureIfAbsent": false,
+          "fetchTo": "METADATA",
+          "clientAttributeNames": [],
+          "sharedAttributeNames": [],
+          "serverAttributeNames": [
+            "installationType",
+            "flowOnThreshold",
+            "designPower",
+            "designDeltaT"
+          ],
+          "latestTsKeyNames": [],
+          "getLatestValueWithTs": false
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1245,
+          "layoutY": 739
         }
       }
     ],
@@ -790,7 +1140,17 @@
       },
       {
         "fromIndex": 25,
+        "toIndex": 28,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 28,
         "toIndex": 26,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 28,
+        "toIndex": 27,
         "type": "Success"
       }
     ],

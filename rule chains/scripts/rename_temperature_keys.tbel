@@ -1,0 +1,22 @@
+// ============================================================
+// Rename Temperature Keys for TS1 & TS2 - TBEL Script
+// Transforms temperature sensor data to canonical names
+// Used in: RESI Device Rule Chain > "Rename Temperature Keys for TS1&TS2" Node
+// ============================================================
+
+// Check device name from metadata and rename temperature key accordingly
+if (metadata.deviceName != null) {
+    if (metadata.deviceName.endsWith("_TS1")) {
+        if (msg.values != null && msg.values.temperature != null) {
+            msg.values.auxT1_C = msg.values.temperature;
+            msg.values.remove("temperature");
+        }
+    } else if (metadata.deviceName.endsWith("_TS2")) {
+        if (msg.values != null && msg.values.temperature != null) {
+            msg.values.auxT2_C = msg.values.temperature;
+            msg.values.remove("temperature");
+        }
+    }
+}
+
+return {msg: msg, metadata: metadata, msgType: msgType};
