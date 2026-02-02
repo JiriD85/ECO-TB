@@ -42,7 +42,8 @@ BACKUP_DIR = Path(__file__).parent / 'backups'
 # =============================================================================
 # Telemetry Key Mapping (same as normalize_data.tbel)
 # =============================================================================
-TELEMETRY_KEY_MAP = {
+# Base keys that are always mapped
+TELEMETRY_KEY_MAP_BASE = {
     # Temperature keys
     'CHC_S_TemperatureFlow': 'T_flow_C',
     'CHC_S_TemperatureReturn': 'T_return_C',
@@ -50,15 +51,32 @@ TELEMETRY_KEY_MAP = {
     # Flow keys
     'CHC_S_VolumeFlow': 'Vdot_m3h',  # Needs conversion: ÷1000 (l/h → m³/h)
     'CHC_S_Velocity': 'v_ms',
-    # Power keys (heating/cooling handled by installationType)
-    'CHC_S_Power_Heating': 'P_th_kW',
-    'CHC_S_Power_Cooling': 'P_th_kW',
-    # Energy keys (heating/cooling handled by installationType)
-    'CHC_M_Energy_Heating': 'E_th_kWh',
-    'CHC_M_Energy_Cooling': 'E_th_kWh',
     # Volume
     'CHC_M_Volume': 'V_m3',
 }
+
+# Keys specific to heating installations
+TELEMETRY_KEY_MAP_HEATING = {
+    'CHC_S_Power_Heating': 'P_th_kW',
+    'CHC_M_Energy_Heating': 'E_th_kWh',
+}
+
+# Keys specific to cooling installations
+TELEMETRY_KEY_MAP_COOLING = {
+    'CHC_S_Power_Cooling': 'P_th_kW',
+    'CHC_M_Energy_Cooling': 'E_th_kWh',
+}
+
+
+def get_telemetry_key_map(installation_type: str) -> dict:
+    """Get the telemetry key map based on installation type"""
+    key_map = TELEMETRY_KEY_MAP_BASE.copy()
+    if installation_type == 'cooling':
+        key_map.update(TELEMETRY_KEY_MAP_COOLING)
+    else:
+        # Default to heating
+        key_map.update(TELEMETRY_KEY_MAP_HEATING)
+    return key_map
 
 # Keys that need unit conversion (values come as strings from API!)
 TELEMETRY_CONVERSIONS = {
@@ -724,7 +742,20 @@ class MigrationTool:
             print(f"   ℹ️  No VR devices to migrate")
             return telemetry_backup
 
-        print(f"   📊 Migrating telemetry from {len(vr_devices)} VR device(s)...")
+        # Get installationType from measurement attributes to determine Power/Energy keys
+        attrs = self.api.get(
+            f"/api/plugins/telemetry/ASSET/{m_id}/values/attributes/SERVER_SCOPE"
+        )
+        installation_type = 'heating'  # Default
+        if attrs:
+            for attr in attrs:
+                if attr.get('key') == 'installationType':
+                    installation_type = attr.get('value', 'heating')
+                    break
+
+        # Get the correct key map based on installation type
+        telemetry_key_map = get_telemetry_key_map(installation_type)
+        print(f"   📊 Migrating telemetry ({installation_type}) from {len(vr_devices)} VR device(s)...")
 
         # Initialize state tracking for this measurement
         if state is not None and m_name not in state['completed_vr_devices']:
@@ -752,8 +783,8 @@ class MigrationTool:
                 print(f"         ⚠️  No telemetry keys found")
                 continue
 
-            # Filter only relevant keys
-            relevant_keys = [k for k in keys if self._map_telemetry_key(k, device_type)]
+            # Filter only relevant keys based on installation type
+            relevant_keys = [k for k in keys if self._map_telemetry_key(k, device_type, telemetry_key_map)]
             if not relevant_keys:
                 print(f"         ⚠️  No relevant telemetry keys found")
                 continue
@@ -763,7 +794,7 @@ class MigrationTool:
             # Read and transform telemetry for each relevant key
             total_keys = len(relevant_keys)
             for key_idx, old_key in enumerate(relevant_keys, 1):
-                new_key = self._map_telemetry_key(old_key, device_type)
+                new_key = self._map_telemetry_key(old_key, device_type, telemetry_key_map)
 
                 # Read telemetry data (this is our backup!)
                 print(f"         [{key_idx}/{total_keys}] Reading {old_key}...", end="", flush=True)
@@ -818,7 +849,8 @@ class MigrationTool:
         else:
             return 'UNKNOWN'
 
-    def _map_telemetry_key(self, old_key: str, device_type: str) -> Optional[str]:
+    def _map_telemetry_key(self, old_key: str, device_type: str,
+                           telemetry_key_map: dict = None) -> Optional[str]:
         """Map old telemetry key to new canonical name"""
         # Temperature sensor: map 'temperature' based on device type
         if old_key == TEMP_SENSOR_KEY:
@@ -831,9 +863,13 @@ class MigrationTool:
             else:
                 return None  # Skip unmapped temperature sensors
 
+        # Use provided key map or default to heating
+        if telemetry_key_map is None:
+            telemetry_key_map = get_telemetry_key_map('heating')
+
         # Standard key mapping
-        if old_key in TELEMETRY_KEY_MAP:
-            return TELEMETRY_KEY_MAP[old_key]
+        if old_key in telemetry_key_map:
+            return telemetry_key_map[old_key]
 
         # Pass through already normalized keys
         normalized_keys = ['T_flow_C', 'T_return_C', 'dT_K', 'Vdot_m3h', 'v_ms',
