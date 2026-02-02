@@ -35,6 +35,35 @@ TB_PASSWORD = os.getenv('TB_PASSWORD')
 
 BACKUP_DIR = Path(__file__).parent / 'backups'
 
+# =============================================================================
+# Telemetry Key Mapping (same as normalize_data.tbel)
+# =============================================================================
+TELEMETRY_KEY_MAP = {
+    # Temperature keys
+    'CHC_S_TemperatureFlow': 'T_flow_C',
+    'CHC_S_TemperatureReturn': 'T_return_C',
+    'CHC_S_TemperatureDiff': 'dT_K',
+    # Flow keys
+    'CHC_S_VolumeFlow': 'Vdot_m3h',  # Needs conversion: ÷1000 (l/h → m³/h)
+    'CHC_S_Velocity': 'v_ms',
+    # Power keys (heating/cooling handled by installationType)
+    'CHC_S_Power_Heating': 'P_th_kW',
+    'CHC_S_Power_Cooling': 'P_th_kW',
+    # Energy keys (heating/cooling handled by installationType)
+    'CHC_M_Energy_Heating': 'E_th_kWh',
+    'CHC_M_Energy_Cooling': 'E_th_kWh',
+    # Volume
+    'CHC_M_Volume': 'V_m3',
+}
+
+# Keys that need unit conversion (values come as strings from API!)
+TELEMETRY_CONVERSIONS = {
+    'CHC_S_VolumeFlow': lambda x: float(x) / 1000,  # l/h → m³/h
+}
+
+# Temperature sensor key (mapped based on device name suffix)
+TEMP_SENSOR_KEY = 'temperature'
+
 
 class ThingsBoardAPI:
     """ThingsBoard API Client"""
@@ -457,7 +486,7 @@ class MigrationTool:
     # =========================================================================
 
     def migrate(self, project_name: str, dry_run: bool = True):
-        """Migrate a project (attributes, telemetry keys)"""
+        """Migrate a project (attributes, telemetry) with automatic backup"""
         print(f"\n🚀 {'[DRY RUN] ' if dry_run else ''}Migrating project: {project_name}\n")
 
         # Find project
@@ -466,50 +495,78 @@ class MigrationTool:
             print(f"❌ Project '{project_name}' not found")
             return False
 
-        # Check for backup
-        if not dry_run:
-            backups = list(BACKUP_DIR.glob(f"{project_name}_*"))
-            if not backups:
-                print(f"⚠️  No backup found for '{project_name}'")
-                response = input("Continue without backup? (yes/no): ")
-                if response.lower() != 'yes':
-                    print("❌ Migration cancelled")
-                    return False
+        # Create backup directory (always, even for dry run)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_path = BACKUP_DIR / f"{project_name}_{timestamp}"
+        backup_path.mkdir(parents=True, exist_ok=True)
+
+        backup_data = {
+            'timestamp': timestamp,
+            'project_name': project_name,
+            'project_id': project['id']['id'],
+            'dry_run': dry_run,
+            'project': {},
+            'measurements': [],
+            'telemetry_backup': {}  # {measurement_name: {vr_device_id: {key: [(ts, val), ...]}}}
+        }
 
         # Migration steps
-        print("📋 Migration Plan:")
-        print("   1. Rename attributes (old → new)")
-        print("   2. Copy telemetry from VR devices to Measurement")
-        print("   3. Rename telemetry keys (CHC_* → new)")
-        print("   4. Update Project attributes (normOutdoorTemp)")
+        print("📋 Migration Plan (with automatic backup):")
+        print("   1. Backup + Migrate Project attributes")
+        print("   2. For each Measurement:")
+        print("      a. Backup + Migrate attributes")
+        print("      b. Read VR telemetry → Backup → Transform → Write to Measurement")
         print("")
 
-        # Migrate Project
-        self._migrate_project_attributes(project, dry_run)
+        # Migrate Project (with backup)
+        backup_data['project'] = self._migrate_project_attributes(project, dry_run)
 
-        # Migrate Measurements
-        for m in project.get('measurements', []):
-            self._migrate_measurement(m, dry_run)
+        # Migrate Measurements (with backup)
+        measurements = project.get('measurements', [])
+        total_measurements = len(measurements)
+
+        for i, m in enumerate(measurements, 1):
+            m_name = m['name']
+            print(f"\n📦 [{i}/{total_measurements}] Measurement: {m_name}")
+
+            # Migrate attributes and telemetry, collect backup data
+            m_backup, telemetry_backup = self._migrate_measurement_with_backup(m, dry_run)
+            backup_data['measurements'].append(m_backup)
+            if telemetry_backup:
+                backup_data['telemetry_backup'][m_name] = telemetry_backup
+
+        # Save backup file
+        backup_file = backup_path / 'backup.json'
+        with open(backup_file, 'w', encoding='utf-8') as f:
+            json.dump(backup_data, f, indent=2, ensure_ascii=False, default=str)
+
+        print(f"\n💾 Backup saved to: {backup_path}")
 
         if dry_run:
-            print("\n⚠️  This was a DRY RUN. No changes were made.")
+            print("\n⚠️  This was a DRY RUN. No changes were made to ThingsBoard.")
             print("   Run with --execute to apply changes.")
         else:
             print("\n✅ Migration completed")
 
         return True
 
-    def _migrate_project_attributes(self, project: dict, dry_run: bool):
-        """Migrate project attributes"""
+    def _migrate_project_attributes(self, project: dict, dry_run: bool) -> dict:
+        """Migrate project attributes, returns backup data"""
         project_id = project['id']['id']
         print(f"\n📦 Project: {project['name']}")
 
-        # Get current attributes
+        # Get current attributes (this is our backup)
         attrs = self.api.get(
             f"/api/plugins/telemetry/ASSET/{project_id}/values/attributes/SERVER_SCOPE"
         )
         if not attrs:
             attrs = []
+
+        backup = {
+            'id': project_id,
+            'name': project['name'],
+            'attributes_backup': attrs
+        }
 
         attr_dict = {a['key']: a['value'] for a in attrs}
 
@@ -519,17 +576,25 @@ class MigrationTool:
             if not dry_run:
                 self._save_attribute(project_id, 'ASSET', 'normOutdoorTemp', attr_dict['standardOutsideTemperature'])
 
-    def _migrate_measurement(self, measurement: dict, dry_run: bool):
-        """Migrate a measurement"""
-        m_id = measurement['id']['id']
-        print(f"\n📦 Measurement: {measurement['name']}")
+        return backup
 
-        # Get current attributes
+    def _migrate_measurement_with_backup(self, measurement: dict, dry_run: bool) -> tuple:
+        """Migrate a measurement with backup, returns (attribute_backup, telemetry_backup)"""
+        m_id = measurement['id']['id']
+        m_name = measurement['name']
+
+        # Get current attributes (this is our backup)
         attrs = self.api.get(
             f"/api/plugins/telemetry/ASSET/{m_id}/values/attributes/SERVER_SCOPE"
         )
         if not attrs:
             attrs = []
+
+        backup = {
+            'id': m_id,
+            'name': m_name,
+            'attributes_backup': attrs
+        }
 
         attr_dict = {a['key']: a['value'] for a in attrs}
 
@@ -544,6 +609,7 @@ class MigrationTool:
             ('sensorLabel2', 'auxSensor2'),
         ]
 
+        migrated_attrs = []
         for old_key, new_key in migrations:
             if old_key in attr_dict:
                 value = attr_dict[old_key]
@@ -553,6 +619,7 @@ class MigrationTool:
                     value = {'label': value, 'location': 'custom'}
 
                 print(f"   📝 {old_key} → {new_key}: {value}")
+                migrated_attrs.append({'old': old_key, 'new': new_key, 'value': value})
                 if not dry_run:
                     self._save_attribute(m_id, 'ASSET', new_key, value)
 
@@ -561,6 +628,13 @@ class MigrationTool:
             print(f"   📝 locationName → Entity Label: {attr_dict['locationName']}")
             if not dry_run:
                 self._rename_entity(m_id, 'ASSET', attr_dict['locationName'])
+
+        backup['migrated_attributes'] = migrated_attrs
+
+        # Migrate telemetry from VR devices (with backup)
+        telemetry_backup = self._migrate_telemetry_with_backup(measurement, dry_run)
+
+        return backup, telemetry_backup
 
     def _save_attribute(self, entity_id: str, entity_type: str, key: str, value):
         """Save an attribute"""
@@ -576,6 +650,198 @@ class MigrationTool:
             if entity:
                 entity['name'] = new_name
                 self.api.post("/api/asset", entity)
+
+    # =========================================================================
+    # TELEMETRY MIGRATION
+    # =========================================================================
+
+    def _migrate_telemetry_with_backup(self, measurement: dict, dry_run: bool) -> dict:
+        """Migrate telemetry from VR devices to Measurement, returns backup data"""
+        m_id = measurement['id']['id']
+        m_name = measurement['name']
+        vr_devices = measurement.get('vr_devices', [])
+
+        telemetry_backup = {}  # {vr_device_id: {key: [(ts, val), ...]}}
+
+        if not vr_devices:
+            print(f"   ℹ️  No VR devices to migrate")
+            return telemetry_backup
+
+        print(f"   📊 Migrating telemetry from {len(vr_devices)} VR device(s)...")
+
+        total_points = 0
+        total_vr = len(vr_devices)
+
+        for vr_idx, vr in enumerate(vr_devices, 1):
+            vr_id = vr['id']
+            vr_name = vr['name']
+
+            # Determine device type from name suffix
+            device_type = self._get_device_type(vr_name)
+            print(f"      [{vr_idx}/{total_vr}] 🔄 {vr_name} ({device_type})")
+
+            # Get telemetry keys from VR device
+            keys = self.api.get(f"/api/plugins/telemetry/DEVICE/{vr_id}/keys/timeseries")
+            if not keys:
+                print(f"         ⚠️  No telemetry keys found")
+                continue
+
+            # Filter only relevant keys
+            relevant_keys = [k for k in keys if self._map_telemetry_key(k, device_type)]
+            if not relevant_keys:
+                print(f"         ⚠️  No relevant telemetry keys found")
+                continue
+
+            telemetry_backup[vr_id] = {'device_name': vr_name, 'device_type': device_type, 'keys': {}}
+
+            # Read and transform telemetry for each relevant key
+            total_keys = len(relevant_keys)
+            for key_idx, old_key in enumerate(relevant_keys, 1):
+                new_key = self._map_telemetry_key(old_key, device_type)
+
+                # Read telemetry data (this is our backup!)
+                print(f"         [{key_idx}/{total_keys}] Reading {old_key}...", end="", flush=True)
+                telemetry = self._read_telemetry(vr_id, 'DEVICE', old_key)
+
+                if not telemetry:
+                    print(" (empty)")
+                    continue
+
+                points = len(telemetry)
+                total_points += points
+
+                # Save to backup (original data)
+                telemetry_backup[vr_id]['keys'][old_key] = {
+                    'new_key': new_key,
+                    'points': points,
+                    'data': telemetry  # Original data for backup
+                }
+
+                # Apply conversion if needed for migration
+                if old_key in TELEMETRY_CONVERSIONS:
+                    converter = TELEMETRY_CONVERSIONS[old_key]
+                    telemetry = [(ts, converter(val)) for ts, val in telemetry]
+
+                print(f" → {new_key}: {points} points")
+
+                if not dry_run:
+                    self._write_telemetry(m_id, 'ASSET', new_key, telemetry)
+
+        print(f"   ✅ Total: {total_points} data points {'to migrate' if dry_run else 'migrated'}")
+        return telemetry_backup
+
+    def _get_device_type(self, device_name: str) -> str:
+        """Determine device type from name suffix"""
+        if device_name.endswith('_TS1'):
+            return 'TS1'
+        elif device_name.endswith('_TS2'):
+            return 'TS2'
+        elif device_name.endswith('_TS3'):
+            return 'TS3'
+        elif '_PF' in device_name or device_name.endswith('_PF1') or device_name.endswith('_PF2'):
+            return 'PFLOW'
+        elif device_name.endswith('_gw'):
+            return 'GATEWAY'
+        elif 'pflow' in device_name.lower() or 'p-flow' in device_name.lower():
+            return 'PFLOW'
+        else:
+            return 'UNKNOWN'
+
+    def _map_telemetry_key(self, old_key: str, device_type: str) -> Optional[str]:
+        """Map old telemetry key to new canonical name"""
+        # Temperature sensor: map 'temperature' based on device type
+        if old_key == TEMP_SENSOR_KEY:
+            if device_type == 'TS1':
+                return 'auxT1_C'
+            elif device_type == 'TS2':
+                return 'auxT2_C'
+            elif device_type == 'TS3':
+                return 'auxT3_C'
+            else:
+                return None  # Skip unmapped temperature sensors
+
+        # Standard key mapping
+        if old_key in TELEMETRY_KEY_MAP:
+            return TELEMETRY_KEY_MAP[old_key]
+
+        # Pass through already normalized keys
+        normalized_keys = ['T_flow_C', 'T_return_C', 'dT_K', 'Vdot_m3h', 'v_ms',
+                          'P_th_kW', 'E_th_kWh', 'V_m3', 'auxT1_C', 'auxT2_C', 'auxT3_C']
+        if old_key in normalized_keys:
+            return old_key
+
+        return None
+
+    def _read_telemetry(self, entity_id: str, entity_type: str, key: str,
+                        start_ts: int = None, end_ts: int = None) -> list:
+        """Read telemetry data from entity, returns list of (timestamp, value) tuples"""
+        # Default: read all data (from epoch to now)
+        if start_ts is None:
+            start_ts = 0
+        if end_ts is None:
+            end_ts = int(datetime.now().timestamp() * 1000)
+
+        all_data = []
+        limit = 10000  # ThingsBoard page size limit
+
+        while True:
+            result = self.api.get(
+                f"/api/plugins/telemetry/{entity_type}/{entity_id}/values/timeseries",
+                params={
+                    'keys': key,
+                    'startTs': start_ts,
+                    'endTs': end_ts,
+                    'limit': limit,
+                    'orderBy': 'ASC'
+                }
+            )
+
+            if not result or key not in result:
+                break
+
+            data = result[key]
+            if not data:
+                break
+
+            # Convert to (timestamp, value) tuples - values come as strings!
+            for point in data:
+                val = point['value']
+                # Try to convert to number if possible
+                try:
+                    val = float(val)
+                except (ValueError, TypeError):
+                    pass  # Keep as string if not numeric
+                all_data.append((point['ts'], val))
+
+            # Check if we got all data (less than limit means no more)
+            if len(data) < limit:
+                break
+
+            # Update start_ts for next page (exclusive of last timestamp)
+            start_ts = data[-1]['ts'] + 1
+
+        return all_data
+
+    def _write_telemetry(self, entity_id: str, entity_type: str, key: str, data: list):
+        """Write telemetry data to entity, data is list of (timestamp, value) tuples"""
+        if not data:
+            return
+
+        # Write in batches to avoid request size limits
+        batch_size = 1000
+        for i in range(0, len(data), batch_size):
+            batch = data[i:i + batch_size]
+
+            # Format for ThingsBoard: {ts: timestamp, values: {key: value}}
+            telemetry_batch = [
+                {'ts': ts, 'values': {key: val}}
+                for ts, val in batch
+            ]
+
+            self.api.post(
+                f"/api/plugins/telemetry/{entity_type}/{entity_id}/timeseries/ANY",
+                telemetry_batch
+            )
 
     # =========================================================================
     # ROLLBACK - Restore from backup
