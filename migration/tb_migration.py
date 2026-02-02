@@ -205,14 +205,15 @@ class MigrationTool:
         return assets
 
     def _find_vr_devices(self, asset: dict) -> list:
-        """Find VR devices related to an asset"""
+        """Find VR devices related to an asset via 'Measurement VR' relation type"""
         asset_id = asset['id']['id']
         vr_devices = []
 
-        # Get relations FROM this asset
+        # Get relations FROM this asset with type "Measurement VR"
         relations = self.api.get(f"/api/relations", params={
             "fromId": asset_id,
-            "fromType": "ASSET"
+            "fromType": "ASSET",
+            "relationType": "Measurement VR"
         })
 
         if relations:
@@ -220,7 +221,7 @@ class MigrationTool:
                 if rel.get('to', {}).get('entityType') == 'DEVICE':
                     device_id = rel['to']['id']
                     device = self.api.get(f"/api/device/{device_id}")
-                    if device and '_VR' in device.get('name', ''):
+                    if device:
                         vr_devices.append({
                             'id': device_id,
                             'name': device.get('name'),
