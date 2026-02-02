@@ -451,6 +451,80 @@ async function pushCommand(args) {
   logger.log('Push completed');
 }
 
+async function pushJsCommand(args) {
+  // Push specific JS libraries by name
+  const names = args.filter((arg) => !arg.startsWith('--'));
+
+  if (names.length === 0) {
+    logger.error('Usage: node sync/sync.js push-js <library-name> [library-name2...]');
+    logger.log('Example: node sync/sync.js push-js "ECO Project Wizard"');
+    process.exit(1);
+  }
+
+  const config = loadConfig();
+  const api = new ThingsBoardApi({ ...config, logger });
+  await api.login();
+
+  // Get existing JS modules from server
+  logger.log('Fetching existing JS modules from server...');
+  const existingModules = await api.getJsModules();
+
+  // Create lookup by resourceKey (filename) and title
+  const modulesByKey = new Map();
+  for (const m of existingModules) {
+    if (m.resourceKey) modulesByKey.set(m.resourceKey.toLowerCase(), m);
+    if (m.title) modulesByKey.set(m.title.toLowerCase(), m);
+  }
+
+  // Find and upload matching local files
+  let localFiles;
+  try {
+    localFiles = await getJsFiles(SOURCE_DIRS.jslibraries);
+  } catch (err) {
+    logger.error(`Cannot read JS libraries directory: ${err.message}`);
+    process.exit(1);
+  }
+
+  let pushedCount = 0;
+  for (const searchName of names) {
+    const searchLower = searchName.toLowerCase();
+
+    // Find local file that matches the search name
+    const matchingFile = localFiles.find((f) => {
+      const basename = path.basename(f, '.js').toLowerCase();
+      return basename.includes(searchLower) || basename === searchLower;
+    });
+
+    if (!matchingFile) {
+      logger.error(`No local file found matching: ${searchName}`);
+      continue;
+    }
+
+    const filename = path.basename(matchingFile);
+    const title = filename.replace(/\.js$/, '');
+    const content = await fs.readFile(matchingFile, 'utf8');
+
+    // Find existing module on server
+    const existing = modulesByKey.get(filename.toLowerCase()) || modulesByKey.get(title.toLowerCase());
+
+    try {
+      if (existing) {
+        logger.log(`Updating: ${filename} (ID: ${existing.id.id})`);
+        await api.uploadJsModule(title, filename, content, existing.id.id);
+      } else {
+        logger.log(`Creating: ${filename}`);
+        await api.uploadJsModule(title, filename, content);
+      }
+      logger.log(`Pushed: ${filename}`);
+      pushedCount++;
+    } catch (err) {
+      logger.error(`Failed to push ${filename}: ${err.message}`);
+    }
+  }
+
+  logger.log(`Push completed: ${pushedCount} JS module(s)`);
+}
+
 async function backupCommand() {
   const { createBackup } = require('./backup');
   await createBackup(logger);
@@ -671,6 +745,7 @@ function printUsage() {
   logger.log('Commands:');
   logger.log('  sync [options]       Push ALL local files to ThingsBoard');
   logger.log('  push <name...>       Push SPECIFIC dashboard(s) to ThingsBoard');
+  logger.log('  push-js <name...>    Push SPECIFIC JS library/ies to ThingsBoard');
   logger.log('  pull [titles...]     Download dashboards from ThingsBoard');
   logger.log('  pull-js [names...]   Download JS modules from ThingsBoard');
   logger.log('  pull-i18n [locales]  Download custom translations');
@@ -699,6 +774,7 @@ function printUsage() {
   logger.log('Examples:');
   logger.log('  node sync/sync.js push administration');
   logger.log('  node sync/sync.js push measurements navigation');
+  logger.log('  node sync/sync.js push-js "ECO Project Wizard"');
   logger.log('  node sync/sync.js sync --dashboards');
   logger.log('  node sync/sync.js sync --js');
   logger.log('  node sync/sync.js sync --i18n');
@@ -724,6 +800,9 @@ async function main() {
         break;
       case 'push':
         await pushCommand(args);
+        break;
+      case 'push-js':
+        await pushJsCommand(args);
         break;
       case 'pull':
         await pullCommand(args);

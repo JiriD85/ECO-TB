@@ -2345,8 +2345,161 @@ mat-toolbar.eco-dialog-header mat-icon {
 .measurement-parameters-form .section-body {
   padding: 12px 14px !important;
 }
+.measurement-parameters-form .pump-subsection {
+  margin-top: 8px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 6px;
+  border: 1px dashed #cbd5e1;
+}
+.measurement-parameters-form .aux-sensor-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+.measurement-parameters-form .aux-sensor-row:last-child {
+  margin-bottom: 0;
+}
+/* Schedule Expansion Panel Styles */
+.measurement-parameters-form .schedule-panel {
+  margin-bottom: 16px !important;
+  border-radius: 8px !important;
+}
+.measurement-parameters-form .schedule-content {
+  padding: 8px 0 16px 0;
+}
+.measurement-parameters-form .section-header-clickable {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+.measurement-parameters-form .section-header-clickable:hover {
+  background: #e8f0f8 !important;
+}
+.measurement-parameters-form .schedule-summary {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 400;
+  text-transform: none;
+  margin-left: 12px;
+}
+.measurement-parameters-form .expand-icon {
+  color: #64748b !important;
+  transition: transform 0.2s ease;
+}
+.measurement-parameters-form .schedule-header-clickable {
+  cursor: pointer;
+}
+.measurement-parameters-form .schedule-header-clickable:hover {
+  background: #e8f4fd;
+}
+.measurement-parameters-form .schedule-summary {
+  margin-left: auto;
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 400;
+  padding-right: 8px;
+}
+.measurement-parameters-form .expand-chevron {
+  color: #94a3b8 !important;
+  font-size: 20px !important;
+  width: 20px !important;
+  height: 20px !important;
+  transition: transform 0.2s;
+}
+.measurement-parameters-form .expand-chevron.expanded {
+  transform: rotate(180deg);
+}
+/* Weekly Schedule - Day Pills Design */
+.measurement-parameters-form .day-pills-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.measurement-parameters-form .day-pill {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #e2e8f0;
+  background: #fff;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+.measurement-parameters-form .day-pill:hover {
+  border-color: #2196f3;
+  color: #2196f3;
+}
+.measurement-parameters-form .day-pill.active {
+  background: #2196f3;
+  border-color: #2196f3;
+  color: #fff;
+}
+.measurement-parameters-form .day-pill.active:hover {
+  background: #1976d2;
+  border-color: #1976d2;
+}
+.measurement-parameters-form .time-range-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.measurement-parameters-form .time-input {
+  width: 100px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: inherit;
+  color: rgba(0,0,0,0.85);
+  background: #fff;
+  transition: border-color 0.2s;
+}
+.measurement-parameters-form .time-input:hover {
+  border-color: #40a9ff;
+}
+.measurement-parameters-form .time-input:focus {
+  outline: none;
+  border-color: #2196f3;
+  box-shadow: 0 0 0 2px rgba(33,150,243,0.1);
+}
+.measurement-parameters-form .time-separator {
+  color: rgba(0,0,0,0.45);
+  font-size: 13px;
+  font-weight: 500;
+}
+.measurement-parameters-form .schedule-presets {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+.measurement-parameters-form .presets-label {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.measurement-parameters-form .schedule-presets button {
+  font-size: 11px;
+  padding: 2px 10px;
+  min-height: 26px;
+  line-height: 1.2;
+}
 </style>
-<form [formGroup]="parametersFormGroup" (ngSubmit)="save()" class="measurement-parameters-form" style="width: 600px;">
+<form [formGroup]="parametersFormGroup" (ngSubmit)="save()" class="measurement-parameters-form" style="width: 700px;">
   <mat-toolbar class="eco-dialog-header">
     <mat-icon class="header-icon">tune</mat-icon>
     <h2 class="header-title">Edit Measurement Parameters</h2>
@@ -2376,50 +2529,60 @@ mat-toolbar.eco-dialog-header mat-icon {
         <mat-label>Label</mat-label>
         <input matInput formControlName="entityLabel" placeholder="Display name for this measurement">
       </mat-form-field>
-      <mat-form-field appearance="fill" class="w-full">
-        <mat-label>Measurement Type</mat-label>
-        <mat-select formControlName="measurementType" [disabled]="!canEditMeasurementType">
-          <mat-select-trigger>
-            <div class="flex items-center gap-2">
-              <mat-icon *ngIf="parametersFormGroup.get('measurementType')?.value === 'ultrasonic'" style="font-size: 18px; width: 18px; height: 18px; color: #c62828;">sensors</mat-icon>
-              <mat-icon *ngIf="parametersFormGroup.get('measurementType')?.value === 'lorawan'" style="font-size: 18px; width: 18px; height: 18px; color: #7b1fa2;">wifi</mat-icon>
-              <mat-icon *ngIf="parametersFormGroup.get('measurementType')?.value === 'import'" style="font-size: 18px; width: 18px; height: 18px; color: #1565c0;">upload_file</mat-icon>
-              <mat-icon *ngIf="parametersFormGroup.get('measurementType')?.value === 'interpolation'" style="font-size: 18px; width: 18px; height: 18px; color: #00695c;">timeline</mat-icon>
-              <span *ngIf="parametersFormGroup.get('measurementType')?.value === 'ultrasonic'">Ultrasonic</span>
-              <span *ngIf="parametersFormGroup.get('measurementType')?.value === 'lorawan'">LoRaWAN</span>
-              <span *ngIf="parametersFormGroup.get('measurementType')?.value === 'import'">Import</span>
-              <span *ngIf="parametersFormGroup.get('measurementType')?.value === 'interpolation'">Interpolation</span>
-            </div>
-          </mat-select-trigger>
-          <mat-option value="ultrasonic">
-            <div class="flex items-center gap-2">
-              <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #c62828;">sensors</mat-icon>
-              <span>Ultrasonic</span>
-            </div>
-          </mat-option>
-          <mat-option value="lorawan">
-            <div class="flex items-center gap-2">
-              <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #7b1fa2;">wifi</mat-icon>
-              <span>LoRaWAN</span>
-            </div>
-          </mat-option>
-          <mat-option value="import">
-            <div class="flex items-center gap-2">
-              <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #1565c0;">upload_file</mat-icon>
-              <span>Import</span>
-            </div>
-          </mat-option>
-          <mat-option value="interpolation">
-            <div class="flex items-center gap-2">
-              <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #00695c;">timeline</mat-icon>
-              <span>Interpolation</span>
-            </div>
-          </mat-option>
-        </mat-select>
-        <mat-hint *ngIf="!canEditMeasurementType">
-          Type can only be changed in preparation/planned status
-        </mat-hint>
-      </mat-form-field>
+      <div class="flex gap-2">
+        <mat-form-field appearance="fill" style="flex: 1;">
+          <mat-label>Measurement Type</mat-label>
+          <mat-select formControlName="measurementType" [disabled]="!canEditMeasurementType">
+            <mat-select-trigger>
+              <div class="flex items-center gap-2">
+                <mat-icon *ngIf="parametersFormGroup.get('measurementType')?.value === 'ultrasonic'" style="font-size: 18px; width: 18px; height: 18px; color: #c62828;">sensors</mat-icon>
+                <mat-icon *ngIf="parametersFormGroup.get('measurementType')?.value === 'lorawan'" style="font-size: 18px; width: 18px; height: 18px; color: #7b1fa2;">wifi</mat-icon>
+                <mat-icon *ngIf="parametersFormGroup.get('measurementType')?.value === 'import'" style="font-size: 18px; width: 18px; height: 18px; color: #1565c0;">upload_file</mat-icon>
+                <mat-icon *ngIf="parametersFormGroup.get('measurementType')?.value === 'interpolation'" style="font-size: 18px; width: 18px; height: 18px; color: #00695c;">timeline</mat-icon>
+                <span *ngIf="parametersFormGroup.get('measurementType')?.value === 'ultrasonic'">Ultrasonic</span>
+                <span *ngIf="parametersFormGroup.get('measurementType')?.value === 'lorawan'">LoRaWAN</span>
+                <span *ngIf="parametersFormGroup.get('measurementType')?.value === 'import'">Import</span>
+                <span *ngIf="parametersFormGroup.get('measurementType')?.value === 'interpolation'">Interpolation</span>
+              </div>
+            </mat-select-trigger>
+            <mat-option value="ultrasonic">
+              <div class="flex items-center gap-2">
+                <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #c62828;">sensors</mat-icon>
+                <span>Ultrasonic</span>
+              </div>
+            </mat-option>
+            <mat-option value="lorawan">
+              <div class="flex items-center gap-2">
+                <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #7b1fa2;">wifi</mat-icon>
+                <span>LoRaWAN</span>
+              </div>
+            </mat-option>
+            <mat-option value="import">
+              <div class="flex items-center gap-2">
+                <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #1565c0;">upload_file</mat-icon>
+                <span>Import</span>
+              </div>
+            </mat-option>
+            <mat-option value="interpolation">
+              <div class="flex items-center gap-2">
+                <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #00695c;">timeline</mat-icon>
+                <span>Interpolation</span>
+              </div>
+            </mat-option>
+          </mat-select>
+          <mat-hint *ngIf="!canEditMeasurementType">
+            Type can only be changed in preparation/planned status
+          </mat-hint>
+        </mat-form-field>
+        <mat-form-field appearance="fill" style="flex: 1;">
+          <mat-label>Measurement Role</mat-label>
+          <mat-select formControlName="measurementRole">
+            <mat-option value="generator">Generator</mat-option>
+            <mat-option value="circuit">Circuit</mat-option>
+            <mat-option value="subDistribution">Sub-Distribution</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
     </div>
     </div>
 
@@ -2476,43 +2639,11 @@ mat-toolbar.eco-dialog-header mat-icon {
     </div>
     </div>
 
-    <!-- Dimension Section -->
+    <!-- Classification Section (renamed from Installation) -->
     <div class="section-card">
       <div class="section-header">
-        <mat-icon>straighten</mat-icon>
-        <span>Dimension</span>
-      </div>
-      <div class="section-body">
-      <div class="flex gap-2">
-        <mat-form-field appearance="fill" style="flex: 1;">
-          <mat-label>Dimension</mat-label>
-          <mat-select formControlName="dimension">
-            <mat-option *ngFor="let dim of dimensionOptions" [value]="dim">{{ dim }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="fill" style="flex: 1.5;">
-          <mat-label>Nominal Flow (m³/hr)</mat-label>
-          <input matInput formControlName="nominalFlow" type="number" readonly>
-        </mat-form-field>
-      </div>
-      <div class="flex gap-2">
-        <mat-form-field appearance="fill" style="flex: 1;">
-          <mat-label>Floor Volume (m³/hr)</mat-label>
-          <input matInput formControlName="deltaTAnalysisFloorVolume" type="number">
-        </mat-form-field>
-        <mat-form-field appearance="fill" style="flex: 1;">
-          <mat-label>Pump Power (W)</mat-label>
-          <input matInput formControlName="deltaTAnalysisPumpEnergy" type="number">
-        </mat-form-field>
-      </div>
-    </div>
-    </div>
-
-    <!-- Installation Section -->
-    <div class="section-card">
-      <div class="section-header">
-        <mat-icon>build</mat-icon>
-        <span>Installation</span>
+        <mat-icon>category</mat-icon>
+        <span>Classification</span>
       </div>
       <div class="section-body">
       <div class="flex gap-2">
@@ -2524,19 +2655,19 @@ mat-toolbar.eco-dialog-header mat-icon {
           </mat-select>
         </mat-form-field>
         <mat-form-field appearance="fill" style="flex: 1.5;">
-          <mat-label>Installation Type Options</mat-label>
-          <mat-select formControlName="installationTypeOptions">
+          <mat-label>System Type</mat-label>
+          <mat-select formControlName="systemType">
             <ng-container *ngIf="parametersFormGroup.get('installationType')?.value === 'heating'">
-              <mat-option value="radiatorHeating">Radiator Heating</mat-option>
+              <mat-option value="radiator">Radiator</mat-option>
               <mat-option value="floorHeating">Floor Heating</mat-option>
+              <mat-option value="fanCoil">Fan Coil</mat-option>
+              <mat-option value="ahuCoil">AHU Coil</mat-option>
               <mat-option value="districtHeating">District Heating</mat-option>
-              <mat-option value="heatingOther">Heating Other</mat-option>
             </ng-container>
             <ng-container *ngIf="parametersFormGroup.get('installationType')?.value === 'cooling'">
-              <mat-option value="coolingCircuit">Cooling Circuit</mat-option>
-              <mat-option value="coolingCeiling">Cooling Ceiling</mat-option>
+              <mat-option value="fanCoil">Fan Coil</mat-option>
+              <mat-option value="ahuCoil">AHU Coil</mat-option>
               <mat-option value="chiller">Chiller</mat-option>
-              <mat-option value="coolingOther">Cooling Other</mat-option>
             </ng-container>
           </mat-select>
         </mat-form-field>
@@ -2544,112 +2675,261 @@ mat-toolbar.eco-dialog-header mat-icon {
     </div>
     </div>
 
-    <!-- Analysis Section -->
+    <!-- Hydraulics Section (NEW) -->
     <div class="section-card">
       <div class="section-header">
-        <mat-icon>analytics</mat-icon>
-        <span>Analysis</span>
+        <mat-icon>water_drop</mat-icon>
+        <span>Hydraulics</span>
       </div>
       <div class="section-body">
       <div class="flex gap-2">
-        <mat-form-field appearance="fill" style="flex: 2;">
-          <mat-label>Standard Outdoor Temp.</mat-label>
-          <input matInput formControlName="standardOutdoorTemperature" type="number">
-        </mat-form-field>
         <mat-form-field appearance="fill" style="flex: 1;">
-          <mat-label>Delta T</mat-label>
-          <input matInput formControlName="deltaT" type="number">
-        </mat-form-field>
-      </div>
-      <div class="flex gap-2">
-        <mat-form-field appearance="fill" style="flex: 1.5;">
-          <mat-label>Outside Temp. Threshold</mat-label>
-          <mat-select formControlName="loadCourseFilterTemperature">
-            <mat-option value="above">Above</mat-option>
-            <mat-option value="below">Below</mat-option>
+          <mat-label>Hydraulic Scheme</mat-label>
+          <mat-select formControlName="hydraulicScheme">
+            <mat-option value="direct">Direct</mat-option>
+            <mat-option value="mixingValve">Mixing Valve</mat-option>
+            <mat-option value="injection">Injection</mat-option>
+            <mat-option value="separator">Separator</mat-option>
+            <mat-option value="buffer">Buffer</mat-option>
           </mat-select>
         </mat-form-field>
-        <mat-form-field appearance="fill" style="flex: 1.5;">
-          <mat-label>Threshold Value</mat-label>
-          <input matInput formControlName="loadCourseFilterTemperatureValue" type="number">
+        <mat-form-field appearance="fill" style="flex: 1;">
+          <mat-label>Fluid Type</mat-label>
+          <mat-select formControlName="fluidType">
+            <mat-option value="water">Water</mat-option>
+            <mat-option value="glycol20">Glycol 20%</mat-option>
+            <mat-option value="glycol30">Glycol 30%</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+    </div>
+
+    <!-- Design Section (NEW) -->
+    <div class="section-card">
+      <div class="section-header">
+        <mat-icon>design_services</mat-icon>
+        <span>Design</span>
+      </div>
+      <div class="section-body">
+      <div class="flex gap-2">
+        <mat-form-field appearance="fill" style="flex: 1;">
+          <mat-label>Design Flow Temp. (°C)</mat-label>
+          <input matInput formControlName="designFlowTemp" type="number">
+        </mat-form-field>
+        <mat-form-field appearance="fill" style="flex: 1;">
+          <mat-label>Design Return Temp. (°C)</mat-label>
+          <input matInput formControlName="designReturnTemp" type="number">
+        </mat-form-field>
+        <mat-form-field appearance="fill" style="flex: 1;">
+          <mat-label>Design ΔT (K)</mat-label>
+          <input matInput formControlName="designDeltaT" type="number">
         </mat-form-field>
       </div>
       <div class="flex gap-2">
-        <mat-form-field appearance="fill" class="flex-1">
-          <mat-label>Max Power Threshold (%)</mat-label>
-          <input matInput formControlName="loadCourseFilterMaxPower" type="number">
+        <mat-form-field appearance="fill" style="flex: 1;">
+          <mat-label>Design Power (kW)</mat-label>
+          <input matInput formControlName="designPower" type="number">
+        </mat-form-field>
+        <mat-form-field appearance="fill" style="flex: 1;">
+          <mat-label>Design Flow (m³/h)</mat-label>
+          <input matInput formControlName="designFlow" type="number">
         </mat-form-field>
       </div>
+    </div>
+    </div>
+
+    <!-- Pipe & Valve Section (renamed from Dimension) -->
+    <div class="section-card">
+      <div class="section-header">
+        <mat-icon>plumbing</mat-icon>
+        <span>Pipe & Valve</span>
+      </div>
+      <div class="section-body">
+      <div class="flex gap-2">
+        <mat-form-field appearance="fill" style="flex: 1;">
+          <mat-label>Pipe Dimension</mat-label>
+          <mat-select formControlName="pipeDimension">
+            <mat-option *ngFor="let dim of pipeDimensionOptions" [value]="dim">{{ dim }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="fill" style="flex: 1;">
+          <mat-label>Valve Dimension</mat-label>
+          <mat-select formControlName="valveDimension">
+            <mat-option *ngFor="let dim of valveDimensionOptions" [value]="dim">{{ dim }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="fill" style="flex: 1;">
+          <mat-label>Valve Kvs (m³/h)</mat-label>
+          <input matInput formControlName="valveKvs" type="number">
+        </mat-form-field>
+      </div>
+    </div>
+    </div>
+
+    <!-- Operation / ON-OFF Section (NEW) -->
+    <div class="section-card">
+      <div class="section-header">
+        <mat-icon>power_settings_new</mat-icon>
+        <span>Operation / ON-OFF</span>
+      </div>
+      <div class="section-body">
+      <div class="flex gap-2">
+        <mat-form-field appearance="fill" style="flex: 1;">
+          <mat-label>Flow ON Threshold (m³/h)</mat-label>
+          <input matInput formControlName="flowOnThreshold" type="number" step="0.001">
+        </mat-form-field>
+        <mat-form-field appearance="fill" style="flex: 1;">
+          <mat-label>Hysteresis (min)</mat-label>
+          <input matInput formControlName="hysteresisMinutes" type="number">
+        </mat-form-field>
+      </div>
+    </div>
+    </div>
+
+    <!-- Pump Section (NEW) -->
+    <div class="section-card">
+      <div class="section-header">
+        <mat-icon>settings_input_component</mat-icon>
+        <span>Pump</span>
+      </div>
+      <div class="section-body">
+      <mat-checkbox formControlName="pumpPresent" style="margin-bottom: 8px;">Pump Present</mat-checkbox>
+      <div class="pump-subsection" *ngIf="parametersFormGroup.get('pumpPresent')?.value">
+        <div class="flex gap-2">
+          <mat-form-field appearance="fill" style="flex: 1;">
+            <mat-label>Pump Control Type</mat-label>
+            <mat-select formControlName="pumpControlType">
+              <mat-option value="constant">Constant</mat-option>
+              <mat-option value="variable">Variable</mat-option>
+              <mat-option value="unknown">Unknown</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="fill" style="flex: 1;">
+            <mat-label>Pump Rated Power (kW)</mat-label>
+            <input matInput formControlName="pumpRatedPower" type="number" step="0.01">
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- Auxiliary Sensors Section (NEW) -->
+    <div class="section-card">
+      <div class="section-header">
+        <mat-icon>thermostat</mat-icon>
+        <span>Auxiliary Sensors</span>
+      </div>
+      <div class="section-body" formGroupName="auxSensors">
+      <div class="aux-sensor-row" formGroupName="auxSensor1">
+        <mat-form-field appearance="fill" style="flex: 1;">
+          <mat-label>Sensor 1 Label</mat-label>
+          <input matInput formControlName="label" placeholder="e.g. Mixer Output">
+        </mat-form-field>
+        <mat-form-field appearance="fill" style="flex: 1;">
+          <mat-label>Location</mat-label>
+          <mat-select formControlName="location">
+            <mat-option value="">None</mat-option>
+            <mat-option value="mixerPortA">Mixer Port A</mat-option>
+            <mat-option value="mixerPortB">Mixer Port B</mat-option>
+            <mat-option value="afterSeparator">After Separator</mat-option>
+            <mat-option value="beforeSeparator">Before Separator</mat-option>
+            <mat-option value="secondaryFlow">Secondary Flow</mat-option>
+            <mat-option value="secondaryReturn">Secondary Return</mat-option>
+            <mat-option value="bufferTop">Buffer Top</mat-option>
+            <mat-option value="bufferBottom">Buffer Bottom</mat-option>
+            <mat-option value="custom">Custom</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="aux-sensor-row" formGroupName="auxSensor2">
+        <mat-form-field appearance="fill" style="flex: 1;">
+          <mat-label>Sensor 2 Label</mat-label>
+          <input matInput formControlName="label" placeholder="e.g. Buffer Top">
+        </mat-form-field>
+        <mat-form-field appearance="fill" style="flex: 1;">
+          <mat-label>Location</mat-label>
+          <mat-select formControlName="location">
+            <mat-option value="">None</mat-option>
+            <mat-option value="mixerPortA">Mixer Port A</mat-option>
+            <mat-option value="mixerPortB">Mixer Port B</mat-option>
+            <mat-option value="afterSeparator">After Separator</mat-option>
+            <mat-option value="beforeSeparator">Before Separator</mat-option>
+            <mat-option value="secondaryFlow">Secondary Flow</mat-option>
+            <mat-option value="secondaryReturn">Secondary Return</mat-option>
+            <mat-option value="bufferTop">Buffer Top</mat-option>
+            <mat-option value="bufferBottom">Buffer Bottom</mat-option>
+            <mat-option value="custom">Custom</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+    </div>
+
+    <!-- Area Section (extracted from Analysis) -->
+    <div class="section-card">
+      <div class="section-header">
+        <mat-icon>square_foot</mat-icon>
+        <span>Area</span>
+      </div>
+      <div class="section-body" formGroupName="area">
       <div class="flex gap-2">
         <mat-form-field appearance="fill" style="flex: 1.5;">
-          <mat-label>Area</mat-label>
-          <input matInput formControlName="area" type="number">
+          <mat-label>Area Value</mat-label>
+          <input matInput formControlName="value" type="number">
         </mat-form-field>
         <mat-form-field appearance="fill" style="flex: 1;">
           <mat-label>Unit</mat-label>
-          <input matInput formControlName="unit" type="text">
+          <mat-select formControlName="unit">
+            <mat-option value="m²">m²</mat-option>
+            <mat-option value="ft²">ft²</mat-option>
+          </mat-select>
         </mat-form-field>
       </div>
     </div>
     </div>
 
-    <!-- Weekly Operating Schedule -->
-    <div class="section-card">
-      <div class="section-header">
+    <!-- Weekly Operating Schedule - COLLAPSIBLE with Day Pills -->
+    <div class="section-card" formGroupName="weeklySchedule">
+      <div class="section-header schedule-header-clickable" (click)="scheduleExpanded = !scheduleExpanded">
         <mat-icon>schedule</mat-icon>
         <span>Weekly Operating Schedule</span>
+        <span class="schedule-summary">{{ getScheduleSummary() }}</span>
+        <mat-icon class="expand-chevron" [class.expanded]="scheduleExpanded">expand_more</mat-icon>
       </div>
-      <div class="section-body">
-      <div formGroupName="weeklyOperatingSchedule" class="flex justify-between items-center gap-1">
-        <mat-checkbox formControlName="monday">Mon</mat-checkbox>
-        <mat-checkbox formControlName="tuesday">Tue</mat-checkbox>
-        <mat-checkbox formControlName="wednesday">Wed</mat-checkbox>
-        <mat-checkbox formControlName="thursday">Thu</mat-checkbox>
-        <mat-checkbox formControlName="friday">Fri</mat-checkbox>
-        <mat-checkbox formControlName="saturday">Sat</mat-checkbox>
-        <mat-checkbox formControlName="sunday">Sun</mat-checkbox>
+      <div class="section-body" *ngIf="scheduleExpanded">
+        <!-- Day Pills Row -->
+        <div class="day-pills-row">
+          <div class="day-pill" [class.active]="parametersFormGroup.get('weeklySchedule.monday.enabled').value"
+               (click)="toggleDay('monday')" formGroupName="monday">Mo</div>
+          <div class="day-pill" [class.active]="parametersFormGroup.get('weeklySchedule.tuesday.enabled').value"
+               (click)="toggleDay('tuesday')" formGroupName="tuesday">Tu</div>
+          <div class="day-pill" [class.active]="parametersFormGroup.get('weeklySchedule.wednesday.enabled').value"
+               (click)="toggleDay('wednesday')" formGroupName="wednesday">We</div>
+          <div class="day-pill" [class.active]="parametersFormGroup.get('weeklySchedule.thursday.enabled').value"
+               (click)="toggleDay('thursday')" formGroupName="thursday">Th</div>
+          <div class="day-pill" [class.active]="parametersFormGroup.get('weeklySchedule.friday.enabled').value"
+               (click)="toggleDay('friday')" formGroupName="friday">Fr</div>
+          <div class="day-pill" [class.active]="parametersFormGroup.get('weeklySchedule.saturday.enabled').value"
+               (click)="toggleDay('saturday')" formGroupName="saturday">Sa</div>
+          <div class="day-pill" [class.active]="parametersFormGroup.get('weeklySchedule.sunday.enabled').value"
+               (click)="toggleDay('sunday')" formGroupName="sunday">Su</div>
+        </div>
+        <!-- Time Range Row -->
+        <div class="time-range-row">
+          <input type="time" class="time-input" [formControl]="scheduleStartTime" step="1800">
+          <span class="time-separator">–</span>
+          <input type="time" class="time-input" [formControl]="scheduleEndTime" step="1800">
+        </div>
+        <!-- Quick Presets -->
+        <div class="schedule-presets">
+          <span class="presets-label">Presets:</span>
+          <button mat-stroked-button type="button" (click)="applyPreset('weekdays')">Weekdays 06-18</button>
+          <button mat-stroked-button type="button" (click)="applyPreset('office')">Office 08-17</button>
+          <button mat-stroked-button type="button" (click)="applyPreset('247')">24/7</button>
+          <button mat-stroked-button type="button" (click)="applyPreset('clear')">Clear</button>
+        </div>
       </div>
-    </div>
-    </div>
-
-    <!-- Alarm Thresholds -->
-    <div class="section-card">
-      <div class="section-header">
-        <mat-icon>notification_important</mat-icon>
-        <span>Alarm Thresholds</span>
-      </div>
-      <div class="section-body">
-      <div class="flex gap-2">
-        <mat-form-field appearance="fill" class="flex-1">
-          <mat-label>Max Volume Flow Critical</mat-label>
-          <input matInput formControlName="maxVolumeFlowCriticalThreshold" type="number">
-        </mat-form-field>
-        <mat-form-field appearance="fill" class="flex-1">
-          <mat-label>Max Volume Flow Major</mat-label>
-          <input matInput formControlName="maxVolumeFlowMajorThreshold" type="number">
-        </mat-form-field>
-      </div>
-      <div class="flex gap-2">
-        <mat-form-field appearance="fill" class="flex-1">
-          <mat-label>Max Energy Critical</mat-label>
-          <input matInput formControlName="maxEnergyCriticalThreshold" type="number">
-        </mat-form-field>
-        <mat-form-field appearance="fill" class="flex-1">
-          <mat-label>Max Energy Major</mat-label>
-          <input matInput formControlName="maxEnergyMajorThreshold" type="number">
-        </mat-form-field>
-      </div>
-      <div class="flex gap-2">
-        <mat-form-field appearance="fill" class="flex-1">
-          <mat-label>Min Temp Diff Critical</mat-label>
-          <input matInput formControlName="minTemperatureDifferenceCriticalThreshold" type="number">
-        </mat-form-field>
-        <mat-form-field appearance="fill" class="flex-1">
-          <mat-label>Min Temp Diff Major</mat-label>
-          <input matInput formControlName="minTemperatureDifferenceMajorThreshold" type="number">
-        </mat-form-field>
-      </div>
-    </div>
     </div>
 
   </div>
@@ -2734,54 +3014,96 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
     vm.entityName = config.entityName || '';
     vm.originalEntityLabel = config.entityLabel || '';
     vm.canEditMeasurementType = true; // Will be set based on progress
+    vm.scheduleExpanded = false; // Collapsed by default
 
-    vm.dimensionOptions = ['DN15', 'DN20', 'DN25', 'DN32', 'DN40', 'DN50', 'DN65', 'DN80', 'DN100', 'DN125', 'DN150'];
-    vm.weekDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    // Shared schedule time controls (for Day-Pills UI)
+    vm.scheduleStartTime = vm.fb.control('06:00');
+    vm.scheduleEndTime = vm.fb.control('22:00');
 
-    // Create form group
+    // Options for dropdowns
+    vm.pipeDimensionOptions = ['DN15', 'DN20', 'DN25', 'DN32', 'DN40', 'DN50', 'DN65', 'DN80', 'DN100', 'DN125', 'DN150'];
+    vm.valveDimensionOptions = ['DN15', 'DN20', 'DN25', 'DN32', 'DN40', 'DN50', 'DN65', 'DN80', 'DN100'];
+
+    // Weekly schedule options
+    vm.weekDays = [
+      { key: 'monday', label: 'Mon' },
+      { key: 'tuesday', label: 'Tue' },
+      { key: 'wednesday', label: 'Wed' },
+      { key: 'thursday', label: 'Thu' },
+      { key: 'friday', label: 'Fri' },
+      { key: 'saturday', label: 'Sat' },
+      { key: 'sunday', label: 'Sun' }
+    ];
+
+    // Generate time options (00:00, 00:30, 01:00, ..., 23:30)
+    vm.timeOptions = [];
+    for (let h = 0; h < 24; h++) {
+      for (let m = 0; m < 60; m += 30) {
+        vm.timeOptions.push(String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0'));
+      }
+    }
+
+    // Create form group with new structure
     vm.parametersFormGroup = vm.fb.group({
       // Measurement info
       entityLabel: [''],
       measurementType: ['ultrasonic'],
+      measurementRole: [null],
       // Status fields
       progress: ['in preparation'],
       startDate: [null],
       startTime: [null],
       endDate: [null],
       endTime: [null],
-      // Dimension fields
-      dimension: [null],
-      nominalFlow: [null],
-      deltaTAnalysisFloorVolume: [null],
-      deltaTAnalysisPumpEnergy: [null],
-      // Installation fields
+      // Classification fields (renamed from Installation)
       installationType: [null],
-      installationTypeOptions: [''],
-      // Analysis fields
-      standardOutdoorTemperature: [null],
-      deltaT: [null],
-      loadCourseFilterTemperature: [null],
-      loadCourseFilterTemperatureValue: [null],
-      loadCourseFilterMaxPower: [null],
-      area: [null],
-      unit: [null],
-      // Weekly schedule
-      weeklyOperatingSchedule: vm.fb.group({
-        monday: [false],
-        tuesday: [false],
-        wednesday: [false],
-        thursday: [false],
-        friday: [false],
-        saturday: [false],
-        sunday: [false]
+      systemType: [null],
+      // Hydraulics fields (NEW)
+      hydraulicScheme: [null],
+      fluidType: ['water'],
+      // Design fields (NEW)
+      designFlowTemp: [null],
+      designReturnTemp: [null],
+      designDeltaT: [null],
+      designPower: [null],
+      designFlow: [null],
+      // Pipe & Valve fields (renamed/extended from Dimension)
+      pipeDimension: [null],
+      valveDimension: [null],
+      valveKvs: [null],
+      // Operation / ON-OFF fields (NEW)
+      flowOnThreshold: [null],
+      hysteresisMinutes: [null],
+      // Pump fields (NEW)
+      pumpPresent: [false],
+      pumpControlType: [null],
+      pumpRatedPower: [null],
+      // Auxiliary sensors (NEW)
+      auxSensors: vm.fb.group({
+        auxSensor1: vm.fb.group({
+          label: [''],
+          location: ['']
+        }),
+        auxSensor2: vm.fb.group({
+          label: [''],
+          location: ['']
+        })
       }),
-      // Alarm thresholds
-      maxVolumeFlowCriticalThreshold: [null],
-      maxVolumeFlowMajorThreshold: [null],
-      maxEnergyCriticalThreshold: [null],
-      maxEnergyMajorThreshold: [null],
-      minTemperatureDifferenceCriticalThreshold: [null],
-      minTemperatureDifferenceMajorThreshold: [null]
+      // Area (restructured)
+      area: vm.fb.group({
+        value: [null],
+        unit: ['m²']
+      }),
+      // Weekly schedule (with time ranges)
+      weeklySchedule: vm.fb.group({
+        monday: vm.fb.group({ enabled: [false], start: ['06:00'], end: ['22:00'] }),
+        tuesday: vm.fb.group({ enabled: [false], start: ['06:00'], end: ['22:00'] }),
+        wednesday: vm.fb.group({ enabled: [false], start: ['06:00'], end: ['22:00'] }),
+        thursday: vm.fb.group({ enabled: [false], start: ['06:00'], end: ['22:00'] }),
+        friday: vm.fb.group({ enabled: [false], start: ['06:00'], end: ['22:00'] }),
+        saturday: vm.fb.group({ enabled: [false], start: ['06:00'], end: ['22:00'] }),
+        sunday: vm.fb.group({ enabled: [false], start: ['06:00'], end: ['22:00'] })
+      })
     });
 
     // Initialize form with existing values
@@ -2798,6 +3120,9 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
       vm.parametersFormGroup.get('entityLabel').setValue(vm.originalEntityLabel);
       if (attributeMap.measurementType) {
         vm.parametersFormGroup.get('measurementType').setValue(attributeMap.measurementType);
+      }
+      if (attributeMap.measurementRole) {
+        vm.parametersFormGroup.get('measurementRole').setValue(attributeMap.measurementRole);
       }
 
       // Status fields
@@ -2821,109 +3146,167 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
         vm.parametersFormGroup.get('endTime').setValue(endDateTime);
       }
 
-      // Dimension fields
-      if (attributeMap.dimension) {
-        vm.parametersFormGroup.get('dimension').setValue(attributeMap.dimension);
-      }
-      if (attributeMap.nominalFlow) {
-        vm.parametersFormGroup.get('nominalFlow').setValue(attributeMap.nominalFlow);
-      }
-      if (attributeMap.deltaTAnalysisFloorVolume) {
-        vm.parametersFormGroup.get('deltaTAnalysisFloorVolume').setValue(attributeMap.deltaTAnalysisFloorVolume);
-      }
-      if (attributeMap.pumpPower || attributeMap.deltaTAnalysisPumpEnergy) {
-        vm.parametersFormGroup.get('deltaTAnalysisPumpEnergy').setValue(attributeMap.pumpPower || attributeMap.deltaTAnalysisPumpEnergy);
-      }
-
-      // Installation fields
+      // Classification fields
       if (attributeMap.installationType) {
         vm.parametersFormGroup.get('installationType').setValue(attributeMap.installationType);
       }
-      if (attributeMap.installationTypeOptions) {
-        vm.parametersFormGroup.get('installationTypeOptions').setValue(attributeMap.installationTypeOptions);
+      // Support both new systemType and legacy installationTypeOptions
+      if (attributeMap.systemType) {
+        vm.parametersFormGroup.get('systemType').setValue(attributeMap.systemType);
+      } else if (attributeMap.installationTypeOptions) {
+        // Map legacy values to new systemType values
+        const legacyToNew = {
+          radiatorHeating: 'radiator',
+          floorHeating: 'floorHeating',
+          districtHeating: 'districtHeating',
+          heatingOther: null,
+          coolingCircuit: 'fanCoil',
+          coolingCeiling: 'fanCoil',
+          chiller: 'chiller',
+          coolingOther: null
+        };
+        vm.parametersFormGroup.get('systemType').setValue(legacyToNew[attributeMap.installationTypeOptions] || null);
       }
 
-      // Analysis fields
-      if (attributeMap.standardOutsideTemperature || attributeMap.standardOutdoorTemperature) {
-        vm.parametersFormGroup.get('standardOutdoorTemperature').setValue(attributeMap.standardOutsideTemperature || attributeMap.standardOutdoorTemperature);
+      // Hydraulics fields
+      if (attributeMap.hydraulicScheme) {
+        vm.parametersFormGroup.get('hydraulicScheme').setValue(attributeMap.hydraulicScheme);
       }
-      if (attributeMap.deltaT) {
-        vm.parametersFormGroup.get('deltaT').setValue(attributeMap.deltaT);
+      if (attributeMap.fluidType) {
+        vm.parametersFormGroup.get('fluidType').setValue(attributeMap.fluidType);
       }
-      if (attributeMap.loadCourseFilterTemperature) {
-        vm.parametersFormGroup.get('loadCourseFilterTemperature').setValue(attributeMap.loadCourseFilterTemperature);
+
+      // Design fields (support both new and legacy attribute names)
+      if (attributeMap.designFlowTemp) {
+        vm.parametersFormGroup.get('designFlowTemp').setValue(attributeMap.designFlowTemp);
       }
-      if (attributeMap.loadCourseFilterTemperatureValue) {
-        vm.parametersFormGroup.get('loadCourseFilterTemperatureValue').setValue(attributeMap.loadCourseFilterTemperatureValue);
+      if (attributeMap.designReturnTemp) {
+        vm.parametersFormGroup.get('designReturnTemp').setValue(attributeMap.designReturnTemp);
       }
-      if (attributeMap.loadCourseFilterMaxPower) {
-        vm.parametersFormGroup.get('loadCourseFilterMaxPower').setValue(attributeMap.loadCourseFilterMaxPower);
+      // Support both designDeltaT (new) and deltaT (legacy)
+      if (attributeMap.designDeltaT !== undefined) {
+        vm.parametersFormGroup.get('designDeltaT').setValue(attributeMap.designDeltaT);
+      } else if (attributeMap.deltaT !== undefined) {
+        vm.parametersFormGroup.get('designDeltaT').setValue(attributeMap.deltaT);
       }
+      if (attributeMap.designPower) {
+        vm.parametersFormGroup.get('designPower').setValue(attributeMap.designPower);
+      }
+      // Support both designFlow (new) and nominalFlow (legacy)
+      if (attributeMap.designFlow !== undefined) {
+        vm.parametersFormGroup.get('designFlow').setValue(attributeMap.designFlow);
+      } else if (attributeMap.nominalFlow !== undefined) {
+        vm.parametersFormGroup.get('designFlow').setValue(attributeMap.nominalFlow);
+      }
+
+      // Pipe & Valve fields (support both new and legacy names)
+      if (attributeMap.pipeDimension) {
+        vm.parametersFormGroup.get('pipeDimension').setValue(attributeMap.pipeDimension);
+      } else if (attributeMap.dimension) {
+        vm.parametersFormGroup.get('pipeDimension').setValue(attributeMap.dimension);
+      }
+      if (attributeMap.valveDimension) {
+        vm.parametersFormGroup.get('valveDimension').setValue(attributeMap.valveDimension);
+      }
+      if (attributeMap.valveKvs) {
+        vm.parametersFormGroup.get('valveKvs').setValue(attributeMap.valveKvs);
+      }
+
+      // Operation / ON-OFF fields (support both new and legacy names)
+      if (attributeMap.flowOnThreshold !== undefined) {
+        vm.parametersFormGroup.get('flowOnThreshold').setValue(attributeMap.flowOnThreshold);
+      } else if (attributeMap.deltaTAnalysisFloorVolume !== undefined) {
+        vm.parametersFormGroup.get('flowOnThreshold').setValue(attributeMap.deltaTAnalysisFloorVolume);
+      }
+      if (attributeMap.hysteresisMinutes !== undefined) {
+        vm.parametersFormGroup.get('hysteresisMinutes').setValue(attributeMap.hysteresisMinutes);
+      }
+
+      // Pump fields
+      if (attributeMap.pumpPresent !== undefined) {
+        vm.parametersFormGroup.get('pumpPresent').setValue(attributeMap.pumpPresent);
+      }
+      if (attributeMap.pumpControlType) {
+        vm.parametersFormGroup.get('pumpControlType').setValue(attributeMap.pumpControlType);
+      }
+      if (attributeMap.pumpRatedPower !== undefined) {
+        vm.parametersFormGroup.get('pumpRatedPower').setValue(attributeMap.pumpRatedPower);
+      }
+
+      // Auxiliary sensors
+      if (attributeMap.auxSensor1 && typeof attributeMap.auxSensor1 === 'object') {
+        vm.parametersFormGroup.get('auxSensors.auxSensor1').patchValue(attributeMap.auxSensor1);
+      }
+      if (attributeMap.auxSensor2 && typeof attributeMap.auxSensor2 === 'object') {
+        vm.parametersFormGroup.get('auxSensors.auxSensor2').patchValue(attributeMap.auxSensor2);
+      }
+
+      // Area (support new nested structure)
       if (attributeMap.area && typeof attributeMap.area === 'object') {
-        vm.parametersFormGroup.get('area').setValue(attributeMap.area.value);
-        vm.parametersFormGroup.get('unit').setValue(attributeMap.area.unit);
+        vm.parametersFormGroup.get('area').patchValue(attributeMap.area);
       }
 
-      // Weekly schedule
+      // Weekly schedule (support both legacy boolean and new object format)
       if (attributeMap.weeklySchedule) {
-        Object.keys(attributeMap.weeklySchedule).forEach(function(day) {
-          const control = vm.parametersFormGroup.get('weeklyOperatingSchedule.' + day);
-          if (control) {
-            control.setValue(attributeMap.weeklySchedule[day]);
+        const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+        days.forEach(function(day) {
+          const dayData = attributeMap.weeklySchedule[day];
+          const control = vm.parametersFormGroup.get('weeklySchedule.' + day);
+          if (control && dayData !== undefined) {
+            if (typeof dayData === 'boolean') {
+              // Legacy format: just a boolean - convert to new format
+              control.get('enabled').setValue(dayData);
+            } else if (typeof dayData === 'object' && dayData !== null) {
+              // New format: { enabled, start, end }
+              control.patchValue(dayData);
+            }
           }
         });
       }
 
-      // Alarm thresholds
-      if (attributeMap.maxVolumeFlowCriticalThreshold) {
-        vm.parametersFormGroup.get('maxVolumeFlowCriticalThreshold').setValue(attributeMap.maxVolumeFlowCriticalThreshold);
-      }
-      if (attributeMap.maxVolumeFlowMajorThreshold) {
-        vm.parametersFormGroup.get('maxVolumeFlowMajorThreshold').setValue(attributeMap.maxVolumeFlowMajorThreshold);
-      }
-      if (attributeMap.maxEnergyCriticalThreshold) {
-        vm.parametersFormGroup.get('maxEnergyCriticalThreshold').setValue(attributeMap.maxEnergyCriticalThreshold);
-      }
-      if (attributeMap.maxEnergyMajorThreshold) {
-        vm.parametersFormGroup.get('maxEnergyMajorThreshold').setValue(attributeMap.maxEnergyMajorThreshold);
-      }
-      if (attributeMap.minTemperatureDifferenceCriticalThreshold) {
-        vm.parametersFormGroup.get('minTemperatureDifferenceCriticalThreshold').setValue(attributeMap.minTemperatureDifferenceCriticalThreshold);
-      }
-      if (attributeMap.minTemperatureDifferenceMajorThreshold) {
-        vm.parametersFormGroup.get('minTemperatureDifferenceMajorThreshold').setValue(attributeMap.minTemperatureDifferenceMajorThreshold);
-      }
     }
 
     function setupFormSubscriptions() {
-      // Auto-set nominalFlow when dimension changes
-      vm.parametersFormGroup.get('dimension').valueChanges.subscribe(function(dimension) {
-        const nominalFlow = getNominalFlowByDimension(dimension);
-        vm.parametersFormGroup.get('nominalFlow').setValue(nominalFlow);
-      });
+      // Auto-set design values when systemType changes
+      vm.parametersFormGroup.get('systemType').valueChanges.subscribe(function(systemType) {
+        if (!systemType) return;
 
-      // Auto-calculate deltaTAnalysisFloorVolume when nominalFlow changes
-      vm.parametersFormGroup.get('nominalFlow').valueChanges.subscribe(function(nominalFlow) {
-        if (nominalFlow) {
-          const floorVolume = (nominalFlow * 0.02).toFixed(3);
-          vm.parametersFormGroup.get('deltaTAnalysisFloorVolume').setValue(parseFloat(floorVolume));
+        const installationType = vm.parametersFormGroup.get('installationType').value;
+        const defaults = getDefaultsForSystemType(systemType, installationType);
+
+        if (defaults) {
+          // Only set if values are currently empty (don't overwrite user values)
+          const designFlowTemp = vm.parametersFormGroup.get('designFlowTemp');
+          const designReturnTemp = vm.parametersFormGroup.get('designReturnTemp');
+          const designDeltaT = vm.parametersFormGroup.get('designDeltaT');
+
+          if (!designFlowTemp.value && defaults.designFlowTemp) {
+            designFlowTemp.setValue(defaults.designFlowTemp);
+          }
+          if (!designReturnTemp.value && defaults.designReturnTemp) {
+            designReturnTemp.setValue(defaults.designReturnTemp);
+          }
+          if (!designDeltaT.value && defaults.designDeltaT) {
+            designDeltaT.setValue(defaults.designDeltaT);
+          }
         }
       });
 
-      // Auto-set deltaT when installationTypeOptions changes
-      vm.parametersFormGroup.get('installationTypeOptions').valueChanges.subscribe(function(option) {
-        const deltaTValues = {
-          coolingCircuit: 6,
-          coolingCeiling: 3,
-          chiller: 6,
-          coolingOther: null,
-          radiatorHeating: 15,
-          floorHeating: 5,
-          districtHeating: 25,
-          heatingOther: null
-        };
-        const deltaT = deltaTValues[option] || null;
-        vm.parametersFormGroup.get('deltaT').setValue(deltaT);
+      // Clear systemType when installationType changes (options are different per type)
+      vm.parametersFormGroup.get('installationType').valueChanges.subscribe(function(installationType) {
+        // Reset systemType when installation type changes (options are different)
+        vm.parametersFormGroup.get('systemType').setValue(null);
+      });
+
+      // Auto-calculate flowOnThreshold when designFlow changes (2% of design flow)
+      vm.parametersFormGroup.get('designFlow').valueChanges.subscribe(function(designFlow) {
+        if (designFlow) {
+          const flowOnThreshold = vm.parametersFormGroup.get('flowOnThreshold');
+          if (!flowOnThreshold.value) {
+            const threshold = (designFlow * 0.02).toFixed(3);
+            flowOnThreshold.setValue(parseFloat(threshold));
+          }
+        }
       });
 
       // Auto-set start/end time when progress changes
@@ -2945,14 +3328,35 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
           endTimeControl.setValue(now);
         }
       });
+
+      // Sync schedule times to weeklySchedule when time inputs change (for live summary update)
+      vm.scheduleStartTime.valueChanges.subscribe(function() {
+        vm.syncScheduleTimes();
+      });
+      vm.scheduleEndTime.valueChanges.subscribe(function() {
+        vm.syncScheduleTimes();
+      });
     }
 
-    function getNominalFlowByDimension(dimension) {
-      const dimensionToNominalFlow = {
-        DN15: 1.5, DN20: 2.5, DN25: 3.5, DN32: 6, DN40: 10,
-        DN50: 15, DN65: 28.8, DN80: 39.6, DN100: 72, DN125: 111.6, DN150: 162
+    // Get default design values based on systemType and installationType
+    function getDefaultsForSystemType(systemType, installationType) {
+      const defaults = {
+        // Heating systems
+        radiator: { designDeltaT: 15, designFlowTemp: 70, designReturnTemp: 55 },
+        floorHeating: { designDeltaT: 7, designFlowTemp: 35, designReturnTemp: 28 },
+        districtHeating: { designDeltaT: 25, designFlowTemp: 90, designReturnTemp: 65 },
+        // Dual-use systems (heating/cooling)
+        fanCoil: installationType === 'cooling'
+          ? { designDeltaT: 6, designFlowTemp: 6, designReturnTemp: 12 }
+          : { designDeltaT: 10, designFlowTemp: 50, designReturnTemp: 40 },
+        ahuCoil: installationType === 'cooling'
+          ? { designDeltaT: 5, designFlowTemp: 6, designReturnTemp: 11 }
+          : { designDeltaT: 20, designFlowTemp: 80, designReturnTemp: 60 },
+        // Cooling only
+        chiller: { designDeltaT: 5, designFlowTemp: 6, designReturnTemp: 11 }
       };
-      return dimensionToNominalFlow[dimension] || null;
+
+      return defaults[systemType] || null;
     }
 
     function parseDateTime(dateObj, timeObj) {
@@ -2962,6 +3366,187 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
       date.setHours(time.getHours(), time.getMinutes(), time.getSeconds(), time.getMilliseconds());
       return date;
     }
+
+    // Schedule helper functions
+    vm.getScheduleSummary = function() {
+      const schedule = vm.parametersFormGroup.get('weeklySchedule').value;
+      const enabledDays = vm.weekDays.filter(d => schedule[d.key]?.enabled);
+
+      if (enabledDays.length === 0) {
+        return 'No days configured';
+      }
+
+      if (enabledDays.length === 7) {
+        const allSameTime = enabledDays.every(d =>
+          schedule[d.key].start === schedule[enabledDays[0].key].start &&
+          schedule[d.key].end === schedule[enabledDays[0].key].end
+        );
+        if (allSameTime) {
+          return 'Daily ' + schedule[enabledDays[0].key].start + '-' + schedule[enabledDays[0].key].end;
+        }
+      }
+
+      // Check if weekdays (Mon-Fri) have same schedule
+      const weekdayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+      const weekdaysEnabled = weekdayKeys.filter(k => schedule[k]?.enabled);
+      if (weekdaysEnabled.length === 5) {
+        const allSame = weekdaysEnabled.every(k =>
+          schedule[k].start === schedule[weekdaysEnabled[0]].start &&
+          schedule[k].end === schedule[weekdaysEnabled[0]].end
+        );
+        if (allSame) {
+          const weekendEnabled = ['saturday', 'sunday'].filter(k => schedule[k]?.enabled);
+          if (weekendEnabled.length === 0) {
+            return 'Mon-Fri ' + schedule[weekdaysEnabled[0]].start + '-' + schedule[weekdaysEnabled[0]].end;
+          }
+        }
+      }
+
+      // Fallback: show count
+      return enabledDays.length + ' day(s) configured';
+    };
+
+    vm.copyToNextDay = function(dayKey) {
+      const dayOrder = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+      const currentIndex = dayOrder.indexOf(dayKey);
+      const nextIndex = (currentIndex + 1) % 7;
+      const nextDay = dayOrder[nextIndex];
+
+      const sourceValues = vm.parametersFormGroup.get('weeklySchedule.' + dayKey).value;
+      vm.parametersFormGroup.get('weeklySchedule.' + nextDay).patchValue(sourceValues);
+    };
+
+    vm.copyToWeekdays = function(dayKey) {
+      const weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+      const sourceValues = vm.parametersFormGroup.get('weeklySchedule.' + dayKey).value;
+
+      weekdays.forEach(function(day) {
+        vm.parametersFormGroup.get('weeklySchedule.' + day).patchValue(sourceValues);
+      });
+    };
+
+    vm.copyToAllDays = function(dayKey) {
+      const allDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+      const sourceValues = vm.parametersFormGroup.get('weeklySchedule.' + dayKey).value;
+
+      allDays.forEach(function(day) {
+        vm.parametersFormGroup.get('weeklySchedule.' + day).patchValue(sourceValues);
+      });
+    };
+
+    // Toggle day enabled state (for Day-Pills UI)
+    vm.toggleDay = function(dayKey) {
+      const dayControl = vm.parametersFormGroup.get('weeklySchedule.' + dayKey + '.enabled');
+      const currentValue = dayControl.value;
+      dayControl.setValue(!currentValue);
+    };
+
+    // Sync shared time to all enabled days before saving
+    vm.syncScheduleTimes = function() {
+      const allDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+      const startTime = vm.scheduleStartTime.value;
+      const endTime = vm.scheduleEndTime.value;
+
+      allDays.forEach(function(day) {
+        const dayGroup = vm.parametersFormGroup.get('weeklySchedule.' + day);
+        if (dayGroup.get('enabled').value) {
+          dayGroup.patchValue({ start: startTime, end: endTime });
+        }
+      });
+    };
+
+    // Initialize shared time controls from first enabled day
+    vm.initScheduleTimes = function() {
+      const allDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+      const schedule = vm.parametersFormGroup.get('weeklySchedule').value;
+
+      for (const day of allDays) {
+        if (schedule[day] && schedule[day].enabled) {
+          vm.scheduleStartTime.setValue(schedule[day].start || '06:00');
+          vm.scheduleEndTime.setValue(schedule[day].end || '22:00');
+          return;
+        }
+      }
+      // No enabled days - use defaults
+      vm.scheduleStartTime.setValue('06:00');
+      vm.scheduleEndTime.setValue('22:00');
+    };
+
+    vm.applyPreset = function(preset) {
+      const allDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+      const weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+      const weekend = ['saturday', 'sunday'];
+
+      switch (preset) {
+        case 'weekdays':
+          weekdays.forEach(function(day) {
+            vm.parametersFormGroup.get('weeklySchedule.' + day).patchValue({ enabled: true, start: '06:00', end: '18:00' });
+          });
+          weekend.forEach(function(day) {
+            vm.parametersFormGroup.get('weeklySchedule.' + day).patchValue({ enabled: false, start: '06:00', end: '18:00' });
+          });
+          vm.scheduleStartTime.setValue('06:00');
+          vm.scheduleEndTime.setValue('18:00');
+          break;
+        case 'office':
+          weekdays.forEach(function(day) {
+            vm.parametersFormGroup.get('weeklySchedule.' + day).patchValue({ enabled: true, start: '08:00', end: '17:00' });
+          });
+          weekend.forEach(function(day) {
+            vm.parametersFormGroup.get('weeklySchedule.' + day).patchValue({ enabled: false, start: '08:00', end: '17:00' });
+          });
+          vm.scheduleStartTime.setValue('08:00');
+          vm.scheduleEndTime.setValue('17:00');
+          break;
+        case '247':
+          allDays.forEach(function(day) {
+            vm.parametersFormGroup.get('weeklySchedule.' + day).patchValue({ enabled: true, start: '00:00', end: '23:30' });
+          });
+          vm.scheduleStartTime.setValue('00:00');
+          vm.scheduleEndTime.setValue('23:30');
+          break;
+        case 'clear':
+          allDays.forEach(function(day) {
+            vm.parametersFormGroup.get('weeklySchedule.' + day).patchValue({ enabled: false, start: '06:00', end: '22:00' });
+          });
+          vm.scheduleStartTime.setValue('06:00');
+          vm.scheduleEndTime.setValue('22:00');
+          break;
+      }
+    };
+
+    // Generate schedule summary for collapsed header
+    vm.getScheduleSummary = function() {
+      const schedule = vm.parametersFormGroup.get('weeklySchedule').value;
+      const dayNames = { monday: 'Mo', tuesday: 'Tu', wednesday: 'We', thursday: 'Th', friday: 'Fr', saturday: 'Sa', sunday: 'Su' };
+      const allDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+      const enabledDays = allDays.filter(function(d) { return schedule[d] && schedule[d].enabled; });
+
+      if (enabledDays.length === 0) {
+        return 'Not configured';
+      }
+
+      // Check for common patterns
+      const weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+      const isWeekdays = weekdays.every(function(d) { return enabledDays.includes(d); }) &&
+                         !enabledDays.includes('saturday') && !enabledDays.includes('sunday');
+      const isDaily = enabledDays.length === 7;
+
+      // Get time range (assume all same for simplicity)
+      const firstDay = enabledDays[0];
+      const start = schedule[firstDay].start || '06:00';
+      const end = schedule[firstDay].end || '22:00';
+      const timeRange = start + '-' + end;
+
+      if (isDaily) {
+        return 'Daily ' + timeRange;
+      } else if (isWeekdays) {
+        return 'Mo-Fr ' + timeRange;
+      } else {
+        const dayList = enabledDays.map(function(d) { return dayNames[d]; }).join(', ');
+        return dayList + ' ' + timeRange;
+      }
+    };
 
     vm.cancel = function() {
       vm.dialogRef.close(null);
@@ -2973,37 +3558,56 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
       }
 
       vm.isLoading = true;
-      const formData = vm.parametersFormGroup.value;
+
+      // Sync shared time values to all enabled days before saving
+      vm.syncScheduleTimes();
+
+      const formData = vm.parametersFormGroup.getRawValue();
 
       const startDateTime = parseDateTime(formData.startDate, formData.startTime);
       const endDateTime = parseDateTime(formData.endDate, formData.endTime);
 
       const attributesArray = [
+        // Measurement info
         { key: 'measurementType', value: formData.measurementType },
+        { key: 'measurementRole', value: formData.measurementRole },
+        // Status
         { key: 'progress', value: formData.progress },
         { key: 'startTimeMs', value: startDateTime ? startDateTime.getTime() : null },
         { key: 'endTimeMs', value: endDateTime ? endDateTime.getTime() : null },
-        { key: 'dimension', value: formData.dimension },
-        { key: 'nominalFlow', value: formData.nominalFlow },
-        { key: 'deltaTAnalysisFloorVolume', value: formData.deltaTAnalysisFloorVolume },
-        { key: 'deltaTAnalysisPumpEnergy', value: formData.deltaTAnalysisPumpEnergy },
+        // Classification
         { key: 'installationType', value: formData.installationType },
-        { key: 'installationTypeOptions', value: formData.installationTypeOptions },
-        { key: 'standardOutsideTemperature', value: formData.standardOutdoorTemperature },
-        { key: 'deltaT', value: formData.deltaT },
-        { key: 'loadCourseFilterTemperature', value: formData.loadCourseFilterTemperature },
-        { key: 'loadCourseFilterTemperatureValue', value: formData.loadCourseFilterTemperatureValue },
-        { key: 'loadCourseFilterMaxPower', value: formData.loadCourseFilterMaxPower },
-        { key: 'area', value: { value: formData.area, unit: formData.unit } },
-        { key: 'weeklySchedule', value: formData.weeklyOperatingSchedule },
+        { key: 'systemType', value: formData.systemType },
+        // Hydraulics
+        { key: 'hydraulicScheme', value: formData.hydraulicScheme },
+        { key: 'fluidType', value: formData.fluidType },
+        // Design
+        { key: 'designFlowTemp', value: formData.designFlowTemp },
+        { key: 'designReturnTemp', value: formData.designReturnTemp },
+        { key: 'designDeltaT', value: formData.designDeltaT },
+        { key: 'designPower', value: formData.designPower },
+        { key: 'designFlow', value: formData.designFlow },
+        // Pipe & Valve
+        { key: 'pipeDimension', value: formData.pipeDimension },
+        { key: 'valveDimension', value: formData.valveDimension },
+        { key: 'valveKvs', value: formData.valveKvs },
+        // Operation / ON-OFF
+        { key: 'flowOnThreshold', value: formData.flowOnThreshold },
+        { key: 'hysteresisMinutes', value: formData.hysteresisMinutes },
+        // Pump
+        { key: 'pumpPresent', value: formData.pumpPresent },
+        { key: 'pumpControlType', value: formData.pumpPresent ? formData.pumpControlType : null },
+        { key: 'pumpRatedPower', value: formData.pumpPresent ? formData.pumpRatedPower : null },
+        // Auxiliary sensors
+        { key: 'auxSensor1', value: formData.auxSensors.auxSensor1 },
+        { key: 'auxSensor2', value: formData.auxSensors.auxSensor2 },
+        // Area
+        { key: 'area', value: formData.area },
+        // Weekly schedule
+        { key: 'weeklySchedule', value: formData.weeklySchedule },
+        // Fixed position values
         { key: 'xPos', value: 0.5 },
-        { key: 'yPos', value: 0.5 },
-        { key: 'maxVolumeFlowCriticalThreshold', value: formData.maxVolumeFlowCriticalThreshold },
-        { key: 'maxVolumeFlowMajorThreshold', value: formData.maxVolumeFlowMajorThreshold },
-        { key: 'maxEnergyCriticalThreshold', value: formData.maxEnergyCriticalThreshold },
-        { key: 'maxEnergyMajorThreshold', value: formData.maxEnergyMajorThreshold },
-        { key: 'minTemperatureDifferenceCriticalThreshold', value: formData.minTemperatureDifferenceCriticalThreshold },
-        { key: 'minTemperatureDifferenceMajorThreshold', value: formData.minTemperatureDifferenceMajorThreshold }
+        { key: 'yPos', value: 0.5 }
       ];
 
       // Save attributes
@@ -3065,6 +3669,9 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
         );
       }
     };
+
+    // Initialize shared schedule time controls (must be after function definitions)
+    vm.initScheduleTimes();
   }
 }
 
