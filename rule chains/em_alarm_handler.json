@@ -18,7 +18,7 @@
     "root": false,
     "debugMode": false,
     "externalId": null,
-    "version": 2,
+    "version": 4,
     "configuration": null,
     "additionalInfo": {
       "description": ""
@@ -29,8 +29,8 @@
       "entityType": "RULE_CHAIN",
       "id": "88aee890-6f6c-11ef-8170-db057079800d"
     },
-    "version": 2,
-    "firstNodeIndex": 6,
+    "version": 4,
+    "firstNodeIndex": 9,
     "nodes": [
       {
         "id": {
@@ -332,6 +332,22 @@
           "layoutX": 1002,
           "layoutY": 438
         }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbMsgTypeSwitchNode",
+        "name": "Input Switch",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "version": 0
+        },
+        "additionalInfo": {
+          "description": "Routes incoming messages: Alarm events → Alarms Count, Telemetry → Device Profile Node",
+          "layoutX": 50,
+          "layoutY": 307
+        }
       }
     ],
     "connections": [
@@ -409,6 +425,51 @@
         "fromIndex": 8,
         "toIndex": 4,
         "type": "Success"
+      },
+      {
+        "fromIndex": 9,
+        "toIndex": 2,
+        "type": "Alarm Created"
+      },
+      {
+        "fromIndex": 9,
+        "toIndex": 2,
+        "type": "Alarm Cleared"
+      },
+      {
+        "fromIndex": 9,
+        "toIndex": 2,
+        "type": "Alarm Severity Updated"
+      },
+      {
+        "fromIndex": 9,
+        "toIndex": 2,
+        "type": "Alarm Acknowledged"
+      },
+      {
+        "fromIndex": 9,
+        "toIndex": 6,
+        "type": "Post telemetry"
+      },
+      {
+        "fromIndex": 9,
+        "toIndex": 6,
+        "type": "Post attributes"
+      },
+      {
+        "fromIndex": 9,
+        "toIndex": 5,
+        "type": "Entity Created"
+      },
+      {
+        "fromIndex": 9,
+        "toIndex": 5,
+        "type": "Entity Updated"
+      },
+      {
+        "fromIndex": 9,
+        "toIndex": 6,
+        "type": "Other"
       }
     ],
     "ruleChainConnections": null
