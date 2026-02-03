@@ -34,9 +34,11 @@ node sync/sync.js push-js "ECO Project Wizard"
 # Push SINGLE rule chain
 node sync/sync.js push-rulechain "Rule Chain Name"
 
+# Sync ALL translations (allowed for Claude)
+node sync/sync.js sync --i18n
+
 # Sync ALL (ONLY for manual use - Claude should NEVER use these!)
 # node sync/sync.js sync --js          # Syncs ALL JS libraries
-# node sync/sync.js sync --i18n        # Syncs ALL translations
 # node sync/sync.js sync --dashboards  # Syncs ALL dashboards
 
 # Pull specific dashboard from ThingsBoard (ALWAYS pull before editing)
@@ -114,10 +116,12 @@ node sync/sync.js push-rulechain "Create Permission on Attribute"
    node sync/sync.js push-js "Library Name"       # Eine JS Library
    node sync/sync.js push-rulechain "Chain Name"  # Eine Rule Chain
 
+   # ERLAUBT - Translations:
+   node sync/sync.js sync --i18n        # OK für Claude
+
    # VERBOTEN - Batch-Syncs:
    node sync/sync.js sync --js          # NIEMALS!
    node sync/sync.js sync --dashboards  # NIEMALS!
-   node sync/sync.js sync --i18n        # NIEMALS!
    ```
 
 4. **Vor jedem Push prüfen**: Was habe ich tatsächlich geändert? Nur diese Datei pushen.
