@@ -254,134 +254,155 @@ if (newValues["dT_K"] != null && designDeltaT != null && designDeltaT > 0) {
 }
 
 // --- schedule_violation: running outside defined operating hours ---
-if (metadata["ss_weeklySchedule"] != null && metadata["ss_weeklySchedule"] != "") {
+// ROBUST: Only process if weeklySchedule exists and looks like valid JSON
+var scheduleJson = metadata["ss_weeklySchedule"];
+if (scheduleJson != null && scheduleJson != "" && scheduleJson != "null" && scheduleJson.startsWith("{")) {
 
-    var schedule = JSON.parse(metadata["ss_weeklySchedule"]);
+    var schedule = JSON.parse(scheduleJson);
 
-    // Timezone offset in minutes (default: 60 = CET, this is the WINTER time offset)
-    var tzOffset = 60;
-    if (schedule["timezoneOffset"] != null) {
-        tzOffset = schedule["timezoneOffset"];
-    }
-
-    // Get timestamp
-    var ts = msg["ts"];
-    if (ts == null && metadata["ts"] != null) {
-        ts = parseLong(metadata["ts"]);
-    }
-
-    if (ts != null && newValues["is_on"] != null) {
-
-        // ============================================================
-        // European DST Detection (CET/CEST)
-        // DST starts: last Sunday of March at 02:00 UTC
-        // DST ends: last Sunday of October at 03:00 UTC
-        // ============================================================
-        var isDST = false;
-
-        // Calculate year, month, day from UTC timestamp
-        var msPerDay = 86400000;
-        var days = Math.floor(ts / msPerDay);
-
-        // Days since 1970-01-01 (Thursday) to get year/month/day
-        // Using algorithm to extract date components
-        var z = days + 719468;
-        var era = Math.floor((z >= 0 ? z : z - 146096) / 146097);
-        var doe = z - era * 146097;
-        var yoe = Math.floor((doe - Math.floor(doe / 1460) + Math.floor(doe / 36524) - Math.floor(doe / 146096)) / 365);
-        var year = yoe + era * 400;
-        var doy = doe - (365 * yoe + Math.floor(yoe / 4) - Math.floor(yoe / 100));
-        var mp = Math.floor((5 * doy + 2) / 153);
-        var day = doy - Math.floor((153 * mp + 2) / 5) + 1;
-        var month = mp + (mp < 10 ? 3 : -9);
-        if (month <= 2) { year = year + 1; }
-
-        // April to September: definitely DST
-        if (month > 3 && month < 10) {
-            isDST = true;
+    if (schedule != null) {
+        // Timezone offset in minutes (default: 60 = CET)
+        // ROBUST: Handle missing or invalid timezoneOffset
+        var tzOffset = 60;
+        var tzVal = schedule["timezoneOffset"];
+        if (tzVal != null && tzVal != "") {
+            tzOffset = toInt(tzVal);
         }
-        // November to February: definitely not DST
-        else if (month < 3 || month > 10) {
-            isDST = false;
+
+        // Get timestamp
+        var ts = msg["ts"];
+        if (ts == null && metadata["ts"] != null) {
+            ts = parseLong(metadata["ts"]);
         }
-        // March or October: need to check exact date
-        else {
-            // Find last Sunday of the month
-            // Days in month: March=31, October=31
-            var daysInMonth = 31;
-            // Day of week for 1st of month (0=Sun, 1=Mon, ...)
-            // Calculate days from epoch to 1st of month
-            var y = year;
-            var m = month;
-            if (m <= 2) { y = y - 1; m = m + 12; }
-            var firstOfMonth = 365 * y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) + Math.floor((153 * (m - 3) + 2) / 5) + 1 - 719469;
-            var dowFirst = (firstOfMonth + 4) % 7; // 0=Sun
 
-            // Last Sunday = last day - (day_of_week_of_last_day)
-            var dowLast = (dowFirst + daysInMonth - 1) % 7;
-            var lastSunday = daysInMonth - dowLast;
-            if (dowLast == 0) { lastSunday = daysInMonth; } // If last day is Sunday
+        if (ts != null && newValues["is_on"] != null) {
 
-            if (month == 3) {
-                // March: DST starts at 02:00 UTC on last Sunday
-                // After last Sunday = DST
-                if (day > lastSunday) {
-                    isDST = true;
-                } else if (day == lastSunday) {
-                    // Check if after 02:00 UTC
-                    var hourUTC = Math.floor((ts % msPerDay) / 3600000);
-                    isDST = (hourUTC >= 2);
+            // ============================================================
+            // European DST Detection (CET/CEST) - Simplified
+            // Using integer arithmetic to avoid Double/Integer cast issues
+            // ============================================================
+            var isDST = false;
+            var msPerDay = 86400000;
+            var msPerHour = 3600000;
+            var days = toInt(ts / msPerDay);
+
+            // Extract date components
+            var z = days + 719468;
+            var era = toInt(z / 146097);
+            if (z < 0) { era = toInt((z - 146096) / 146097); }
+            var doe = z - era * 146097;
+            var yoe = toInt((doe - toInt(doe / 1460) + toInt(doe / 36524) - toInt(doe / 146096)) / 365);
+            var year = yoe + era * 400;
+            var doy = doe - (365 * yoe + toInt(yoe / 4) - toInt(yoe / 100));
+            var mp = toInt((5 * doy + 2) / 153);
+            var day = doy - toInt((153 * mp + 2) / 5) + 1;
+            var month = mp + 3;
+            if (mp >= 10) { month = mp - 9; }
+            if (month <= 2) { year = year + 1; }
+
+            // Determine DST status
+            if (month > 3 && month < 10) {
+                isDST = true;
+            } else if (month == 3 || month == 10) {
+                var y = year;
+                var m = month;
+                if (m <= 2) { y = y - 1; m = m + 12; }
+                var firstOfMonth = 365 * y + toInt(y / 4) - toInt(y / 100) + toInt(y / 400) + toInt((153 * (m - 3) + 2) / 5) + 1 - 719469;
+                var dowFirst = (firstOfMonth + 4) % 7;
+                var dowLast = (dowFirst + 30) % 7;
+                var lastSunday = 31 - dowLast;
+                if (dowLast == 0) { lastSunday = 31; }
+                var hourUTC = toInt((ts % msPerDay) / msPerHour);
+
+                if (month == 3) {
+                    if (day > lastSunday || (day == lastSunday && hourUTC >= 2)) {
+                        isDST = true;
+                    }
+                } else {
+                    if (day < lastSunday || (day == lastSunday && hourUTC < 3)) {
+                        isDST = true;
+                    }
                 }
+            }
+
+            // Apply DST correction
+            var effectiveOffset = tzOffset;
+            if (isDST) { effectiveOffset = tzOffset + 60; }
+
+            // Convert to local time
+            var localTs = ts + effectiveOffset * 60000;
+
+            // Day of week (0=Sun, 1=Mon, ... 6=Sat)
+            var dayIndex = (toInt(localTs / msPerDay) + 4) % 7;
+
+            // Get day name
+            var dayName = "sunday";
+            if (dayIndex == 1) { dayName = "monday"; }
+            else if (dayIndex == 2) { dayName = "tuesday"; }
+            else if (dayIndex == 3) { dayName = "wednesday"; }
+            else if (dayIndex == 4) { dayName = "thursday"; }
+            else if (dayIndex == 5) { dayName = "friday"; }
+            else if (dayIndex == 6) { dayName = "saturday"; }
+
+            // Current local time as minutes since midnight
+            var msInDay = localTs % msPerDay;
+            var currentMinutes = toInt(msInDay / 60000);
+
+            // Check schedule for today
+            // Supports TWO formats:
+            // 1. Simple: {"monday": true, "tuesday": false, ...}
+            // 2. Full:   {"monday": {"enabled": true, "start": "06:00", "end": "22:00"}, ...}
+            var isWithinSchedule = false;
+            var todayValue = schedule[dayName];
+
+            if (todayValue != null) {
+                // Convert to string to detect type (avoids type comparison errors)
+                var todayStr = "" + todayValue;
+
+                if (todayStr == "true") {
+                    // Simple format: boolean true - always within schedule
+                    isWithinSchedule = true;
+                } else if (todayStr == "false") {
+                    // Simple format: boolean false - never within schedule
+                    isWithinSchedule = false;
+                } else {
+                    // Full format: todayValue is an object with enabled/start/end
+                    var enabled = todayValue["enabled"];
+                    var enabledStr = "" + enabled;
+                    var isEnabled = (enabledStr == "true");
+
+                    if (isEnabled) {
+                        var startStr = todayValue["start"];
+                        var endStr = todayValue["end"];
+
+                        if (startStr != null && endStr != null) {
+                            // Parse "HH:MM" to minutes
+                            var startH = toInt(parseLong(startStr.substring(0, 2)));
+                            var startM = toInt(parseLong(startStr.substring(3, 5)));
+                            var startMinutes = startH * 60 + startM;
+
+                            var endH = toInt(parseLong(endStr.substring(0, 2)));
+                            var endM = toInt(parseLong(endStr.substring(3, 5)));
+                            var endMinutes = endH * 60 + endM;
+
+                            if (currentMinutes >= startMinutes && currentMinutes <= endMinutes) {
+                                isWithinSchedule = true;
+                            }
+                        } else {
+                            // No start/end defined but enabled - assume within schedule
+                            isWithinSchedule = true;
+                        }
+                    }
+                }
+            }
+
+            // Violation = system running outside scheduled operating hours
+            if (newValues["is_on"] == true && !isWithinSchedule) {
+                newValues["schedule_violation"] = true;
             } else {
-                // October: DST ends at 03:00 UTC on last Sunday
-                // Before last Sunday = DST
-                if (day < lastSunday) {
-                    isDST = true;
-                } else if (day == lastSunday) {
-                    // Check if before 03:00 UTC
-                    var hourUTC = Math.floor((ts % msPerDay) / 3600000);
-                    isDST = (hourUTC < 3);
-                }
+                newValues["schedule_violation"] = false;
             }
         }
-
-        // Apply DST correction: add 60 minutes in summer
-        var effectiveOffset = isDST ? tzOffset + 60 : tzOffset;
-
-        // Convert to local time (add effective timezone offset)
-        var localTs = ts + effectiveOffset * 60000;
-
-        // Day of week from local timestamp (0=Sun, 1=Mon, ... 6=Sat)
-        // Unix epoch (1970-01-01) was a Thursday (day 4)
-        var dayIndex = (Math.floor(localTs / 86400000) + 4) % 7;
-        var dayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-        var dayName = dayNames[dayIndex];
-
-        // Current local time as minutes since midnight
-        var msInDay = localTs % 86400000;
-        var currentMinutes = Math.floor(msInDay / 60000);
-
-        // Get today's schedule
-        var today = schedule[dayName];
-        var isWithinSchedule = false;
-
-        if (today != null && today["enabled"] == true) {
-            // Parse start "HH:MM" → minutes since midnight
-            var startStr = today["start"];
-            var startMinutes = parseLong(startStr.substring(0, 2)) * 60 + parseLong(startStr.substring(3, 5));
-
-            // Parse end "HH:MM" → minutes since midnight
-            var endStr = today["end"];
-            var endMinutes = parseLong(endStr.substring(0, 2)) * 60 + parseLong(endStr.substring(3, 5));
-
-            // Check if current time is within schedule
-            if (currentMinutes >= startMinutes && currentMinutes <= endMinutes) {
-                isWithinSchedule = true;
-            }
-        }
-
-        // Violation = system running outside scheduled operating hours
-        newValues["schedule_violation"] = (newValues["is_on"] == true && !isWithinSchedule);
     }
 }
 
