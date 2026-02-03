@@ -1,0 +1,255 @@
+{
+  "ruleChain": {
+    "id": {
+      "entityType": "RULE_CHAIN",
+      "id": "8f873a50-6f6c-11ef-8a75-b31459678eb5"
+    },
+    "createdTime": 1725969752693,
+    "tenantId": {
+      "entityType": "TENANT",
+      "id": "efb63c10-b576-11ee-a6c2-a149ed03c64d"
+    },
+    "name": "Inactivity Alarm Handler",
+    "type": "CORE",
+    "firstRuleNodeId": {
+      "entityType": "RULE_NODE",
+      "id": "8f8c1c50-6f6c-11ef-8170-db057079800d"
+    },
+    "root": false,
+    "debugMode": false,
+    "externalId": null,
+    "version": 1,
+    "configuration": null,
+    "additionalInfo": {
+      "description": ""
+    }
+  },
+  "metadata": {
+    "ruleChainId": {
+      "entityType": "RULE_CHAIN",
+      "id": "8f873a50-6f6c-11ef-8a75-b31459678eb5"
+    },
+    "version": 1,
+    "firstNodeIndex": 0,
+    "nodes": [
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "8f8c1c50-6f6c-11ef-8170-db057079800d"
+        },
+        "createdTime": 1725969752725,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "8f873a50-6f6c-11ef-8a75-b31459678eb5"
+        },
+        "type": "org.thingsboard.rule.engine.filter.TbMsgTypeSwitchNode",
+        "name": "Post Telemetry",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "version": 0
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 360,
+          "layoutY": 151
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "8f8c6a70-6f6c-11ef-8170-db057079800d"
+        },
+        "createdTime": 1725969752727,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "8f873a50-6f6c-11ef-8a75-b31459678eb5"
+        },
+        "type": "org.thingsboard.rule.engine.action.TbCreateAlarmNode",
+        "name": "Create Inactivity Alarm",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "alarmDetailsBuildJs": "var details = {};\nif (metadata.prevAlarmDetails) {\n    details = JSON.parse(metadata.prevAlarmDetails);\n    //remove prevAlarmDetails from metadata\n    delete metadata.prevAlarmDetails;\n    //now metadata is the same as it comes IN this rule node\n}\n\n\nreturn details;",
+          "alarmDetailsBuildTbel": "var details = {};\nif (metadata.prevAlarmDetails != null) {\n    details = JSON.parse(metadata.prevAlarmDetails);\n    //remove prevAlarmDetails from metadata\n    metadata.remove('prevAlarmDetails');\n    //now metadata is the same as it comes IN this rule node\n}\n\n\nreturn details;",
+          "useMessageAlarmData": false,
+          "overwriteAlarmDetails": false,
+          "alarmType": "Inactivity Timeout",
+          "severity": "CRITICAL",
+          "propagate": true,
+          "relationTypes": [
+            "Owns",
+            "Contains"
+          ],
+          "propagateToOwner": false,
+          "propagateToOwnerHierarchy": true,
+          "propagateToTenant": false,
+          "dynamicSeverity": false
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 716,
+          "layoutY": 26
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "8f8c9180-6f6c-11ef-8170-db057079800d"
+        },
+        "createdTime": 1725969752728,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "8f873a50-6f6c-11ef-8a75-b31459678eb5"
+        },
+        "type": "org.thingsboard.rule.engine.action.TbClearAlarmNode",
+        "name": "Clear Inactivity Alarm",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "alarmDetailsBuildJs": "var details = {};\nif (metadata.prevAlarmDetails) {\n    details = JSON.parse(metadata.prevAlarmDetails);\n    //remove prevAlarmDetails from metadata\n    delete metadata.prevAlarmDetails;\n    //now metadata is the same as it comes IN this rule node\n}\n\n\nreturn details;",
+          "alarmDetailsBuildTbel": "var details = {};\nif (metadata.prevAlarmDetails != null) {\n    details = JSON.parse(metadata.prevAlarmDetails);\n    //remove prevAlarmDetails from metadata\n    metadata.remove('prevAlarmDetails');\n    //now metadata is the same as it comes IN this rule node\n}\n\n\nreturn details;",
+          "alarmType": "Inactivity Timeout"
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 722,
+          "layoutY": 243
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "8f8cb890-6f6c-11ef-8170-db057079800d"
+        },
+        "createdTime": 1725969752729,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "8f873a50-6f6c-11ef-8a75-b31459678eb5"
+        },
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Inactivity Log",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "JS",
+          "jsScript": "function updateInactivityLog(metadata, inactivityLog) {\r\n    // Check if ss_inactivityLog is in metadata\r\n    if (metadata.ss_inactivityLog) {\r\n        let inactivityArray;\r\n        try {\r\n            // Try parsing ss_inactivityLog to an array\r\n            inactivityArray = JSON.parse(metadata.ss_inactivityLog);\r\n            // Convert each item in inactivityArray to an integer\r\n            inactivityArray = inactivityArray.map(item => parseInt(item));\r\n        } catch (error) {\r\n            // If parsing fails, handle the error (e.g., log it)\r\n            console.error(\"Error parsing ss_inactivityLog:\", error);\r\n            // Set inactivityArray to an empty array\r\n            inactivityArray = [];\r\n        }\r\n        // Concatenate inactivityArray with inactivityLog\r\n        inactivityLog = inactivityLog.concat(inactivityArray);\r\n    }\r\n    // Add ts from metadata to inactivityLog if it's different from the last value in ss_inactivityLog\r\n    if (\"lastActivityTime\" in msg && parseInt(msg.lastActivityTime) !== parseInt(inactivityLog[inactivityLog.length - 1])) {\r\n        inactivityLog.push(msg.lastActivityTime);\r\n    }\r\n    // Return the updated inactivityLog\r\n    return inactivityLog;\r\n}\r\n\r\nvar inactivityLog = [];\r\n\r\ninactivityLog = updateInactivityLog(metadata, inactivityLog);\r\nvar newMSG = {\r\n    inactivityLog : inactivityLog\r\n};\r\n\r\nreturn {msg: newMSG, metadata: metadata, msgType: \"POST_ATTRIBUTES_REQUEST\"};\r\n",
+          "tbelScript": "return {msg: msg, metadata: metadata, msgType: msgType};"
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1015,
+          "layoutY": 128
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "8f8cdfa0-6f6c-11ef-8170-db057079800d"
+        },
+        "createdTime": 1725969752730,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "8f873a50-6f6c-11ef-8a75-b31459678eb5"
+        },
+        "type": "org.thingsboard.rule.engine.telemetry.TbMsgAttributesNode",
+        "name": "Save Attributes",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 3,
+        "configuration": {
+          "scope": "SERVER_SCOPE",
+          "notifyDevice": false,
+          "processingSettings": {
+            "type": "ON_EVERY_MESSAGE"
+          },
+          "sendAttributesUpdatedNotification": false,
+          "updateAttributesOnlyOnValueChange": true
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1320,
+          "layoutY": 127
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "8f8d06b0-6f6c-11ef-8170-db057079800d"
+        },
+        "createdTime": 1725969752731,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "8f873a50-6f6c-11ef-8a75-b31459678eb5"
+        },
+        "type": "org.thingsboard.rule.engine.metadata.TbGetAttributesNode",
+        "name": "Get inactivityLog",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "tellFailureIfAbsent": false,
+          "fetchTo": "METADATA",
+          "clientAttributeNames": [],
+          "sharedAttributeNames": [],
+          "serverAttributeNames": [
+            "inactivityLog"
+          ],
+          "latestTsKeyNames": [],
+          "getLatestValueWithTs": false
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 707,
+          "layoutY": 127
+        }
+      }
+    ],
+    "connections": [
+      {
+        "fromIndex": 0,
+        "toIndex": 1,
+        "type": "Inactivity Event"
+      },
+      {
+        "fromIndex": 0,
+        "toIndex": 2,
+        "type": "Activity Event"
+      },
+      {
+        "fromIndex": 0,
+        "toIndex": 5,
+        "type": "Inactivity Event"
+      },
+      {
+        "fromIndex": 3,
+        "toIndex": 4,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 5,
+        "toIndex": 3,
+        "type": "Success"
+      }
+    ],
+    "ruleChainConnections": null
+  }
+}

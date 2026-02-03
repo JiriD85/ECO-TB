@@ -1,0 +1,416 @@
+{
+  "ruleChain": {
+    "id": {
+      "entityType": "RULE_CHAIN",
+      "id": "88aee890-6f6c-11ef-8170-db057079800d"
+    },
+    "createdTime": 1725969741209,
+    "tenantId": {
+      "entityType": "TENANT",
+      "id": "efb63c10-b576-11ee-a6c2-a149ed03c64d"
+    },
+    "name": "EM Alarm Handler",
+    "type": "CORE",
+    "firstRuleNodeId": {
+      "entityType": "RULE_NODE",
+      "id": "88b5c660-6f6c-11ef-8a75-b31459678eb5"
+    },
+    "root": false,
+    "debugMode": false,
+    "externalId": null,
+    "version": 2,
+    "configuration": null,
+    "additionalInfo": {
+      "description": ""
+    }
+  },
+  "metadata": {
+    "ruleChainId": {
+      "entityType": "RULE_CHAIN",
+      "id": "88aee890-6f6c-11ef-8170-db057079800d"
+    },
+    "version": 2,
+    "firstNodeIndex": 6,
+    "nodes": [
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "88b4dc00-6f6c-11ef-8a75-b31459678eb5"
+        },
+        "createdTime": 1725969741248,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "88aee890-6f6c-11ef-8170-db057079800d"
+        },
+        "type": "org.thingsboard.rule.engine.filter.TbOriginatorTypeFilterNode",
+        "name": "isAssetOrCustomer",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "originatorTypes": [
+            "ASSET",
+            "CUSTOMER"
+          ]
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 789,
+          "layoutY": 344
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "88b50310-6f6c-11ef-8a75-b31459678eb5"
+        },
+        "createdTime": 1725969741249,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "88aee890-6f6c-11ef-8170-db057079800d"
+        },
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Update state attributes",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "var criticalAlarmsCount = msg.criticalAlarmsCount;\nvar majorAlarmsCount = msg.majorAlarmsCount;\n\nvar state = 'normal';\n\nif (criticalAlarmsCount && Number(criticalAlarmsCount) > 0) {\n    state = 'critical';\n} else if (majorAlarmsCount && Number(majorAlarmsCount) > 0) {\n    state = 'major';\n}\n\nreturn {\n    msg: {\n        state: state\n    },\n    metadata: {\n        scope: 'SERVER_SCOPE'\n    },\n    msgType: 'POST_ATTRIBUTES_REQUEST'\n};",
+          "tbelScript": "var criticalAlarmsCount = msg.criticalAlarmsCount;\nvar majorAlarmsCount = msg.majorAlarmsCount;\nvar minorAlarmsCount = msg.minorAlarmsCount;\nvar warningAlarmsCount = msg.warningAlarmsCount;\n\nvar state = 'normal';\n\nif (criticalAlarmsCount != null && criticalAlarmsCount > 0) {\n    state = 'critical';\n} else if (majorAlarmsCount != null && majorAlarmsCount > 0) {\n    state = 'major';\n} else if (minorAlarmsCount != null && minorAlarmsCount > 0) {\n    state = 'minor';\n} else if (warningAlarmsCount != null && warningAlarmsCount > 0) {\n    state = 'warning';\n}\n\nreturn {\n    msg: {\n        state: state\n    },\n    metadata: {\n        scope: 'SERVER_SCOPE'\n    },\n    msgType: 'POST_ATTRIBUTES_REQUEST'\n};"
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 999,
+          "layoutY": 246
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "88b52a20-6f6c-11ef-8a75-b31459678eb5"
+        },
+        "createdTime": 1725969741250,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "88aee890-6f6c-11ef-8170-db057079800d"
+        },
+        "type": "org.thingsboard.rule.engine.analytics.latest.alarm.TbAlarmsCountNodeV2",
+        "name": "Alarms Count",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": "Main",
+        "configurationVersion": 2,
+        "configuration": {
+          "alarmsCountMappings": [
+            {
+              "target": "criticalAlarmsCount",
+              "typesList": [],
+              "severityList": [
+                "CRITICAL"
+              ],
+              "statusList": [
+                "ACTIVE_UNACK",
+                "ACTIVE_ACK"
+              ]
+            },
+            {
+              "target": "majorAlarmsCount",
+              "typesList": [],
+              "severityList": [
+                "MAJOR"
+              ],
+              "statusList": [
+                "ACTIVE_UNACK",
+                "ACTIVE_ACK"
+              ]
+            },
+            {
+              "target": "minorAlarmsCount",
+              "typesList": [],
+              "severityList": [
+                "MINOR"
+              ],
+              "statusList": [
+                "ACTIVE_UNACK",
+                "ACTIVE_ACK"
+              ]
+            },
+            {
+              "target": "warningAlarmsCount",
+              "typesList": [],
+              "severityList": [
+                "WARNING"
+              ],
+              "statusList": [
+                "ACTIVE_UNACK",
+                "ACTIVE_ACK"
+              ]
+            }
+          ],
+          "countAlarmsForPropagationEntities": true,
+          "propagationEntityTypes": null,
+          "outMsgType": "POST_TELEMETRY_REQUEST"
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 572,
+          "layoutY": 139
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "88b55130-6f6c-11ef-8a75-b31459678eb5"
+        },
+        "createdTime": 1725969741251,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "88aee890-6f6c-11ef-8170-db057079800d"
+        },
+        "type": "org.thingsboard.rule.engine.telemetry.TbMsgTimeseriesNode",
+        "name": "Save Timeseries",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "defaultTTL": 0,
+          "processingSettings": {
+            "type": "ON_EVERY_MESSAGE"
+          }
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": null,
+          "layoutX": 908,
+          "layoutY": 135
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "88b59f50-6f6c-11ef-8a75-b31459678eb5"
+        },
+        "createdTime": 1725969741253,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "88aee890-6f6c-11ef-8170-db057079800d"
+        },
+        "type": "org.thingsboard.rule.engine.telemetry.TbMsgAttributesNode",
+        "name": "Save Client Attributes",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 3,
+        "configuration": {
+          "scope": "CLIENT_SCOPE",
+          "notifyDevice": true,
+          "processingSettings": {
+            "type": "ON_EVERY_MESSAGE"
+          },
+          "sendAttributesUpdatedNotification": false,
+          "updateAttributesOnlyOnValueChange": false
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": null,
+          "layoutX": 1123,
+          "layoutY": 346
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "88b59f51-6f6c-11ef-8a75-b31459678eb5"
+        },
+        "createdTime": 1725969741253,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "88aee890-6f6c-11ef-8170-db057079800d"
+        },
+        "type": "org.thingsboard.rule.engine.filter.TbMsgTypeSwitchNode",
+        "name": "Message Type Switch",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "version": 0
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": null,
+          "layoutX": 348,
+          "layoutY": 488
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "88b5c660-6f6c-11ef-8a75-b31459678eb5"
+        },
+        "createdTime": 1725969741254,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "88aee890-6f6c-11ef-8170-db057079800d"
+        },
+        "type": "org.thingsboard.rule.engine.profile.TbDeviceProfileNode",
+        "name": "Device Profile Node",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "persistAlarmRulesState": false,
+          "fetchAlarmRulesStateOnStart": "false"
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 111,
+          "layoutY": 371
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "88b5ed70-6f6c-11ef-8a75-b31459678eb5"
+        },
+        "createdTime": 1725969741255,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "88aee890-6f6c-11ef-8170-db057079800d"
+        },
+        "type": "org.thingsboard.rule.engine.filter.TbOriginatorTypeFilterNode",
+        "name": "isDevice",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "originatorTypes": [
+            "DEVICE"
+          ]
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 646,
+          "layoutY": 536
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "88b61480-6f6c-11ef-8a75-b31459678eb5"
+        },
+        "createdTime": 1725969741256,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "88aee890-6f6c-11ef-8170-db057079800d"
+        },
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Update state attributes",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "var criticalAlarmsCount = msg.criticalAlarmsCount;\nvar majorAlarmsCount = msg.majorAlarmsCount;\n\nvar state = 'normal';\n\nif (criticalAlarmsCount && Number(criticalAlarmsCount) > 0) {\n    state = 'critical';\n} else if (majorAlarmsCount && Number(majorAlarmsCount) > 0) {\n    state = 'major';\n}\n\nreturn {\n    msg: {\n        state: state\n    },\n    metadata: {\n        scope: 'SERVER_SCOPE'\n    },\n    msgType: 'POST_ATTRIBUTES_REQUEST'\n};",
+          "tbelScript": "var criticalAlarmsCount = msg.criticalAlarmsCount;\nvar majorAlarmsCount = msg.majorAlarmsCount;\nvar minorAlarmsCount = msg.minorAlarmsCount;\nvar warningAlarmsCount = msg.warningAlarmsCount;\n\n// var state = 'service';\nvar state = 'normal';\n/*var inactivityTimeout = 24*60*60*1000; // 24 hours*/\n\nif (criticalAlarmsCount != null && criticalAlarmsCount > 0) {\n    state = 'critical';\n} else if (majorAlarmsCount != null && majorAlarmsCount > 0) {\n    state = 'major';\n} else if (minorAlarmsCount != null && minorAlarmsCount > 0) {\n    state = 'minor';\n} else if (warningAlarmsCount != null && warningAlarmsCount > 0) {\n    state = 'warning';\n}\n\nreturn {\n    msg: {\n        state: state\n    },\n    metadata: {\n        scope: 'SERVER_SCOPE'\n    },\n    msgType: 'POST_ATTRIBUTES_REQUEST'\n};"
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1002,
+          "layoutY": 438
+        }
+      }
+    ],
+    "connections": [
+      {
+        "fromIndex": 0,
+        "toIndex": 1,
+        "type": "True"
+      },
+      {
+        "fromIndex": 1,
+        "toIndex": 4,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 0,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 3,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 7,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 5,
+        "toIndex": 0,
+        "type": "Entity Created"
+      },
+      {
+        "fromIndex": 5,
+        "toIndex": 2,
+        "type": "Alarm Cleared"
+      },
+      {
+        "fromIndex": 5,
+        "toIndex": 2,
+        "type": "Other"
+      },
+      {
+        "fromIndex": 5,
+        "toIndex": 7,
+        "type": "Entity Created"
+      },
+      {
+        "fromIndex": 6,
+        "toIndex": 2,
+        "type": "Alarm Cleared"
+      },
+      {
+        "fromIndex": 6,
+        "toIndex": 2,
+        "type": "Alarm Created"
+      },
+      {
+        "fromIndex": 6,
+        "toIndex": 2,
+        "type": "Alarm Severity Updated"
+      },
+      {
+        "fromIndex": 6,
+        "toIndex": 5,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 7,
+        "toIndex": 8,
+        "type": "True"
+      },
+      {
+        "fromIndex": 8,
+        "toIndex": 4,
+        "type": "Success"
+      }
+    ],
+    "ruleChainConnections": null
+  }
+}

@@ -719,4 +719,14 @@ Die Calculated Fields verwenden Measurement-Attribute für Schwellenwerte mit Fa
 ## TODO
 
 - [ ] Weitere Fluid-Typen in Default-Parameter ergänzen (glycol40, propyleneGlycol20/30)
-- [ ] Alarm Rule Chain für Calculated Field Flags
+- [x] Alarm Rule Chain für Calculated Field Flags (Measurement Rule Chain)
+- [ ] **Dynamische Alarm Severity** - Severity basierend auf Schweregrad:
+  ```javascript
+  // Beispiel: Cycling Alarm
+  if (msg.cycle_count > 10) return 'MAJOR';
+  else if (msg.cycle_count > 5) return 'WARNING';
+  else return 'MINOR';
+
+  // Beispiel: dT Collapse basierend auf Abweichung
+  // Beispiel: Power Unstable basierend auf CV-Wert
+  ```
