@@ -411,6 +411,45 @@ Calculated Fields werden auf Asset Profile Ebene definiert und automatisch für 
 
 **Hinweis:** Alle Methoden ignorieren NaN-Werte standardmäßig. Mit `method(false)` werden NaN-Werte einbezogen.
 
+### Values Iteration (für Custom Logik)
+
+TS_ROLLING Arguments können mit `foreach` iteriert werden:
+
+**foreach-Syntax (EMPFOHLEN):**
+```javascript
+// foreach iteriert über alle Werte
+// Jedes Element v hat: v.ts (Timestamp), v.value (Wert)
+var sum = 0.0;
+foreach(v: temperature) {
+  if (!isNaN(v.value)) {
+    sum = sum + v.value;
+  }
+}
+```
+
+**Zustandswechsel zählen (Beispiel cycling_flag):**
+```javascript
+var transitions = 0;
+var prevValue = null;
+foreach(v: is_on) {
+  if (prevValue != null && prevValue != v.value) {
+    transitions = transitions + 1;
+  }
+  prevValue = v.value;
+}
+```
+
+**Anzahl ermitteln:**
+```javascript
+var countAll = temperature.count();  // Verwende count() Methode
+```
+
+**WICHTIG für TBEL:**
+- Verwende `foreach(v: argName)` für Iteration
+- Verwende `argName.count()` für Anzahl (nicht `.values.size`)
+- Verwende `!=` statt `!==` (strict equality nicht unterstützt)
+- Verwende `toInt()` für Integer-Konvertierung
+
 ---
 
 ### dT_collapse_flag (boolean)
@@ -530,14 +569,19 @@ return { "flow_spike_flag": spiked };
 
 **Script:**
 ```javascript
-var values = is_on.values;
+var countAll = is_on.count();
+if (countAll < 3) {
+  return {};
+}
 
-// Zähle Zustandswechsel
+// Zähle Zustandswechsel mit foreach
 var transitions = 0;
-for (var i = 1; i < values.length; i++) {
-  if (values[i-1].value != values[i].value) {
+var prevValue = null;
+foreach(v: is_on) {
+  if (prevValue != null && prevValue != v.value) {
     transitions = transitions + 1;
   }
+  prevValue = v.value;
 }
 
 var isCycling = (transitions > cyclingThreshold);
@@ -618,18 +662,25 @@ return {
 
 **Script:**
 ```javascript
-var values = is_on.values;
+var countAll = is_on.count();
+if (countAll < 2) {
+  return {};
+}
 
+// Zähle true-Werte mit foreach
 var onCount = 0;
-for (var i = 0; i < values.length; i++) {
-  if (values[i].value == true) {
+foreach(v: is_on) {
+  if (v.value == true) {
     onCount = onCount + 1;
   }
 }
 
-var runtimePct = (onCount / values.length) * 100;
+// Prozent berechnen
+var runtimePct = (onCount / countAll) * 100;
 
-return { "runtime_pct": runtimePct };
+return {
+  "runtime_pct": Math.round(runtimePct * 10) / 10
+};
 ```
 
 **Logik:**
