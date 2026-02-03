@@ -379,6 +379,7 @@ Change Device
 
 | Datum | Änderung |
 |-------|----------|
+| 2026-02-03 | Calculated Fields: cycling_flag, power_stability, runtime_pct |
 | 2026-02-03 | Calculated Fields: dT_collapse_flag, flow_spike_flag (Asset Profile) |
 | 2026-02-03 | Schedule Violation Detection (schedule_violation) mit weeklySchedule JSON |
 | 2026-02-03 | Calculated Power (P_th_calc_kW) mit fluidType und temperaturabhängiger Dichte |
@@ -518,6 +519,137 @@ return { "flow_spike_flag": spiked };
 
 ---
 
+### cycling_flag (boolean) + cycle_count (number)
+
+**Zweck:** Erkennung von Taktbetrieb (häufiges Ein/Aus).
+
+| Parameter | Wert | Quelle |
+|-----------|------|--------|
+| **Input** | `is_on` | Telemetrie (Rolling Window 30 Min) |
+| **Schwelle** | `cyclingThreshold` | Measurement Attribut (Default: 5) |
+
+**Script:**
+```javascript
+var values = is_on.values;
+
+// Zähle Zustandswechsel
+var transitions = 0;
+for (var i = 1; i < values.length; i++) {
+  if (values[i-1].value != values[i].value) {
+    transitions = transitions + 1;
+  }
+}
+
+var isCycling = (transitions > cyclingThreshold);
+
+return {
+  "cycling_flag": isCycling,
+  "cycle_count": transitions
+};
+```
+
+**Logik:**
+- Zählt Zustandswechsel (true→false oder false→true) in 30 Min
+- Flag = `true` wenn mehr als 5 (oder `cyclingThreshold`) Wechsel
+
+**Beispiel** (cyclingThreshold = 5):
+| Wechsel in 30 Min | cycling_flag | Bedeutung |
+|-------------------|--------------|-----------|
+| 2 | `false` | Normal |
+| 6 | `true` | Taktbetrieb |
+| 12 | `true` | Starkes Takten |
+
+**Ursachen für Taktbetrieb:**
+- Überdimensionierte Anlage
+- Falscher Reglerparameter
+- Hydraulisches Problem
+
+---
+
+### power_stability (number) + power_unstable_flag (boolean)
+
+**Zweck:** Erkennung von Leistungsschwankungen.
+
+| Parameter | Wert | Quelle |
+|-----------|------|--------|
+| **Input** | `P_th_kW` | Telemetrie (Rolling Window 15 Min) |
+| **Schwelle** | `stabilityThreshold` | Measurement Attribut (Default: 0.3) |
+
+**Script:**
+```javascript
+var avgPower = P_th_kW.mean();
+var stdPower = P_th_kW.std();
+
+// Variationskoeffizient (CV) = std / mean
+var stability = stdPower / avgPower;
+var isUnstable = (stability > stabilityThreshold);
+
+return {
+  "power_stability": stability,
+  "power_unstable_flag": isUnstable
+};
+```
+
+**Logik:**
+- Berechnet Variationskoeffizient (CV) = Standardabweichung / Mittelwert
+- Wert nahe 0 = stabile Leistung
+- Wert > 0.3 = instabile Leistung
+
+**Beispiel:**
+| Avg Power | Std Power | CV | power_unstable_flag |
+|-----------|-----------|-----|---------------------|
+| 50 kW | 5 kW | 0.10 | `false` |
+| 50 kW | 20 kW | 0.40 | `true` |
+
+**Ursachen für Instabilität:**
+- Schwingender Regler
+- Ventil-Hunting
+- Lastspitzen
+
+---
+
+### runtime_pct (number)
+
+**Zweck:** Laufzeitanteil in Prozent.
+
+| Parameter | Wert | Quelle |
+|-----------|------|--------|
+| **Input** | `is_on` | Telemetrie (Rolling Window 1 Stunde) |
+
+**Script:**
+```javascript
+var values = is_on.values;
+
+var onCount = 0;
+for (var i = 0; i < values.length; i++) {
+  if (values[i].value == true) {
+    onCount = onCount + 1;
+  }
+}
+
+var runtimePct = (onCount / values.length) * 100;
+
+return { "runtime_pct": runtimePct };
+```
+
+**Logik:**
+- Zählt Anteil der `is_on = true` Werte in der letzten Stunde
+- Ergebnis in Prozent (0-100%)
+
+**Beispiel:**
+| is_on Werte | true-Anteil | runtime_pct |
+|-------------|-------------|-------------|
+| 60 von 60 | 100% | 100.0 |
+| 45 von 60 | 75% | 75.0 |
+| 15 von 60 | 25% | 25.0 |
+
+**Verwendung:**
+- Auslastungsanalyse
+- Energieverbrauchsprognose
+- Betriebsstundenüberwachung
+
+---
+
 ### Konfigurierbare Schwellenwerte
 
 Die Calculated Fields verwenden Measurement-Attribute für Schwellenwerte mit Fallback auf Default-Werte:
@@ -526,6 +658,8 @@ Die Calculated Fields verwenden Measurement-Attribute für Schwellenwerte mit Fa
 |----------|---------|--------------|
 | `collapseThreshold` | 0.5 | dT Collapse: Verhältnis aktuell/avg (0.5 = 50%) |
 | `spikeThreshold` | 2.0 | Flow Spike: Verhältnis aktuell/avg (2.0 = 200%) |
+| `cyclingThreshold` | 5 | Cycling: Max Zustandswechsel in 30 Min |
+| `stabilityThreshold` | 0.3 | Power Stability: Max Variationskoeffizient |
 
 **Robustheit:** Wenn das Attribut nicht gesetzt ist, wird automatisch der Default-Wert aus der Argument-Konfiguration verwendet.
 
@@ -534,5 +668,4 @@ Die Calculated Fields verwenden Measurement-Attribute für Schwellenwerte mit Fa
 ## TODO
 
 - [ ] Weitere Fluid-Typen in Default-Parameter ergänzen (glycol40, propyleneGlycol20/30)
-- [ ] Weitere Calculated Fields: load_pct, dT_efficiency, power_stability
 - [ ] Alarm Rule Chain für Calculated Field Flags
