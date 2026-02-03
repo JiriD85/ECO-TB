@@ -18,7 +18,7 @@
     "root": false,
     "debugMode": false,
     "externalId": null,
-    "version": 11,
+    "version": 13,
     "configuration": null,
     "additionalInfo": {
       "description": ""
@@ -29,7 +29,7 @@
       "entityType": "RULE_CHAIN",
       "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
     },
-    "version": 11,
+    "version": 13,
     "firstNodeIndex": 6,
     "nodes": [
       {
@@ -527,7 +527,7 @@
         "configuration": {
           "scriptLang": "TBEL",
           "jsScript": "",
-          "tbelScript": "if (msg.power_unstable_flag == null) {\n  return ['skip'];\n} else if (msg.power_unstable_flag == true) {\n  return ['create'];\n} else {\n  return ['clear'];\n}"
+          "tbelScript": "// Skip wenn Flag nicht vorhanden\nif (msg.power_unstable_flag == null) {\n  return ['skip'];\n}\n\n// Skip wenn außerhalb Schedule (keine Alarme außerhalb Betriebszeit)\nif (msg.schedule_violation == true) {\n  return ['skip'];\n}\n\n// Alarm erstellen/löschen basierend auf Flag\nif (msg.power_unstable_flag == true) {\n  return ['create'];\n} else {\n  return ['clear'];\n}"
         },
         "externalId": null,
         "additionalInfo": {
@@ -648,7 +648,7 @@
         "configuration": {
           "scriptLang": "TBEL",
           "jsScript": "",
-          "tbelScript": "if (msg.oscillation_flag == null) {\n  return ['skip'];\n} else if (msg.oscillation_flag == true) {\n  return ['create'];\n} else {\n  return ['clear'];\n}"
+          "tbelScript": "// Skip wenn Flag nicht vorhanden\nif (msg.oscillation_flag == null) {\n  return ['skip'];\n}\n\n// Skip wenn außerhalb Schedule (keine Alarme außerhalb Betriebszeit)\nif (msg.schedule_violation == true) {\n  return ['skip'];\n}\n\n// Alarm erstellen/löschen basierend auf Flag\nif (msg.oscillation_flag == true) {\n  return ['create'];\n} else {\n  return ['clear'];\n}"
         },
         "externalId": null,
         "additionalInfo": {

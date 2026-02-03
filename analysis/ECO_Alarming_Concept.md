@@ -101,6 +101,17 @@ Alarme werden aus Calculated Field Flags erstellt:
 - Stabilem Betrieb (`runtime_pct ≥ 80%`)
 - Relevanter Last (`avgPower ≥ 1 kW`)
 
+**Schedule-Prüfung in Rule Chain:**
+Alarme für `Power_Unstable` und `Oscillation` werden nur erstellt wenn:
+- `schedule_violation == false` (innerhalb Betriebszeit)
+
+```javascript
+// Check Power Unstable / Check Oscillation
+if (msg.schedule_violation == true) {
+  return ['skip'];  // Kein Alarm außerhalb Schedule
+}
+```
+
 ### 2.2 Device Alarme (Device Profile Rules)
 
 Definiert im Device Profile (z.B. P-Flow D116, RESI):
