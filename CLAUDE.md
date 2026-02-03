@@ -28,14 +28,16 @@ node sync/sync.js push measurements
 # Push multiple specific dashboards
 node sync/sync.js push administration measurements navigation
 
-# Sync ALL JS libraries to ThingsBoard
-node sync/sync.js sync --js
+# Push SINGLE JS library (PREFERRED for JS!)
+node sync/sync.js push-js "ECO Project Wizard"
 
-# Sync ALL translations to ThingsBoard
-node sync/sync.js sync --i18n
+# Push SINGLE rule chain
+node sync/sync.js push-rulechain "Rule Chain Name"
 
-# Sync ALL dashboards (AVOID - use push instead!)
-node sync/sync.js sync --dashboards
+# Sync ALL (ONLY for manual use - Claude should NEVER use these!)
+# node sync/sync.js sync --js          # Syncs ALL JS libraries
+# node sync/sync.js sync --i18n        # Syncs ALL translations
+# node sync/sync.js sync --dashboards  # Syncs ALL dashboards
 
 # Pull specific dashboard from ThingsBoard (ALWAYS pull before editing)
 node sync/sync.js pull "Dashboard Name"
@@ -77,12 +79,13 @@ node sync/sync.js status
 **Example workflow:**
 ```bash
 # You modified only measurements.json dashboard
-node sync/sync.js sync --dashboards
-# This will backup only measurements.json (if changed) and sync dashboards
+node sync/sync.js push measurements
 
 # You modified only ECO Project Wizard.js
-node sync/sync.js sync --js
-# This will backup only the changed JS file and sync JS libraries
+node sync/sync.js push-js "ECO Project Wizard"
+
+# You modified only a rule chain
+node sync/sync.js push-rulechain "Create Permission on Attribute"
 ```
 
 ### Claude Workflow Rules (WICHTIG!)
@@ -104,18 +107,26 @@ node sync/sync.js sync --js
    node sync/sync.js pull-js "Library Name"
    ```
 
-3. **Nur geänderte Dateien pushen** - NIEMALS unveränderte Dateien synchronisieren:
-   - Vor jedem Sync prüfen: Was habe ich tatsächlich geändert?
-   - Nur diese Datei(en) synchronisieren
-   - Bei Dashboards: `node sync/sync.js push <name>` (nicht `sync --dashboards`)
+3. **NUR Einzel-Push Befehle verwenden** - NIEMALS Batch-Syncs (`sync --js`, `sync --dashboards`, etc.):
+   ```bash
+   # RICHTIG - Einzelne Ressourcen pushen:
+   node sync/sync.js push <dashboard-name>        # Ein Dashboard
+   node sync/sync.js push-js "Library Name"       # Eine JS Library
+   node sync/sync.js push-rulechain "Chain Name"  # Eine Rule Chain
 
-4. **Keine Batch-Syncs** - Niemals alle Ressourcen auf einmal synchronisieren wenn nur eine Datei geändert wurde
+   # VERBOTEN - Batch-Syncs:
+   node sync/sync.js sync --js          # NIEMALS!
+   node sync/sync.js sync --dashboards  # NIEMALS!
+   node sync/sync.js sync --i18n        # NIEMALS!
+   ```
+
+4. **Vor jedem Push prüfen**: Was habe ich tatsächlich geändert? Nur diese Datei pushen.
 
 **Reihenfolge bei Änderungen:**
-1. `pull` - Aktuelle Version holen
+1. `pull` / `pull-js` - Aktuelle Version holen
 2. `cp` - Manuelle Sicherung erstellen
 3. Änderungen durchführen
-4. `push` / `sync` - Nur die geänderte Datei synchronisieren
+4. `push` / `push-js` / `push-rulechain` - NUR die geänderte Datei pushen
 
 ### Environment Setup
 
