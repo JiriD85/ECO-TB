@@ -633,17 +633,24 @@ return {
 
 ### power_stability (number) + power_unstable_flag (boolean)
 
-**Zweck:** Erkennung von Leistungsschwankungen.
+**Zweck:** Erkennung von allgemeiner Leistungsvariabilität.
 
 | Parameter | Wert | Quelle |
 |-----------|------|--------|
-| **Input** | `P_th_kW` | Telemetrie (Rolling Window 15 Min) |
-| **Schwelle** | `stabilityThreshold` | Measurement Attribut (Default: 0.3) |
+| **Input** | `P_th_kW`, `is_on` | Telemetrie (Rolling Window 15 Min) |
+| **Schwelle** | `stabilityThreshold` | Measurement Attribut (Default: **0.5**) |
+
+**Guards:**
+- Mindestens 5 Datenpunkte
+- Mindestens 1 kW Durchschnittsleistung (relevante Last)
+- Mindestens 80% Laufzeit (stabiler Betrieb, kein Start/Stop)
 
 **Script:**
 ```javascript
-var avgPower = P_th_kW.mean();
-var stdPower = P_th_kW.std();
+// Guards
+if (countPower < 5) return {};
+if (avgPower < 1.0) return {};
+if (runtimePct < 80) return {};  // Nicht während Start/Stop
 
 // Variationskoeffizient (CV) = std / mean
 var stability = stdPower / avgPower;
@@ -658,18 +665,97 @@ return {
 **Logik:**
 - Berechnet Variationskoeffizient (CV) = Standardabweichung / Mittelwert
 - Wert nahe 0 = stabile Leistung
-- Wert > 0.3 = instabile Leistung
+- Wert > 0.5 = instabile Leistung
 
 **Beispiel:**
 | Avg Power | Std Power | CV | power_unstable_flag |
 |-----------|-----------|-----|---------------------|
 | 50 kW | 5 kW | 0.10 | `false` |
-| 50 kW | 20 kW | 0.40 | `true` |
+| 50 kW | 30 kW | 0.60 | `true` |
 
 **Ursachen für Instabilität:**
-- Schwingender Regler
+- Unruhiger Betrieb
+- Stark schwankende Last
+- Regelungsprobleme
+
+---
+
+### oscillation_detection (oscillation_count + oscillation_flag)
+
+**Zweck:** Erkennung von periodischem Schwingen (Ventil-Hunting, Regler-Oszillation).
+
+| Parameter | Wert | Quelle |
+|-----------|------|--------|
+| **Input** | `P_th_kW`, `is_on` | Telemetrie (Rolling Window 15 Min) |
+| **Schwelle** | `oscillationThreshold` | Measurement Attribut (Default: **8**) |
+
+**Guards:**
+- Mindestens 10 Datenpunkte
+- Mindestens 1 kW Durchschnittsleistung
+- Mindestens 80% Laufzeit (stabiler Betrieb)
+
+**Script:**
+```javascript
+// Richtungswechsel zählen
+var directionChanges = 0;
+var prevValue = null;
+var prevDirection = null;
+
+foreach(v: P_th_kW) {
+  if (prevValue != null) {
+    var diff = v.value - prevValue;
+    var currentDirection = 0;
+
+    if (diff > 0.1) currentDirection = 1;       // steigend
+    else if (diff < -0.1) currentDirection = -1; // fallend
+
+    if (prevDirection != null && currentDirection != 0 && prevDirection != currentDirection) {
+      directionChanges = directionChanges + 1;
+    }
+
+    if (currentDirection != 0) prevDirection = currentDirection;
+  }
+  prevValue = v.value;
+}
+
+var isOscillating = (directionChanges > oscillationThreshold);
+
+return {
+  "oscillation_count": directionChanges,
+  "oscillation_flag": isOscillating
+};
+```
+
+**Logik:**
+- Zählt Richtungswechsel (↗ nach ↘ oder ↘ nach ↗)
+- Totzone ±0.1 kW ignoriert Rauschen
+- Flag = `true` wenn > 8 Richtungswechsel in 15 Min
+
+**Beispiel:**
+```
+Power: [30 ↗ 45 ↘ 25 ↗ 50 ↘ 20 ↗ 48 ↘ 22]
+              ↑      ↑      ↑      ↑      ↑
+         5 Richtungswechsel → oscillation_flag = false
+
+Power: [30 ↗ 40 ↘ 32 ↗ 42 ↘ 30 ↗ 45 ↘ 28 ↗ 50 ↘ 25 ↗ 48]
+              ↑      ↑      ↑      ↑      ↑      ↑      ↑
+         10 Richtungswechsel → oscillation_flag = true
+```
+
+**Ursachen für Oszillation:**
 - Ventil-Hunting
-- Lastspitzen
+- Falsche PID-Parameter
+- Überdimensioniertes Ventil
+- Hydraulische Instabilität
+
+### Unterschied power_stability vs. oscillation_detection
+
+| Metrik | Misst | Erkennt |
+|--------|-------|---------|
+| `power_stability` | Variationskoeffizient (CV) | Allgemeine Unruhe, hohe Streuung |
+| `oscillation_detection` | Richtungswechsel | Periodisches Schwingen, Hunting |
+
+Beide ergänzen sich: Ein System kann hohen CV haben ohne zu schwingen (z.B. Ramping) oder schwingen ohne hohen CV (kleine Amplitude).
 
 ---
 
@@ -731,9 +817,14 @@ Die Calculated Fields verwenden Measurement-Attribute für Schwellenwerte mit Fa
 | `collapseThreshold` | 0.5 | dT Collapse: Verhältnis aktuell/avg (0.5 = 50%) |
 | `spikeThreshold` | 2.0 | Flow Spike: Verhältnis aktuell/avg (2.0 = 200%) |
 | `cyclingThreshold` | 5 | Cycling: Max Zustandswechsel in 30 Min |
-| `stabilityThreshold` | 0.3 | Power Stability: Max Variationskoeffizient |
+| `stabilityThreshold` | 0.5 | Power Stability: Max Variationskoeffizient (CV) |
+| `oscillationThreshold` | 8 | Oscillation: Max Richtungswechsel in 15 Min |
 
 **Robustheit:** Wenn das Attribut nicht gesetzt ist, wird automatisch der Default-Wert aus der Argument-Konfiguration verwendet.
+
+**Guards für power_stability und oscillation_detection:**
+- Nur bei stabilem Betrieb (`runtime_pct ≥ 80%`)
+- Nur bei relevanter Last (`avgPower ≥ 1 kW`)
 
 ---
 

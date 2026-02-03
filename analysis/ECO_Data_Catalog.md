@@ -333,8 +333,10 @@ Tenant (ECO Energy Group)
 | `flow_spike_flag` | boolean | `true`, `false` | Plötzlicher Durchfluss-Spike erkannt |
 | `cycling_flag` | boolean | `true`, `false` | Taktbetrieb erkannt (häufiges Ein/Aus) |
 | `cycle_count` | number | 0-n | Anzahl Zustandswechsel in 30 Min |
-| `power_stability` | number | 0-1+ | Variationskoeffizient der Leistung |
-| `power_unstable_flag` | boolean | `true`, `false` | Leistungsschwankungen erkannt |
+| `power_stability` | number | 0-1+ | Variationskoeffizient der Leistung (CV) |
+| `power_unstable_flag` | boolean | `true`, `false` | Hohe Leistungsvariabilität erkannt |
+| `oscillation_count` | number | 0-n | Anzahl Richtungswechsel in 15 Min |
+| `oscillation_flag` | boolean | `true`, `false` | Schwingen/Oszillation erkannt |
 | `runtime_pct` | number | 0-100 | Laufzeitanteil in % (letzte Stunde) |
 
 ---
@@ -412,7 +414,7 @@ in preparation → active → finished
 | **Hilfs** | 2 | `auxT1_C`, `auxT2_C` |
 | **Kontext** | 2 | `T_outside_C`, `RH_outside_pct` |
 | **Derived (Rule Chain)** | 8 | `is_on`, `load_class`, `dT_flag`, `data_quality`, `schedule_violation`, `P_th_calc_kW`, `P_deviation_pct`, `P_sensor_flag` |
-| **Calculated Fields** | 7 | `dT_collapse_flag`, `flow_spike_flag`, `cycling_flag`, `cycle_count`, `power_stability`, `power_unstable_flag`, `runtime_pct` |
+| **Calculated Fields** | 9 | `dT_collapse_flag`, `flow_spike_flag`, `cycling_flag`, `cycle_count`, `power_stability`, `power_unstable_flag`, `oscillation_count`, `oscillation_flag`, `runtime_pct` |
 
 ---
 

@@ -66,17 +66,40 @@ Alarme werden aus Calculated Field Flags erstellt:
 | `dT_collapse_flag` | `dT_Collapse` | MINOR | Low-ΔT Syndrom erkannt |
 | `cycling_flag` | `Cycling` | MINOR | Taktbetrieb erkannt |
 | `flow_spike_flag` | `Flow_Spike` | MINOR | Durchfluss-Spike erkannt |
-| `power_unstable_flag` | `Power_Unstable` | MINOR | Instabile Leistung erkannt |
+| `power_unstable_flag` | `Power_Unstable` | MINOR | Instabile Leistung (hohe Variabilität) |
+| `oscillation_flag` | `Oscillation` | MINOR | Schwingen/Oszillation erkannt |
 
-**Alarm Details (Beispiel Cycling):**
+**Alarm Details Beispiele:**
+
 ```json
+// Cycling Alarm
 {
   "message": "Taktbetrieb erkannt",
   "flag": "cycling_flag",
   "timestamp": "2026-02-03T18:15:00.000Z",
   "cycle_count": 8
 }
+
+// Oscillation Alarm
+{
+  "message": "Oszillation/Schwingen erkannt",
+  "flag": "oscillation_flag",
+  "timestamp": "2026-02-03T18:15:00.000Z",
+  "oscillation_count": 12,
+  "current_power_kW": 28.5
+}
 ```
+
+### Power Stability vs. Oscillation Detection
+
+| Metrik | Formel | Erkennt | Typische Ursache |
+|--------|--------|---------|------------------|
+| `power_stability` | CV = std / mean | Allgemeine Variabilität | Unruhiger Betrieb, Lastschwankungen |
+| `oscillation_detection` | Richtungswechsel zählen | Periodisches Schwingen | Ventil-Hunting, Regler-Oszillation |
+
+**Wichtig:** Beide Metriken prüfen nur bei:
+- Stabilem Betrieb (`runtime_pct ≥ 80%`)
+- Relevanter Last (`avgPower ≥ 1 kW`)
 
 ### 2.2 Device Alarme (Device Profile Rules)
 
