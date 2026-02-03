@@ -379,6 +379,7 @@ Change Device
 
 | Datum | Änderung |
 |-------|----------|
+| 2026-02-03 | Calculated Fields: dT_collapse_flag, flow_spike_flag (Asset Profile) |
 | 2026-02-03 | Schedule Violation Detection (schedule_violation) mit weeklySchedule JSON |
 | 2026-02-03 | Calculated Power (P_th_calc_kW) mit fluidType und temperaturabhängiger Dichte |
 | 2026-02-03 | Power Deviation Detection (P_deviation_pct, P_sensor_flag) |
@@ -387,6 +388,151 @@ Change Device
 
 ---
 
+## Calculated Fields (Asset Profile: Measurement)
+
+Calculated Fields werden auf Asset Profile Ebene definiert und automatisch für alle Measurements berechnet.
+
+**API Endpoint:** `GET /api/ASSET_PROFILE/{profileId}/calculatedFields`
+
+### Verfügbare Methoden für TS_ROLLING Arguments
+
+| Methode | Beschreibung | Beispiel |
+|---------|--------------|----------|
+| `last()` | Letzter Wert | `dT_K.last()` |
+| `first()` | Erster Wert | `dT_K.first()` |
+| `mean()` / `avg()` | Durchschnitt | `dT_K.mean()` |
+| `min()` | Minimum | `dT_K.min()` |
+| `max()` | Maximum | `dT_K.max()` |
+| `sum()` | Summe | `dT_K.sum()` |
+| `count()` | Anzahl Werte | `dT_K.count()` |
+| `std()` | Standardabweichung | `dT_K.std()` |
+| `median()` | Median | `dT_K.median()` |
+
+**Hinweis:** Alle Methoden ignorieren NaN-Werte standardmäßig. Mit `method(false)` werden NaN-Werte einbezogen.
+
+---
+
+### dT_collapse_flag (boolean)
+
+**Zweck:** Erkennung von plötzlichem ΔT-Einbruch (Low-ΔT Syndrom).
+
+| Parameter | Wert | Quelle |
+|-----------|------|--------|
+| **Input** | `dT_K` | Telemetrie (Rolling Window 15 Min) |
+| **Schwelle** | `collapseThreshold` | Measurement Attribut (Default: 0.5) |
+
+**Argument-Konfiguration:**
+```json
+{
+  "dT_K": {
+    "refEntityKey": { "key": "dT_K", "type": "TS_ROLLING" },
+    "limit": 100,
+    "timeWindow": 900000
+  },
+  "collapseThreshold": {
+    "refEntityKey": { "key": "collapseThreshold", "type": "ATTRIBUTE", "scope": "SERVER_SCOPE" },
+    "defaultValue": "0.5"
+  }
+}
+```
+
+**Script:**
+```javascript
+var currentDT = dT_K.last();
+var avgDT = dT_K.mean();
+var countDT = dT_K.count();
+
+if (countDT < 3 || avgDT == 0) {
+  return {};
+}
+
+var collapsed = (currentDT < avgDT * collapseThreshold);
+
+return { "dT_collapse_flag": collapsed };
+```
+
+**Logik:**
+- Vergleicht aktuellen dT_K mit Durchschnitt der letzten 15 Minuten
+- Flag = `true` wenn aktueller Wert < 50% (oder `collapseThreshold`) vom Durchschnitt
+- Mindestens 3 Datenpunkte erforderlich
+
+**Beispiel** (collapseThreshold = 0.5):
+| Aktuell | Avg (15 Min) | Verhältnis | dT_collapse_flag |
+|---------|--------------|------------|------------------|
+| 12 K | 14 K | 86% | `false` |
+| 6 K | 14 K | 43% | `true` |
+| 10 K | 12 K | 83% | `false` |
+
+---
+
+### flow_spike_flag (boolean)
+
+**Zweck:** Erkennung von plötzlichen Durchfluss-Spikes.
+
+| Parameter | Wert | Quelle |
+|-----------|------|--------|
+| **Input** | `Vdot_m3h` | Telemetrie (Rolling Window 5 Min) |
+| **Schwelle** | `spikeThreshold` | Measurement Attribut (Default: 2.0) |
+
+**Argument-Konfiguration:**
+```json
+{
+  "Vdot_m3h": {
+    "refEntityKey": { "key": "Vdot_m3h", "type": "TS_ROLLING" },
+    "limit": 50,
+    "timeWindow": 300000
+  },
+  "spikeThreshold": {
+    "refEntityKey": { "key": "spikeThreshold", "type": "ATTRIBUTE", "scope": "SERVER_SCOPE" },
+    "defaultValue": "2.0"
+  }
+}
+```
+
+**Script:**
+```javascript
+var currentFlow = Vdot_m3h.last();
+var avgFlow = Vdot_m3h.mean();
+var countFlow = Vdot_m3h.count();
+
+if (countFlow < 3 || avgFlow == 0) {
+  return {};
+}
+
+var spiked = (currentFlow > avgFlow * spikeThreshold);
+
+return { "flow_spike_flag": spiked };
+```
+
+**Logik:**
+- Vergleicht aktuellen Vdot_m3h mit Durchschnitt der letzten 5 Minuten
+- Flag = `true` wenn aktueller Wert > 200% (oder `spikeThreshold`) vom Durchschnitt
+- Mindestens 3 Datenpunkte erforderlich
+
+**Beispiel** (spikeThreshold = 2.0):
+| Aktuell | Avg (5 Min) | Verhältnis | flow_spike_flag |
+|---------|-------------|------------|-----------------|
+| 1.5 m³/h | 1.2 m³/h | 125% | `false` |
+| 3.0 m³/h | 1.2 m³/h | 250% | `true` |
+| 2.2 m³/h | 1.8 m³/h | 122% | `false` |
+
+---
+
+### Konfigurierbare Schwellenwerte
+
+Die Calculated Fields verwenden Measurement-Attribute für Schwellenwerte mit Fallback auf Default-Werte:
+
+| Attribut | Default | Beschreibung |
+|----------|---------|--------------|
+| `collapseThreshold` | 0.5 | dT Collapse: Verhältnis aktuell/avg (0.5 = 50%) |
+| `spikeThreshold` | 2.0 | Flow Spike: Verhältnis aktuell/avg (2.0 = 200%) |
+
+**Robustheit:** Wenn das Attribut nicht gesetzt ist, wird automatisch der Default-Wert aus der Argument-Konfiguration verwendet.
+
+---
+
 ## TODO
 
 - [ ] Weitere Fluid-Typen in Default-Parameter ergänzen (glycol40, propyleneGlycol20/30)
+- [ ] Weitere Calculated Fields: load_pct, dT_efficiency, power_stability
+- [ ] Alarm Rule Chain für Calculated Field Flags
