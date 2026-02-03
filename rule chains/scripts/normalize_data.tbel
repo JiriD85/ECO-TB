@@ -253,6 +253,62 @@ if (newValues["dT_K"] != null && designDeltaT != null && designDeltaT > 0) {
     }
 }
 
+// --- schedule_violation: running outside defined operating hours ---
+if (metadata["ss_weeklySchedule"] != null && metadata["ss_weeklySchedule"] != "") {
+
+    var schedule = JSON.parse(metadata["ss_weeklySchedule"]);
+
+    // Timezone offset in minutes (default: 60 = CET)
+    var tzOffset = 60;
+    if (schedule["timezoneOffset"] != null) {
+        tzOffset = schedule["timezoneOffset"];
+    }
+
+    // Get timestamp
+    var ts = msg["ts"];
+    if (ts == null && metadata["ts"] != null) {
+        ts = parseLong(metadata["ts"]);
+    }
+
+    if (ts != null && newValues["is_on"] != null) {
+
+        // Convert to local time (add timezone offset)
+        var localTs = ts + tzOffset * 60000;
+
+        // Day of week from local timestamp (0=Sun, 1=Mon, ... 6=Sat)
+        // Unix epoch (1970-01-01) was a Thursday (day 4)
+        var dayIndex = (Math.floor(localTs / 86400000) + 4) % 7;
+        var dayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+        var dayName = dayNames[dayIndex];
+
+        // Current local time as minutes since midnight
+        var msInDay = localTs % 86400000;
+        var currentMinutes = Math.floor(msInDay / 60000);
+
+        // Get today's schedule
+        var today = schedule[dayName];
+        var isWithinSchedule = false;
+
+        if (today != null && today["enabled"] == true) {
+            // Parse start "HH:MM" → minutes since midnight
+            var startStr = today["start"];
+            var startMinutes = parseLong(startStr.substring(0, 2)) * 60 + parseLong(startStr.substring(3, 5));
+
+            // Parse end "HH:MM" → minutes since midnight
+            var endStr = today["end"];
+            var endMinutes = parseLong(endStr.substring(0, 2)) * 60 + parseLong(endStr.substring(3, 5));
+
+            // Check if current time is within schedule
+            if (currentMinutes >= startMinutes && currentMinutes <= endMinutes) {
+                isWithinSchedule = true;
+            }
+        }
+
+        // Violation = system running outside scheduled operating hours
+        newValues["schedule_violation"] = (newValues["is_on"] == true && !isWithinSchedule);
+    }
+}
+
 // ============================================================
 // Outlier Detection (only check if value exists)
 // ============================================================

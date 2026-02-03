@@ -128,6 +128,63 @@ else                  → "severe"
 
 ---
 
+### schedule_violation (boolean)
+
+**Zweck:** Erkennung ob Anlage außerhalb der definierten Betriebszeiten läuft.
+
+| Parameter | Wert | Quelle |
+|-----------|------|--------|
+| **Input** | `is_on` | Telemetrie (berechnet) |
+| **Schedule** | `weeklySchedule` | Measurement Attribut (JSON) |
+
+**weeklySchedule Format:**
+
+```json
+{
+  "timezoneOffset": 60,
+  "monday": {"enabled": true, "start": "04:00", "end": "22:00"},
+  "tuesday": {"enabled": true, "start": "04:00", "end": "22:00"},
+  "wednesday": {"enabled": true, "start": "04:00", "end": "22:00"},
+  "thursday": {"enabled": true, "start": "04:00", "end": "22:00"},
+  "friday": {"enabled": true, "start": "04:00", "end": "22:00"},
+  "saturday": {"enabled": true, "start": "06:00", "end": "18:00"},
+  "sunday": {"enabled": false, "start": "00:00", "end": "00:00"}
+}
+```
+
+| Feld | Typ | Beschreibung |
+|------|-----|--------------|
+| `timezoneOffset` | number | Minuten von UTC (60 = CET, 120 = CEST) |
+| `monday..sunday` | object | Tagesplan |
+| `enabled` | boolean | Tag aktiviert? |
+| `start` | string | Startzeit "HH:MM" |
+| `end` | string | Endzeit "HH:MM" |
+
+**Logik:**
+```
+1. Parse weeklySchedule JSON
+2. Konvertiere Timestamp zu Lokalzeit (+ timezoneOffset)
+3. Bestimme Wochentag aus Lokalzeit
+4. Prüfe ob aktueller Zeitpunkt innerhalb start..end liegt
+5. schedule_violation = is_on AND NOT isWithinSchedule
+```
+
+**Beispiele:**
+
+| Zeit (lokal) | Wochentag | Schedule | is_on | schedule_violation |
+|--------------|-----------|----------|-------|--------------------|
+| 10:00 | Montag | 04:00-22:00, enabled | true | false |
+| 23:30 | Montag | 04:00-22:00, enabled | true | **true** |
+| 14:00 | Sonntag | disabled | true | **true** |
+| 03:00 | Dienstag | 04:00-22:00, enabled | false | false |
+
+**Robustheit:**
+- Wird nicht berechnet wenn `weeklySchedule` fehlt
+- Wird nicht berechnet wenn `is_on` fehlt (kein Durchflusswert)
+- Default `timezoneOffset`: 60 (CET) wenn nicht angegeben
+
+---
+
 ## Calculated Power (P_th_calc_kW)
 
 **Zweck:** Berechnung der thermischen Leistung aus Volumenstrom und Temperaturdifferenz.
@@ -255,6 +312,7 @@ Diese Attribute müssen vom **"Get Measurement Attributes"** Node geholt werden:
 | `designDeltaT` | number | - | dT_flag Berechnung |
 | `calculatePower` | boolean | `false` | Aktiviert Leistungsberechnung |
 | `fluidType` | string | `"water"` | Stoffwerte für Leistungsberechnung |
+| `weeklySchedule` | JSON | - | schedule_violation Berechnung |
 
 **Hinweis:** Metadata-Werte kommen als Strings und werden mit `parseDouble()` konvertiert.
 
@@ -314,6 +372,7 @@ Change Device
 
 | Datum | Änderung |
 |-------|----------|
+| 2026-02-03 | Schedule Violation Detection (schedule_violation) mit weeklySchedule JSON |
 | 2026-02-03 | Calculated Power (P_th_calc_kW) mit fluidType und temperaturabhängiger Dichte |
 | 2026-02-03 | Power Deviation Detection (P_deviation_pct, P_sensor_flag) |
 | 2026-02-03 | Absolutwert für dT_K (Cooling Support) |
