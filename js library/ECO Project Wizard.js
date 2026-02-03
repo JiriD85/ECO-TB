@@ -2580,6 +2580,27 @@ mat-toolbar.eco-dialog-header mat-icon {
   min-height: 26px;
   line-height: 1.2;
 }
+.measurement-parameters-form .timezone-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+.measurement-parameters-form .timezone-label {
+  font-size: 12px;
+  color: #64748b;
+  min-width: 65px;
+}
+.measurement-parameters-form .timezone-select {
+  width: 140px;
+}
+.measurement-parameters-form .timezone-hint {
+  font-size: 11px;
+  color: #94a3b8;
+  font-style: italic;
+}
 </style>
 <form [formGroup]="parametersFormGroup" (ngSubmit)="save()" class="measurement-parameters-form" style="width: 700px;">
   <mat-toolbar class="eco-dialog-header">
@@ -3011,6 +3032,14 @@ mat-toolbar.eco-dialog-header mat-icon {
           <button mat-stroked-button type="button" (click)="applyPreset('247')">24/7</button>
           <button mat-stroked-button type="button" (click)="applyPreset('clear')">Clear</button>
         </div>
+        <!-- Timezone Selection -->
+        <div class="timezone-row">
+          <span class="timezone-label">Timezone:</span>
+          <mat-select formControlName="timezoneOffset" class="timezone-select">
+            <mat-option *ngFor="let tz of timezoneOptions" [value]="tz.value">{{ tz.label }}</mat-option>
+          </mat-select>
+          <span class="timezone-hint">(DST auto-detected)</span>
+        </div>
       </div>
     </div>
 
@@ -3125,6 +3154,15 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
       }
     }
 
+    // Timezone options (offset in minutes from UTC)
+    vm.timezoneOptions = [
+      { value: 0, label: 'UTC (GMT)' },
+      { value: 60, label: 'CET (UTC+1)' },
+      { value: 120, label: 'CEST (UTC+2)' },
+      { value: -300, label: 'EST (UTC-5)' },
+      { value: -360, label: 'CST (UTC-6)' }
+    ];
+
     // Create form group with new structure
     vm.parametersFormGroup = vm.fb.group({
       // Measurement info
@@ -3176,8 +3214,9 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
         value: [null],
         unit: ['m²']
       }),
-      // Weekly schedule (with time ranges)
+      // Weekly schedule (with time ranges and timezone)
       weeklySchedule: vm.fb.group({
+        timezoneOffset: [60],  // Minutes from UTC (60 = CET, 120 = CEST)
         monday: vm.fb.group({ enabled: [false], start: ['06:00'], end: ['22:00'] }),
         tuesday: vm.fb.group({ enabled: [false], start: ['06:00'], end: ['22:00'] }),
         wednesday: vm.fb.group({ enabled: [false], start: ['06:00'], end: ['22:00'] }),
@@ -3330,6 +3369,11 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
 
       // Weekly schedule (support both legacy boolean and new object format)
       if (attributeMap.weeklySchedule) {
+        // Timezone offset
+        if (attributeMap.weeklySchedule.timezoneOffset !== undefined) {
+          vm.parametersFormGroup.get('weeklySchedule.timezoneOffset').setValue(attributeMap.weeklySchedule.timezoneOffset);
+        }
+        // Days
         const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
         days.forEach(function(day) {
           const dayData = attributeMap.weeklySchedule[day];
@@ -3680,17 +3724,27 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
         { key: 'pumpPresent', value: formData.pumpPresent },
         { key: 'pumpControlType', value: formData.pumpPresent ? formData.pumpControlType : null },
         { key: 'pumpRatedPower', value: formData.pumpPresent ? formData.pumpRatedPower : null },
-        // Auxiliary sensors
-        { key: 'auxSensor1', value: formData.auxSensors.auxSensor1 },
-        { key: 'auxSensor2', value: formData.auxSensors.auxSensor2 },
-        // Area
-        { key: 'area', value: formData.area },
-        // Weekly schedule
+        // Weekly schedule (always save - includes timezoneOffset)
         { key: 'weeklySchedule', value: formData.weeklySchedule },
         // Fixed position values
         { key: 'xPos', value: 0.5 },
         { key: 'yPos', value: 0.5 }
       ];
+
+      // Auxiliary sensors - only save if label or location is set
+      const auxSensor1 = formData.auxSensors.auxSensor1;
+      if (auxSensor1 && (auxSensor1.label || auxSensor1.location)) {
+        attributesArray.push({ key: 'auxSensor1', value: auxSensor1 });
+      }
+      const auxSensor2 = formData.auxSensors.auxSensor2;
+      if (auxSensor2 && (auxSensor2.label || auxSensor2.location)) {
+        attributesArray.push({ key: 'auxSensor2', value: auxSensor2 });
+      }
+
+      // Area - only save if value is set
+      if (formData.area && formData.area.value) {
+        attributesArray.push({ key: 'area', value: formData.area });
+      }
 
       // Save attributes
       const saveAttributes$ = attributeService.saveEntityAttributes(vm.measurementId, 'SERVER_SCOPE', attributesArray);

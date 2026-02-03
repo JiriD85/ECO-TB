@@ -163,11 +163,18 @@ else                  → "severe"
 **Logik:**
 ```
 1. Parse weeklySchedule JSON
-2. Konvertiere Timestamp zu Lokalzeit (+ timezoneOffset)
-3. Bestimme Wochentag aus Lokalzeit
-4. Prüfe ob aktueller Zeitpunkt innerhalb start..end liegt
-5. schedule_violation = is_on AND NOT isWithinSchedule
+2. Prüfe ob Timestamp in europäischer Sommerzeit (DST) liegt
+3. Berechne effektiven Offset: timezoneOffset + (isDST ? 60 : 0)
+4. Konvertiere Timestamp zu Lokalzeit (+ effectiveOffset)
+5. Bestimme Wochentag aus Lokalzeit
+6. Prüfe ob aktueller Zeitpunkt innerhalb start..end liegt
+7. schedule_violation = is_on AND NOT isWithinSchedule
 ```
+
+**DST-Erkennung (automatisch):**
+- Sommerzeit beginnt: Letzter Sonntag im März um 02:00 UTC
+- Sommerzeit endet: Letzter Sonntag im Oktober um 03:00 UTC
+- Gilt für CET/CEST (Mitteleuropa)
 
 **Beispiele:**
 

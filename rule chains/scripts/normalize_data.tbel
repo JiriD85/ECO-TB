@@ -258,7 +258,7 @@ if (metadata["ss_weeklySchedule"] != null && metadata["ss_weeklySchedule"] != ""
 
     var schedule = JSON.parse(metadata["ss_weeklySchedule"]);
 
-    // Timezone offset in minutes (default: 60 = CET)
+    // Timezone offset in minutes (default: 60 = CET, this is the WINTER time offset)
     var tzOffset = 60;
     if (schedule["timezoneOffset"] != null) {
         tzOffset = schedule["timezoneOffset"];
@@ -272,8 +272,84 @@ if (metadata["ss_weeklySchedule"] != null && metadata["ss_weeklySchedule"] != ""
 
     if (ts != null && newValues["is_on"] != null) {
 
-        // Convert to local time (add timezone offset)
-        var localTs = ts + tzOffset * 60000;
+        // ============================================================
+        // European DST Detection (CET/CEST)
+        // DST starts: last Sunday of March at 02:00 UTC
+        // DST ends: last Sunday of October at 03:00 UTC
+        // ============================================================
+        var isDST = false;
+
+        // Calculate year, month, day from UTC timestamp
+        var msPerDay = 86400000;
+        var days = Math.floor(ts / msPerDay);
+
+        // Days since 1970-01-01 (Thursday) to get year/month/day
+        // Using algorithm to extract date components
+        var z = days + 719468;
+        var era = Math.floor((z >= 0 ? z : z - 146096) / 146097);
+        var doe = z - era * 146097;
+        var yoe = Math.floor((doe - Math.floor(doe / 1460) + Math.floor(doe / 36524) - Math.floor(doe / 146096)) / 365);
+        var year = yoe + era * 400;
+        var doy = doe - (365 * yoe + Math.floor(yoe / 4) - Math.floor(yoe / 100));
+        var mp = Math.floor((5 * doy + 2) / 153);
+        var day = doy - Math.floor((153 * mp + 2) / 5) + 1;
+        var month = mp + (mp < 10 ? 3 : -9);
+        if (month <= 2) { year = year + 1; }
+
+        // April to September: definitely DST
+        if (month > 3 && month < 10) {
+            isDST = true;
+        }
+        // November to February: definitely not DST
+        else if (month < 3 || month > 10) {
+            isDST = false;
+        }
+        // March or October: need to check exact date
+        else {
+            // Find last Sunday of the month
+            // Days in month: March=31, October=31
+            var daysInMonth = 31;
+            // Day of week for 1st of month (0=Sun, 1=Mon, ...)
+            // Calculate days from epoch to 1st of month
+            var y = year;
+            var m = month;
+            if (m <= 2) { y = y - 1; m = m + 12; }
+            var firstOfMonth = 365 * y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) + Math.floor((153 * (m - 3) + 2) / 5) + 1 - 719469;
+            var dowFirst = (firstOfMonth + 4) % 7; // 0=Sun
+
+            // Last Sunday = last day - (day_of_week_of_last_day)
+            var dowLast = (dowFirst + daysInMonth - 1) % 7;
+            var lastSunday = daysInMonth - dowLast;
+            if (dowLast == 0) { lastSunday = daysInMonth; } // If last day is Sunday
+
+            if (month == 3) {
+                // March: DST starts at 02:00 UTC on last Sunday
+                // After last Sunday = DST
+                if (day > lastSunday) {
+                    isDST = true;
+                } else if (day == lastSunday) {
+                    // Check if after 02:00 UTC
+                    var hourUTC = Math.floor((ts % msPerDay) / 3600000);
+                    isDST = (hourUTC >= 2);
+                }
+            } else {
+                // October: DST ends at 03:00 UTC on last Sunday
+                // Before last Sunday = DST
+                if (day < lastSunday) {
+                    isDST = true;
+                } else if (day == lastSunday) {
+                    // Check if before 03:00 UTC
+                    var hourUTC = Math.floor((ts % msPerDay) / 3600000);
+                    isDST = (hourUTC < 3);
+                }
+            }
+        }
+
+        // Apply DST correction: add 60 minutes in summer
+        var effectiveOffset = isDST ? tzOffset + 60 : tzOffset;
+
+        // Convert to local time (add effective timezone offset)
+        var localTs = ts + effectiveOffset * 60000;
 
         // Day of week from local timestamp (0=Sun, 1=Mon, ... 6=Sat)
         // Unix epoch (1970-01-01) was a Thursday (day 4)
