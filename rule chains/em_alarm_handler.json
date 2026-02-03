@@ -13,12 +13,12 @@
     "type": "CORE",
     "firstRuleNodeId": {
       "entityType": "RULE_NODE",
-      "id": "88b5c660-6f6c-11ef-8a75-b31459678eb5"
+      "id": "0a20dd60-0130-11f1-9979-9f3434877bb4"
     },
     "root": false,
     "debugMode": false,
     "externalId": null,
-    "version": 4,
+    "version": 24,
     "configuration": null,
     "additionalInfo": {
       "description": ""
@@ -29,7 +29,7 @@
       "entityType": "RULE_CHAIN",
       "id": "88aee890-6f6c-11ef-8170-db057079800d"
     },
-    "version": 4,
+    "version": 24,
     "firstNodeIndex": 9,
     "nodes": [
       {
@@ -57,8 +57,8 @@
         "externalId": null,
         "additionalInfo": {
           "description": "",
-          "layoutX": 789,
-          "layoutY": 344
+          "layoutX": 838,
+          "layoutY": 234
         }
       },
       {
@@ -80,13 +80,13 @@
         "configuration": {
           "scriptLang": "TBEL",
           "jsScript": "var criticalAlarmsCount = msg.criticalAlarmsCount;\nvar majorAlarmsCount = msg.majorAlarmsCount;\n\nvar state = 'normal';\n\nif (criticalAlarmsCount && Number(criticalAlarmsCount) > 0) {\n    state = 'critical';\n} else if (majorAlarmsCount && Number(majorAlarmsCount) > 0) {\n    state = 'major';\n}\n\nreturn {\n    msg: {\n        state: state\n    },\n    metadata: {\n        scope: 'SERVER_SCOPE'\n    },\n    msgType: 'POST_ATTRIBUTES_REQUEST'\n};",
-          "tbelScript": "var criticalAlarmsCount = msg.criticalAlarmsCount;\nvar majorAlarmsCount = msg.majorAlarmsCount;\nvar minorAlarmsCount = msg.minorAlarmsCount;\nvar warningAlarmsCount = msg.warningAlarmsCount;\n\nvar state = 'normal';\n\nif (criticalAlarmsCount != null && criticalAlarmsCount > 0) {\n    state = 'critical';\n} else if (majorAlarmsCount != null && majorAlarmsCount > 0) {\n    state = 'major';\n} else if (minorAlarmsCount != null && minorAlarmsCount > 0) {\n    state = 'minor';\n} else if (warningAlarmsCount != null && warningAlarmsCount > 0) {\n    state = 'warning';\n}\n\nreturn {\n    msg: {\n        state: state\n    },\n    metadata: {\n        scope: 'SERVER_SCOPE'\n    },\n    msgType: 'POST_ATTRIBUTES_REQUEST'\n};"
+          "tbelScript": "var criticalAlarmsCount = msg.criticalAlarmsCount;\nvar majorAlarmsCount = msg.majorAlarmsCount;\nvar minorAlarmsCount = msg.minorAlarmsCount;\nvar warningAlarmsCount = msg.warningAlarmsCount;\n\nvar state = 'normal';\n\nif (criticalAlarmsCount != null && criticalAlarmsCount > 0) {\n    state = 'critical';\n} else if (majorAlarmsCount != null && majorAlarmsCount > 0) {\n    state = 'major';\n} else if (minorAlarmsCount != null && minorAlarmsCount > 0) {\n    state = 'minor';\n} else if (warningAlarmsCount != null && warningAlarmsCount > 0) {\n    state = 'warning';\n}\n\nvar result = {};\nresult.state = state;\nresult.criticalAlarmsCount = (criticalAlarmsCount != null) ? criticalAlarmsCount : 0;\nresult.majorAlarmsCount = (majorAlarmsCount != null) ? majorAlarmsCount : 0;\nresult.minorAlarmsCount = (minorAlarmsCount != null) ? minorAlarmsCount : 0;\nresult.warningAlarmsCount = (warningAlarmsCount != null) ? warningAlarmsCount : 0;\n\nvar newMetadata = {};\nnewMetadata.scope = 'SERVER_SCOPE';\n\nreturn {\n    msg: result,\n    metadata: newMetadata,\n    msgType: 'POST_ATTRIBUTES_REQUEST'\n};"
         },
         "externalId": null,
         "additionalInfo": {
           "description": "",
-          "layoutX": 999,
-          "layoutY": 246
+          "layoutX": 1085,
+          "layoutY": 173
         }
       },
       {
@@ -159,8 +159,8 @@
         "externalId": null,
         "additionalInfo": {
           "description": "",
-          "layoutX": 572,
-          "layoutY": 139
+          "layoutX": 568,
+          "layoutY": 91
         }
       },
       {
@@ -188,8 +188,8 @@
         "externalId": null,
         "additionalInfo": {
           "description": null,
-          "layoutX": 908,
-          "layoutY": 135
+          "layoutX": 1070,
+          "layoutY": 76
         }
       },
       {
@@ -203,14 +203,14 @@
           "id": "88aee890-6f6c-11ef-8170-db057079800d"
         },
         "type": "org.thingsboard.rule.engine.telemetry.TbMsgAttributesNode",
-        "name": "Save Client Attributes",
+        "name": "Save Server Attributes",
         "debugSettings": null,
         "singletonMode": false,
         "queueName": null,
         "configurationVersion": 3,
         "configuration": {
-          "scope": "CLIENT_SCOPE",
-          "notifyDevice": true,
+          "scope": "SERVER_SCOPE",
+          "notifyDevice": false,
           "processingSettings": {
             "type": "ON_EVERY_MESSAGE"
           },
@@ -220,8 +220,8 @@
         "externalId": null,
         "additionalInfo": {
           "description": null,
-          "layoutX": 1123,
-          "layoutY": 346
+          "layoutX": 1281,
+          "layoutY": 336
         }
       },
       {
@@ -246,8 +246,8 @@
         "externalId": null,
         "additionalInfo": {
           "description": null,
-          "layoutX": 348,
-          "layoutY": 488
+          "layoutX": 514,
+          "layoutY": 452
         }
       },
       {
@@ -273,8 +273,8 @@
         "externalId": null,
         "additionalInfo": {
           "description": "",
-          "layoutX": 111,
-          "layoutY": 371
+          "layoutX": 407,
+          "layoutY": 319
         }
       },
       {
@@ -301,8 +301,8 @@
         "externalId": null,
         "additionalInfo": {
           "description": "",
-          "layoutX": 646,
-          "layoutY": 536
+          "layoutX": 860,
+          "layoutY": 449
         }
       },
       {
@@ -324,16 +324,25 @@
         "configuration": {
           "scriptLang": "TBEL",
           "jsScript": "var criticalAlarmsCount = msg.criticalAlarmsCount;\nvar majorAlarmsCount = msg.majorAlarmsCount;\n\nvar state = 'normal';\n\nif (criticalAlarmsCount && Number(criticalAlarmsCount) > 0) {\n    state = 'critical';\n} else if (majorAlarmsCount && Number(majorAlarmsCount) > 0) {\n    state = 'major';\n}\n\nreturn {\n    msg: {\n        state: state\n    },\n    metadata: {\n        scope: 'SERVER_SCOPE'\n    },\n    msgType: 'POST_ATTRIBUTES_REQUEST'\n};",
-          "tbelScript": "var criticalAlarmsCount = msg.criticalAlarmsCount;\nvar majorAlarmsCount = msg.majorAlarmsCount;\nvar minorAlarmsCount = msg.minorAlarmsCount;\nvar warningAlarmsCount = msg.warningAlarmsCount;\n\n// var state = 'service';\nvar state = 'normal';\n/*var inactivityTimeout = 24*60*60*1000; // 24 hours*/\n\nif (criticalAlarmsCount != null && criticalAlarmsCount > 0) {\n    state = 'critical';\n} else if (majorAlarmsCount != null && majorAlarmsCount > 0) {\n    state = 'major';\n} else if (minorAlarmsCount != null && minorAlarmsCount > 0) {\n    state = 'minor';\n} else if (warningAlarmsCount != null && warningAlarmsCount > 0) {\n    state = 'warning';\n}\n\nreturn {\n    msg: {\n        state: state\n    },\n    metadata: {\n        scope: 'SERVER_SCOPE'\n    },\n    msgType: 'POST_ATTRIBUTES_REQUEST'\n};"
+          "tbelScript": "var criticalAlarmsCount = msg.criticalAlarmsCount;\nvar majorAlarmsCount = msg.majorAlarmsCount;\nvar minorAlarmsCount = msg.minorAlarmsCount;\nvar warningAlarmsCount = msg.warningAlarmsCount;\n\nvar state = 'normal';\n\nif (criticalAlarmsCount != null && criticalAlarmsCount > 0) {\n    state = 'critical';\n} else if (majorAlarmsCount != null && majorAlarmsCount > 0) {\n    state = 'major';\n} else if (minorAlarmsCount != null && minorAlarmsCount > 0) {\n    state = 'minor';\n} else if (warningAlarmsCount != null && warningAlarmsCount > 0) {\n    state = 'warning';\n}\n\nvar result = {};\nresult.state = state;\nresult.criticalAlarmsCount = (criticalAlarmsCount != null) ? criticalAlarmsCount : 0;\nresult.majorAlarmsCount = (majorAlarmsCount != null) ? majorAlarmsCount : 0;\nresult.minorAlarmsCount = (minorAlarmsCount != null) ? minorAlarmsCount : 0;\nresult.warningAlarmsCount = (warningAlarmsCount != null) ? warningAlarmsCount : 0;\n\nvar newMetadata = {};\nnewMetadata.scope = 'SERVER_SCOPE';\n\nreturn {\n    msg: result,\n    metadata: newMetadata,\n    msgType: 'POST_ATTRIBUTES_REQUEST'\n};"
         },
         "externalId": null,
         "additionalInfo": {
           "description": "",
-          "layoutX": 1002,
-          "layoutY": 438
+          "layoutX": 1114,
+          "layoutY": 469
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "0a20dd60-0130-11f1-9979-9f3434877bb4"
+        },
+        "createdTime": 1770144126518,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "88aee890-6f6c-11ef-8170-db057079800d"
+        },
         "type": "org.thingsboard.rule.engine.filter.TbMsgTypeSwitchNode",
         "name": "Input Switch",
         "debugSettings": null,
@@ -343,10 +352,180 @@
         "configuration": {
           "version": 0
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "Routes incoming messages: Alarm events → Alarms Count, Telemetry → Device Profile Node",
           "layoutX": 50,
           "layoutY": 307
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "0a20dd61-0130-11f1-9979-9f3434877bb4"
+        },
+        "createdTime": 1770144126518,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "88aee890-6f6c-11ef-8170-db057079800d"
+        },
+        "type": "org.thingsboard.rule.engine.filter.TbCheckRelationNode",
+        "name": "Check Measurement Relation",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "direction": "TO",
+          "relationType": "Measurement",
+          "entityType": "ASSET",
+          "checkForSingleEntity": false
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Check if device is assigned to a Measurement",
+          "layoutX": 103,
+          "layoutY": 519
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "0a210470-0130-11f1-9979-9f3434877bb4"
+        },
+        "createdTime": 1770144126519,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "88aee890-6f6c-11ef-8170-db057079800d"
+        },
+        "type": "org.thingsboard.rule.engine.transform.TbChangeOriginatorNode",
+        "name": "Switch to Measurement",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "originatorSource": "RELATED",
+          "relationsQuery": {
+            "direction": "FROM",
+            "maxLevel": 1,
+            "filters": [
+              {
+                "relationType": "Measurement",
+                "entityTypes": [
+                  "ASSET"
+                ]
+              }
+            ]
+          },
+          "preserveOriginatorIfCustomer": true
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Switch originator to the related Measurement",
+          "layoutX": 105,
+          "layoutY": 623
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "0a210471-0130-11f1-9979-9f3434877bb4"
+        },
+        "createdTime": 1770144126519,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "88aee890-6f6c-11ef-8170-db057079800d"
+        },
+        "type": "org.thingsboard.rule.engine.metadata.TbGetAttributesNode",
+        "name": "Get Measurement Progress",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "serverAttributeNames": [
+            "progress"
+          ],
+          "clientAttributeNames": [],
+          "sharedAttributeNames": [],
+          "latestTsKeyNames": [],
+          "getLatestValueWithTs": false,
+          "fetchToData": true,
+          "tellFailureIfAbsent": false
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Fetch progress attribute from Measurement",
+          "layoutX": 110,
+          "layoutY": 702
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "0a210472-0130-11f1-9979-9f3434877bb4"
+        },
+        "createdTime": 1770144126519,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "88aee890-6f6c-11ef-8170-db057079800d"
+        },
+        "type": "org.thingsboard.rule.engine.filter.TbJsFilterNode",
+        "name": "Filter Active Measurement",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return msg.progress == 'active';",
+          "tbelScript": "return metadata.ss_progress == 'active';"
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Only proceed if Measurement is active",
+          "layoutX": 398,
+          "layoutY": 695
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "0a212b80-0130-11f1-9979-9f3434877bb4"
+        },
+        "createdTime": 1770144126520,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "88aee890-6f6c-11ef-8170-db057079800d"
+        },
+        "type": "org.thingsboard.rule.engine.transform.TbChangeOriginatorNode",
+        "name": "Switch back to Device",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "originatorSource": "RELATED",
+          "relationsQuery": {
+            "direction": "TO",
+            "maxLevel": 1,
+            "filters": [
+              {
+                "relationType": "Measurement",
+                "entityTypes": [
+                  "DEVICE"
+                ]
+              }
+            ]
+          },
+          "preserveOriginatorIfCustomer": true
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Switch originator back to Device for alarm processing",
+          "layoutX": 401,
+          "layoutY": 606
         }
       }
     ],
@@ -429,7 +608,7 @@
       {
         "fromIndex": 9,
         "toIndex": 2,
-        "type": "Alarm Created"
+        "type": "Alarm Acknowledged"
       },
       {
         "fromIndex": 9,
@@ -439,22 +618,12 @@
       {
         "fromIndex": 9,
         "toIndex": 2,
-        "type": "Alarm Severity Updated"
+        "type": "Alarm Created"
       },
       {
         "fromIndex": 9,
         "toIndex": 2,
-        "type": "Alarm Acknowledged"
-      },
-      {
-        "fromIndex": 9,
-        "toIndex": 6,
-        "type": "Post telemetry"
-      },
-      {
-        "fromIndex": 9,
-        "toIndex": 6,
-        "type": "Post attributes"
+        "type": "Alarm Severity Updated"
       },
       {
         "fromIndex": 9,
@@ -470,6 +639,41 @@
         "fromIndex": 9,
         "toIndex": 6,
         "type": "Other"
+      },
+      {
+        "fromIndex": 9,
+        "toIndex": 6,
+        "type": "Post attributes"
+      },
+      {
+        "fromIndex": 9,
+        "toIndex": 10,
+        "type": "Post telemetry"
+      },
+      {
+        "fromIndex": 10,
+        "toIndex": 11,
+        "type": "True"
+      },
+      {
+        "fromIndex": 11,
+        "toIndex": 12,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 12,
+        "toIndex": 13,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 13,
+        "toIndex": 14,
+        "type": "True"
+      },
+      {
+        "fromIndex": 14,
+        "toIndex": 6,
+        "type": "Success"
       }
     ],
     "ruleChainConnections": null

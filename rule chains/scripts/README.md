@@ -336,6 +336,27 @@ Diese Attribute müssen vom **"Get Measurement Attributes"** Node geholt werden:
 
 ---
 
+## TbGetAttributesNode - Attribut-Zugriff
+
+Wenn `fetchToData: true`, werden Attribute in `metadata` gespeichert (NICHT in `msg`!):
+
+| Scope | Prefix | Zugriff in Script |
+|-------|--------|-------------------|
+| SERVER_SCOPE | `ss_` | `metadata.ss_progress` |
+| CLIENT_SCOPE | `cs_` | `metadata.cs_progress` |
+| SHARED_SCOPE | `shared_` | `metadata.shared_progress` |
+
+**Beispiel:**
+```javascript
+// FALSCH - Attribut ist nicht in msg
+return msg.progress == 'active';
+
+// RICHTIG - Server Scope Attribut mit ss_ Prefix
+return metadata.ss_progress == 'active';
+```
+
+---
+
 ## Rule Chain Verkettung
 
 ```
