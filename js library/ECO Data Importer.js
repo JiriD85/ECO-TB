@@ -10,7 +10,11 @@
  *   csvDataImportDialog(widgetContext, entityId, entityName);
  */
 
-export function csvDataImportDialog(widgetContext, entityId, entityName) {
+export function csvDataImportDialog(widgetContext, entityId, entityName, options) {
+  // options.selectedMeasurement - pre-selected measurement to skip directly to upload step
+  // options.selectedMeasurement.entityId, entityName, entityLabel
+  const opts = options || {};
+
   // 0) Services (needed early for fetching data)
   const $injector = widgetContext.$scope.$injector;
   const customDialog = $injector.get(widgetContext.servicesMap.get('customDialog'));
@@ -29,11 +33,23 @@ export function csvDataImportDialog(widgetContext, entityId, entityName) {
 
   console.log('CSV Import Dialog - stateParams:', stateParams);
   console.log('CSV Import Dialog - isTenantAdmin:', isTenantAdmin);
+  console.log('CSV Import Dialog - options:', opts);
 
-  const selectedMeasurementFromParams = stateParams.selectedMeasurement || (entityId ? {
+  // Check if measurement is passed directly via options (from Project Wizard)
+  const directMeasurement = opts.selectedMeasurement ? {
+    entityId: opts.selectedMeasurement.entityId || opts.selectedMeasurement.id,
+    entityName: opts.selectedMeasurement.entityName || opts.selectedMeasurement.name || '',
+    entityLabel: opts.selectedMeasurement.entityLabel || opts.selectedMeasurement.label || '',
+    installationType: opts.selectedMeasurement.installationType || null
+  } : null;
+
+  const selectedMeasurementFromParams = directMeasurement || stateParams.selectedMeasurement || (entityId ? {
     entityId: entityId,
     entityName: entityName || ''
   } : null);
+
+  // Skip measurement selection step when measurement is directly provided
+  const skipMeasurementSelection = !!directMeasurement;
 
   // Configuration object
   const config = {
@@ -41,6 +57,7 @@ export function csvDataImportDialog(widgetContext, entityId, entityName) {
     selectedCustomer: stateParams.selectedCustomer || null,
     selectedProject: stateParams.selectedProject || null,
     selectedMeasurement: selectedMeasurementFromParams,
+    directMeasurement: directMeasurement,  // For pre-selected measurement with entityName/entityLabel
     customers: [],
     projects: [],
     measurements: [],
@@ -48,7 +65,8 @@ export function csvDataImportDialog(widgetContext, entityId, entityName) {
     lockMeasurementSelection: !!selectedMeasurementFromParams,
     needsCustomerSelection: false,
     needsProjectSelection: false,
-    needsMeasurementSelection: true
+    needsMeasurementSelection: !skipMeasurementSelection,
+    skipToUpload: skipMeasurementSelection
   };
 
   console.log('CSV Import Dialog - config.needsCustomerSelection:', config.needsCustomerSelection);
@@ -92,8 +110,89 @@ export function csvDataImportDialog(widgetContext, entityId, entityName) {
   );
 
   function openDialog(config) {
-  // 1) CSS
+  // 1) CSS - ECO Design System
   const myCSS = `
+/* ═══════════════════════════════════════════════════════════════
+   ECO DESIGN SYSTEM - CSV Importer Dialog
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Dialog Header */
+.add-device-to-asset-form .eco-dialog-header,
+mat-toolbar.eco-dialog-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 0 16px !important;
+  height: 56px !important;
+  min-height: 56px !important;
+  background-color: #1976d2 !important;
+  background: #1976d2 !important;
+  color: white !important;
+  font-family: "Roboto", "Helvetica Neue", sans-serif !important;
+}
+.add-device-to-asset-form .eco-dialog-header .header-icon,
+mat-toolbar.eco-dialog-header .header-icon {
+  font-size: 24px !important;
+  width: 24px !important;
+  height: 24px !important;
+  color: white !important;
+}
+.add-device-to-asset-form .eco-dialog-header .header-title,
+mat-toolbar.eco-dialog-header .header-title {
+  margin: 0 !important;
+  font-size: 1.125rem !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.01em !important;
+  color: white !important;
+  flex: 1 !important;
+}
+.add-device-to-asset-form .eco-dialog-header .close-btn,
+mat-toolbar.eco-dialog-header .close-btn {
+  color: rgba(255,255,255,0.8) !important;
+  margin-left: auto !important;
+}
+.add-device-to-asset-form .eco-dialog-header .close-btn:hover,
+mat-toolbar.eco-dialog-header .close-btn:hover {
+  color: white !important;
+  background: rgba(255,255,255,0.1) !important;
+}
+
+/* Section Cards */
+.add-device-to-asset-form .section-card {
+  background: white !important;
+  border: 1px solid #e2e8f0 !important;
+  border-left: 3px solid #1976d2 !important;
+  border-radius: 0 !important;
+  overflow: hidden !important;
+  margin-bottom: 16px !important;
+}
+.add-device-to-asset-form .section-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 12px 16px !important;
+  background: #f8fafc !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  font-weight: 600 !important;
+  font-size: 0.8125rem !important;
+  color: #334155 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.3px !important;
+}
+.add-device-to-asset-form .section-header mat-icon {
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  color: #1976d2 !important;
+}
+.add-device-to-asset-form .section-body {
+  padding: 16px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+
+/* Form field styles */
 .add-device-to-asset-form .mdc-text-field--filled.mdc-text-field--disabled {
   background-color: rgba(244, 249, 254, 0.5) !important;
 }
@@ -186,6 +285,10 @@ mat-icon {
 }
 .preview-table th.invalid-col {
   background: #ffebee !important;
+}
+.preview-table th.rejected-col {
+  background: #fff3e0 !important;
+  opacity: 0.7;
 }
 .preview-table th.calc-col {
   background: #e3f2fd !important;
@@ -413,7 +516,7 @@ mat-icon {
   const htmlTemplate = `
 <form [formGroup]="formGroup" class="add-device-to-asset-form" style="width: 1200px;">
   <mat-toolbar class="eco-dialog-header">
-    <mat-icon class="header-icon">close</mat-icon>
+    <mat-icon class="header-icon">upload_file</mat-icon>
     <h2 class="header-title">{{ 'custom.csv-importer.title' | translate }}</h2>
     <span class="flex-1"></span>
     <button mat-icon-button (click)="cancel()" type="button" class="close-btn">
@@ -476,6 +579,37 @@ mat-icon {
         <ng-template matStepLabel>{{ 'custom.csv-importer.step-upload-csv' | translate }}</ng-template>
 
         <div style="margin-top: 16px;">
+          <!-- Measurement Info (when skipping selection step) -->
+          <div *ngIf="skipToUpload && directMeasurement" class="section-card" style="margin-bottom: 16px;">
+            <div class="section-header">
+              <mat-icon>analytics</mat-icon>
+              <span>{{ 'custom.csv-importer.measurement-info' | translate }}</span>
+              <!-- Installation Type Badge -->
+              <span *ngIf="directMeasurement.installationType === 'heating'"
+                    style="margin-left: auto; display: flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 12px; background: rgba(235, 87, 87, 0.12); color: #EB5757; font-size: 11px; text-transform: none; letter-spacing: normal;">
+                <mat-icon style="font-size: 14px; width: 14px; height: 14px; color: #EB5757 !important;">local_fire_department</mat-icon>
+                {{ 'custom.csv-importer.heating' | translate }}
+              </span>
+              <span *ngIf="directMeasurement.installationType === 'cooling'"
+                    style="margin-left: auto; display: flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 12px; background: rgba(47, 128, 237, 0.12); color: #2F80ED; font-size: 11px; text-transform: none; letter-spacing: normal;">
+                <mat-icon style="font-size: 14px; width: 14px; height: 14px; color: #2F80ED !important;">ac_unit</mat-icon>
+                {{ 'custom.csv-importer.cooling' | translate }}
+              </span>
+            </div>
+            <div class="section-body">
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <mat-form-field appearance="outline" style="width: 100%;">
+                  <mat-label>{{ 'custom.csv-importer.measurement-name' | translate }}</mat-label>
+                  <input matInput [value]="directMeasurement.entityName" disabled>
+                </mat-form-field>
+                <mat-form-field appearance="outline" style="width: 100%;">
+                  <mat-label>{{ 'custom.csv-importer.measurement-label' | translate }}</mat-label>
+                  <input matInput formControlName="measurementLabel" placeholder="{{ 'custom.csv-importer.measurement-label-placeholder' | translate }}">
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+
           <!-- CSV Instructions (Collapsible) -->
           <mat-expansion-panel style="margin-bottom: 16px;">
             <mat-expansion-panel-header>
@@ -495,37 +629,78 @@ mat-icon {
 
               <h4 style="margin-bottom: 8px; font-weight: 600;">{{ 'custom.csv-importer.supported-datapoints' | translate }}</h4>
 
-              <div style="display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; font-size: 13px;">
-                <div>CHC_C_Energy_Cooling (kWh)</div>
-                <div>{{ 'custom.csv-importer.consumption-cooling-energy' | translate }}</div>
-                <div>CHC_M_Energy_Cooling (kWh)</div>
-                <div>{{ 'custom.csv-importer.meter-cooling-energy' | translate }}</div>
-                <div>CHC_C_Energy_Heating (kWh)</div>
-                <div>{{ 'custom.csv-importer.consumption-heating-energy' | translate }}</div>
-                <div>CHC_M_Energy_Heating (kWh)</div>
-                <div>{{ 'custom.csv-importer.meter-heating-energy' | translate }}</div>
-                <div [innerHTML]="'CHC_C_Volume (m&sup3;)'"></div>
-                <div>{{ 'custom.csv-importer.consumption-volume' | translate }}</div>
-                <div [innerHTML]="'CHC_M_Volume (m&sup3;)'"></div>
-                <div>{{ 'custom.csv-importer.meter-volume' | translate }}</div>
-                <div [innerHTML]="'CHC_M_Volume_Neg (m&sup3;)'"></div>
-                <div>{{ 'custom.csv-importer.meter-volume-negative' | translate }}</div>
-                <div [innerHTML]="'CHC_M_Volume_Net (m&sup3;)'"></div>
-                <div>{{ 'custom.csv-importer.meter-volume-net' | translate }}</div>
-                <div [innerHTML]="'CHC_S_VolumeFlow (m&sup3;/h)'"></div>
-                <div>{{ 'custom.csv-importer.volume-flow' | translate }}</div>
-                <div>CHC_S_Velocity (m/s)</div>
-                <div>{{ 'custom.csv-importer.flow-velocity' | translate }}</div>
-                <div>CHC_S_Power_Cooling (kW)</div>
-                <div>{{ 'custom.csv-importer.sensor-cooling-power' | translate }}</div>
-                <div>CHC_S_Power_Heating (kW)</div>
-                <div>{{ 'custom.csv-importer.sensor-heating-power' | translate }}</div>
-                <div>CHC_S_TemperatureDiff (K)</div>
-                <div>{{ 'custom.csv-importer.temperature-difference' | translate }}</div>
-                <div [innerHTML]="'CHC_S_TemperatureFlow (&deg;C)'"></div>
-                <div>{{ 'custom.csv-importer.temperature-inlet' | translate }}</div>
-                <div [innerHTML]="'CHC_S_TemperatureReturn (&deg;C)'"></div>
-                <div>{{ 'custom.csv-importer.temperature-outlet' | translate }}</div>
+              <!-- Datapoints table with descriptions -->
+              <table style="width: 100%; font-size: 13px; border-collapse: collapse;">
+                <thead>
+                  <tr style="background: #f5f5f5; text-align: left;">
+                    <th style="padding: 6px 8px; border-bottom: 1px solid #e0e0e0;">Key</th>
+                    <th style="padding: 6px 8px; border-bottom: 1px solid #e0e0e0;">{{ 'custom.csv-importer.col-unit' | translate }}</th>
+                    <th style="padding: 6px 8px; border-bottom: 1px solid #e0e0e0;">{{ 'custom.csv-importer.col-description' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Temperature -->
+                  <tr>
+                    <td style="padding: 4px 8px; font-family: monospace; color: #1976d2;">T_flow_C</td>
+                    <td style="padding: 4px 8px;">&deg;C</td>
+                    <td style="padding: 4px 8px;">{{ 'custom.csv-importer.desc-t-flow' | translate }}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 4px 8px; font-family: monospace; color: #1976d2;">T_return_C</td>
+                    <td style="padding: 4px 8px;">&deg;C</td>
+                    <td style="padding: 4px 8px;">{{ 'custom.csv-importer.desc-t-return' | translate }}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 4px 8px; font-family: monospace; color: #1976d2;">dT_K</td>
+                    <td style="padding: 4px 8px;">K</td>
+                    <td style="padding: 4px 8px;">{{ 'custom.csv-importer.desc-dt' | translate }}</td>
+                  </tr>
+                  <!-- Flow -->
+                  <tr style="background: #fafafa;">
+                    <td style="padding: 4px 8px; font-family: monospace; color: #1976d2;">Vdot_m3h</td>
+                    <td style="padding: 4px 8px;" [innerHTML]="'m&sup3;/h'"></td>
+                    <td style="padding: 4px 8px;">{{ 'custom.csv-importer.desc-vdot' | translate }}</td>
+                  </tr>
+                  <tr style="background: #fafafa;">
+                    <td style="padding: 4px 8px; font-family: monospace; color: #1976d2;">v_ms</td>
+                    <td style="padding: 4px 8px;">m/s</td>
+                    <td style="padding: 4px 8px;">{{ 'custom.csv-importer.desc-v' | translate }}</td>
+                  </tr>
+                  <!-- Power & Energy -->
+                  <tr>
+                    <td style="padding: 4px 8px; font-family: monospace; color: #1976d2;">P_th_kW</td>
+                    <td style="padding: 4px 8px;">kW</td>
+                    <td style="padding: 4px 8px;">{{ 'custom.csv-importer.desc-p-th' | translate }}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 4px 8px; font-family: monospace; color: #1976d2;">E_th_kWh</td>
+                    <td style="padding: 4px 8px;">kWh</td>
+                    <td style="padding: 4px 8px;">{{ 'custom.csv-importer.desc-e-th' | translate }}</td>
+                  </tr>
+                  <!-- Volume -->
+                  <tr style="background: #fafafa;">
+                    <td style="padding: 4px 8px; font-family: monospace; color: #1976d2;">V_m3</td>
+                    <td style="padding: 4px 8px;" [innerHTML]="'m&sup3;'"></td>
+                    <td style="padding: 4px 8px;">{{ 'custom.csv-importer.desc-v-m3' | translate }}</td>
+                  </tr>
+                  <!-- Auxiliary -->
+                  <tr>
+                    <td style="padding: 4px 8px; font-family: monospace; color: #1976d2;">auxT1_C</td>
+                    <td style="padding: 4px 8px;">&deg;C</td>
+                    <td style="padding: 4px 8px;">{{ 'custom.csv-importer.desc-auxt1' | translate }}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 4px 8px; font-family: monospace; color: #1976d2;">auxT2_C</td>
+                    <td style="padding: 4px 8px;">&deg;C</td>
+                    <td style="padding: 4px 8px;">{{ 'custom.csv-importer.desc-auxt2' | translate }}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <!-- Legacy keys note -->
+              <div style="margin-top: 12px; padding: 8px; background: #fff3e0; border-radius: 4px; font-size: 12px;">
+                <mat-icon style="font-size: 14px; width: 14px; height: 14px; vertical-align: middle; color: #ef6c00;">info</mat-icon>
+                <span style="color: #e65100;">{{ 'custom.csv-importer.legacy-keys-note' | translate }}</span>
               </div>
             </div>
           </mat-expansion-panel>
@@ -602,8 +777,17 @@ mat-icon {
                       <thead>
                         <tr>
                           <!-- Original Columns -->
-                          <th *ngFor="let col of columns" [ngClass]="col.status === 'invalid' ? 'invalid-col' : 'valid-col'">
-                            <div class="col-header">{{ col.name }}</div>
+                          <th *ngFor="let col of columns" [ngClass]="{'invalid-col': col.status === 'invalid', 'valid-col': col.status === 'valid', 'rejected-col': col.status === 'rejected'}">
+                            <div class="col-header">
+                              <span [style.text-decoration]="col.isRejected ? 'line-through' : 'none'" [style.color]="col.isRejected ? '#999' : 'inherit'">
+                                {{ col.normalizedName || col.name }}
+                              </span>
+                              <span *ngIf="col.isLegacyKey && !col.isRejected" style="font-size: 10px; color: #666; font-weight: normal; display: block;">← {{ col.name }}</span>
+                              <span *ngIf="col.isRejected" style="font-size: 10px; color: #f44336; font-weight: normal; display: block;">
+                                <mat-icon style="font-size: 12px; width: 12px; height: 12px; vertical-align: middle;">block</mat-icon>
+                                {{ 'custom.csv-importer.' + col.rejectedReason | translate }}
+                              </span>
+                            </div>
                             <!-- Unit selector with conversion indicator (no timestamp selector) -->
                             <div class="col-unit-row" *ngIf="col.units && col.index > 0">
                               <mat-form-field appearance="outline" subscriptSizing="dynamic" class="tb-unit-selector">
@@ -662,16 +846,13 @@ mat-icon {
                   <span>{{ 'custom.csv-importer.non-numeric-values' | translate }}</span>
                 </div>
 
-                <!-- Required Fields Check -->
-                <div class="required-fields" *ngIf="previewData && (!hasVolume || !hasEnergy)">
-                  <div class="required-fields-title">{{ 'custom.csv-importer.missing-required-fields' | translate }}</div>
-                  <div class="required-item missing" *ngIf="!hasVolume">
-                    <mat-icon>cancel</mat-icon>
-                    <span>{{ 'custom.csv-importer.consumption-volume' | translate }} (CHC_C_Volume) + {{ 'custom.csv-importer.meter-volume' | translate }} (CHC_M_Volume)</span>
-                  </div>
-                  <div class="required-item missing" *ngIf="!hasEnergy">
-                    <mat-icon>cancel</mat-icon>
-                    <span>{{ 'custom.csv-importer.consumption-heating-energy' | translate }} (CHC_C_Energy_Heating) + {{ 'custom.csv-importer.meter-heating-energy' | translate }} (CHC_M_Energy_Heating) OR {{ 'custom.csv-importer.consumption-cooling-energy' | translate }} (CHC_C_Energy_Cooling) + {{ 'custom.csv-importer.meter-cooling-energy' | translate }} (CHC_M_Energy_Cooling)</span>
+                <!-- Optional Fields Info -->
+                <div class="info-message" *ngIf="previewData && (!hasVolume || !hasEnergy)" style="margin-top: 12px; padding: 10px; background: #fff8e1; border-radius: 4px; color: #f57c00;">
+                  <mat-icon style="vertical-align: middle; margin-right: 8px; font-size: 18px; width: 18px; height: 18px;">info</mat-icon>
+                  <span>{{ 'custom.csv-importer.optional-fields-info' | translate }}</span>
+                  <div style="margin-top: 8px; font-size: 12px;">
+                    <span *ngIf="!hasVolume" style="display: block;">• V_m3 ({{ 'custom.csv-importer.meter-volume' | translate }})</span>
+                    <span *ngIf="!hasEnergy" style="display: block;">• E_th_kWh ({{ 'custom.csv-importer.energy-meter' | translate }})</span>
                   </div>
                 </div>
 
@@ -768,24 +949,118 @@ mat-icon {
     vm.hasEnergy = false;
     vm.canImport = false;
 
-    // Allowed datapoints for P-Flow D116
+    // Allowed datapoints - New ECO Data Catalog keys with backward compatibility
+    // Primary keys follow snake_case + unit convention (e.g., T_flow_C, P_th_kW)
+    // Aliases map old CHC_... keys to new keys for backward compatibility
     const ALLOWED_DATAPOINTS = {
-      'CHC_C_Energy_Cooling': { unit: 'kWh', type: 'consumption', pair: 'CHC_M_Energy_Cooling', category: 'energy' },
-      'CHC_M_Energy_Cooling': { unit: 'kWh', type: 'meter', pair: 'CHC_C_Energy_Cooling', category: 'energy' },
-      'CHC_C_Energy_Heating': { unit: 'kWh', type: 'consumption', pair: 'CHC_M_Energy_Heating', category: 'energy' },
-      'CHC_M_Energy_Heating': { unit: 'kWh', type: 'meter', pair: 'CHC_C_Energy_Heating', category: 'energy' },
-      'CHC_C_Volume': { unit: 'm&sup3;', type: 'consumption', pair: 'CHC_M_Volume', category: 'volume' },
-      'CHC_M_Volume': { unit: 'm&sup3;', type: 'meter', pair: 'CHC_C_Volume', category: 'volume' },
-      'CHC_M_Volume_Neg': { unit: 'm&sup3;', type: 'meter', pair: null, category: 'volume' },
-      'CHC_M_Volume_Net': { unit: 'm&sup3;', type: 'meter', pair: null, category: 'volume' },
-      'CHC_S_VolumeFlow': { unit: 'm&sup3;/h', type: 'sensor', pair: null, category: 'flow' },
-      'CHC_S_Velocity': { unit: 'm/s', type: 'sensor', pair: null, category: null },
-      'CHC_S_Power_Cooling': { unit: 'kW', type: 'sensor', source: 'CHC_C_Energy_Cooling', category: 'power' },
-      'CHC_S_Power_Heating': { unit: 'kW', type: 'sensor', source: 'CHC_C_Energy_Heating', category: 'power' },
-      'CHC_S_TemperatureDiff': { unit: 'K', type: 'sensor', pair: null, category: 'temperature' },
-      'CHC_S_TemperatureFlow': { unit: '&deg;C', type: 'sensor', pair: null, category: 'temperature' },
-      'CHC_S_TemperatureReturn': { unit: '&deg;C', type: 'sensor', pair: null, category: 'temperature' }
+      // Temperature - Sensor values
+      'T_flow_C': { unit: '&deg;C', type: 'sensor', category: 'temperature' },
+      'T_return_C': { unit: '&deg;C', type: 'sensor', category: 'temperature' },
+      'dT_K': { unit: 'K', type: 'sensor', category: 'temperature' },
+      // Flow - Sensor values
+      'Vdot_m3h': { unit: 'm&sup3;/h', type: 'sensor', category: 'flow' },
+      'v_ms': { unit: 'm/s', type: 'sensor', category: null },
+      // Power - Sensor value (single key for heating/cooling)
+      'P_th_kW': { unit: 'kW', type: 'sensor', category: 'power' },
+      // Energy - Meter value (single key for heating/cooling)
+      'E_th_kWh': { unit: 'kWh', type: 'meter', category: 'energy' },
+      // Volume - Meter value
+      'V_m3': { unit: 'm&sup3;', type: 'meter', category: 'volume' },
+      // Auxiliary sensors
+      'auxT1_C': { unit: '&deg;C', type: 'sensor', category: 'aux' },
+      'auxT2_C': { unit: '&deg;C', type: 'sensor', category: 'aux' }
     };
+
+    // Alias mapping: Old CHC_... keys → New keys (for backward compatibility)
+    // Common aliases (valid for both heating and cooling)
+    const KEY_ALIASES_COMMON = {
+      // Temperature
+      'CHC_S_TemperatureFlow': 'T_flow_C',
+      'CHC_S_TemperatureReturn': 'T_return_C',
+      'CHC_S_TemperatureDiff': 'dT_K',
+      // Flow
+      'CHC_S_VolumeFlow': 'Vdot_m3h',
+      'CHC_S_Velocity': 'v_ms',
+      // Volume meter
+      'CHC_M_Volume': 'V_m3',
+      'CHC_M_Volume_Net': 'V_m3'
+    };
+
+    // Heating-specific aliases
+    const KEY_ALIASES_HEATING = {
+      'CHC_S_Power_Heating': 'P_th_kW',
+      'CHC_M_Energy_Heating': 'E_th_kWh'
+    };
+
+    // Cooling-specific aliases
+    const KEY_ALIASES_COOLING = {
+      'CHC_S_Power_Cooling': 'P_th_kW',
+      'CHC_M_Energy_Cooling': 'E_th_kWh'
+    };
+
+    // Keys that should be REJECTED based on installationType
+    const REJECTED_KEYS_FOR_HEATING = ['CHC_S_Power_Cooling', 'CHC_M_Energy_Cooling'];
+    const REJECTED_KEYS_FOR_COOLING = ['CHC_S_Power_Heating', 'CHC_M_Energy_Heating'];
+
+    // Get the installationType from directMeasurement (passed from Project Wizard)
+    function getInstallationType() {
+      return config.directMeasurement?.installationType || null;
+    }
+
+    // Get valid aliases based on installationType
+    function getValidAliases() {
+      const installationType = getInstallationType();
+      let aliases = { ...KEY_ALIASES_COMMON };
+
+      if (installationType === 'heating') {
+        // Add heating aliases, reject cooling keys
+        Object.assign(aliases, KEY_ALIASES_HEATING);
+      } else if (installationType === 'cooling') {
+        // Add cooling aliases, reject heating keys
+        Object.assign(aliases, KEY_ALIASES_COOLING);
+      } else {
+        // No installationType specified - accept all (fallback)
+        Object.assign(aliases, KEY_ALIASES_HEATING, KEY_ALIASES_COOLING);
+      }
+
+      return aliases;
+    }
+
+    // Check if a key should be rejected based on installationType
+    function isRejectedKey(key) {
+      const installationType = getInstallationType();
+      if (installationType === 'heating') {
+        return REJECTED_KEYS_FOR_HEATING.includes(key);
+      } else if (installationType === 'cooling') {
+        return REJECTED_KEYS_FOR_COOLING.includes(key);
+      }
+      return false;
+    }
+
+    // Normalize key: Convert old key to new key if alias exists
+    function normalizeKey(key) {
+      const aliases = getValidAliases();
+      return aliases[key] || key;
+    }
+
+    // Check if key is valid (either new key or has alias, and not rejected)
+    function isValidKey(key) {
+      // First check if key is rejected based on installationType
+      if (isRejectedKey(key)) {
+        return false;
+      }
+      const normalized = normalizeKey(key);
+      return ALLOWED_DATAPOINTS.hasOwnProperty(normalized);
+    }
+
+    // Get config for a key (handles aliases)
+    function getKeyConfig(key) {
+      if (isRejectedKey(key)) {
+        return null;
+      }
+      const normalized = normalizeKey(key);
+      return ALLOWED_DATAPOINTS[normalized] || null;
+    }
 
     // Unit conversion definitions with conversion labels
     const UNIT_CONVERSIONS = {
@@ -823,6 +1098,8 @@ mat-icon {
     vm.needsCustomerSelection = config.needsCustomerSelection;
     vm.needsProjectSelection = config.needsProjectSelection;
     vm.needsMeasurementSelection = config.needsMeasurementSelection;
+    vm.skipToUpload = config.skipToUpload;
+    vm.directMeasurement = config.directMeasurement;
     vm.customers = config.customers;
     vm.projects = config.projects;
     vm.measurements = config.measurements;
@@ -865,11 +1142,19 @@ mat-icon {
         { value: config.selectedMeasurementEntity || null, disabled: config.lockMeasurementSelection },
         vm.validators.required
       ],
-      measurementLabel: [''],
+      measurementLabel: [config.directMeasurement?.entityLabel || ''],
       importData: [null],
       delim: [';'],
       timestampFormat: ['YYYY-MM-DD HH:mm:ss']
     });
+
+    // If measurement was passed directly (skipToUpload), set the target
+    if (config.directMeasurement && config.selectedMeasurement) {
+      vm.createdDeviceId = { entityType: 'ASSET', id: config.selectedMeasurement.entityId };
+      vm.createdDeviceName = config.selectedMeasurement.entityName || '';
+      vm.deviceCreated = true;
+      vm.measurementSelected = true;
+    }
 
     function setMeasurementTarget(measurementId, measurementName) {
       if (!measurementId || !measurementId.id) return;
@@ -1005,12 +1290,21 @@ mat-icon {
     vm.saveMeasurementLabel = function() {
       const rawValues = vm.formGroup.getRawValue();
       const measurement = rawValues.measurement;
-      if (!measurement || !measurement.id) return;
+
+      // Get measurement ID from form or from directMeasurement (when skipping selection)
+      let measurementId = null;
+      if (measurement && measurement.id) {
+        measurementId = measurement.id.id;
+      } else if (config.directMeasurement && config.selectedMeasurement) {
+        measurementId = config.selectedMeasurement.entityId;
+      }
+
+      if (!measurementId) return;
 
       const newLabel = rawValues.measurementLabel || '';
       if (vm.selectedMeasurementEntity && vm.selectedMeasurementEntity.label === newLabel) return;
 
-      assetService.getAsset(measurement.id.id).subscribe(
+      assetService.getAsset(measurementId).subscribe(
         function(fullMeasurement) {
           if (!fullMeasurement) return;
           fullMeasurement.label = newLabel;
@@ -1126,12 +1420,12 @@ mat-icon {
       vm.hasInvalidTimestamps = false;
     };
 
-    // Download example CSV
+    // Download example CSV (using new ECO Data Catalog keys)
     vm.downloadExampleCSV = function() {
-      const exampleCSV = 'Timestamp;CHC_C_Energy_Cooling;CHC_M_Energy_Cooling;CHC_C_Energy_Heating;CHC_M_Energy_Heating;CHC_C_Volume;CHC_M_Volume;CHC_M_Volume_Neg;CHC_M_Volume_Net;CHC_S_VolumeFlow;CHC_S_Velocity;CHC_S_Power_Cooling;CHC_S_Power_Heating;CHC_S_TemperatureDiff;CHC_S_TemperatureFlow;CHC_S_TemperatureReturn\n' +
-        '2025-01-07 17:56:28;125.3;4523.7;234.8;8956.2;45.6;1234.5;0.2;1234.3;2.8;0.95;18.5;32.4;5.2;48.3;43.1\n' +
-        '2025-01-07 18:56:28;128.1;4651.8;238.6;9194.8;46.8;1281.3;0.2;1281.1;2.9;0.98;19.2;33.1;5.4;48.7;43.3\n' +
-        '2025-01-07 19:56:28;131.2;4783.0;242.7;9437.5;48.1;1329.4;0.3;1329.1;3.0;1.01;19.8;33.9;5.5;49.1;43.6';
+      const exampleCSV = 'Timestamp;T_flow_C;T_return_C;dT_K;Vdot_m3h;v_ms;P_th_kW;E_th_kWh;V_m3;auxT1_C;auxT2_C\n' +
+        '2025-01-07 17:56:28;48.3;43.1;5.2;2.8;0.95;18.5;4523.7;1234.5;45.2;42.8\n' +
+        '2025-01-07 18:56:28;48.7;43.3;5.4;2.9;0.98;19.2;4651.8;1281.3;45.5;43.0\n' +
+        '2025-01-07 19:56:28;49.1;43.6;5.5;3.0;1.01;19.8;4783.0;1329.4;45.9;43.3';
 
       const blob = new Blob([exampleCSV], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
@@ -1392,13 +1686,33 @@ mat-icon {
 
     // Build column objects with unit selectors
     function buildColumns(headers) {
+      const installationType = getInstallationType();
+
       vm.columns = headers.map((name, index) => {
-        const config = ALLOWED_DATAPOINTS[name];
         const isTimestamp = index === 0;
+        const rejected = !isTimestamp && isRejectedKey(name);
+        const normalizedName = isTimestamp ? name : normalizeKey(name);
+        const config = isTimestamp ? null : getKeyConfig(name);
+        const isLegacyKey = name !== normalizedName && !rejected;
+
+        // Determine status: rejected keys get special status
+        let status = 'invalid';
+        if (isTimestamp) {
+          status = 'valid';
+        } else if (rejected) {
+          status = 'rejected';
+        } else if (config) {
+          status = 'valid';
+        }
+
         const col = {
-          name: name,
+          name: name,                    // Original column name from CSV
+          normalizedName: normalizedName, // New key name (for export)
+          isLegacyKey: isLegacyKey,      // True if using old CHC_... key
+          isRejected: rejected,          // True if key is rejected due to installationType mismatch
+          rejectedReason: rejected ? (installationType === 'heating' ? 'cooling-key-for-heating' : 'heating-key-for-cooling') : null,
           index: index,
-          status: isTimestamp ? 'valid' : (config ? 'valid' : 'invalid'),
+          status: status,
           units: null,
           selectedUnit: 'none',
           selectedUnitShortLabel: '',
@@ -1416,73 +1730,12 @@ mat-icon {
       });
     }
 
-    // Build calculated columns
+    // Build calculated columns (simplified - no more consumption/meter pairs)
     function buildCalcColumns(headers) {
       vm.calcColumns = [];
-      const dataColumns = headers.slice(1);
-
-      // Check for Meter <-> Consumption pairs
-      const meterCols = dataColumns.filter(c => c.includes('_M_'));
-      const consCols = dataColumns.filter(c => c.includes('_C_'));
-
-      // Meter to Consumption
-      meterCols.forEach(meterCol => {
-        const config = ALLOWED_DATAPOINTS[meterCol];
-        if (config && config.pair && !dataColumns.includes(config.pair)) {
-          vm.calcColumns.push({
-            name: config.pair,
-            formula: '&Delta;M = M[i] - M[i-1]',
-            type: 'meter_to_consumption',
-            source: meterCol,
-            enabled: true
-          });
-        }
-      });
-
-      // Consumption to Meter
-      consCols.forEach(consCol => {
-        const config = ALLOWED_DATAPOINTS[consCol];
-        if (config && config.pair && !dataColumns.includes(config.pair)) {
-          vm.calcColumns.push({
-            name: config.pair,
-            formula: '&Sigma;C = M[i-1] + C[i]',
-            type: 'consumption_to_meter',
-            source: consCol,
-            enabled: true
-          });
-        }
-      });
-
-      // Power from Energy
-      if (consCols.includes('CHC_C_Energy_Cooling') && !dataColumns.includes('CHC_S_Power_Cooling')) {
-        vm.calcColumns.push({
-          name: 'CHC_S_Power_Cooling',
-          formula: 'E / &Delta;t',
-          type: 'consumption_to_power',
-          source: 'CHC_C_Energy_Cooling',
-          enabled: false
-        });
-      }
-      if (consCols.includes('CHC_C_Energy_Heating') && !dataColumns.includes('CHC_S_Power_Heating')) {
-        vm.calcColumns.push({
-          name: 'CHC_S_Power_Heating',
-          formula: 'E / &Delta;t',
-          type: 'consumption_to_power',
-          source: 'CHC_C_Energy_Heating',
-          enabled: false
-        });
-      }
-
-      // VolumeFlow from Volume
-      if (consCols.includes('CHC_C_Volume') && !dataColumns.includes('CHC_S_VolumeFlow')) {
-        vm.calcColumns.push({
-          name: 'CHC_S_VolumeFlow',
-          formula: 'V / &Delta;t',
-          type: 'consumption_to_flow',
-          source: 'CHC_C_Volume',
-          enabled: false
-        });
-      }
+      // Note: With the new ECO Data Catalog, we only import meter/sensor values
+      // No automatic calculations needed - data should come pre-processed
+      // This function is kept for future extensibility (e.g., dT calculation from T_flow - T_return)
     }
 
     // Update preview with conversions
@@ -1661,21 +1914,22 @@ mat-icon {
       vm.hasInvalidTimestamps = hasInvalidTimestamps;
     }
 
-    // Check required fields
+    // Check required fields (using normalized keys)
     function checkRequiredFields() {
-      const allCols = vm.columns.map(c => c.name);
-      const enabledCalcs = vm.calcColumns.filter(c => c.enabled).map(c => c.name);
-      const allAvailable = [...allCols, ...enabledCalcs];
+      // Get normalized key names from valid columns
+      const normalizedCols = vm.columns
+        .filter(c => c.status === 'valid' && c.index > 0)
+        .map(c => c.normalizedName);
 
-      // Check Volume
-      vm.hasVolume = allAvailable.includes('CHC_C_Volume') && allAvailable.includes('CHC_M_Volume');
+      // Check Volume (V_m3 - normalized from CHC_M_Volume or V_m3)
+      vm.hasVolume = normalizedCols.includes('V_m3');
 
-      // Check Energy (Heating OR Cooling)
-      const hasHeating = allAvailable.includes('CHC_C_Energy_Heating') && allAvailable.includes('CHC_M_Energy_Heating');
-      const hasCooling = allAvailable.includes('CHC_C_Energy_Cooling') && allAvailable.includes('CHC_M_Energy_Cooling');
-      vm.hasEnergy = hasHeating || hasCooling;
+      // Check Energy (E_th_kWh - normalized from CHC_M_Energy_Heating, CHC_M_Energy_Cooling, or E_th_kWh)
+      vm.hasEnergy = normalizedCols.includes('E_th_kWh');
 
-      vm.canImport = vm.hasVolume && vm.hasEnergy;
+      // Import is allowed if we have at least one valid datapoint
+      // (relaxed from requiring both volume and energy)
+      vm.canImport = normalizedCols.length > 0;
     }
 
     function applyConversion(value, factor) {
@@ -1833,6 +2087,9 @@ mat-icon {
     vm.importTelemetry = function() {
       if (!vm.rawParsedData || !vm.canImport) return;
 
+      // Save measurement label if changed
+      vm.saveMeasurementLabel();
+
       vm.importWarning = '';
       vm.importError = '';
       vm.importSuccess = '';
@@ -1892,7 +2149,7 @@ mat-icon {
       }
     };
 
-    // Build telemetry array with conversions and calculations
+    // Build telemetry array with conversions (using normalized key names)
     function buildTelemetryArray(parsedData, timestampFormat) {
       const telemetryArray = [];
       const rows = parsedData.rows;
@@ -1907,8 +2164,10 @@ mat-icon {
         const values = {};
 
         // Process original columns with conversions
+        // Use normalizedName for export (maps old CHC_... keys to new keys)
         vm.columns.forEach((col, colIndex) => {
           if (colIndex === 0) return; // Skip timestamp
+          if (col.status !== 'valid') return; // Skip invalid columns
           let val = row[colIndex];
 
           if (val !== null && val !== undefined && val !== '') {
@@ -1916,36 +2175,8 @@ mat-icon {
               const unit = col.units.find(u => u.key === col.selectedUnit);
               if (unit) val = applyConversion(val, unit.factor);
             }
-            values[col.name] = val;
-          }
-        });
-
-        // Calculate derived values
-        const deltaHours = prevTimestamp ? (ts - prevTimestamp) / 3600000 : null;
-
-        vm.calcColumns.forEach(calc => {
-          if (!calc.enabled) return;
-
-          const sourceVal = values[calc.source];
-          const prevSourceVal = prevValues[calc.source];
-
-          if (calc.type === 'meter_to_consumption') {
-            if (sourceVal !== undefined && prevSourceVal !== undefined) {
-              values[calc.name] = sourceVal - prevSourceVal;
-            }
-          } else if (calc.type === 'consumption_to_meter') {
-            const prevMeter = prevValues[calc.name] || 0;
-            if (sourceVal !== undefined) {
-              values[calc.name] = prevMeter + sourceVal;
-            }
-          } else if (calc.type === 'consumption_to_power' && deltaHours && deltaHours > 0) {
-            if (sourceVal !== undefined) {
-              values[calc.name] = sourceVal / deltaHours;
-            }
-          } else if (calc.type === 'consumption_to_flow' && deltaHours && deltaHours > 0) {
-            if (sourceVal !== undefined) {
-              values[calc.name] = sourceVal / deltaHours;
-            }
+            // Use normalizedName for export (e.g., CHC_S_TemperatureFlow -> T_flow_C)
+            values[col.normalizedName] = val;
           }
         });
 

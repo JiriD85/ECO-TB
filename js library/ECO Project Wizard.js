@@ -410,6 +410,23 @@ mat-toolbar.eco-dialog-header mat-icon {
           {{ 'custom.project-wizard.connect' | translate }}
         </button>
       </div>
+      <!-- Import: Data import option -->
+      <div *ngIf="m.measurementType === 'import' && (m.progress === 'in preparation' || m.progress === 'planned' || m.progress === 'active')" class="flex items-center justify-between mt-2">
+        <!-- Show hint only when no data imported yet -->
+        <span *ngIf="!m.hasImportedData" class="flex items-center gap-1" style="color: #9c27b0; font-size: 12px;">
+          <mat-icon style="font-size: 14px; width: 14px; height: 14px;">upload_file</mat-icon>
+          {{ 'custom.project-wizard.import-data-hint' | translate }}
+        </span>
+        <!-- Show data imported indicator when data exists -->
+        <span *ngIf="m.hasImportedData" class="flex items-center gap-1" style="color: #4caf50; font-size: 12px;">
+          <mat-icon style="font-size: 14px; width: 14px; height: 14px;">check_circle</mat-icon>
+          {{ 'custom.project-wizard.data-imported' | translate }}
+        </span>
+        <button mat-raised-button color="primary" type="button" (click)="openImportDialog(m)" style="font-size: 12px;">
+          <mat-icon style="font-size: 16px; width: 16px; height: 16px;">upload_file</mat-icon>
+          {{ 'custom.project-wizard.import' | translate }}
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1053,6 +1070,39 @@ export function openProjectWizardDialog(widgetContext, projectId, projectName, p
     vm.getTimestampStyle = getTimestampStyle;
     vm.getActivityColor = getActivityColor;
 
+    // Check if import-type measurements have imported data (E_th_kWh and V_m3)
+    function checkImportedData() {
+      var http = dialogWidgetContext.$scope.$injector.get(dialogWidgetContext.servicesMap.get('http'));
+      var REQUIRED_KEYS = ['E_th_kWh', 'V_m3'];
+
+      vm.measurements.forEach(function(m) {
+        m.hasImportedData = false; // Initialize
+
+        if (m.measurementType === 'import') {
+          // Check telemetry keys for this measurement
+          var measurementEntityId = m.id.id || m.id;
+          var url = '/api/plugins/telemetry/ASSET/' + measurementEntityId + '/keys/timeseries';
+
+          http.get(url).subscribe(
+            function(keys) {
+              // Check if ALL required keys are present
+              var hasAllKeys = REQUIRED_KEYS.every(function(reqKey) {
+                return keys.includes(reqKey);
+              });
+              m.hasImportedData = hasAllKeys;
+            },
+            function(error) {
+              console.error('Error checking telemetry keys for measurement:', measurementEntityId, error);
+              m.hasImportedData = false;
+            }
+          );
+        }
+      });
+    }
+
+    // Run telemetry check for import measurements
+    checkImportedData();
+
     vm.formatTimestamp = function(ms) {
       if (ms === null || ms === undefined) {
         return '';
@@ -1360,6 +1410,38 @@ export function openProjectWizardDialog(widgetContext, projectId, projectName, p
           // After device assignment, refresh the measurements in the project wizard
           if (projectId) {
             loadMeasurementsForProject(projectId);
+          }
+        }
+      );
+    };
+
+    // Open CSV Data Import Dialog for 'import' type measurements
+    vm.openImportDialog = function(measurement) {
+      console.log('Open import dialog for measurement:', measurement.name, 'id:', measurement.id);
+
+      if (!dataImporter || !dataImporter.csvDataImportDialog) {
+        console.error('dataImporter.csvDataImportDialog not available');
+        vm.validationError = 'Import functionality not available from this context.';
+        return;
+      }
+
+      if (!dialogWidgetContext) {
+        console.error('widgetContext not available');
+        vm.validationError = 'Import functionality not available from this context.';
+        return;
+      }
+
+      // Open the CSV data import dialog with selectedMeasurement to skip selection step
+      dataImporter.csvDataImportDialog(
+        dialogWidgetContext,
+        measurement.id,
+        measurement.name,
+        {
+          selectedMeasurement: {
+            entityId: measurement.id,
+            entityName: measurement.name,
+            entityLabel: measurement.label || measurement.name,
+            installationType: measurement.installationType || null
           }
         }
       );
