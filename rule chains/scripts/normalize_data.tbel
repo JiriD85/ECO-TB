@@ -50,6 +50,18 @@ if (metadata["deviceName"] != null) {
     deviceName = metadata["deviceName"];
 }
 
+// calculatePower - enable power calculation from cp * m * dT
+var calculatePower = false;
+if (metadata["ss_calculatePower"] != null && metadata["ss_calculatePower"] == "true") {
+    calculatePower = true;
+}
+
+// fluidType for cp/rho values (water, glycol20, glycol30)
+var fluidType = "water";
+if (metadata["ss_fluidType"] != null && metadata["ss_fluidType"] != "") {
+    fluidType = metadata["ss_fluidType"];
+}
+
 // ============================================================
 // Absolute limits for outlier detection
 // ============================================================
@@ -72,11 +84,13 @@ if (values["CHC_S_TemperatureReturn"] != null) {
 }
 
 // Calculate dT_K: prefer existing value, otherwise calculate from T_flow - T_return
+// Use absolute value for cooling (T_return > T_flow)
 if (values["CHC_S_TemperatureDiff"] != null) {
-    newValues["dT_K"] = values["CHC_S_TemperatureDiff"];
+    var rawDT = values["CHC_S_TemperatureDiff"];
+    newValues["dT_K"] = Math.abs(rawDT);
 } else if (newValues["T_flow_C"] != null && newValues["T_return_C"] != null) {
     var dT = newValues["T_flow_C"] - newValues["T_return_C"];
-    newValues["dT_K"] = Math.round(dT * 1000) / 1000;
+    newValues["dT_K"] = Math.abs(Math.round(dT * 1000) / 1000);
 }
 
 // --- Flow keys ---
@@ -123,6 +137,78 @@ if (values["temperature"] != null) {
         newValues["auxT2_C"] = values["temperature"];
     } else {
         newValues["temperature"] = values["temperature"];
+    }
+}
+
+// ============================================================
+// Calculated Power: P = rho * cp * Vdot * dT
+// ============================================================
+if (calculatePower && newValues["Vdot_m3h"] != null && newValues["dT_K"] != null) {
+
+    // Get reference temperature for density calculation (use T_flow, default 40°C)
+    var refTemp = 40.0;
+    if (newValues["T_flow_C"] != null) {
+        refTemp = newValues["T_flow_C"];
+    }
+
+    // Calculate fluid properties based on fluidType
+    // cp [kJ/(kg·K)], rho [kg/m³]
+    var cp = 4.186;
+    var rho = 1000.0;
+
+    if (fluidType == "water") {
+        // Water: cp nearly constant, rho temperature-dependent
+        // rho(T) = 1000 - 0.4 * (T - 20) for T in °C
+        cp = 4.186;
+        rho = 1000.0 - 0.4 * (refTemp - 20.0);
+        // Clamp rho to reasonable range
+        if (rho < 950) { rho = 950; }
+        if (rho > 1000) { rho = 1000; }
+    } else if (fluidType == "glycol20") {
+        // 20% Ethylene Glycol - fixed values at ~20°C
+        cp = 3.87;
+        rho = 1025.0;
+    } else if (fluidType == "glycol30") {
+        // 30% Ethylene Glycol - fixed values at ~20°C
+        cp = 3.65;
+        rho = 1040.0;
+    } else if (fluidType == "glycol40") {
+        // 40% Ethylene Glycol - fixed values at ~20°C
+        cp = 3.45;
+        rho = 1055.0;
+    } else if (fluidType == "propyleneGlycol20") {
+        // 20% Propylene Glycol - fixed values at ~20°C
+        cp = 3.95;
+        rho = 1020.0;
+    } else if (fluidType == "propyleneGlycol30") {
+        // 30% Propylene Glycol - fixed values at ~20°C
+        cp = 3.75;
+        rho = 1030.0;
+    }
+
+    // P [kW] = rho [kg/m³] * cp [kJ/(kg·K)] * Vdot [m³/h] * dT [K] / 3600 [s/h]
+    // Simplified: P = (rho * cp / 3600) * Vdot * dT
+    var factor = (rho * cp) / 3600.0;
+    var P_calc = factor * newValues["Vdot_m3h"] * newValues["dT_K"];
+    newValues["P_th_calc_kW"] = Math.round(P_calc * 1000) / 1000;
+
+    // ============================================================
+    // Power Deviation Detection (compare measured vs calculated)
+    // ============================================================
+    if (newValues["P_th_kW"] != null && newValues["P_th_calc_kW"] > 0) {
+        // Calculate deviation percentage
+        var deviation = ((newValues["P_th_kW"] - newValues["P_th_calc_kW"]) / newValues["P_th_calc_kW"]) * 100;
+        newValues["P_deviation_pct"] = Math.round(deviation * 10) / 10;
+
+        // Set P_sensor_flag based on absolute deviation
+        var absDeviation = Math.abs(deviation);
+        if (absDeviation < 10) {
+            newValues["P_sensor_flag"] = "ok";
+        } else if (absDeviation < 25) {
+            newValues["P_sensor_flag"] = "warn";
+        } else {
+            newValues["P_sensor_flag"] = "error";
+        }
     }
 }
 
@@ -174,6 +260,13 @@ if (newValues["dT_K"] != null && designDeltaT != null && designDeltaT > 0) {
 // Check Power
 if (newValues["P_th_kW"] != null) {
     if (newValues["P_th_kW"] < 0 || newValues["P_th_kW"] > MAX_POWER_KW) {
+        dataQuality = "error";
+    }
+}
+
+// Check Calculated Power
+if (newValues["P_th_calc_kW"] != null) {
+    if (newValues["P_th_calc_kW"] < 0 || newValues["P_th_calc_kW"] > MAX_POWER_KW) {
         dataQuality = "error";
     }
 }

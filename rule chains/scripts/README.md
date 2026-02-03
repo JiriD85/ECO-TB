@@ -6,7 +6,7 @@
 
 | Script | Beschreibung |
 |--------|--------------|
-| `normalize_data.tbel` | Haupttransformation: Key-Mapping, Derived Telemetry, Outlier Detection |
+| `normalize_data.tbel` | Haupttransformation: Key-Mapping, Derived Telemetry, Outlier Detection, Power Calculation |
 | `rename_temperature_keys.js` | Legacy: Temperatursensor-Umbenennung (wird durch normalize_data ersetzt) |
 
 ---
@@ -19,7 +19,7 @@
 |---------------|--------|---------|------------|
 | `CHC_S_TemperatureFlow` | `T_flow_C` | °C | - |
 | `CHC_S_TemperatureReturn` | `T_return_C` | °C | - |
-| `CHC_S_TemperatureDiff` | `dT_K` | K | oder berechnet: T_flow - T_return |
+| `CHC_S_TemperatureDiff` | `dT_K` | K | abs() für Cooling |
 | `CHC_S_VolumeFlow` | `Vdot_m3h` | m³/h | ÷ 1000 (Input ist l/h) |
 | `CHC_S_Velocity` | `v_ms` | m/s | - |
 | `CHC_S_Power_Heating` | `P_th_kW` | kW | wenn installationType = heating |
@@ -128,6 +128,92 @@ else                  → "severe"
 
 ---
 
+## Calculated Power (P_th_calc_kW)
+
+**Zweck:** Berechnung der thermischen Leistung aus Volumenstrom und Temperaturdifferenz.
+
+**Aktivierung:** `calculatePower = true` (Measurement Attribut)
+
+### Formel
+
+```
+P [kW] = (ρ × cp / 3600) × V̇ × ΔT
+```
+
+Wobei:
+- ρ = Dichte [kg/m³]
+- cp = spezifische Wärmekapazität [kJ/(kg·K)]
+- V̇ = Volumenstrom [m³/h]
+- ΔT = Temperaturdifferenz [K] (Absolutwert!)
+
+### Stoffwerte nach fluidType
+
+| fluidType | cp [kJ/(kg·K)] | ρ [kg/m³] | Faktor |
+|-----------|----------------|-----------|--------|
+| `water` | 4.186 | 1000 - 0.4×(T-20)* | ~1.163 |
+| `glycol20` | 3.87 | 1025 | 1.102 |
+| `glycol30` | 3.65 | 1040 | 1.055 |
+| `glycol40` | 3.45 | 1055 | 1.011 |
+| `propyleneGlycol20` | 3.95 | 1020 | 1.119 |
+| `propyleneGlycol30` | 3.75 | 1030 | 1.073 |
+
+*Wasser: Dichte temperaturabhängig (T_flow als Referenz), cp konstant
+
+### Beispiel
+
+```
+fluidType = "water"
+T_flow_C = 60°C
+Vdot_m3h = 2.5 m³/h
+dT_K = 12 K
+
+ρ = 1000 - 0.4 × (60 - 20) = 984 kg/m³
+cp = 4.186 kJ/(kg·K)
+factor = (984 × 4.186) / 3600 = 1.144
+
+P_th_calc_kW = 1.144 × 2.5 × 12 = 34.3 kW
+```
+
+---
+
+## Power Deviation Detection
+
+**Zweck:** Vergleich zwischen gemessener Leistung (RESI) und berechneter Leistung.
+
+**Voraussetzungen:**
+- `calculatePower = true`
+- Beide `P_th_kW` (gemessen) und `P_th_calc_kW` (berechnet) vorhanden
+
+### P_deviation_pct (number)
+
+Prozentuale Abweichung der gemessenen von der berechneten Leistung.
+
+```
+P_deviation_pct = ((P_th_kW - P_th_calc_kW) / P_th_calc_kW) × 100
+```
+
+**Interpretation:**
+- Positive Werte: Sensor misst mehr als Berechnung
+- Negative Werte: Sensor misst weniger als Berechnung
+
+### P_sensor_flag (string: ok | warn | error)
+
+Kategorische Bewertung der Abweichung.
+
+| Abweichung | P_sensor_flag | Bedeutung |
+|------------|---------------|-----------|
+| < 10% | `ok` | Sensor und Berechnung stimmen überein |
+| 10% - 25% | `warn` | Leichte Abweichung, prüfen |
+| > 25% | `error` | Sensorfehler wahrscheinlich |
+
+**Mögliche Ursachen für Abweichungen:**
+- Falsche Stoffwerte (fluidType)
+- Sensorfehler (Durchfluss oder Temperatur)
+- Luft im System
+- Ungenauer Energiezähler
+
+---
+
 ## Outlier Detection (data_quality)
 
 **Zweck:** Erkennung von Sensorfehlern und Register-Überläufen.
@@ -137,6 +223,7 @@ else                  → "severe"
 | Telemetrie | Min | Max | Fehlertyp |
 |------------|-----|-----|-----------|
 | `P_th_kW` | 0 | 10.000 kW | Register-Überlauf |
+| `P_th_calc_kW` | 0 | 10.000 kW | Berechnungsfehler |
 | `E_th_kWh` | 0 | 100.000 kWh | Register-Überlauf |
 | `T_flow_C` | -50°C | 200°C | Sensorfehler |
 | `T_return_C` | -50°C | 200°C | Sensorfehler |
@@ -162,18 +249,29 @@ Diese Attribute müssen vom **"Get Measurement Attributes"** Node geholt werden:
 
 | Attribut | Typ | Default | Verwendung |
 |----------|-----|---------|------------|
-| `installationType` | string | `"heating"` | Power/Energy Key-Auswahl |
+| `installationType` | string | `"heating"` | Power/Energy Key-Auswahl, dT Vorzeichen |
 | `flowOnThreshold` | number | `0.05` m³/h | is_on Berechnung |
 | `designPower` | number | - | load_class Berechnung |
 | `designDeltaT` | number | - | dT_flag Berechnung |
+| `calculatePower` | boolean | `false` | Aktiviert Leistungsberechnung |
+| `fluidType` | string | `"water"` | Stoffwerte für Leistungsberechnung |
 
 **Hinweis:** Metadata-Werte kommen als Strings und werden mit `parseDouble()` konvertiert.
+
+### fluidType Optionen
+
+| Wert | Beschreibung |
+|------|--------------|
+| `water` | Wasser (temperaturabhängige Dichte) |
+| `glycol20` | 20% Ethylenglykol |
+| `glycol30` | 30% Ethylenglykol |
+| `glycol40` | 40% Ethylenglykol |
+| `propyleneGlycol20` | 20% Propylenglykol |
+| `propyleneGlycol30` | 30% Propylenglykol |
 
 ---
 
 ## Rule Chain Verkettung
-
-### Aktueller Stand (mit Legacy-Pfad)
 
 ```
 Device Profile
@@ -194,27 +292,21 @@ Change Device
     │
     ├──► Rename Power Keys → Skip negative → Save Timeseries (Device)
     │
-    ├──► Check relation (VR) ──► [True] ──► Switch to VR Device → Save TS (VR)
-    │                        └─► [False] ─► Rename Temp Keys → Switch to Measurement → Save TS
-    │
     └──► Check relation (Measurement) ──► [True] ──► Switch to Measurement
                                                           │
                                                           ▼
                                                     Get Measurement Attributes
                                                           │
-                                                          ▼
-                                                    Normalize Data  ← HIER!
-                                                          │
-                                                          ▼
-                                                    Save Timeseries (Measurement)
+                                                    ┌─────┴─────┐
+                                                    ▼           ▼
+                                              Save TS      Normalize Data
+                                           (CHC_* Keys)         │
+                                                                ▼
+                                                          Save Timeseries
+                                                       (Normalized Keys)
 ```
 
-### Verbesserungsvorschläge
-
-1. **Normalize Data Output verbinden** - Aktuell geht der Output nirgendwo hin!
-2. **VR Device Pfad entfernen** - Nach Migration nicht mehr benötigt
-3. **Rename Temperature Keys entfernen** - Wird jetzt in Normalize Data gemacht
-4. **Process Meters vereinfachen** - dT Berechnung ist jetzt in Normalize Data
+**Hinweis:** Aktuell werden beide Key-Sets gespeichert (Übergangsphase für Backward Compatibility).
 
 ---
 
@@ -222,4 +314,13 @@ Change Device
 
 | Datum | Änderung |
 |-------|----------|
+| 2026-02-03 | Calculated Power (P_th_calc_kW) mit fluidType und temperaturabhängiger Dichte |
+| 2026-02-03 | Power Deviation Detection (P_deviation_pct, P_sensor_flag) |
+| 2026-02-03 | Absolutwert für dT_K (Cooling Support) |
 | 2026-02-02 | Normalize Data Script erstellt mit Key-Mapping, Derived Telemetry, Outlier Detection |
+
+---
+
+## TODO
+
+- [ ] Weitere Fluid-Typen in Default-Parameter ergänzen (glycol40, propyleneGlycol20/30)
