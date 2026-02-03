@@ -97,20 +97,14 @@ Alarme werden aus Calculated Field Flags erstellt:
 | `power_stability` | CV = std / mean | Allgemeine Variabilität | Unruhiger Betrieb, Lastschwankungen |
 | `oscillation_detection` | Richtungswechsel zählen | Periodisches Schwingen | Ventil-Hunting, Regler-Oszillation |
 
-**Wichtig:** Beide Metriken prüfen nur bei:
-- Stabilem Betrieb (`runtime_pct ≥ 80%`)
-- Relevanter Last (`avgPower ≥ 1 kW`)
+**Betriebszustand-Guards (im Calculated Field):**
 
-**Schedule-Prüfung in Rule Chain:**
-Alarme für `Power_Unstable` und `Oscillation` werden nur erstellt wenn:
-- `schedule_violation == false` (innerhalb Betriebszeit)
+Beide Metriken prüfen nur bei aktivem Betrieb:
+- `runtime_pct ≥ 80%` - Anlage muss ≥80% der Zeit gelaufen sein
+- `avgPower ≥ 1 kW` - Mindestens 1 kW Durchschnittsleistung
 
-```javascript
-// Check Power Unstable / Check Oscillation
-if (msg.schedule_violation == true) {
-  return ['skip'];  // Kein Alarm außerhalb Schedule
-}
-```
+→ Keine zusätzliche Prüfung in der Rule Chain nötig
+→ Calculated Field gibt nur Flags aus wenn Anlage tatsächlich läuft
 
 ### 2.2 Device Alarme (Device Profile Rules)
 
