@@ -64,6 +64,7 @@ ECO-TB/
 | **Rule Chains** | [docs/claude/RULE_CHAINS.md](docs/claude/RULE_CHAINS.md) |
 | **Entity & Permissions** | [docs/claude/ENTITY_PERMISSIONS.md](docs/claude/ENTITY_PERMISSIONS.md) |
 | **JS Libraries** | [docs/claude/JS_LIBRARIES.md](docs/claude/JS_LIBRARIES.md) |
+| **Subagenten** | [docs/claude/SUBAGENTS.md](docs/claude/SUBAGENTS.md) |
 | **UI Components** | [docs/dialog-ui-components.md](docs/dialog-ui-components.md) |
 | **Design System** | [docs/ECO_DESIGN_SYSTEM.md](docs/ECO_DESIGN_SYSTEM.md) |
 | **Responsive Design** | [docs/ECO_RESPONSIVE_DESIGN.md](docs/ECO_RESPONSIVE_DESIGN.md) |
@@ -110,8 +111,26 @@ in preparation → active → finished | aborted
 
 ## Subagenten nutzen
 
-Fuer komplexe Suchen den `Explore` Agent verwenden um Context zu sparen:
+**WICHTIG:** Bei grossen Dateien (Dashboards, Libraries) Subagenten verwenden!
+
+| Task | Agent |
+|------|-------|
+| Codebase durchsuchen | `Explore` |
+| Feature planen | `feature-dev:code-architect` |
+| Code verstehen | `feature-dev:code-explorer` |
+| Code Review | `feature-dev:code-reviewer` |
+
+**Beispiele:**
 
 ```
-Task(subagent_type="Explore", prompt="Finde alle Widgets im measurements Dashboard die...")
+# Dashboard durchsuchen
+Task(subagent_type="Explore", prompt="Finde im measurements.json alle Widgets mit 'alarm' im Namen")
+
+# Feature planen
+Task(subagent_type="feature-dev:code-architect", prompt="Plane einen neuen Dialog fuer X basierend auf bestehenden Patterns in ECO Project Wizard.js")
+
+# Code Review nach Aenderungen
+Task(subagent_type="feature-dev:code-reviewer", prompt="Review die Aenderungen in ECO Project Wizard.js")
 ```
+
+Details: [docs/claude/SUBAGENTS.md](docs/claude/SUBAGENTS.md)
