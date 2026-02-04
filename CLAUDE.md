@@ -100,14 +100,24 @@ in preparation → active → finished | aborted
 
 ## Skills (Shortcuts)
 
+### ThingsBoard
+
 | Skill | Funktion |
 |-------|----------|
 | `/tbsync` | Geaenderte Dateien zum Server pushen |
 | `/tbpull` | Dateien vom Server holen |
+| `/tb-widget <name>` | Widget-Code aus Dashboard extrahieren |
+| `/tb-state [name]` | Dashboard-States analysieren |
+| `/tb-find <begriff>` | In Dashboards suchen |
+| `/update-tb-action` | Action bearbeiten mit Validierung |
+
+### Git & Deploy
+
+| Skill | Funktion |
+|-------|----------|
 | `/commit` | Git Commit erstellen |
 | `/deploy` | Sync + Commit + Push |
 | `/validate` | Code validieren |
-| `/update-tb-action` | Action bearbeiten mit Validierung |
 
 ## Subagenten nutzen
 
