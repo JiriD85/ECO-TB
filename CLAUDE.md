@@ -69,6 +69,15 @@ ECO-TB/
 | **Design System** | [docs/ECO_DESIGN_SYSTEM.md](docs/ECO_DESIGN_SYSTEM.md) |
 | **Responsive Design** | [docs/ECO_RESPONSIVE_DESIGN.md](docs/ECO_RESPONSIVE_DESIGN.md) |
 | **System Model** | [docs/SYSTEM_MODEL.md](docs/SYSTEM_MODEL.md) |
+| **ThingsBoard API** | [docs/thingsboard-api.json](docs/thingsboard-api.json) (OpenAPI 3.1, `grep` zum Suchen) |
+
+## Domain Knowledge (WICHTIG!)
+
+| Thema | Dokument |
+|-------|----------|
+| **Data Catalog** | [analysis/ECO_Data_Catalog.md](analysis/ECO_Data_Catalog.md) - Attribute, Telemetrie, Calculated Fields, Analytics |
+| **Alarming Konzept** | [analysis/ECO_Alarming_Concept.md](analysis/ECO_Alarming_Concept.md) - Schwellwerte, Rule Chains, Eskalation |
+| **Analytics Funktionen** | [analysis/ECO_Analytics_Core_Functions.md](analysis/ECO_Analytics_Core_Functions.md) - Berechnungen, Formeln |
 
 ## Quick Reference
 
@@ -112,6 +121,14 @@ in preparation → active → finished | aborted
 | `/tb-state [name]` | Dashboard-States analysieren |
 | `/tb-find <begriff>` | In Dashboards suchen |
 | `/update-tb-action` | Action bearbeiten mit Validierung |
+
+### Chrome/UI Analyse
+
+| Skill | Funktion |
+|-------|----------|
+| `/tb-ui` | Screenshot + Console + Network + Zusammenfassung |
+| `/tb-debug` | Tiefe Fehleranalyse mit JS Ausfuehrung |
+| `/tb-inspect [element]` | UI-Elemente finden, DOM-Struktur lesen |
 
 ### Git & Deploy
 

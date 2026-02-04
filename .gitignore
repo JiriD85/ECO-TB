@@ -41,3 +41,6 @@ dashboards/timewindow_test.json
 
 # Temporäre Pläne
 IMPLEMENTATION_PLAN.md
+
+# Large external docs (can be re-downloaded)
+docs/thingsboard-api.json

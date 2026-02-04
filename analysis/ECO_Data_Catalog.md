@@ -848,3 +848,29 @@ runtime_pct = (onCount / is_on.count()) * 100;
 | < 30% | Geringer Bedarf |
 
 **Verwendung:** Auslastungsanalyse, Energieverbrauchsprognose.
+
+---
+
+## 17. Analytics-Funktionen Referenz
+
+Mapping der Analytics-Funktionen zu benoetigten Attributen:
+
+| Funktion | Beschreibung | Benoetigte Attribute |
+|----------|--------------|---------------------|
+| 4.1 | Leistungsmessung | - |
+| 4.2 | Lastgangprofil | `T_outside_C` |
+| 4.3 | Lastganganalyse | - |
+| 4.4 | Dauerkennlinie | `weeklySchedule` |
+| 4.5 | Low-DeltaT Analyse | `designDeltaT`, `flowOnThreshold` |
+| 4.6 | Leistungsbedarf NAT | Project: `normOutdoorTemp`, Measurement: `designDeltaT` |
+| 4.7 | Energiebedarf kWh/m2 | `area` |
+| 4.8 | ROI / Business Case | `designPower` |
+| 4.9 | Erzeugungsanalyse | `measurementRole`, `auxSensor1/2` |
+| 4.10 | Hydraulikdiagnose | `hydraulicScheme`, `auxSensor1/2` |
+| 4.11 | WRG-Zahl | (4 Sensoren erforderlich) |
+| 4.12 | Ventildimension | `designFlow`, `pipeDimension`, `valveDimension`, `valveKvs` |
+| 4.13 | Health Score | alle Basis-Attribute |
+| 4.14 | Massnahmenliste | alle KPIs |
+| 4.15 | Betriebszeiten | `weeklySchedule`, `flowOnThreshold` |
+| 4.16 | Anomalie-Erkennung | alle Telemetrie |
+| 4.17 | Portfolio-Aggregation | alle KPIs |
