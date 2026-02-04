@@ -116,9 +116,11 @@ in preparation → active → finished | aborted
 | Task | Agent |
 |------|-------|
 | Codebase durchsuchen | `Explore` |
+| Dashboard-Struktur finden | `Explore` |
 | Feature planen | `feature-dev:code-architect` |
 | Code verstehen | `feature-dev:code-explorer` |
 | Code Review | `feature-dev:code-reviewer` |
+| Research (Web, Docs) | `general-purpose` |
 
 **Beispiele:**
 

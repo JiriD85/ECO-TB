@@ -12,10 +12,11 @@
 | Task | Agent | Grund |
 |------|-------|-------|
 | Codebase durchsuchen | `Explore` | Schnell, spart Context |
+| Dashboard-Struktur finden | `Explore` | Findet Widgets/Actions |
 | Feature planen | `feature-dev:code-architect` | Architektur-Analyse |
-| Code verstehen | `feature-dev:code-explorer` | Execution Paths |
-| Code Review | `feature-dev:code-reviewer` | Bugs, Security |
-| Allgemeine Recherche | `general-purpose` | Web, komplexe Fragen |
+| Code verstehen | `feature-dev:code-explorer` | Execution Paths tracen |
+| Code Review | `feature-dev:code-reviewer` | Bugs, Security, Quality |
+| Research (Web, Docs) | `general-purpose` | Komplexe Fragen, Web-Suche |
 
 ## Explore Agent
 
@@ -76,7 +77,7 @@ Task(
 
 ## General Purpose Agent
 
-**Wann:** Komplexe Recherche, Web-Suche, mehrstufige Tasks
+**Wann:** Komplexe Recherche, Web-Suche, mehrstufige Tasks, ThingsBoard API Fragen
 
 ```
 Task(
@@ -84,6 +85,12 @@ Task(
   prompt="Recherchiere ThingsBoard 4.2 Calculated Fields API. Finde Beispiele fuer Custom Aggregations."
 )
 ```
+
+**Beispiele:**
+- "Wie funktioniert ThingsBoard Alarming mit Calculated Fields?"
+- "Finde Best Practices fuer ThingsBoard Rule Chain Performance"
+- "Recherchiere Angular Material Dialog Patterns fuer komplexe Formulare"
+- "Was sind die Unterschiede zwischen ThingsBoard CE und PE fuer Permissions?"
 
 ## Parallele Ausfuehrung
 
