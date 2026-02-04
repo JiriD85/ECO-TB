@@ -166,10 +166,21 @@ def write_telemetry(api, entity_id: str, key: str, data: list) -> bool:
     batch_size = 1000
     success = True
 
+    def to_number(v):
+        """Ensure numeric values are floats, not strings"""
+        if isinstance(v, (int, float)):
+            return float(v)
+        if isinstance(v, str):
+            try:
+                return float(v)
+            except ValueError:
+                return v
+        return v
+
     for i in range(0, len(data), batch_size):
         batch = data[i:i + batch_size]
         telemetry_batch = [
-            {'ts': ts, 'values': {key: val}}
+            {'ts': ts, 'values': {key: to_number(val)}}
             for ts, val in batch
         ]
 

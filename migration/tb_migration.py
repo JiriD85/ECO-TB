@@ -1283,8 +1283,19 @@ class MigrationTool:
             batch = data[i:i + batch_size]
 
             # Format for ThingsBoard: {ts: timestamp, values: {key: value}}
+            # IMPORTANT: Ensure numeric values are floats, not strings
+            def to_number(v):
+                if isinstance(v, (int, float)):
+                    return float(v)
+                if isinstance(v, str):
+                    try:
+                        return float(v)
+                    except ValueError:
+                        return v
+                return v
+
             telemetry_batch = [
-                {'ts': ts, 'values': {key: val}}
+                {'ts': ts, 'values': {key: to_number(val)}}
                 for ts, val in batch
             ]
 
