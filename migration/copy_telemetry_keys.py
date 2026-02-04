@@ -166,27 +166,34 @@ def write_telemetry(api, entity_id: str, key: str, data: list) -> bool:
     batch_size = 1000
     success = True
 
-    def to_number(v):
-        """Ensure numeric values are floats, not strings.
-        Preserves booleans, nulls, and non-numeric strings as-is."""
-        # Already a float
-        if isinstance(v, float):
-            return v
-        # Integer (but not bool, since bool is subclass of int)
-        if isinstance(v, int) and not isinstance(v, bool):
-            return float(v)
-        # Boolean - keep as-is
+    def preserve_type(v):
+        """Preserve original type, but convert numeric strings back to numbers.
+        ThingsBoard API returns numbers as strings, so we need to convert them back."""
+        # Already correct types - keep as-is
         if isinstance(v, bool):
             return v
-        # None - keep as-is
+        if isinstance(v, (int, float)):
+            return v
         if v is None:
             return v
-        # String - try to convert if it looks numeric
+        # String - convert back to original type if possible
         if isinstance(v, str):
             v_stripped = v.strip()
-            # Skip obvious non-numeric strings
-            if v_stripped.lower() in ('true', 'false', 'null', 'none', ''):
+            # Boolean strings
+            if v_stripped.lower() == 'true':
+                return True
+            if v_stripped.lower() == 'false':
+                return False
+            # Empty or null
+            if v_stripped.lower() in ('null', 'none', ''):
                 return v
+            # Try integer first (no decimal point)
+            if '.' not in v_stripped:
+                try:
+                    return int(v_stripped)
+                except ValueError:
+                    pass
+            # Try float
             try:
                 return float(v_stripped)
             except ValueError:
@@ -196,7 +203,7 @@ def write_telemetry(api, entity_id: str, key: str, data: list) -> bool:
     for i in range(0, len(data), batch_size):
         batch = data[i:i + batch_size]
         telemetry_batch = [
-            {'ts': ts, 'values': {key: to_number(val)}}
+            {'ts': ts, 'values': {key: preserve_type(val)}}
             for ts, val in batch
         ]
 
