@@ -164,7 +164,7 @@
             "realtime": {
               "realtimeType": 0,
               "interval": 1000,
-              "timewindowMs": 604800000,
+              "timewindowMs": 2592000000,
               "quickInterval": "CURRENT_DAY",
               "hideInterval": false,
               "hideLastInterval": false,
@@ -174,10 +174,7 @@
               "historyType": 0,
               "interval": 1000,
               "timewindowMs": 60000,
-              "fixedTimewindow": {
-                "startTimeMs": 1737884022023,
-                "endTimeMs": 1737970422023
-              },
+              "fixedTimewindow": null,
               "quickInterval": "CURRENT_DAY",
               "hideInterval": false,
               "hideLastInterval": false,
@@ -187,9 +184,10 @@
             "aggregation": {
               "type": "NONE",
               "limit": 200
-            }
+            },
+            "timezone": null
           },
-          "showTitle": true,
+          "showTitle": false,
           "backgroundColor": "rgb(255, 255, 255)",
           "color": "rgba(0, 0, 0, 0.87)",
           "padding": "0px",
@@ -1090,536 +1088,6 @@
         "id": "6e0676c2-49cd-846e-9c94-80c6b2c0218c",
         "typeFullFqn": "system.cards.entities_table"
       },
-      "e6cefd55-e905-d7ce-8f86-08635fbe2679": {
-        "type": "alarm",
-        "sizeX": 10.5,
-        "sizeY": 6.5,
-        "config": {
-          "timewindow": {
-            "hideAggregation": false,
-            "hideAggInterval": false,
-            "hideTimezone": false,
-            "selectedTab": 0,
-            "realtime": {
-              "realtimeType": 0,
-              "timewindowMs": 15552000000,
-              "quickInterval": "CURRENT_DAY",
-              "interval": 1000
-            },
-            "aggregation": {
-              "type": "NONE",
-              "limit": 200
-            }
-          },
-          "showTitle": true,
-          "backgroundColor": "rgb(255, 255, 255)",
-          "color": "rgba(0, 0, 0, 0.87)",
-          "padding": "0px",
-          "settings": {
-            "enableSelection": true,
-            "enableSearch": true,
-            "displayDetails": false,
-            "allowAcknowledgment": true,
-            "allowClear": true,
-            "displayPagination": false,
-            "defaultPageSize": 10,
-            "defaultSortOrder": "-startTime",
-            "enableSelectColumnDisplay": true,
-            "enableStickyAction": false,
-            "enableFilter": false,
-            "enableStickyHeader": true,
-            "reserveSpaceForHiddenAction": "true",
-            "useRowStyleFunction": false,
-            "alarmsTitle": "Alarms"
-          },
-          "title": "Alarms",
-          "dropShadow": false,
-          "enableFullscreen": false,
-          "titleStyle": {
-            "fontSize": "24px",
-            "fontWeight": 700,
-            "padding": "5px 10px 5px 10px",
-            "height": "40px"
-          },
-          "useDashboardTimewindow": false,
-          "showLegend": false,
-          "alarmSource": {
-            "type": "entity",
-            "name": null,
-            "entityAliasId": "783dd5f0-d34d-946d-a82f-95d3a6eaadd1",
-            "filterId": "2d011a64-3af4-277a-980d-904145c28912",
-            "dataKeys": [
-              {
-                "name": "startTime",
-                "type": "alarm",
-                "label": "Start time",
-                "color": "#9c27b0",
-                "settings": {
-                  "columnWidth": "0px",
-                  "useCellStyleFunction": false,
-                  "cellStyleFunction": "",
-                  "useCellContentFunction": false,
-                  "cellContentFunction": "",
-                  "defaultColumnVisibility": "visible",
-                  "columnSelectionToDisplay": "enabled",
-                  "columnExportOption": "onlyVisible"
-                },
-                "_hash": 0.18228508234861218
-              },
-              {
-                "name": "originator",
-                "type": "alarm",
-                "label": "Originator",
-                "color": "#4caf50",
-                "settings": {
-                  "useCellStyleFunction": false,
-                  "cellStyleFunction": "",
-                  "useCellContentFunction": false,
-                  "cellContentFunction": ""
-                },
-                "_hash": 0.2780007688856758
-              },
-              {
-                "name": "type",
-                "type": "alarm",
-                "label": "Type",
-                "color": "#f44336",
-                "settings": {
-                  "useCellStyleFunction": false,
-                  "cellStyleFunction": "",
-                  "useCellContentFunction": false,
-                  "cellContentFunction": ""
-                },
-                "_hash": 0.7323586880398418
-              },
-              {
-                "name": "severity",
-                "type": "alarm",
-                "label": "Severity",
-                "color": "#ffc107",
-                "settings": {
-                  "useCellStyleFunction": false,
-                  "useCellContentFunction": false
-                },
-                "_hash": 0.09927019860088193
-              },
-              {
-                "name": "status",
-                "type": "alarm",
-                "label": "Status",
-                "color": "#607d8b",
-                "settings": {
-                  "useCellStyleFunction": false,
-                  "cellStyleFunction": "",
-                  "useCellContentFunction": false,
-                  "cellContentFunction": ""
-                },
-                "_hash": 0.6588418951443418
-              },
-              {
-                "name": "progress",
-                "type": "attribute",
-                "label": "Progress",
-                "color": "#9c27b0",
-                "settings": {},
-                "_hash": 0.48382170691251236,
-                "aggregationType": null,
-                "units": null,
-                "decimals": null,
-                "funcBody": null,
-                "usePostProcessing": null,
-                "postFuncBody": null
-              }
-            ],
-            "alarmFilterConfig": {
-              "statusList": [
-                "ACTIVE"
-              ]
-            }
-          },
-          "alarmsPollingInterval": 5,
-          "showTitleIcon": false,
-          "titleIcon": "notifications",
-          "iconColor": "rgba(0, 0, 0, 0.87)",
-          "iconSize": "28px",
-          "titleTooltip": "",
-          "widgetStyle": {},
-          "displayTimewindow": true,
-          "actions": {},
-          "datasources": [],
-          "enableDataExport": true,
-          "widgetCss": "div.tb-widget .tb-widget-title {\n    max-height: 100px !important;\n}\n",
-          "noDataDisplayMessage": "",
-          "alarmFilterConfig": {
-            "statusList": [
-              "ACTIVE"
-            ],
-            "severityList": [],
-            "typeList": [],
-            "searchPropagatedAlarms": true
-          },
-          "pageSize": 1024
-        },
-        "row": 0,
-        "col": 0,
-        "id": "e6cefd55-e905-d7ce-8f86-08635fbe2679",
-        "typeFullFqn": "system.alarm_widgets.alarms_table"
-      },
-      "d680c934-edcf-4cf0-7073-cc1fb4530391": {
-        "type": "alarm",
-        "sizeX": 10.5,
-        "sizeY": 6.5,
-        "config": {
-          "timewindow": {
-            "hideAggregation": false,
-            "hideAggInterval": false,
-            "hideTimezone": false,
-            "selectedTab": 1,
-            "history": {
-              "historyType": 0,
-              "timewindowMs": 2592000000,
-              "interval": 1000,
-              "fixedTimewindow": {
-                "startTimeMs": 1640171736303,
-                "endTimeMs": 1640258136303
-              },
-              "quickInterval": "CURRENT_DAY"
-            },
-            "aggregation": {
-              "type": "NONE",
-              "limit": 200
-            }
-          },
-          "showTitle": true,
-          "backgroundColor": "rgb(255, 255, 255)",
-          "color": "rgba(0, 0, 0, 0.87)",
-          "padding": "4px",
-          "settings": {
-            "enableSelection": true,
-            "enableSearch": true,
-            "displayDetails": false,
-            "allowAcknowledgment": true,
-            "allowClear": true,
-            "displayPagination": false,
-            "defaultPageSize": 10,
-            "defaultSortOrder": "-createdTime",
-            "enableSelectColumnDisplay": true,
-            "enableStickyAction": false,
-            "enableFilter": false,
-            "enableStickyHeader": true,
-            "reserveSpaceForHiddenAction": "true",
-            "useRowStyleFunction": false,
-            "alarmsTitle": "Critical Alarms"
-          },
-          "title": "New Alarms table",
-          "dropShadow": false,
-          "enableFullscreen": false,
-          "titleStyle": {
-            "fontSize": "16px",
-            "fontWeight": 400,
-            "padding": "5px 10px 5px 10px"
-          },
-          "useDashboardTimewindow": false,
-          "showLegend": false,
-          "alarmSource": {
-            "type": "entity",
-            "name": null,
-            "entityAliasId": "6c0a1eb1-b0e7-1578-a4f0-c0e0c8a77c82",
-            "filterId": null,
-            "dataKeys": [
-              {
-                "name": "createdTime",
-                "type": "alarm",
-                "label": "{i18n:alarm.created-time}",
-                "color": "#2196f3",
-                "settings": {
-                  "useCellStyleFunction": false,
-                  "cellStyleFunction": "",
-                  "useCellContentFunction": false,
-                  "cellContentFunction": ""
-                },
-                "_hash": 0.021092237451093787,
-                "aggregationType": null,
-                "units": null,
-                "decimals": null,
-                "funcBody": null,
-                "usePostProcessing": null,
-                "postFuncBody": null
-              },
-              {
-                "name": "originator",
-                "type": "alarm",
-                "label": "{i18n:alarm.originator}",
-                "color": "#4caf50",
-                "settings": {
-                  "useCellStyleFunction": false,
-                  "cellStyleFunction": "",
-                  "useCellContentFunction": false,
-                  "cellContentFunction": ""
-                },
-                "_hash": 0.2780007688856758,
-                "aggregationType": null,
-                "units": null,
-                "decimals": null,
-                "funcBody": null,
-                "usePostProcessing": null,
-                "postFuncBody": null
-              },
-              {
-                "name": "type",
-                "type": "alarm",
-                "label": "{i18n:alarm.type}",
-                "color": "#f44336",
-                "settings": {
-                  "useCellStyleFunction": false,
-                  "cellStyleFunction": "",
-                  "useCellContentFunction": false,
-                  "cellContentFunction": ""
-                },
-                "_hash": 0.7323586880398418,
-                "aggregationType": null,
-                "units": null,
-                "decimals": null,
-                "funcBody": null,
-                "usePostProcessing": null,
-                "postFuncBody": null
-              },
-              {
-                "name": "severity",
-                "type": "alarm",
-                "label": "{i18n:alarm.severity}",
-                "color": "#ffc107",
-                "settings": {
-                  "useCellStyleFunction": false,
-                  "useCellContentFunction": false
-                },
-                "_hash": 0.09927019860088193,
-                "aggregationType": null,
-                "units": null,
-                "decimals": null,
-                "funcBody": null,
-                "usePostProcessing": null,
-                "postFuncBody": null
-              },
-              {
-                "name": "status",
-                "type": "alarm",
-                "label": "{i18n:alarm.status}",
-                "color": "#607d8b",
-                "settings": {
-                  "useCellStyleFunction": false,
-                  "cellStyleFunction": "",
-                  "useCellContentFunction": false,
-                  "cellContentFunction": ""
-                },
-                "_hash": 0.6588418951443418,
-                "aggregationType": null,
-                "units": null,
-                "decimals": null,
-                "funcBody": null,
-                "usePostProcessing": null,
-                "postFuncBody": null
-              }
-            ],
-            "alarmFilterConfig": {
-              "statusList": [
-                "ACTIVE"
-              ]
-            }
-          },
-          "alarmsPollingInterval": 5,
-          "showTitleIcon": false,
-          "titleIcon": "more_horiz",
-          "iconColor": "rgba(0, 0, 0, 0.87)",
-          "iconSize": "24px",
-          "titleTooltip": "",
-          "widgetStyle": {},
-          "displayTimewindow": true,
-          "actions": {},
-          "datasources": [],
-          "enableDataExport": true,
-          "widgetCss": "",
-          "noDataDisplayMessage": "",
-          "alarmFilterConfig": {
-            "statusList": [
-              "ACTIVE"
-            ],
-            "severityList": [
-              "CRITICAL"
-            ],
-            "typeList": [],
-            "searchPropagatedAlarms": true
-          }
-        },
-        "row": 0,
-        "col": 0,
-        "id": "d680c934-edcf-4cf0-7073-cc1fb4530391",
-        "typeFullFqn": "system.alarm_widgets.alarms_table"
-      },
-      "106a5add-e710-6fea-e975-a7f9b61e2802": {
-        "type": "alarm",
-        "sizeX": 10.5,
-        "sizeY": 6.5,
-        "config": {
-          "timewindow": {
-            "hideAggregation": false,
-            "hideAggInterval": false,
-            "hideTimezone": false,
-            "selectedTab": 1,
-            "history": {
-              "historyType": 0,
-              "timewindowMs": 2592000000,
-              "interval": 1000,
-              "fixedTimewindow": {
-                "startTimeMs": 1640171736303,
-                "endTimeMs": 1640258136303
-              },
-              "quickInterval": "CURRENT_DAY"
-            },
-            "aggregation": {
-              "type": "NONE",
-              "limit": 200
-            }
-          },
-          "showTitle": true,
-          "backgroundColor": "rgb(255, 255, 255)",
-          "color": "rgba(0, 0, 0, 0.87)",
-          "padding": "4px",
-          "settings": {
-            "enableSelection": true,
-            "enableSearch": true,
-            "displayDetails": false,
-            "allowAcknowledgment": true,
-            "allowClear": true,
-            "displayPagination": false,
-            "defaultPageSize": 10,
-            "defaultSortOrder": "-createdTime",
-            "enableSelectColumnDisplay": true,
-            "enableStickyAction": false,
-            "enableFilter": false,
-            "enableStickyHeader": true,
-            "reserveSpaceForHiddenAction": "true",
-            "useRowStyleFunction": false,
-            "alarmsTitle": "Major Alarms"
-          },
-          "title": "New Alarms table",
-          "dropShadow": false,
-          "enableFullscreen": false,
-          "titleStyle": {
-            "fontSize": "16px",
-            "fontWeight": 400,
-            "padding": "5px 10px 5px 10px"
-          },
-          "useDashboardTimewindow": false,
-          "showLegend": false,
-          "alarmSource": {
-            "type": "entity",
-            "name": null,
-            "entityAliasId": "6c0a1eb1-b0e7-1578-a4f0-c0e0c8a77c82",
-            "filterId": null,
-            "dataKeys": [
-              {
-                "name": "createdTime",
-                "type": "alarm",
-                "label": "Created time",
-                "color": "#2196f3",
-                "settings": {
-                  "useCellStyleFunction": false,
-                  "cellStyleFunction": "",
-                  "useCellContentFunction": false,
-                  "cellContentFunction": ""
-                },
-                "_hash": 0.021092237451093787
-              },
-              {
-                "name": "originator",
-                "type": "alarm",
-                "label": "Originator",
-                "color": "#4caf50",
-                "settings": {
-                  "useCellStyleFunction": false,
-                  "cellStyleFunction": "",
-                  "useCellContentFunction": false,
-                  "cellContentFunction": ""
-                },
-                "_hash": 0.2780007688856758
-              },
-              {
-                "name": "type",
-                "type": "alarm",
-                "label": "Type",
-                "color": "#f44336",
-                "settings": {
-                  "useCellStyleFunction": false,
-                  "cellStyleFunction": "",
-                  "useCellContentFunction": false,
-                  "cellContentFunction": ""
-                },
-                "_hash": 0.7323586880398418
-              },
-              {
-                "name": "severity",
-                "type": "alarm",
-                "label": "Severity",
-                "color": "#ffc107",
-                "settings": {
-                  "useCellStyleFunction": false,
-                  "useCellContentFunction": false
-                },
-                "_hash": 0.09927019860088193
-              },
-              {
-                "name": "status",
-                "type": "alarm",
-                "label": "Status",
-                "color": "#607d8b",
-                "settings": {
-                  "useCellStyleFunction": false,
-                  "cellStyleFunction": "",
-                  "useCellContentFunction": false,
-                  "cellContentFunction": ""
-                },
-                "_hash": 0.6588418951443418
-              }
-            ]
-          },
-          "alarmsPollingInterval": 5,
-          "showTitleIcon": false,
-          "titleIcon": "more_horiz",
-          "iconColor": "rgba(0, 0, 0, 0.87)",
-          "iconSize": "24px",
-          "titleTooltip": "",
-          "widgetStyle": {},
-          "displayTimewindow": true,
-          "actions": {},
-          "datasources": [],
-          "enableDataExport": true,
-          "widgetCss": "",
-          "noDataDisplayMessage": "",
-          "alarmFilterConfig": {
-            "statusList": [
-              "ACTIVE"
-            ],
-            "severityList": [
-              "MAJOR"
-            ],
-            "typeList": [],
-            "searchPropagatedAlarms": true
-          },
-          "titleFont": {
-            "size": 16,
-            "sizeUnit": "px",
-            "family": "Roboto",
-            "weight": "500",
-            "style": "normal"
-          },
-          "pageSize": 1024
-        },
-        "row": 0,
-        "col": 0,
-        "id": "106a5add-e710-6fea-e975-a7f9b61e2802",
-        "typeFullFqn": "system.alarm_widgets.alarms_table"
-      },
       "6ccd99bd-8562-4e6b-e42b-e7f3c026a129": {
         "typeFullFqn": "system.cards.markdown_card",
         "type": "latest",
@@ -1671,9 +1139,9 @@
                   "_hash": 0.6869463922331669
                 },
                 {
-                  "name": "installationTypeOptions",
+                  "name": "systemType",
                   "type": "attribute",
-                  "label": "installationTypeOptions",
+                  "label": "systemType",
                   "color": "#607d8b",
                   "settings": {},
                   "_hash": 0.5906840773460056
@@ -1717,6 +1185,46 @@
                   "color": "#673ab7",
                   "settings": {},
                   "_hash": 0.48540079128001534
+                },
+                {
+                  "name": "criticalAlarmsCount",
+                  "type": "timeseries",
+                  "label": "criticalAlarmsCount",
+                  "color": "#673ab7",
+                  "settings": {},
+                  "_hash": 0.9658749504265884
+                },
+                {
+                  "name": "majorAlarmsCount",
+                  "type": "timeseries",
+                  "label": "majorAlarmsCount",
+                  "color": "#cddc39",
+                  "settings": {},
+                  "_hash": 0.5204980258542499
+                },
+                {
+                  "name": "minorAlarmsCount",
+                  "type": "timeseries",
+                  "label": "minorAlarmsCount",
+                  "color": "#009688",
+                  "settings": {},
+                  "_hash": 0.43159566889424095
+                },
+                {
+                  "name": "warningAlarmsCount",
+                  "type": "timeseries",
+                  "label": "warningAlarmsCount",
+                  "color": "#795548",
+                  "settings": {},
+                  "_hash": 0.5507603153840216
+                },
+                {
+                  "name": "measurementRole",
+                  "type": "attribute",
+                  "label": "measurementRole",
+                  "color": "#2196f3",
+                  "settings": {},
+                  "_hash": 0.123456789
                 }
               ],
               "alarmFilterConfig": {
@@ -1803,7 +1311,7 @@
             "useMarkdownTextFunction": true,
             "markdownTextPattern": "<div class=\"market-layout\" style=\"width: 100%; height: 100%; padding: 0;\" fxLayout=\"column\">\n    <h5 class=\"market-title\">${entityName}</h5>\n    <tb-dashboard-state style=\"width: 100%; height: 90px;\" [ctx]=\"ctx\" stateId=\"alarm_badges\"></tb-dashboard-state>\n    <tb-dashboard-state fxFlex=\"70\" [ctx]=\"ctx\" [syncParentStateParams]=\"true\" stateId=\"plan\"></tb-dashboard-state>\n    <mat-divider style=\"margin-top: 10px; margin-bottom: 20px;\"></mat-divider>\n    <div fxFlex=\"30\" fxLayout=\"row\">\n     <div fxFlex=\"60\" fxLayout=\"column\">\n        <h5 style=\"padding-bottom: 15px;\">Filter</h5>\n        <tb-dashboard-state fxFlex [ctx]=\"ctx\" stateId=\"device-filter\"></tb-dashboard-state>\n     </div>\n     <mat-divider vertical style=\"margin-left: 20px; margin-right: 20px;\"></mat-divider>\n     <div fxFlex=\"40\" fxLayout=\"column\">\n        <h5 style=\"padding-bottom: 15px;\">State filter</h5>\n        <tb-dashboard-state fxFlex [ctx]=\"ctx\" stateId=\"state-filter\"></tb-dashboard-state>\n     </div>\n    </div>\n</div>",
             "markdownTextFunction": {
-              "body": "let $injector = ctx.$scope.$injector;\nlet assetService = $injector.get(ctx.servicesMap.get('assetService'));\nlet attributeService = $injector.get(ctx.servicesMap.get('attributeService'));\nvar entityId;\nvar deviceState;\nif (data && data.length && data[0]['entityId']) {\n    deviceState = true;\n    entityId = data[0]['entityId'];\n} else {\n    deviceState = false;\n    entityId = null;\n}\nlet userRole;\nif(data[1] && data[1].role){\n    userRole = data[1].role;\n}\n\nvar stateParams = ctx.stateController.getStateParams();\nctx.stateController.updateState(null, stateParams);\nif(entityId) {\n\n    var ButtonHtml = '';\n    if (userRole !== 'Belimo Retrofit Users') {\n        ButtonHtml =\n            '<button id=\"parameter-button\" type=\"button\" mat-raised-button color=\"primary\">' +\n                '<mat-icon class=\"tb-mat-18\">settings</mat-icon>' +\n                '<span>{i18n:custom.diagnostics.action.measurement-parameters}</span>' +\n            '</button>' +\n            '<button id=\"projects-button\" type=\"button\" mat-raised-button color=\"primary\">' +\n                '<mat-icon class=\"tb-mat-18\">assignment</mat-icon>' +\n                '<span>{i18n:custom.diagnostics.projects-btn.title}</span>' +\n            '</button>';\n    }\n\n    var name, label, state, active, progress, locationName, installationType, installation, dimension, installationTypeOptions, measurementType, startTime, endTime;\n    if (data && data.length) {\n        name = data[0]['entityName'] || 'N/A';\n        label = data[0]['Label'] || 'N/A';\n        locationName = data[0]['locationName'] || 'N/A';\n        installationType = data[0]['installationType'] || 'N/A';\n        installationTypeOptions = data[0]['installationTypeOptions'] || 'N/A';\n        dimension = data[0]['dimension'] || 'N/A';\n        state = data[0]['state'] || 'N/A';\n        active = data[0]['active'] || 'N/A';\n        progress = data[0]['progress'] || 'N/A';\n        measurementType = data[0]['measurementType'] || 'N/A';\n        startTime = data[0]['startTimeMs'] || 'N/A';\n        endTime = data[0]['endTimeMs'] || 'N/A';\n        if (active === 'false') {\n            state = 'disconnected';\n        }\n    }\n\n    var instStyle = ecoUtils.getInstallationTypeStyle(installationType);\n    var installationBadge = ecoUtils.createBadgeHtml(instStyle.icon, instStyle.label, instStyle.color, instStyle.bgColor);\n\n    var typeBadge = '<span class=\"status-badge badge-type\">' +\n        `{i18n:custom.diagnostics.action.edit-measurement-parameters.installation-type-options.${clientUtils.toKebabCase(installationTypeOptions)}.title}` +\n        '</span>';\n\n    var stateBadge = ecoUtils.getStateBadgeHtml(state, 'state');\n    var progressBadge = (progress && progress !== 'N/A') ? ecoUtils.getStateBadgeHtml(progress, 'progress') : '';\n    var displayTitle = (locationName && locationName !== 'N/A') ? locationName : name;\n\n    var header = '<div class=\"measurement-header flex items-center justify-between\">' +\n      '<div class=\"flex items-center gap-3\">' +\n        '<button id=\"go-back\" type=\"button\" mat-raised-button color=\"primary\" class=\"back-button\">' +\n          '<mat-icon>arrow_back</mat-icon><span>{i18n:action.go-back}</span></button>' +\n        '<button id=\"measurement-switch-button\" type=\"button\" mat-raised-button color=\"accent\" class=\"switch-btn\">' +\n          '<mat-icon>swap_horiz</mat-icon>' +\n        '</button>' +\n        '<div class=\"measurement-title-block\">' +\n          '<span class=\"measurement-location-text\">' + ((locationName && locationName !== 'N/A') ? locationName : label) + '</span>' +\n          '<span class=\"measurement-name-text\">' + name + '</span>' +\n        '</div>' +\n      '</div>' +\n      '<div class=\"flex flex-col items-center gap-1 flex-1\">' +\n        '<div class=\"flex items-center gap-2\">' + installationBadge + typeBadge + stateBadge + '</div>' +\n        '<div class=\"flex items-center gap-2\">' + progressBadge + ecoUtils.getDateBadgeHtml(startTime, 'start') + ecoUtils.getDateBadgeHtml(endTime, 'end') + '</div>' +\n      '</div>' +\n      '<div class=\"flex items-center gap-3\">' + ButtonHtml +\n        '<button id=\"analysis-button\" type=\"button\" mat-raised-button color=\"primary\">' +\n          '<mat-icon class=\"tb-mat-18\">insights</mat-icon><span>{i18n:custom.diagnostics.analysis.title}</span></button>' +\n      '</div>' +\n    '</div>';\n\n    // Determine measurement type and installation type\n    var mType = (measurementType || '').toLowerCase();\n    var iType = (installationType || '').toLowerCase();\n\n    // Show navigation bar only for ultrasonic/import\n    var showNavBar = (mType === 'ultrasonic' || mType === 'import');\n    var showMessage = false;\n    var messageText = 'Interpolated data is only available in the analysis after the measurement is completed.';\n\n    // Determine states based on installation type\n    var rawDataState = '';\n    var loadAnalysisState = '';\n    if (iType === 'heating') {\n        rawDataState = 'measurement_ultrasonic_heating';\n        loadAnalysisState = 'measurement_ultrasonic_heating_load';\n    } else if (iType === 'cooling') {\n        rawDataState = 'measurement_ultrasonic_cooling';\n        loadAnalysisState = 'measurement_ultrasonic_cooling_load';\n    } else {\n        rawDataState = 'measurement_ultrasonic_heating';\n        loadAnalysisState = 'measurement_ultrasonic_heating_load';\n    }\n\n    // Content for non-tabbed views\n    var contentHtml = '';\n\n    if (mType === 'lorawan') {\n        contentHtml = '<tb-dashboard-state class=\"w-full h-full\" [ctx]=\"ctx\" [syncParentStateParams]=\"true\" stateId=\"measurement_lorawan_room\"></tb-dashboard-state>';\n        return '<div class=\"main-layout flex flex-col w-full h-full\">' + header +\n            '<div id=\"power_measurement_wrapper\" class=\"flex-1\">' + contentHtml + '</div></div>';\n    } else if (mType === 'interpolation' || !showNavBar) {\n        contentHtml = '<div class=\"flex items-center justify-center h-full\"><div class=\"text-center p-8\" style=\"background: #fff3e0; border-radius: 8px; margin: 20px;\"><mat-icon style=\"font-size: 48px; width: 48px; height: 48px; color: #ff9800;\">info</mat-icon><p style=\"color: #666; font-size: 16px; margin-top: 16px;\">' + messageText + '</p></div></div>';\n        return '<div class=\"main-layout flex flex-col w-full h-full\">' + header +\n            '<div id=\"power_measurement_wrapper\" class=\"flex-1\">' + contentHtml + '</div></div>';\n    }\n\n    // ========== MAT-TAB-GROUP Navigation for ultrasonic/import ==========\n\n    var tabs = [\n        { id: 'raw', label: '{i18n:custom.diagnostics.nav.raw-data}', icon: 'show_chart', stateId: rawDataState },\n        { id: 'load', label: '{i18n:custom.diagnostics.nav.load-analysis}', icon: 'speed', stateId: loadAnalysisState }\n    ];\n\n    // Get active tab from stateParams\n    var activeTabId = (stateParams.navTab && stateParams.navTab.active) || 'raw';\n    var selectedIndex = 0;\n    for (var i = 0; i < tabs.length; i++) {\n        if (tabs[i].id === activeTabId) {\n            selectedIndex = i;\n            break;\n        }\n    }\n\n    // Set up tab change handler on ctx\n    ctx.measurementNavIndex = selectedIndex;\n    ctx.measurementNavChange = function(ev) {\n        try {\n            var idx = (ev && typeof ev.index === 'number') ? ev.index : 0;\n            var tab = tabs[idx] || tabs[0];\n            ctx.measurementNavIndex = idx;\n\n            var currentParams = ctx.stateController.getStateParams() || {};\n            currentParams.navTab = { active: tab.id };\n            ctx.stateController.updateState(null, currentParams);\n\n            if (ctx.$scope && typeof ctx.$scope.$applyAsync === 'function') {\n                ctx.$scope.$applyAsync();\n            }\n        } catch (e) {\n            console.error('measurementNavChange error', e);\n        }\n    };\n\n    // Inject styles for tabs\n    (function injectTabStyles() {\n        var styleId = 'measurement-nav-tabs-style';\n        if (document.getElementById(styleId)) return;\n\n        var css = `\n            .measurement-tabs-container {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                min-height: 0;\n            }\n            .measurement-tabs-container mat-tab-group {\n                flex: 1 1 auto;\n                min-height: 0;\n                height: 100%;\n            }\n            .measurement-tabs-container .mat-mdc-tab-body-wrapper {\n                flex: 1 1 auto;\n                min-height: 0;\n                height: 100%;\n            }\n            .measurement-tabs-container .mat-mdc-tab-body {\n                height: 100%;\n                min-height: 0;\n            }\n            .measurement-tabs-container .mat-mdc-tab-body-content {\n                height: 100%;\n                min-height: 0;\n                overflow: hidden;\n            }\n            .measurement-tab-label {\n                display: inline-flex;\n                align-items: center;\n                gap: 8px;\n            }\n            .measurement-tab-label mat-icon {\n                font-size: 20px;\n                width: 20px;\n                height: 20px;\n            }\n            .measurement-tab-body {\n                width: 100%;\n                height: 100%;\n                display: block;\n            }\n        `;\n\n        var styleEl = document.createElement('style');\n        styleEl.id = styleId;\n        styleEl.type = 'text/css';\n        styleEl.appendChild(document.createTextNode(css));\n        document.head.appendChild(styleEl);\n    })();\n\n    // Build tabs HTML\n    var tabsHtml = '';\n    for (var j = 0; j < tabs.length; j++) {\n        var t = tabs[j];\n        tabsHtml += '<mat-tab>' +\n            '<ng-template mat-tab-label>' +\n                '<span class=\"measurement-tab-label\">' +\n                    '<mat-icon>' + t.icon + '</mat-icon>' +\n                    '<span>' + t.label + '</span>' +\n                '</span>' +\n            '</ng-template>' +\n            '<ng-template matTabContent>' +\n                '<tb-dashboard-state class=\"measurement-tab-body\" [ctx]=\"ctx\" [syncParentStateParams]=\"true\" stateId=\"' + t.stateId + '\"></tb-dashboard-state>' +\n            '</ng-template>' +\n        '</mat-tab>';\n    }\n\n    var tabGroupHtml = '<div class=\"measurement-tabs-container\">' +\n        '<mat-tab-group mat-stretch-tabs=\"false\" mat-align-tabs=\"start\"' +\n            ' [selectedIndex]=\"ctx.measurementNavIndex\"' +\n            ' (selectedTabChange)=\"ctx.measurementNavChange($event)\">' +\n            tabsHtml +\n        '</mat-tab-group>' +\n    '</div>';\n\n    return '<div class=\"main-layout flex flex-col w-full h-full\">' + header +\n        '<div id=\"power_measurement_wrapper\" class=\"flex-1\">' + tabGroupHtml + '</div></div>';\n}",
+              "body": "let $injector = ctx.$scope.$injector;\nlet assetService = $injector.get(ctx.servicesMap.get('assetService'));\nlet attributeService = $injector.get(ctx.servicesMap.get('attributeService'));\nvar entityId;\nvar deviceState;\nif (data && data.length && data[0]['entityId']) {\n    deviceState = true;\n    entityId = data[0]['entityId'];\n} else {\n    deviceState = false;\n    entityId = null;\n}\nlet userRole;\nif(data[1] && data[1].role){\n    userRole = data[1].role;\n}\n\nvar stateParams = ctx.stateController.getStateParams();\nctx.stateController.updateState(null, stateParams);\nif(entityId) {\n\n    var ButtonHtml = '';\n    if (userRole !== 'Belimo Retrofit Users') {\n        ButtonHtml =\n            '<button id=\"parameter-button\" type=\"button\" mat-raised-button color=\"primary\">' +\n                '<mat-icon class=\"tb-mat-18\">settings</mat-icon>' +\n                '<span>{i18n:custom.diagnostics.action.measurement-parameters}</span>' +\n            '</button>' +\n            '<button id=\"projects-button\" type=\"button\" mat-raised-button color=\"primary\">' +\n                '<mat-icon class=\"tb-mat-18\">assignment</mat-icon>' +\n                '<span>{i18n:custom.diagnostics.projects-btn.title}</span>' +\n            '</button>';\n    }\n\n    var name, label, state, active, progress, locationName, installationType, systemType, measurementRole, dimension, measurementType, startTime, endTime;\n    var criticalCount, majorCount, minorCount, warningCount;\n    if (data && data.length) {\n        name = data[0]['entityName'] || 'N/A';\n        label = data[0]['Label'] || 'N/A';\n        locationName = data[0]['locationName'] || 'N/A';\n        installationType = data[0]['installationType'] || 'N/A';\n        systemType = data[0]['systemType'] || 'N/A';\n        measurementRole = data[0]['measurementRole'] || 'N/A';\n        dimension = data[0]['dimension'] || 'N/A';\n        state = data[0]['state'] || 'normal';\n        active = data[0]['active'] || 'N/A';\n        progress = data[0]['progress'] || 'N/A';\n        measurementType = data[0]['measurementType'] || 'N/A';\n        startTime = data[0]['startTimeMs'] || 'N/A';\n        endTime = data[0]['endTimeMs'] || 'N/A';\n        criticalCount = parseInt(data[0]['criticalAlarmsCount']) || 0;\n        majorCount = parseInt(data[0]['majorAlarmsCount']) || 0;\n        minorCount = parseInt(data[0]['minorAlarmsCount']) || 0;\n        warningCount = parseInt(data[0]['warningAlarmsCount']) || 0;\n        if (active === 'false') {\n            state = 'disconnected';\n        }\n    }\n\n    // Installation Type Badge (heating=red, cooling=blue)\n    var instStyle = ecoUtils.getInstallationTypeStyle(installationType);\n    var installationBadge = ecoUtils.createBadgeHtml(instStyle.icon, instStyle.label, instStyle.color, instStyle.bgColor);\n\n    // System Type Badge (text only) - fixed i18n key\n    var systemTypeBadge = '';\n    if (systemType && systemType !== 'N/A') {\n        var sysTypeKey = clientUtils.toKebabCase(systemType);\n        systemTypeBadge = '<span class=\"status-badge badge-type\">' +\n            '{i18n:custom.diagnostics.system-type.' + sysTypeKey + '}' +\n            '</span>';\n    }\n\n    // Measurement Role Badge (text only) - fixed i18n key\n    var measurementRoleBadge = '';\n    if (measurementRole && measurementRole !== 'N/A') {\n        var roleKey = clientUtils.toKebabCase(measurementRole);\n        measurementRoleBadge = '<span class=\"status-badge badge-type\">' +\n            '{i18n:custom.diagnostics.measurement-role.' + roleKey + '}' +\n            '</span>';\n    }\n\n    // === State + Alarm Badge (Icon with Badge Pattern) ===\n    var totalAlarms = criticalCount + majorCount + minorCount + warningCount;\n    var stateStyle = ecoUtils.getAlarmStateStyle(state);\n\n    // Build State + Alarm Card\n    var stateAlarmCard = '';\n    if (totalAlarms > 0) {\n        // With alarms: State text (colored) + Bell icon (neutral gray) + Badge (colored)\n        stateAlarmCard = '<div id=\"measurement-alarms\" class=\"state-alarm-card\" style=\"' +\n            'display:inline-flex;align-items:center;gap:12px;' +\n            'padding:8px 14px;border-radius:8px;cursor:pointer;' +\n            'background:' + stateStyle.bgColor + ';' +\n            'transition:all 0.2s ease;\">' +\n            // State text (colored, no icon)\n            '<span style=\"font-weight:600;font-size:13px;color:' + stateStyle.color + ';\">' +\n                (stateStyle.i18nKey ? '{i18n:' + stateStyle.i18nKey + '}' : state) +\n            '</span>' +\n            // Bell icon (neutral gray) with colored badge\n            '<div style=\"position:relative;display:inline-flex;\">' +\n                '<mat-icon style=\"font-size:22px;width:22px;height:22px;color:#666;\">notifications</mat-icon>' +\n                '<span style=\"position:absolute;top:-6px;right:-8px;' +\n                    'min-width:18px;height:18px;padding:0 5px;' +\n                    'border-radius:9px;background:' + stateStyle.color + ';color:white;' +\n                    'font-size:11px;font-weight:600;' +\n                    'display:flex;align-items:center;justify-content:center;\">' +\n                    totalAlarms +\n                '</span>' +\n            '</div>' +\n        '</div>';\n    } else {\n        // No alarms: Simple \"Normal\" text badge (not clickable, no bell)\n        stateAlarmCard = '<span class=\"status-badge\" style=\"background:' + stateStyle.bgColor + ';color:' + stateStyle.color + ';\">' +\n            '<span>' + (stateStyle.i18nKey ? '{i18n:' + stateStyle.i18nKey + '}' : state) + '</span></span>';\n    }\n\n    // Progress Badge with getProgressColor scheme (orange->green->blue->red)\n    var progressBadge = '';\n    if (progress && progress !== 'N/A') {\n        var progStyle = ecoUtils.getProgressColor(progress);\n        var progIcon;\n        switch(progress) {\n            case 'in preparation': progIcon = 'schedule'; break;\n            case 'active': progIcon = 'play_circle'; break;\n            case 'finished': progIcon = 'check_circle'; break;\n            case 'aborted': progIcon = 'cancel'; break;\n            default: progIcon = 'help'; break;\n        }\n        var progI18nKey = progress === 'in preparation' ? 'preparation' : progress;\n        progressBadge = '<span class=\"status-badge\" style=\"background:' + progStyle.bgColor + ';color:' + progStyle.color + ';\">' +\n            '<mat-icon class=\"badge-icon\">' + progIcon + '</mat-icon>' +\n            '<span>{i18n:custom.diagnostics.state-filter.' + progI18nKey + '.title}</span></span>';\n    }\n\n    var displayTitle = (locationName && locationName !== 'N/A') ? locationName : name;\n\n    var header = '<div class=\"measurement-header flex items-center justify-between\">' +\n      '<div class=\"flex items-center gap-3\">' +\n        '<button id=\"go-back\" type=\"button\" mat-raised-button color=\"primary\" class=\"back-button\">' +\n          '<mat-icon>arrow_back</mat-icon><span>{i18n:action.go-back}</span></button>' +\n        '<button id=\"measurement-switch-button\" type=\"button\" mat-raised-button color=\"accent\" class=\"switch-btn\">' +\n          '<mat-icon>swap_horiz</mat-icon>' +\n        '</button>' +\n        '<div class=\"measurement-title-block\">' +\n          '<span class=\"measurement-location-text\">' + ((locationName && locationName !== 'N/A') ? locationName : label) + '</span>' +\n          '<span class=\"measurement-name-text\">' + name + '</span>' +\n        '</div>' +\n      '</div>' +\n      '<div class=\"flex flex-col items-center gap-1\">' +\n        '<div class=\"flex items-center gap-2\">' + installationBadge + systemTypeBadge + measurementRoleBadge + '</div>' +\n        '<div class=\"flex items-center gap-2\">' + progressBadge + ecoUtils.getDateBadgeHtml(startTime, 'start') + ecoUtils.getDateBadgeHtml(endTime, 'end') + '</div>' +\n      '</div>' +\n      '<div class=\"flex items-center justify-center\" style=\"margin:0 24px;\">' + stateAlarmCard + '</div>' +\n      '<div class=\"flex items-center gap-3\">' + ButtonHtml +\n        '<button id=\"analysis-button\" type=\"button\" mat-raised-button color=\"primary\">' +\n          '<mat-icon class=\"tb-mat-18\">insights</mat-icon><span>{i18n:custom.diagnostics.analysis.title}</span></button>' +\n      '</div>' +\n    '</div>';\n\n    // Inject styles\n    (function injectStyles() {\n        var styleId = 'measurement-header-style';\n        if (document.getElementById(styleId)) return;\n\n        var css = '.measurement-tabs-container { display: flex; flex-direction: column; height: 100%; min-height: 0; }' +\n            '.measurement-tabs-container mat-tab-group { flex: 1 1 auto; min-height: 0; height: 100%; }' +\n            '.measurement-tabs-container .mat-mdc-tab-body-wrapper { flex: 1 1 auto; min-height: 0; height: 100%; }' +\n            '.measurement-tabs-container .mat-mdc-tab-body { height: 100%; min-height: 0; }' +\n            '.measurement-tabs-container .mat-mdc-tab-body-content { height: 100%; min-height: 0; overflow: hidden; }' +\n            '.measurement-tab-label { display: inline-flex; align-items: center; gap: 8px; }' +\n            '.measurement-tab-label mat-icon { font-size: 20px; width: 20px; height: 20px; }' +\n            '.measurement-tab-body { width: 100%; height: 100%; display: block; }' +\n            '.state-alarm-card:hover { transform: scale(1.02); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }';\n\n        var styleEl = document.createElement('style');\n        styleEl.id = styleId;\n        styleEl.type = 'text/css';\n        styleEl.appendChild(document.createTextNode(css));\n        document.head.appendChild(styleEl);\n    })();\n\n    // Determine measurement type and installation type\n    var mType = (measurementType || '').toLowerCase();\n    var iType = (installationType || '').toLowerCase();\n\n    // Show navigation bar only for ultrasonic/import\n    var showNavBar = (mType === 'ultrasonic' || mType === 'import');\n    var showMessage = false;\n    var messageText = 'Interpolated data is only available in the analysis after the measurement is completed.';\n\n    // Determine states based on installation type\n    var rawDataState = '';\n    var loadAnalysisState = '';\n    if (iType === 'heating') {\n        rawDataState = 'measurement_ultrasonic_heating';\n        loadAnalysisState = 'measurement_ultrasonic_heating_load';\n    } else if (iType === 'cooling') {\n        rawDataState = 'measurement_ultrasonic_cooling';\n        loadAnalysisState = 'measurement_ultrasonic_cooling_load';\n    } else {\n        rawDataState = 'measurement_ultrasonic_heating';\n        loadAnalysisState = 'measurement_ultrasonic_heating_load';\n    }\n\n    // Content for non-tabbed views\n    var contentHtml = '';\n\n    if (mType === 'lorawan') {\n        contentHtml = '<tb-dashboard-state class=\"w-full h-full\" [ctx]=\"ctx\" [syncParentStateParams]=\"true\" stateId=\"measurement_lorawan_room\"></tb-dashboard-state>';\n        return '<div class=\"main-layout flex flex-col w-full h-full\">' + header +\n            '<div id=\"power_measurement_wrapper\" class=\"flex-1\">' + contentHtml + '</div></div>';\n    } else if (mType === 'interpolation' || !showNavBar) {\n        contentHtml = '<div class=\"flex items-center justify-center h-full\"><div class=\"text-center p-8\" style=\"background: #fff3e0; border-radius: 8px; margin: 20px;\"><mat-icon style=\"font-size: 48px; width: 48px; height: 48px; color: #ff9800;\">info</mat-icon><p style=\"color: #666; font-size: 16px; margin-top: 16px;\">' + messageText + '</p></div></div>';\n        return '<div class=\"main-layout flex flex-col w-full h-full\">' + header +\n            '<div id=\"power_measurement_wrapper\" class=\"flex-1\">' + contentHtml + '</div></div>';\n    }\n\n    // ========== MAT-TAB-GROUP Navigation for ultrasonic/import ==========\n\n    var tabs = [\n        { id: 'raw', label: '{i18n:custom.diagnostics.nav.raw-data}', icon: 'show_chart', stateId: rawDataState },\n        { id: 'load', label: '{i18n:custom.diagnostics.nav.load-analysis}', icon: 'speed', stateId: loadAnalysisState }\n    ];\n\n    // Get active tab from stateParams\n    var activeTabId = (stateParams.navTab && stateParams.navTab.active) || 'raw';\n    var selectedIndex = 0;\n    for (var i = 0; i < tabs.length; i++) {\n        if (tabs[i].id === activeTabId) {\n            selectedIndex = i;\n            break;\n        }\n    }\n\n    // Set up tab change handler on ctx\n    ctx.measurementNavIndex = selectedIndex;\n    ctx.measurementNavChange = function(ev) {\n        try {\n            var idx = (ev && typeof ev.index === 'number') ? ev.index : 0;\n            var tab = tabs[idx] || tabs[0];\n            ctx.measurementNavIndex = idx;\n\n            var currentParams = ctx.stateController.getStateParams() || {};\n            currentParams.navTab = { active: tab.id };\n            ctx.stateController.updateState(null, currentParams);\n\n            if (ctx.$scope && typeof ctx.$scope.$applyAsync === 'function') {\n                ctx.$scope.$applyAsync();\n            }\n        } catch (e) {\n            console.error('measurementNavChange error', e);\n        }\n    };\n\n    // Build tabs HTML\n    var tabsHtml = '';\n    for (var j = 0; j < tabs.length; j++) {\n        var t = tabs[j];\n        tabsHtml += '<mat-tab>' +\n            '<ng-template mat-tab-label>' +\n                '<span class=\"measurement-tab-label\">' +\n                    '<mat-icon>' + t.icon + '</mat-icon>' +\n                    '<span>' + t.label + '</span>' +\n                '</span>' +\n            '</ng-template>' +\n            '<ng-template matTabContent>' +\n                '<tb-dashboard-state class=\"measurement-tab-body\" [ctx]=\"ctx\" [syncParentStateParams]=\"true\" stateId=\"' + t.stateId + '\"></tb-dashboard-state>' +\n            '</ng-template>' +\n        '</mat-tab>';\n    }\n\n    var tabGroupHtml = '<div class=\"measurement-tabs-container\">' +\n        '<mat-tab-group mat-stretch-tabs=\"false\" mat-align-tabs=\"start\"' +\n            ' [selectedIndex]=\"ctx.measurementNavIndex\"' +\n            ' (selectedTabChange)=\"ctx.measurementNavChange($event)\">' +\n            tabsHtml +\n        '</mat-tab-group>' +\n    '</div>';\n\n    return '<div class=\"main-layout flex flex-col w-full h-full\">' + header +\n        '<div id=\"power_measurement_wrapper\" class=\"flex-1\">' + tabGroupHtml + '</div></div>';\n}",
               "modules": {
                 "clientUtils": "tb-resource;/api/resource/js_module/tenant/client-utils.js",
                 "ecoUtils": "tb-resource;/api/resource/js_module/tenant/ECO Diagnostics Utils JS.js"
@@ -1917,6 +1425,26 @@
                 "icon": "speed",
                 "type": "custom",
                 "customFunction": "var params = widgetContext.stateController.getStateParams();\nparams.navTab = { active: 'load' };\nwidgetContext.stateController.updateState(null, params);"
+              },
+              {
+                "name": "measurement-alarms",
+                "icon": "more_horiz",
+                "useShowWidgetActionFunction": null,
+                "showWidgetActionFunction": "return true;",
+                "type": "openDashboardState",
+                "targetDashboardStateId": "measurement_alarms",
+                "setEntityId": true,
+                "stateEntityParamName": null,
+                "openRightLayout": false,
+                "popoverPreferredPlacement": "top",
+                "popoverHideOnClickOutside": true,
+                "popoverHideDashboardToolbar": true,
+                "popoverWidth": "25vw",
+                "popoverHeight": "25vh",
+                "popoverStyle": {},
+                "openInSeparateDialog": false,
+                "openInPopover": true,
+                "id": "05e4081b-b07f-7f72-6dd4-776f995b3840"
               }
             ]
           },
@@ -1946,7 +1474,7 @@
               "limit": 200
             }
           },
-          "showTitle": true,
+          "showTitle": false,
           "backgroundColor": "rgb(255, 255, 255)",
           "color": "rgba(0, 0, 0, 0.87)",
           "padding": "4px",
@@ -2315,8 +1843,8 @@
                 "useShowWidgetActionFunction": false,
                 "showWidgetActionFunction": "return true;",
                 "type": "customPretty",
-                "customHtml": "<form #editProjectForm=\"ngForm\" [formGroup]=\"editProjectFormGroup\"\n      (ngSubmit)=\"save()\" class=\"edit-project-form\" style=\"width: 600px; max-width: 90vw;\">\n  <mat-toolbar class=\"eco-dialog-header\">\n    <mat-icon class=\"header-icon\">edit</mat-icon>\n    <h2 class=\"header-title\">Edit Project</h2>\n    <span class=\"flex-1\"></span>\n    <button mat-icon-button (click)=\"cancel()\" type=\"button\" class=\"close-btn\">\n      <mat-icon>close</mat-icon>\n    </button>\n  </mat-toolbar>\n  <mat-progress-bar color=\"warn\" mode=\"indeterminate\" *ngIf=\"isLoading$ | async\">\n  </mat-progress-bar>\n  <div style=\"height: 4px;\" *ngIf=\"!(isLoading$ | async)\"></div>\n  <div mat-dialog-content class=\"flex flex-col gap-3 p-4\">\n\n    <!-- Customer Section -->\n    <fieldset class=\"fieldset\" style=\"border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 0;\">\n      <legend class=\"flex items-center gap-2\" style=\"font-weight: 600; color: #305680; padding: 0 8px;\">\n        <mat-icon style=\"font-size: 18px; width: 18px; height: 18px;\">business</mat-icon>\n        Customer\n      </legend>\n      <mat-form-field appearance=\"fill\" class=\"w-full disabled-field\">\n        <mat-label>Customer</mat-label>\n        <input matInput formControlName=\"customerName\" readonly>\n      </mat-form-field>\n    </fieldset>\n\n    <!-- Project Info Section -->\n    <fieldset class=\"fieldset\" style=\"border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 0;\">\n      <legend class=\"flex items-center gap-2\" style=\"font-weight: 600; color: #305680; padding: 0 8px;\">\n        <mat-icon style=\"font-size: 18px; width: 18px; height: 18px;\">folder</mat-icon>\n        Project Info\n      </legend>\n      <tb-image-input formControlName=\"projectPicture\" label=\"Project Picture\" noImageText=\"No picture selected\"></tb-image-input>\n      <mat-form-field appearance=\"fill\" class=\"w-full disabled-field\">\n        <mat-label>Project ID</mat-label>\n        <input matInput formControlName=\"name\" readonly>\n      </mat-form-field>\n      <mat-form-field appearance=\"fill\" class=\"w-full\">\n        <mat-label>Label</mat-label>\n        <input matInput formControlName=\"entityLabel\">\n      </mat-form-field>\n    </fieldset>\n\n    <!-- Address Section -->\n    <fieldset class=\"fieldset\" style=\"border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 0;\">\n      <legend class=\"flex items-center gap-2\" style=\"font-weight: 600; color: #305680; padding: 0 8px;\">\n        <mat-icon style=\"font-size: 18px; width: 18px; height: 18px;\">location_on</mat-icon>\n        Address\n      </legend>\n      <mat-form-field appearance=\"fill\" class=\"w-full\">\n        <mat-label>Project address</mat-label>\n        <input matInput formControlName=\"address\" [matAutocomplete]=\"addrAuto\" autocomplete=\"off\">\n        <button mat-icon-button matSuffix type=\"button\" (click)=\"searchAddress()\" [disabled]=\"(editProjectFormGroup.get('address').value || '').length < 5\">\n          <mat-icon>search</mat-icon>\n        </button>\n        <mat-autocomplete #addrAuto=\"matAutocomplete\" [displayWith]=\"displayAddressOption\" (optionSelected)=\"onAddressSelected($event.option.value)\">\n          <mat-option *ngFor=\"let opt of addressOptions\" [value]=\"opt\">{{ opt.label }}</mat-option>\n        </mat-autocomplete>\n        <mat-hint *ngIf=\"(editProjectFormGroup.get('address').value || '').length < 5\">Enter at least 5 characters to search</mat-hint>\n      </mat-form-field>\n      <div class=\"flex gap-2\">\n        <mat-form-field appearance=\"fill\" style=\"flex: 1;\">\n          <mat-label>Postal Code</mat-label>\n          <input matInput formControlName=\"postalCode\">\n        </mat-form-field>\n        <mat-form-field appearance=\"fill\" style=\"flex: 2;\">\n          <mat-label>City</mat-label>\n          <input matInput formControlName=\"city\">\n        </mat-form-field>\n      </div>\n      <div class=\"flex gap-2\">\n        <mat-form-field appearance=\"fill\" style=\"flex: 1;\">\n          <mat-label>Latitude</mat-label>\n          <input matInput formControlName=\"latitude\">\n        </mat-form-field>\n        <mat-form-field appearance=\"fill\" style=\"flex: 1;\">\n          <mat-label>Longitude</mat-label>\n          <input matInput formControlName=\"longitude\">\n        </mat-form-field>\n      </div>\n    </fieldset>\n\n    <!-- Status Section -->\n    <fieldset class=\"fieldset\" style=\"border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 0;\">\n      <legend class=\"flex items-center gap-2\" style=\"font-weight: 600; color: #305680; padding: 0 8px;\">\n        <mat-icon style=\"font-size: 18px; width: 18px; height: 18px;\">timeline</mat-icon>\n        Status\n      </legend>\n      <mat-form-field appearance=\"fill\" class=\"w-full\">\n        <mat-label>Progress</mat-label>\n        <mat-select formControlName=\"progress\">\n          <mat-option value=\"in preparation\">In Preparation</mat-option>\n          <mat-option value=\"active\">Active</mat-option>\n          <mat-option value=\"finished\">Finished</mat-option>\n          <mat-option value=\"aborted\">Aborted</mat-option>\n        </mat-select>\n      </mat-form-field>\n      <div class=\"flex gap-2\">\n        <mat-form-field appearance=\"fill\" style=\"flex: 1.5;\">\n          <mat-label>Start Date</mat-label>\n          <mat-datetimepicker-toggle [for]=\"startDatePicker\" matPrefix></mat-datetimepicker-toggle>\n          <mat-datetimepicker #startDatePicker type=\"date\" openOnFocus=\"true\"></mat-datetimepicker>\n          <input matInput formControlName=\"startDate\" [matDatetimepicker]=\"startDatePicker\">\n        </mat-form-field>\n        <mat-form-field appearance=\"fill\" style=\"flex: 1;\">\n          <mat-label>Start Time</mat-label>\n          <mat-datetimepicker-toggle [for]=\"startTimePicker\" matPrefix></mat-datetimepicker-toggle>\n          <mat-datetimepicker #startTimePicker type=\"time\" openOnFocus=\"true\"></mat-datetimepicker>\n          <input matInput formControlName=\"startTime\" [matDatetimepicker]=\"startTimePicker\">\n        </mat-form-field>\n      </div>\n      <div class=\"flex gap-2\">\n        <mat-form-field appearance=\"fill\" style=\"flex: 1.5;\">\n          <mat-label>End Date</mat-label>\n          <mat-datetimepicker-toggle [for]=\"endDatePicker\" matPrefix></mat-datetimepicker-toggle>\n          <mat-datetimepicker #endDatePicker type=\"date\" openOnFocus=\"true\"></mat-datetimepicker>\n          <input matInput formControlName=\"endDate\" [matDatetimepicker]=\"endDatePicker\">\n        </mat-form-field>\n        <mat-form-field appearance=\"fill\" style=\"flex: 1;\">\n          <mat-label>End Time</mat-label>\n          <mat-datetimepicker-toggle [for]=\"endTimePicker\" matPrefix></mat-datetimepicker-toggle>\n          <mat-datetimepicker #endTimePicker type=\"time\" openOnFocus=\"true\"></mat-datetimepicker>\n          <input matInput formControlName=\"endTime\" [matDatetimepicker]=\"endTimePicker\">\n        </mat-form-field>\n      </div>\n    </fieldset>\n\n  </div>\n  <div class=\"flex justify-end items-center gap-2 p-4\" style=\"border-top: 1px solid #e0e0e0; background: #fafafa;\">\n    <button mat-button (click)=\"cancel()\" type=\"button\">Cancel</button>\n    <button mat-raised-button color=\"primary\" type=\"submit\"\n            [disabled]=\"(isLoading$ | async) || editProjectFormGroup.invalid || !editProjectFormGroup.dirty\">\n      <mat-icon style=\"font-size: 18px; width: 18px; height: 18px; margin-right: 4px;\">save</mat-icon>\n      Save\n    </button>\n  </div>\n</form>",
-                "customCss": "/* ECO Design System - Dialog Styles */\n.edit-project-form .eco-dialog-header,\n.add-entity-form .eco-dialog-header,\nmat-toolbar.eco-dialog-header {\n  display: flex !important;\n  align-items: center !important;\n  gap: 12px !important;\n  padding: 0 16px !important;\n  height: 52px !important;\n  min-height: 52px !important;\n  background-color: #305680 !important;\n  background: #305680 !important;\n  color: white !important;\n}\n.edit-project-form .eco-dialog-header .header-icon,\n.add-entity-form .eco-dialog-header .header-icon,\nmat-toolbar.eco-dialog-header .header-icon {\n  font-size: 22px !important;\n  width: 22px !important;\n  height: 22px !important;\n  color: white !important;\n}\n.edit-project-form .eco-dialog-header .header-title,\n.add-entity-form .eco-dialog-header .header-title,\nmat-toolbar.eco-dialog-header .header-title {\n  margin: 0 !important;\n  font-size: 17px !important;\n  font-weight: 500 !important;\n  color: white !important;\n}\n.edit-project-form .eco-dialog-header .close-btn,\n.add-entity-form .eco-dialog-header .close-btn,\nmat-toolbar.eco-dialog-header .close-btn {\n  color: rgba(255,255,255,0.8) !important;\n  margin-left: auto !important;\n}\n.edit-project-form .eco-dialog-header .close-btn:hover,\n.add-entity-form .eco-dialog-header .close-btn:hover,\nmat-toolbar.eco-dialog-header .close-btn:hover {\n  color: white !important;\n  background: rgba(255,255,255,0.1) !important;\n}\n.edit-project-form .eco-dialog-header mat-icon,\n.add-entity-form .eco-dialog-header mat-icon,\nmat-toolbar.eco-dialog-header mat-icon {\n  color: white !important;\n}\n\n/* Form field styles */\n.add-entity-form .mdc-text-field--filled.mdc-text-field--disabled,\n.edit-project-form .mdc-text-field--filled.mdc-text-field--disabled {\n  background-color: rgba(244, 249, 254, 0.5) !important;\n}\n.add-entity-form .mat-mdc-form-field-disabled .mat-mdc-form-field-focus-overlay,\n.edit-project-form .mat-mdc-form-field-disabled .mat-mdc-form-field-focus-overlay {\n  background-color: rgba(244, 249, 254, 0.5) !important;\n}\n.add-entity-form .mdc-text-field--filled:not(.mdc-text-field--disabled),\n.edit-project-form .mdc-text-field--filled:not(.mdc-text-field--disabled) {\n  background-color: #F4F9FE !important;\n}\n.add-entity-form .mat-mdc-form-field-focus-overlay,\n.edit-project-form .mat-mdc-form-field-focus-overlay {\n  background-color: #F4F9FE !important;\n}\n.add-entity-form .disabled-field input,\n.edit-project-form .disabled-field input {\n  color: rgba(0, 0, 0, 0.6) !important;\n}\n.add-entity-form .disabled-field,\n.edit-project-form .disabled-field {\n  background-color: rgba(244, 249, 254, 0.5) !important;\n}\nmat-icon {\n  vertical-align: middle;\n  margin-right: 4px;\n}",
+                "customHtml": "<style>\n/* ═══════════════════════════════════════════════════════════════\n   ECO DESIGN SYSTEM - Dialog Styles\n   Font: Roboto | Border-Radius: 12px | Section Cards with left border\n   ═══════════════════════════════════════════════════════════════ */\n\n/* Header - Blue background */\n.edit-project-form .eco-dialog-header,\n.add-entity-form .eco-dialog-header,\nmat-toolbar.eco-dialog-header {\n  display: flex !important;\n  align-items: center !important;\n  gap: 12px !important;\n  padding: 0 16px !important;\n  height: 56px !important;\n  min-height: 56px !important;\n  background-color: var(--tb-primary-500) !important;\n  background: var(--tb-primary-500) !important;\n  color: white !important;\n  font-family: \"Roboto\", \"Helvetica Neue\", sans-serif !important;\n}\n.edit-project-form .eco-dialog-header .header-icon,\n.add-entity-form .eco-dialog-header .header-icon,\nmat-toolbar.eco-dialog-header .header-icon {\n  font-size: 24px !important;\n  width: 24px !important;\n  height: 24px !important;\n  color: white !important;\n}\n.edit-project-form .eco-dialog-header .header-title,\n.add-entity-form .eco-dialog-header .header-title,\nmat-toolbar.eco-dialog-header .header-title {\n  margin: 0 !important;\n  font-size: 1.125rem !important;\n  font-weight: 500 !important;\n  letter-spacing: -0.01em !important;\n  color: white !important;\n  flex: 1 !important;\n}\n.edit-project-form .eco-dialog-header .close-btn,\n.add-entity-form .eco-dialog-header .close-btn,\nmat-toolbar.eco-dialog-header .close-btn {\n  color: rgba(255,255,255,0.8) !important;\n  margin-left: auto !important;\n  transition: all 0.2s ease !important;\n}\n.edit-project-form .eco-dialog-header .close-btn:hover,\n.add-entity-form .eco-dialog-header .close-btn:hover,\nmat-toolbar.eco-dialog-header .close-btn:hover {\n  color: white !important;\n  background: rgba(255,255,255,0.1) !important;\n}\n.edit-project-form .eco-dialog-header mat-icon,\n.add-entity-form .eco-dialog-header mat-icon,\nmat-toolbar.eco-dialog-header mat-icon {\n  color: white !important;\n}\n\n/* Content Area */\n.edit-project-form .dialog-content,\n.add-entity-form .dialog-content {\n  padding: 1.5rem !important;\n  background: #f8fafc !important;\n  display: flex !important;\n  flex-direction: column !important;\n  gap: 1rem !important;\n  max-height: 70vh !important;\n  overflow-y: auto !important;\n  font-family: \"Roboto\", \"Helvetica Neue\", sans-serif !important;\n}\n\n/* Section Cards - ECO Design System Pattern */\n.edit-project-form .section-card,\n.add-entity-form .section-card {\n  background: white !important;\n  border: 1px solid #e2e8f0 !important;\n  border-left: 3px solid #1976d2 !important;\n  border-radius: 0 !important;\n  overflow: hidden !important;\n}\n.edit-project-form .section-header,\n.add-entity-form .section-header {\n  display: flex !important;\n  align-items: center !important;\n  gap: 8px !important;\n  padding: 12px 16px !important;\n  background: #f8fafc !important;\n  border-bottom: 1px solid #e2e8f0 !important;\n  font-weight: 600 !important;\n  font-size: 0.8125rem !important;\n  color: #334155 !important;\n  text-transform: uppercase !important;\n  letter-spacing: 0.3px !important;\n}\n.edit-project-form .section-header mat-icon,\n.add-entity-form .section-header mat-icon {\n  font-size: 18px !important;\n  width: 18px !important;\n  height: 18px !important;\n  color: #1976d2 !important;\n}\n.edit-project-form .section-body,\n.add-entity-form .section-body {\n  padding: 16px !important;\n  display: flex !important;\n  flex-direction: column !important;\n  gap: 8px !important;\n}\n\n/* Footer */\n.edit-project-form .dialog-footer,\n.add-entity-form .dialog-footer {\n  display: flex !important;\n  justify-content: flex-end !important;\n  align-items: center !important;\n  gap: 12px !important;\n  padding: 1rem 1.5rem !important;\n  border-top: 1px solid rgba(0, 0, 0, 0.06) !important;\n  background: #fafafa !important;\n}\n\n/* Form field styles */\n.add-entity-form .mdc-text-field--filled,\n.edit-project-form .mdc-text-field--filled {\n  background-color: #F4F9FE !important;\n}\n.add-entity-form .mdc-text-field--filled.mdc-text-field--disabled,\n.edit-project-form .mdc-text-field--filled.mdc-text-field--disabled {\n  background-color: rgba(244, 249, 254, 0.5) !important;\n}\n.add-entity-form .disabled-field input,\n.edit-project-form .disabled-field input {\n  color: rgba(0, 0, 0, 0.6) !important;\n}\n\n/* Form rows */\n.edit-project-form .form-row,\n.add-entity-form .form-row {\n  display: flex !important;\n  gap: 12px !important;\n}\n.edit-project-form .form-col,\n.add-entity-form .form-col {\n  flex: 1 !important;\n}\n</style>\n<form #editProjectForm=\"ngForm\" [formGroup]=\"editProjectFormGroup\"\n      (ngSubmit)=\"save()\" class=\"edit-project-form\" style=\"width: 600px; max-width: 90vw;\">\n  <mat-toolbar class=\"eco-dialog-header\">\n    <mat-icon class=\"header-icon\">edit</mat-icon>\n    <h2 class=\"header-title\">Edit Project</h2>\n    <span class=\"flex-1\"></span>\n    <button mat-icon-button (click)=\"cancel()\" type=\"button\" class=\"close-btn\">\n      <mat-icon>close</mat-icon>\n    </button>\n  </mat-toolbar>\n  <mat-progress-bar color=\"warn\" mode=\"indeterminate\" *ngIf=\"isLoading$ | async\"></mat-progress-bar>\n  <div style=\"height: 4px;\" *ngIf=\"!(isLoading$ | async)\"></div>\n\n  <div class=\"dialog-content\">\n    <!-- Customer Section -->\n    <div class=\"section-card\">\n      <div class=\"section-header\">\n        <mat-icon>business</mat-icon>\n        <span>Customer</span>\n      </div>\n      <div class=\"section-body\">\n        <mat-form-field appearance=\"fill\" class=\"w-full disabled-field\">\n          <mat-label>Customer</mat-label>\n          <input matInput formControlName=\"customerName\" readonly>\n        </mat-form-field>\n      </div>\n    </div>\n\n    <!-- Project Info Section -->\n    <div class=\"section-card\">\n      <div class=\"section-header\">\n        <mat-icon>folder</mat-icon>\n        <span>Project Info</span>\n      </div>\n      <div class=\"section-body\">\n        <tb-image-input formControlName=\"projectPicture\" label=\"Project Picture\" noImageText=\"No picture selected\"></tb-image-input>\n        <mat-form-field appearance=\"fill\" class=\"w-full disabled-field\">\n          <mat-label>Project ID</mat-label>\n          <input matInput formControlName=\"name\" readonly>\n        </mat-form-field>\n        <mat-form-field appearance=\"fill\" class=\"w-full\">\n          <mat-label>Label</mat-label>\n          <input matInput formControlName=\"entityLabel\">\n        </mat-form-field>\n      </div>\n    </div>\n\n    <!-- Address Section -->\n    <div class=\"section-card\">\n      <div class=\"section-header\">\n        <mat-icon>location_on</mat-icon>\n        <span>Address</span>\n      </div>\n      <div class=\"section-body\">\n        <mat-form-field appearance=\"fill\" class=\"w-full\">\n          <mat-label>Project address</mat-label>\n          <input matInput formControlName=\"address\" [matAutocomplete]=\"addrAuto\" autocomplete=\"off\">\n          <button mat-icon-button matSuffix type=\"button\" (click)=\"searchAddress()\" [disabled]=\"(editProjectFormGroup.get('address').value || '').length < 5\">\n            <mat-icon>search</mat-icon>\n          </button>\n          <mat-autocomplete #addrAuto=\"matAutocomplete\" [displayWith]=\"displayAddressOption\" (optionSelected)=\"onAddressSelected($event.option.value)\">\n            <mat-option *ngFor=\"let opt of addressOptions\" [value]=\"opt\">{{ opt.label }}</mat-option>\n          </mat-autocomplete>\n          <mat-hint *ngIf=\"(editProjectFormGroup.get('address').value || '').length < 5\">Enter at least 5 characters to search</mat-hint>\n        </mat-form-field>\n        <div class=\"form-row\">\n          <mat-form-field appearance=\"fill\" class=\"form-col\">\n            <mat-label>Postal Code</mat-label>\n            <input matInput formControlName=\"postalCode\">\n          </mat-form-field>\n          <mat-form-field appearance=\"fill\" class=\"form-col\" style=\"flex: 2;\">\n            <mat-label>City</mat-label>\n            <input matInput formControlName=\"city\">\n          </mat-form-field>\n        </div>\n        <div class=\"form-row\">\n          <mat-form-field appearance=\"fill\" class=\"form-col\">\n            <mat-label>Latitude</mat-label>\n            <input matInput formControlName=\"latitude\">\n          </mat-form-field>\n          <mat-form-field appearance=\"fill\" class=\"form-col\">\n            <mat-label>Longitude</mat-label>\n            <input matInput formControlName=\"longitude\">\n          </mat-form-field>\n        </div>\n      </div>\n    </div>\n\n    <!-- Status Section -->\n    <div class=\"section-card\">\n      <div class=\"section-header\">\n        <mat-icon>timeline</mat-icon>\n        <span>Status</span>\n      </div>\n      <div class=\"section-body\">\n        <mat-form-field appearance=\"fill\" class=\"w-full\">\n          <mat-label>Progress</mat-label>\n          <mat-select formControlName=\"progress\">\n            <mat-option value=\"in preparation\">In Preparation</mat-option>\n            <mat-option value=\"active\">Active</mat-option>\n            <mat-option value=\"finished\">Finished</mat-option>\n            <mat-option value=\"aborted\">Aborted</mat-option>\n          </mat-select>\n        </mat-form-field>\n        <div class=\"form-row\">\n          <mat-form-field appearance=\"fill\" class=\"form-col\" style=\"flex: 1.5;\">\n            <mat-label>Start Date</mat-label>\n            <mat-datetimepicker-toggle [for]=\"startDatePicker\" matPrefix></mat-datetimepicker-toggle>\n            <mat-datetimepicker #startDatePicker type=\"date\" openOnFocus=\"true\"></mat-datetimepicker>\n            <input matInput formControlName=\"startDate\" [matDatetimepicker]=\"startDatePicker\">\n          </mat-form-field>\n          <mat-form-field appearance=\"fill\" class=\"form-col\">\n            <mat-label>Start Time</mat-label>\n            <mat-datetimepicker-toggle [for]=\"startTimePicker\" matPrefix></mat-datetimepicker-toggle>\n            <mat-datetimepicker #startTimePicker type=\"time\" openOnFocus=\"true\"></mat-datetimepicker>\n            <input matInput formControlName=\"startTime\" [matDatetimepicker]=\"startTimePicker\">\n          </mat-form-field>\n        </div>\n        <div class=\"form-row\">\n          <mat-form-field appearance=\"fill\" class=\"form-col\" style=\"flex: 1.5;\">\n            <mat-label>End Date</mat-label>\n            <mat-datetimepicker-toggle [for]=\"endDatePicker\" matPrefix></mat-datetimepicker-toggle>\n            <mat-datetimepicker #endDatePicker type=\"date\" openOnFocus=\"true\"></mat-datetimepicker>\n            <input matInput formControlName=\"endDate\" [matDatetimepicker]=\"endDatePicker\">\n          </mat-form-field>\n          <mat-form-field appearance=\"fill\" class=\"form-col\">\n            <mat-label>End Time</mat-label>\n            <mat-datetimepicker-toggle [for]=\"endTimePicker\" matPrefix></mat-datetimepicker-toggle>\n            <mat-datetimepicker #endTimePicker type=\"time\" openOnFocus=\"true\"></mat-datetimepicker>\n            <input matInput formControlName=\"endTime\" [matDatetimepicker]=\"endTimePicker\">\n          </mat-form-field>\n        </div>\n      </div>\n    </div>\n  </div>\n\n  <div class=\"dialog-footer\">\n    <button mat-button (click)=\"cancel()\" type=\"button\">Cancel</button>\n    <button mat-raised-button color=\"primary\" type=\"submit\"\n            [disabled]=\"(isLoading$ | async) || editProjectFormGroup.invalid || !editProjectFormGroup.dirty\">\n      <mat-icon style=\"font-size: 18px; width: 18px; height: 18px; margin-right: 4px;\">save</mat-icon>\n      Save\n    </button>\n  </div>\n</form>",
+                "customCss": "",
                 "customFunction": "let $injector = widgetContext.$scope.$injector;\nlet customDialog = $injector.get(widgetContext.servicesMap.get('customDialog'));\nlet assetService = $injector.get(widgetContext.servicesMap.get('assetService'));\nlet attributeService = $injector.get(widgetContext.servicesMap.get('attributeService'));\nlet customerService = $injector.get(widgetContext.servicesMap.get('customerService'));\n\n// Load project data and open dialog\nassetService.getAsset(entityId.id).subscribe(project => {\n    // Load project attributes (including status fields)\n    attributeService.getEntityAttributes(entityId, 'SERVER_SCOPE',\n        ['latitude', 'longitude', 'address', 'postalCode', 'city', 'projectPicture', 'progress', 'startTimeMs', 'endTimeMs']\n    ).subscribe(attributes => {\n        const attrMap = {};\n        attributes.forEach(a => { attrMap[a.key] = a.value; });\n\n        // Load customer name\n        if (project.customerId && project.customerId.id) {\n            customerService.getCustomer(project.customerId.id).subscribe(customer => {\n                openEditProjectDialog(project, attrMap, customer ? customer.name : 'Unknown');\n            });\n        } else {\n            openEditProjectDialog(project, attrMap, 'Unknown');\n        }\n    });\n});\n\nfunction openEditProjectDialog(project, attrMap, customerName) {\n    customDialog.customDialog(htmlTemplate, EditProjectDialogController).subscribe();\n\n    function EditProjectDialogController(instance) {\n        let vm = instance;\n\n        vm.project = project;\n        vm.attrMap = attrMap;\n\n        // Initialize date values from timestamps\n        let startDate = null;\n        let startTime = null;\n        let endDate = null;\n        let endTime = null;\n\n        if (attrMap.startTimeMs) {\n            const startDateTime = new Date(Number(attrMap.startTimeMs));\n            startDate = startDateTime;\n            startTime = startDateTime;\n        }\n        if (attrMap.endTimeMs) {\n            const endDateTime = new Date(Number(attrMap.endTimeMs));\n            endDate = endDateTime;\n            endTime = endDateTime;\n        }\n\n        vm.editProjectFormGroup = vm.fb.group({\n            customerName: [{ value: customerName, disabled: true }],\n            name: [{ value: project.name, disabled: true }],\n            entityLabel: [project.label || ''],\n            projectPicture: [attrMap.projectPicture || null],\n            // Status fields\n            progress: [attrMap.progress || 'in preparation'],\n            startDate: [startDate],\n            startTime: [startTime],\n            endDate: [endDate],\n            endTime: [endTime],\n            // Address fields\n            address: [attrMap.address || ''],\n            postalCode: [attrMap.postalCode || ''],\n            city: [attrMap.city || ''],\n            latitude: [attrMap.latitude || ''],\n            longitude: [attrMap.longitude || '']\n        });\n\n        // Auto-set start/end time when progress changes\n        vm.editProjectFormGroup.get('progress').valueChanges.subscribe(function(progress) {\n            const startDateControl = vm.editProjectFormGroup.get('startDate');\n            const startTimeControl = vm.editProjectFormGroup.get('startTime');\n            const endDateControl = vm.editProjectFormGroup.get('endDate');\n            const endTimeControl = vm.editProjectFormGroup.get('endTime');\n\n            if (progress === 'active' && !startDateControl.value && !startTimeControl.value) {\n                const now = new Date();\n                startDateControl.setValue(now);\n                startTimeControl.setValue(now);\n                startDateControl.markAsDirty();\n                startTimeControl.markAsDirty();\n            }\n\n            if ((progress === 'finished' || progress === 'aborted') && !endDateControl.value && !endTimeControl.value) {\n                const now = new Date();\n                endDateControl.setValue(now);\n                endTimeControl.setValue(now);\n                endDateControl.markAsDirty();\n                endTimeControl.markAsDirty();\n            }\n        });\n\n        // --- Address search state ---\n        vm.addressOptions = [];\n        vm._lastSelectedAddressLabel = null;\n\n        vm.displayAddressOption = function(opt) {\n            if (!opt) return '';\n            return (typeof opt === 'string') ? opt : (opt.label || '');\n        };\n\n        vm.searchAddress = function() {\n            const qRaw = vm.editProjectFormGroup.get('address').value || '';\n            const q = (typeof qRaw === 'string') ? qRaw.trim() : vm.displayAddressOption(qRaw).trim();\n            if (q.length < 5) {\n                vm.addressOptions = [];\n                return;\n            }\n            searchAddressViaPhoton(q);\n        };\n\n        vm.onAddressSelected = function(opt) {\n            if (!opt) return;\n            vm._lastSelectedAddressLabel = opt.label;\n\n            const patchData = {\n                address: opt.label,\n                latitude: opt.lat,\n                longitude: opt.lon\n            };\n\n            const currentPostalCode = (vm.editProjectFormGroup.get('postalCode').value || '').trim();\n            const currentCity = (vm.editProjectFormGroup.get('city').value || '').trim();\n\n            if (!currentPostalCode && opt.postcode) {\n                patchData.postalCode = opt.postcode;\n            }\n            if (!currentCity && opt.city) {\n                patchData.city = opt.city;\n            }\n\n            vm.editProjectFormGroup.patchValue(patchData);\n            vm.editProjectFormGroup.get('address').markAsDirty();\n            vm.editProjectFormGroup.get('latitude').markAsDirty();\n            vm.editProjectFormGroup.get('longitude').markAsDirty();\n\n            if (!currentPostalCode && opt.postcode) {\n                vm.editProjectFormGroup.get('postalCode').markAsDirty();\n            }\n            if (!currentCity && opt.city) {\n                vm.editProjectFormGroup.get('city').markAsDirty();\n            }\n\n            vm.addressOptions = [];\n        };\n\n        // --- Debounced auto-search ---\n        let addrTimer = null;\n        let lastQuery = '';\n\n        vm.editProjectFormGroup.get('address').valueChanges.subscribe(val => {\n            if (typeof val === 'string' && vm._lastSelectedAddressLabel && val === vm._lastSelectedAddressLabel) {\n                return;\n            }\n\n            const s = (typeof val === 'string')\n                ? val.trim()\n                : (vm.displayAddressOption(val) || '').trim();\n\n            if (s.length < 5) {\n                vm.addressOptions = [];\n                lastQuery = s;\n                if (addrTimer) {\n                    clearTimeout(addrTimer);\n                    addrTimer = null;\n                }\n                return;\n            }\n\n            if (s === lastQuery) return;\n            lastQuery = s;\n\n            if (addrTimer) clearTimeout(addrTimer);\n            addrTimer = setTimeout(() => {\n                searchAddressViaPhoton(s);\n            }, 350);\n        });\n\n        function searchAddressViaPhoton(query) {\n            const postalCode = (vm.editProjectFormGroup.get('postalCode').value || '').trim();\n            const city = (vm.editProjectFormGroup.get('city').value || '').trim();\n\n            let refinedQuery = query;\n            if (postalCode) refinedQuery += ' ' + postalCode;\n            if (city) refinedQuery += ' ' + city;\n\n            const url = 'https://photon.komoot.io/api?q=' + encodeURIComponent(refinedQuery) + '&limit=5';\n\n            fetch(url)\n                .then(res => {\n                    if (!res.ok) throw new Error('HTTP ' + res.status);\n                    return res.json();\n                })\n                .then(data => {\n                    const features = (data && data.features) ? data.features : [];\n                    vm.addressOptions = features.map(f => {\n                        const p = f.properties || {};\n                        const coords = (f.geometry && f.geometry.coordinates) ? f.geometry.coordinates : [null, null];\n                        const lon = coords[0];\n                        const lat = coords[1];\n\n                        const street = p.street || p.name || '';\n                        const house = p.housenumber ? (' ' + p.housenumber) : '';\n                        const place = (street + house).trim() || (p.label || p.name || '').trim();\n\n                        const cc = (p.countrycode || '').toUpperCase();\n                        const postcode = p.postcode || '';\n                        const cityFromResult = p.city || p.town || p.village || p.state || '';\n\n                        let tail = '';\n                        if (cc || postcode || cityFromResult) {\n                            tail = (cc ? cc : '');\n                            if (cc && postcode) tail += '-' + postcode;\n                            else if (!cc && postcode) tail += postcode;\n                            if ((cc || postcode) && cityFromResult) tail += ' ' + cityFromResult;\n                            else if (!cc && !postcode && cityFromResult) tail += cityFromResult;\n                        }\n\n                        const label = tail ? (place + ', ' + tail) : place;\n\n                        return {\n                            label,\n                            lat: (typeof lat === 'number') ? lat : parseFloat(lat),\n                            lon: (typeof lon === 'number') ? lon : parseFloat(lon),\n                            postcode: postcode,\n                            city: cityFromResult,\n                            raw: f\n                        };\n                    });\n                })\n                .catch(err => {\n                    console.error('Address search failed', err);\n                    vm.addressOptions = [];\n                });\n        }\n\n        vm.cancel = function() {\n            vm.dialogRef.close(null);\n        };\n\n        vm.save = function() {\n            vm.editProjectFormGroup.markAsPristine();\n\n            // Update asset label\n            const formValues = vm.editProjectFormGroup.getRawValue();\n            const updatedProject = {\n                ...vm.project,\n                label: formValues.entityLabel\n            };\n\n            assetService.saveAsset(updatedProject).subscribe(() => {\n                // Build startTimeMs and endTimeMs from date/time pickers\n                let startTimeMs = null;\n                let endTimeMs = null;\n\n                if (formValues.startDate) {\n                    const startDateObj = new Date(formValues.startDate);\n                    if (formValues.startTime) {\n                        const startTimeObj = new Date(formValues.startTime);\n                        startDateObj.setHours(startTimeObj.getHours(), startTimeObj.getMinutes(), startTimeObj.getSeconds());\n                    }\n                    startTimeMs = startDateObj.getTime();\n                }\n\n                if (formValues.endDate) {\n                    const endDateObj = new Date(formValues.endDate);\n                    if (formValues.endTime) {\n                        const endTimeObj = new Date(formValues.endTime);\n                        endDateObj.setHours(endTimeObj.getHours(), endTimeObj.getMinutes(), endTimeObj.getSeconds());\n                    }\n                    endTimeMs = endDateObj.getTime();\n                }\n\n                // Save attributes\n                const attributesArray = [\n                    { key: 'latitude', value: formValues.latitude || vm.attrMap.latitude || 48.1406022 },\n                    { key: 'longitude', value: formValues.longitude || vm.attrMap.longitude || 16.2932688 },\n                    { key: 'address', value: formValues.address || '' },\n                    { key: 'postalCode', value: formValues.postalCode || '' },\n                    { key: 'city', value: formValues.city || '' },\n                    { key: 'progress', value: formValues.progress || 'in preparation' }\n                ];\n\n                if (startTimeMs !== null) {\n                    attributesArray.push({ key: 'startTimeMs', value: startTimeMs });\n                }\n                if (endTimeMs !== null) {\n                    attributesArray.push({ key: 'endTimeMs', value: endTimeMs });\n                }\n\n                if (formValues.projectPicture) {\n                    attributesArray.push({ key: 'projectPicture', value: formValues.projectPicture });\n                }\n\n                attributeService.saveEntityAttributes(entityId, 'SERVER_SCOPE', attributesArray).subscribe(() => {\n                    widgetContext.updateAliases();\n                    vm.dialogRef.close(null);\n                });\n            });\n        };\n    }\n}",
                 "customResources": [],
                 "openInSeparateDialog": false,
@@ -2374,8 +1902,8 @@
                 "useShowWidgetActionFunction": null,
                 "showWidgetActionFunction": "return true;",
                 "type": "customPretty",
-                "customHtml": "<form #addEntityForm=\"ngForm\" [formGroup]=\"addProjectFormGroup\"\n      (ngSubmit)=\"save()\" class=\"add-entity-form\" style=\"width: 600px; max-width: 90vw;\">\n  <mat-toolbar class=\"eco-dialog-header\">\n    <mat-icon class=\"header-icon\">folder_open</mat-icon>\n    <h2 class=\"header-title\">Add Project</h2>\n    <span class=\"flex-1\"></span>\n    <button mat-icon-button (click)=\"cancel()\" type=\"button\" class=\"close-btn\">\n      <mat-icon>close</mat-icon>\n    </button>\n  </mat-toolbar>\n  <mat-progress-bar color=\"warn\" mode=\"indeterminate\" *ngIf=\"isLoading$ | async\">\n  </mat-progress-bar>\n  <div style=\"height: 4px;\" *ngIf=\"!(isLoading$ | async)\"></div>\n  <div mat-dialog-content class=\"flex flex-col gap-3 p-4\">\n\n    <!-- Customer Section -->\n    <fieldset *ngIf=\"isTenantAdmin\" class=\"fieldset\" style=\"border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 0;\">\n      <legend class=\"flex items-center gap-2\" style=\"font-weight: 600; color: #305680; padding: 0 8px;\">\n        <mat-icon style=\"font-size: 18px; width: 18px; height: 18px;\">business</mat-icon>\n        Customer\n      </legend>\n      <mat-form-field appearance=\"fill\" class=\"w-full\">\n        <mat-label>Customer</mat-label>\n        <mat-select formControlName=\"customer\" (selectionChange)=\"onCustomerChange()\" required>\n          <mat-option *ngFor=\"let c of customers\" [value]=\"c\">{{ c.name }}</mat-option>\n        </mat-select>\n        <mat-error *ngIf=\"addProjectFormGroup.get('customer')?.hasError('required')\">Customer is required.</mat-error>\n      </mat-form-field>\n    </fieldset>\n\n    <!-- Project Info Section -->\n    <fieldset class=\"fieldset\" style=\"border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 0;\">\n      <legend class=\"flex items-center gap-2\" style=\"font-weight: 600; color: #305680; padding: 0 8px;\">\n        <mat-icon style=\"font-size: 18px; width: 18px; height: 18px;\">folder</mat-icon>\n        Project Info\n      </legend>\n      <tb-image-input formControlName=\"projectPicture\" label=\"Project Picture\" noImageText=\"No picture selected\"></tb-image-input>\n      <mat-form-field appearance=\"fill\" class=\"w-full disabled-field\">\n        <mat-label>Project ID</mat-label>\n        <input matInput formControlName=\"name\" required readonly>\n        <mat-error *ngIf=\"addProjectFormGroup.get('name').hasError('required')\">Project title is required.</mat-error>\n      </mat-form-field>\n      <mat-form-field appearance=\"fill\" class=\"w-full\">\n        <mat-label>Label</mat-label>\n        <input matInput formControlName=\"entityLabel\">\n      </mat-form-field>\n    </fieldset>\n\n    <!-- Address Section -->\n    <fieldset class=\"fieldset\" style=\"border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 0;\">\n      <legend class=\"flex items-center gap-2\" style=\"font-weight: 600; color: #305680; padding: 0 8px;\">\n        <mat-icon style=\"font-size: 18px; width: 18px; height: 18px;\">location_on</mat-icon>\n        Address\n      </legend>\n      <mat-form-field appearance=\"fill\" class=\"w-full\">\n        <mat-label>Project address</mat-label>\n        <input matInput formControlName=\"address\" [matAutocomplete]=\"addrAuto\" autocomplete=\"off\">\n        <button mat-icon-button matSuffix type=\"button\" (click)=\"searchAddress()\" [disabled]=\"(addProjectFormGroup.get('address').value || '').length < 5\">\n          <mat-icon>search</mat-icon>\n        </button>\n        <mat-autocomplete #addrAuto=\"matAutocomplete\" [displayWith]=\"displayAddressOption\" (optionSelected)=\"onAddressSelected($event.option.value)\">\n          <mat-option *ngFor=\"let opt of addressOptions\" [value]=\"opt\">{{ opt.label }}</mat-option>\n        </mat-autocomplete>\n        <mat-hint *ngIf=\"(addProjectFormGroup.get('address').value || '').length < 5\">Enter at least 5 characters to search</mat-hint>\n      </mat-form-field>\n      <div class=\"flex gap-2\">\n        <mat-form-field appearance=\"fill\" style=\"flex: 1;\">\n          <mat-label>Postal Code</mat-label>\n          <input matInput formControlName=\"postalCode\">\n        </mat-form-field>\n        <mat-form-field appearance=\"fill\" style=\"flex: 2;\">\n          <mat-label>City</mat-label>\n          <input matInput formControlName=\"city\">\n        </mat-form-field>\n      </div>\n      <div class=\"flex gap-2\">\n        <mat-form-field appearance=\"fill\" style=\"flex: 1;\">\n          <mat-label>Latitude</mat-label>\n          <input matInput formControlName=\"latitude\">\n        </mat-form-field>\n        <mat-form-field appearance=\"fill\" style=\"flex: 1;\">\n          <mat-label>Longitude</mat-label>\n          <input matInput formControlName=\"longitude\">\n        </mat-form-field>\n      </div>\n    </fieldset>\n\n  </div>\n  <div class=\"flex justify-end items-center gap-2 p-4\" style=\"border-top: 1px solid #e0e0e0; background: #fafafa;\">\n    <button mat-button (click)=\"cancel()\" type=\"button\">Cancel</button>\n    <button mat-raised-button color=\"primary\" type=\"submit\"\n            [disabled]=\"(isLoading$ | async) || addProjectFormGroup.invalid || !addProjectFormGroup.dirty\">\n      <mat-icon style=\"font-size: 18px; width: 18px; height: 18px; margin-right: 4px;\">save</mat-icon>\n      Save\n    </button>\n  </div>\n</form>",
-                "customCss": "/* ECO Design System - Dialog Styles */\n.edit-project-form .eco-dialog-header,\n.add-entity-form .eco-dialog-header,\nmat-toolbar.eco-dialog-header {\n  display: flex !important;\n  align-items: center !important;\n  gap: 12px !important;\n  padding: 0 16px !important;\n  height: 52px !important;\n  min-height: 52px !important;\n  background-color: #305680 !important;\n  background: #305680 !important;\n  color: white !important;\n}\n.edit-project-form .eco-dialog-header .header-icon,\n.add-entity-form .eco-dialog-header .header-icon,\nmat-toolbar.eco-dialog-header .header-icon {\n  font-size: 22px !important;\n  width: 22px !important;\n  height: 22px !important;\n  color: white !important;\n}\n.edit-project-form .eco-dialog-header .header-title,\n.add-entity-form .eco-dialog-header .header-title,\nmat-toolbar.eco-dialog-header .header-title {\n  margin: 0 !important;\n  font-size: 17px !important;\n  font-weight: 500 !important;\n  color: white !important;\n}\n.edit-project-form .eco-dialog-header .close-btn,\n.add-entity-form .eco-dialog-header .close-btn,\nmat-toolbar.eco-dialog-header .close-btn {\n  color: rgba(255,255,255,0.8) !important;\n  margin-left: auto !important;\n}\n.edit-project-form .eco-dialog-header .close-btn:hover,\n.add-entity-form .eco-dialog-header .close-btn:hover,\nmat-toolbar.eco-dialog-header .close-btn:hover {\n  color: white !important;\n  background: rgba(255,255,255,0.1) !important;\n}\n.edit-project-form .eco-dialog-header mat-icon,\n.add-entity-form .eco-dialog-header mat-icon,\nmat-toolbar.eco-dialog-header mat-icon {\n  color: white !important;\n}\n\n/* Form field styles */\n.add-entity-form .mdc-text-field--filled.mdc-text-field--disabled,\n.edit-project-form .mdc-text-field--filled.mdc-text-field--disabled {\n  background-color: rgba(244, 249, 254, 0.5) !important;\n}\n.add-entity-form .mat-mdc-form-field-disabled .mat-mdc-form-field-focus-overlay,\n.edit-project-form .mat-mdc-form-field-disabled .mat-mdc-form-field-focus-overlay {\n  background-color: rgba(244, 249, 254, 0.5) !important;\n}\n.add-entity-form .mdc-text-field--filled:not(.mdc-text-field--disabled),\n.edit-project-form .mdc-text-field--filled:not(.mdc-text-field--disabled) {\n  background-color: #F4F9FE !important;\n}\n.add-entity-form .mat-mdc-form-field-focus-overlay,\n.edit-project-form .mat-mdc-form-field-focus-overlay {\n  background-color: #F4F9FE !important;\n}\n.add-entity-form .disabled-field input,\n.edit-project-form .disabled-field input {\n  color: rgba(0, 0, 0, 0.6) !important;\n}\n.add-entity-form .disabled-field,\n.edit-project-form .disabled-field {\n  background-color: rgba(244, 249, 254, 0.5) !important;\n}\nmat-icon {\n  vertical-align: middle;\n  margin-right: 4px;\n}",
+                "customHtml": "<style>\n/* ═══════════════════════════════════════════════════════════════\n   ECO DESIGN SYSTEM - Dialog Styles\n   Font: Roboto | Border-Radius: 12px | Section Cards with left border\n   ═══════════════════════════════════════════════════════════════ */\n\n/* Header - Blue background */\n.edit-project-form .eco-dialog-header,\n.add-entity-form .eco-dialog-header,\nmat-toolbar.eco-dialog-header {\n  display: flex !important;\n  align-items: center !important;\n  gap: 12px !important;\n  padding: 0 16px !important;\n  height: 56px !important;\n  min-height: 56px !important;\n  background-color: var(--tb-primary-500) !important;\n  background: var(--tb-primary-500) !important;\n  color: white !important;\n  font-family: \"Roboto\", \"Helvetica Neue\", sans-serif !important;\n}\n.edit-project-form .eco-dialog-header .header-icon,\n.add-entity-form .eco-dialog-header .header-icon,\nmat-toolbar.eco-dialog-header .header-icon {\n  font-size: 24px !important;\n  width: 24px !important;\n  height: 24px !important;\n  color: white !important;\n}\n.edit-project-form .eco-dialog-header .header-title,\n.add-entity-form .eco-dialog-header .header-title,\nmat-toolbar.eco-dialog-header .header-title {\n  margin: 0 !important;\n  font-size: 1.125rem !important;\n  font-weight: 500 !important;\n  letter-spacing: -0.01em !important;\n  color: white !important;\n  flex: 1 !important;\n}\n.edit-project-form .eco-dialog-header .close-btn,\n.add-entity-form .eco-dialog-header .close-btn,\nmat-toolbar.eco-dialog-header .close-btn {\n  color: rgba(255,255,255,0.8) !important;\n  margin-left: auto !important;\n  transition: all 0.2s ease !important;\n}\n.edit-project-form .eco-dialog-header .close-btn:hover,\n.add-entity-form .eco-dialog-header .close-btn:hover,\nmat-toolbar.eco-dialog-header .close-btn:hover {\n  color: white !important;\n  background: rgba(255,255,255,0.1) !important;\n}\n.edit-project-form .eco-dialog-header mat-icon,\n.add-entity-form .eco-dialog-header mat-icon,\nmat-toolbar.eco-dialog-header mat-icon {\n  color: white !important;\n}\n\n/* Content Area */\n.edit-project-form .dialog-content,\n.add-entity-form .dialog-content {\n  padding: 1.5rem !important;\n  background: #f8fafc !important;\n  display: flex !important;\n  flex-direction: column !important;\n  gap: 1rem !important;\n  max-height: 70vh !important;\n  overflow-y: auto !important;\n  font-family: \"Roboto\", \"Helvetica Neue\", sans-serif !important;\n}\n\n/* Section Cards - ECO Design System Pattern */\n.edit-project-form .section-card,\n.add-entity-form .section-card {\n  background: white !important;\n  border: 1px solid #e2e8f0 !important;\n  border-left: 3px solid #1976d2 !important;\n  border-radius: 0 !important;\n  overflow: hidden !important;\n}\n.edit-project-form .section-header,\n.add-entity-form .section-header {\n  display: flex !important;\n  align-items: center !important;\n  gap: 8px !important;\n  padding: 12px 16px !important;\n  background: #f8fafc !important;\n  border-bottom: 1px solid #e2e8f0 !important;\n  font-weight: 600 !important;\n  font-size: 0.8125rem !important;\n  color: #334155 !important;\n  text-transform: uppercase !important;\n  letter-spacing: 0.3px !important;\n}\n.edit-project-form .section-header mat-icon,\n.add-entity-form .section-header mat-icon {\n  font-size: 18px !important;\n  width: 18px !important;\n  height: 18px !important;\n  color: #1976d2 !important;\n}\n.edit-project-form .section-body,\n.add-entity-form .section-body {\n  padding: 16px !important;\n  display: flex !important;\n  flex-direction: column !important;\n  gap: 8px !important;\n}\n\n/* Footer */\n.edit-project-form .dialog-footer,\n.add-entity-form .dialog-footer {\n  display: flex !important;\n  justify-content: flex-end !important;\n  align-items: center !important;\n  gap: 12px !important;\n  padding: 1rem 1.5rem !important;\n  border-top: 1px solid rgba(0, 0, 0, 0.06) !important;\n  background: #fafafa !important;\n}\n\n/* Form field styles */\n.add-entity-form .mdc-text-field--filled,\n.edit-project-form .mdc-text-field--filled {\n  background-color: #F4F9FE !important;\n}\n.add-entity-form .mdc-text-field--filled.mdc-text-field--disabled,\n.edit-project-form .mdc-text-field--filled.mdc-text-field--disabled {\n  background-color: rgba(244, 249, 254, 0.5) !important;\n}\n.add-entity-form .disabled-field input,\n.edit-project-form .disabled-field input {\n  color: rgba(0, 0, 0, 0.6) !important;\n}\n\n/* Form rows */\n.edit-project-form .form-row,\n.add-entity-form .form-row {\n  display: flex !important;\n  gap: 12px !important;\n}\n.edit-project-form .form-col,\n.add-entity-form .form-col {\n  flex: 1 !important;\n}\n</style>\n<form #addEntityForm=\"ngForm\" [formGroup]=\"addProjectFormGroup\"\n      (ngSubmit)=\"save()\" class=\"add-entity-form\" style=\"width: 600px; max-width: 90vw;\">\n  <mat-toolbar class=\"eco-dialog-header\">\n    <mat-icon class=\"header-icon\">folder_open</mat-icon>\n    <h2 class=\"header-title\">Add Project</h2>\n    <span class=\"flex-1\"></span>\n    <button mat-icon-button (click)=\"cancel()\" type=\"button\" class=\"close-btn\">\n      <mat-icon>close</mat-icon>\n    </button>\n  </mat-toolbar>\n  <mat-progress-bar color=\"warn\" mode=\"indeterminate\" *ngIf=\"isLoading$ | async\"></mat-progress-bar>\n  <div style=\"height: 4px;\" *ngIf=\"!(isLoading$ | async)\"></div>\n\n  <div class=\"dialog-content\">\n    <!-- Customer Section -->\n    <div *ngIf=\"isTenantAdmin\" class=\"section-card\">\n      <div class=\"section-header\">\n        <mat-icon>business</mat-icon>\n        <span>Customer</span>\n      </div>\n      <div class=\"section-body\">\n        <mat-form-field appearance=\"fill\" class=\"w-full\">\n          <mat-label>Customer</mat-label>\n          <mat-select formControlName=\"customer\" (selectionChange)=\"onCustomerChange()\" required>\n            <mat-option *ngFor=\"let c of customers\" [value]=\"c\">{{ c.name }}</mat-option>\n          </mat-select>\n          <mat-error *ngIf=\"addProjectFormGroup.get('customer')?.hasError('required')\">Customer is required.</mat-error>\n        </mat-form-field>\n      </div>\n    </div>\n\n    <!-- Project Info Section -->\n    <div class=\"section-card\">\n      <div class=\"section-header\">\n        <mat-icon>folder</mat-icon>\n        <span>Project Info</span>\n      </div>\n      <div class=\"section-body\">\n        <tb-image-input formControlName=\"projectPicture\" label=\"Project Picture\" noImageText=\"No picture selected\"></tb-image-input>\n        <mat-form-field appearance=\"fill\" class=\"w-full disabled-field\">\n          <mat-label>Project ID</mat-label>\n          <input matInput formControlName=\"name\" required readonly>\n          <mat-error *ngIf=\"addProjectFormGroup.get('name').hasError('required')\">Project title is required.</mat-error>\n        </mat-form-field>\n        <mat-form-field appearance=\"fill\" class=\"w-full\">\n          <mat-label>Label</mat-label>\n          <input matInput formControlName=\"entityLabel\">\n        </mat-form-field>\n      </div>\n    </div>\n\n    <!-- Address Section -->\n    <div class=\"section-card\">\n      <div class=\"section-header\">\n        <mat-icon>location_on</mat-icon>\n        <span>Address</span>\n      </div>\n      <div class=\"section-body\">\n        <mat-form-field appearance=\"fill\" class=\"w-full\">\n          <mat-label>Project address</mat-label>\n          <input matInput formControlName=\"address\" [matAutocomplete]=\"addrAuto\" autocomplete=\"off\">\n          <button mat-icon-button matSuffix type=\"button\" (click)=\"searchAddress()\" [disabled]=\"(addProjectFormGroup.get('address').value || '').length < 5\">\n            <mat-icon>search</mat-icon>\n          </button>\n          <mat-autocomplete #addrAuto=\"matAutocomplete\" [displayWith]=\"displayAddressOption\" (optionSelected)=\"onAddressSelected($event.option.value)\">\n            <mat-option *ngFor=\"let opt of addressOptions\" [value]=\"opt\">{{ opt.label }}</mat-option>\n          </mat-autocomplete>\n          <mat-hint *ngIf=\"(addProjectFormGroup.get('address').value || '').length < 5\">Enter at least 5 characters to search</mat-hint>\n        </mat-form-field>\n        <div class=\"form-row\">\n          <mat-form-field appearance=\"fill\" class=\"form-col\">\n            <mat-label>Postal Code</mat-label>\n            <input matInput formControlName=\"postalCode\">\n          </mat-form-field>\n          <mat-form-field appearance=\"fill\" class=\"form-col\" style=\"flex: 2;\">\n            <mat-label>City</mat-label>\n            <input matInput formControlName=\"city\">\n          </mat-form-field>\n        </div>\n        <div class=\"form-row\">\n          <mat-form-field appearance=\"fill\" class=\"form-col\">\n            <mat-label>Latitude</mat-label>\n            <input matInput formControlName=\"latitude\">\n          </mat-form-field>\n          <mat-form-field appearance=\"fill\" class=\"form-col\">\n            <mat-label>Longitude</mat-label>\n            <input matInput formControlName=\"longitude\">\n          </mat-form-field>\n        </div>\n      </div>\n    </div>\n  </div>\n\n  <div class=\"dialog-footer\">\n    <button mat-button (click)=\"cancel()\" type=\"button\">Cancel</button>\n    <button mat-raised-button color=\"primary\" type=\"submit\"\n            [disabled]=\"(isLoading$ | async) || addProjectFormGroup.invalid || !addProjectFormGroup.dirty\">\n      <mat-icon style=\"font-size: 18px; width: 18px; height: 18px; margin-right: 4px;\">save</mat-icon>\n      Save\n    </button>\n  </div>\n</form>",
+                "customCss": "",
                 "customFunction": "let $injector = widgetContext.$scope.$injector;\nlet customDialog = $injector.get(widgetContext.servicesMap.get('customDialog'));\nlet assetService = $injector.get(widgetContext.servicesMap.get('assetService'));\nlet entityGroupService = $injector.get(widgetContext.servicesMap.get('entityGroupService'));\nlet attributeService = $injector.get(widgetContext.servicesMap.get('attributeService'));\nlet entityRelationService = $injector.get(widgetContext.servicesMap.get('entityRelationService'));\nlet customerService = $injector.get(widgetContext.servicesMap.get('customerService'));\n\nlet shortNameAttr;\nlet customerShortName;\nlet nextProjectId = 0;\n\nconst ctx = widgetContext;\nconst isTenantAdmin = ctx.currentUser.authority === 'TENANT_ADMIN';\n\nlet customers = [];\nlet customerId;\nlet customerName;\n\n// DEBUG: Log currentUser structure\nconsole.log('DEBUG currentUser:', JSON.stringify(ctx.currentUser, null, 2));\n\n// FIX: Für Customer Users den Customer direkt aus currentUser laden\nif (!isTenantAdmin) {\n    // customerId kann verschiedene Strukturen haben:\n    // - String: \"uuid\"\n    // - Objekt: {id: \"uuid\", entityType: \"CUSTOMER\"}\n    // - Objekt: {entityType: \"CUSTOMER\", id: \"uuid\"}\n    const rawCustomerId = ctx.currentUser.customerId;\n    console.log('DEBUG rawCustomerId:', rawCustomerId, 'type:', typeof rawCustomerId);\n\n    let customerIdString;\n    if (typeof rawCustomerId === 'string') {\n        customerIdString = rawCustomerId;\n        customerId = { id: rawCustomerId, entityType: 'CUSTOMER' };\n    } else if (rawCustomerId && rawCustomerId.id) {\n        customerIdString = rawCustomerId.id;\n        customerId = rawCustomerId;\n    } else {\n        console.error('Cannot determine customerId from currentUser:', rawCustomerId);\n    }\n\n    console.log('DEBUG customerIdString:', customerIdString);\n    console.log('DEBUG customerId object:', customerId);\n\n    if (customerIdString) {\n        customerService.getCustomer(customerIdString).subscribe(\n            customer => {\n                customerName = customer.name;\n                customers = [customer];\n                console.log('Loaded customer:', customerName);\n                openAddProjectDialog();\n            },\n            error => {\n                console.error('Failed to load customer:', error);\n                // Fallback: Try getUserCustomers\n                const pageLink = ctx.pageLink(1000, 0, null, null, null);\n                customerService.getUserCustomers(pageLink).subscribe(pageData => {\n                    customers = (pageData && pageData.data) ? pageData.data : [];\n                    if (customers.length > 0) {\n                        const c = customers[0];\n                        customerId = { id: c.id.id, entityType: 'CUSTOMER' };\n                        customerName = c.name;\n                    }\n                    openAddProjectDialog();\n                });\n            }\n        );\n    } else {\n        // Fallback wenn customerId nicht ermittelt werden kann\n        const pageLink = ctx.pageLink(1000, 0, null, null, null);\n        customerService.getUserCustomers(pageLink).subscribe(pageData => {\n            customers = (pageData && pageData.data) ? pageData.data : [];\n            if (customers.length > 0) {\n                const c = customers[0];\n                customerId = { id: c.id.id, entityType: 'CUSTOMER' };\n                customerName = c.name;\n            }\n            openAddProjectDialog();\n        });\n    }\n} else {\n    // Für Tenant Admin: alle Customers laden\n    const pageLink = ctx.pageLink(1000, 0, null, null, null);\n    customerService.getUserCustomers(pageLink).subscribe(pageData => {\n        customers = (pageData && pageData.data) ? pageData.data : [];\n        openAddProjectDialog();\n    });\n}\n\nfunction getLastProjectId(projects) {\n    let maxNumber = 0;\n    projects.forEach(item => {\n        const name = item.name;\n        const parts = name.split('_');\n        if (parts.length === 2) {\n            const number = parseInt(parts[1], 10);\n            if (number > maxNumber) {\n                maxNumber = number;\n            }\n        }\n    });\n    const nextProjectId = maxNumber + 1;\n    return nextProjectId;\n}\n\nfunction openAddProjectDialog() {\n  customDialog.customDialog(htmlTemplate, AddProjectDialogController).subscribe();\n}\n\nfunction AddProjectDialogController(instance) {\n  let vm = instance;\n\n  vm.isTenantAdmin = isTenantAdmin;\n  vm.customers = customers;\n\n  vm.addProjectFormGroup = vm.fb.group({\n      customer: [{ value: null, disabled: !isTenantAdmin }, vm.validators.required],\n      name: [{ value: '', disabled: true }, vm.validators.required],\n      entityLabel: [''],\n      projectPicture: [null],\n      address: [''],\n      postalCode: [''],\n      city: [''],\n      latitude: [''],\n      longitude: ['']\n  });\n\n  // --- Address search state ---\n  vm.addressOptions = [];\n  vm._lastSelectedAddressLabel = null;\n\n  vm.displayAddressOption = function (opt) {\n    if (!opt) return '';\n    return (typeof opt === 'string') ? opt : (opt.label || '');\n  };\n\n  vm.searchAddress = function () {\n    const qRaw = vm.addProjectFormGroup.get('address').value || '';\n    const q = (typeof qRaw === 'string') ? qRaw.trim() : vm.displayAddressOption(qRaw).trim();\n\n    if (q.length < 5) {\n      vm.addressOptions = [];\n      return;\n    }\n\n    searchAddressViaPhoton(q);\n  };\n\n  vm.onAddressSelected = function (opt) {\n    if (!opt) return;\n\n    vm._lastSelectedAddressLabel = opt.label;\n\n    const patchData = {\n      address: opt.label,\n      latitude: opt.lat,\n      longitude: opt.lon\n    };\n\n    const currentPostalCode = (vm.addProjectFormGroup.get('postalCode').value || '').trim();\n    const currentCity = (vm.addProjectFormGroup.get('city').value || '').trim();\n\n    if (!currentPostalCode && opt.postcode) {\n      patchData.postalCode = opt.postcode;\n    }\n    if (!currentCity && opt.city) {\n      patchData.city = opt.city;\n    }\n\n    vm.addProjectFormGroup.patchValue(patchData);\n\n    vm.addProjectFormGroup.get('address').markAsDirty();\n    vm.addProjectFormGroup.get('latitude').markAsDirty();\n    vm.addProjectFormGroup.get('longitude').markAsDirty();\n\n    if (!currentPostalCode && opt.postcode) {\n      vm.addProjectFormGroup.get('postalCode').markAsDirty();\n    }\n    if (!currentCity && opt.city) {\n      vm.addProjectFormGroup.get('city').markAsDirty();\n    }\n\n    vm.addressOptions = [];\n  };\n\n  // --- Debounced auto-search without rxjs operators ---\n  let addrTimer = null;\n  let lastQuery = '';\n\n  vm.addProjectFormGroup.get('address').valueChanges.subscribe(val => {\n    if (typeof val === 'string' && vm._lastSelectedAddressLabel && val === vm._lastSelectedAddressLabel) {\n      return;\n    }\n\n    const s = (typeof val === 'string')\n      ? val.trim()\n      : (vm.displayAddressOption(val) || '').trim();\n\n    if (s.length < 5) {\n      vm.addressOptions = [];\n      lastQuery = s;\n      if (addrTimer) {\n        clearTimeout(addrTimer);\n        addrTimer = null;\n      }\n      return;\n    }\n\n    if (s === lastQuery) {\n      return;\n    }\n    lastQuery = s;\n\n    if (addrTimer) {\n      clearTimeout(addrTimer);\n    }\n    addrTimer = setTimeout(() => {\n      searchAddressViaPhoton(s);\n    }, 350);\n  });\n\n\n  function searchAddressViaPhoton(query) {\n    const postalCode = (vm.addProjectFormGroup.get('postalCode').value || '').trim();\n    const city = (vm.addProjectFormGroup.get('city').value || '').trim();\n\n    let refinedQuery = query;\n    if (postalCode) {\n      refinedQuery += ' ' + postalCode;\n    }\n    if (city) {\n      refinedQuery += ' ' + city;\n    }\n\n    const url =\n      'https://photon.komoot.io/api' +\n      '?q=' + encodeURIComponent(refinedQuery) +\n      '&limit=5';\n\n    fetch(url)\n      .then(res => {\n        if (!res.ok) throw new Error('HTTP ' + res.status);\n        return res.json();\n      })\n      .then(data => {\n        const features = (data && data.features) ? data.features : [];\n\n        vm.addressOptions = features.map(f => {\n          const p = f.properties || {};\n          const coords = (f.geometry && f.geometry.coordinates) ? f.geometry.coordinates : [null, null];\n          const lon = coords[0];\n          const lat = coords[1];\n\n          const street = p.street || p.name || '';\n          const house = p.housenumber ? (' ' + p.housenumber) : '';\n          const place = (street + house).trim() || (p.label || p.name || '').trim();\n\n          const cc = (p.countrycode || '').toUpperCase();\n          const postcode = p.postcode || '';\n          const cityFromResult = p.city || p.town || p.village || p.state || '';\n\n          let tail = '';\n          if (cc || postcode || cityFromResult) {\n            tail = (cc ? cc : '');\n            if (cc && postcode) tail += '-' + postcode;\n            else if (!cc && postcode) tail += postcode;\n            if ((cc || postcode) && cityFromResult) tail += ' ' + cityFromResult;\n            else if (!cc && !postcode && cityFromResult) tail += cityFromResult;\n          }\n\n          const label = tail ? (place + ', ' + tail) : place;\n\n          return {\n            label,\n            lat: (typeof lat === 'number') ? lat : parseFloat(lat),\n            lon: (typeof lon === 'number') ? lon : parseFloat(lon),\n            postcode: postcode,\n            city: cityFromResult,\n            raw: f\n          };\n        });\n      })\n      .catch(err => {\n        console.error('Address search failed', err);\n        vm.addressOptions = [];\n      });\n  }\n\n\n  // FIX: Customer User: Wenn customerId bereits gesetzt ist, Customer Daten laden\n  if (!isTenantAdmin && customerId) {\n      vm.addProjectFormGroup.patchValue({\n          customer: customers[0]\n      });\n      vm.addProjectFormGroup.get('customer').markAsDirty();\n      loadCustomerData(customerId);\n  }\n\n\n  vm.onCustomerChange = function () {\n      const c = vm.addProjectFormGroup.value.customer;\n      if (!c) return;\n\n      customerId = {\n          id: c.id.id,\n          entityType: 'CUSTOMER'\n      };\n      customerName = c.name;\n\n      loadCustomerData(customerId);\n  };\n\n\n  vm.cancel = function () {\n    vm.dialogRef.close(null);\n  };\n\n  vm.save = function () {\n    vm.addProjectFormGroup.markAsPristine();\n    saveProjectObservable(customerId).subscribe(\n      function (Project) {\n          widgetContext.rxjs.forkJoin([\n              saveCustomerToProjectRelation(customerId, Project.id),\n              saveAttributes(Project.id)\n          ]).subscribe(\n              function () {\n                var params = widgetContext.stateController.getStateParams();\n                var selectedProject = params['selectedProject'];\n                params['selectedProject'] = { entityId: Project.id, entityName: Project.name, entityLabel: '' };\n                widgetContext.updateAliases();\n                vm.dialogRef.close(null);\n              }\n        );\n      }\n    );\n  };\n\n  function loadCustomerData(customerId) {\n\n      let assetSearchQuery = {\n          parameters: {\n              rootId: customerId.id,\n              rootType: 'CUSTOMER',\n              direction: 'FROM',\n              relationTypeGroup: 'COMMON',\n              maxLevel: 10,\n              fetchLastLevelOnly: false\n          },\n          relationType: 'Owns',\n          assetTypes: ['Project']\n      };\n\n      assetService.findByQuery(assetSearchQuery).subscribe(projects => {\n\n          nextProjectId = getLastProjectId(projects);\n\n          attributeService\n              .getEntityAttributes(customerId, 'SERVER_SCOPE', ['shortName'])\n              .subscribe(attributes => {\n\n                  const shortNameAttr = attributes.find(a => a.key === 'shortName');\n                  customerShortName = shortNameAttr\n                      ? shortNameAttr.value\n                      : customerName;\n\n                  vm.addProjectFormGroup.patchValue({\n                      name: customerShortName + '_' + nextProjectId\n                  });\n\n                  vm.addProjectFormGroup.get('name').markAsDirty();\n              });\n      });\n  }\n\n  function saveProjectObservable(customerId) {\n    return getProjectsGroup(customerId).pipe(\n        widgetContext.rxjs.switchMap((ProjectsGroup) => {\n            const formValues = vm.addProjectFormGroup.getRawValue();\n            let Project = {\n              name: formValues.name,\n              type: 'Project',\n              label: formValues.entityLabel,\n              customerId: customerId\n            };\n            return assetService.saveAsset(Project, ProjectsGroup.id.id)\n        })\n    );\n  }\n\n  function getProjectsGroup(customerId) {\n      return entityGroupService.getEntityGroupsByOwnerId(customerId.entityType, customerId.id, 'ASSET').pipe(\n          widgetContext.rxjs.switchMap((entityGroups) => {\n              var ProjectsGroup = entityGroups.find(group => group.name === 'Projects');\n              if (ProjectsGroup) {\n                  return widgetContext.rxjs.of(ProjectsGroup);\n              } else {\n                  ProjectsGroup = {\n                      type: 'ASSET',\n                      name: 'Projects',\n                      ownerId: customerId\n                  };\n                  return entityGroupService.saveEntityGroup(ProjectsGroup);\n              }\n          })\n      );\n  }\n\n  function saveCustomerToProjectRelation(customerId, ProjectId) {\n      var relation = {\n          from: customerId,\n          to: ProjectId,\n          typeGroup: 'COMMON',\n          type: 'Owns'\n      };\n      return entityRelationService.saveRelation(relation);\n  }\n\n  function saveAttributes(entityId) {\n    let attributesArray = [\n        {\n            key: 'latitude',\n            value: vm.addProjectFormGroup.value.latitude || 48.1406022\n        },\n        {\n            key: 'longitude',\n            value: vm.addProjectFormGroup.value.longitude || 16.2932688\n        },\n        {\n            key: 'address',\n            value: vm.addProjectFormGroup.value.address\n        },\n        {\n            key: 'progress',\n            value: 'in preparation'\n        },\n        {\n            key: 'units',\n            value: 'metric'\n        }\n    ];\n    if (vm.addProjectFormGroup.value.projectPicture) {\n        attributesArray.push({\n            key: 'projectPicture',\n            value: vm.addProjectFormGroup.value.projectPicture\n        });\n    }\n    return attributeService.saveEntityAttributes(entityId, \"SERVER_SCOPE\", attributesArray);\n  }\n}",
                 "customResources": [],
                 "openInSeparateDialog": false,
@@ -5542,62 +5070,6 @@
           }
         }
       },
-      "all_critical_alarms": {
-        "name": "{i18n:custom.diagnostics.states.all-critical-alarms}",
-        "root": false,
-        "layouts": {
-          "main": {
-            "widgets": {
-              "d680c934-edcf-4cf0-7073-cc1fb4530391": {
-                "sizeX": 24,
-                "sizeY": 11,
-                "row": 0,
-                "col": 0
-              }
-            },
-            "gridSettings": {
-              "backgroundColor": "#ffffff",
-              "columns": 24,
-              "margin": 0,
-              "backgroundSizeMode": "100%",
-              "autoFillHeight": true,
-              "backgroundImageUrl": null,
-              "mobileAutoFillHeight": true,
-              "mobileRowHeight": 70,
-              "outerMargin": true,
-              "layoutType": "default"
-            }
-          }
-        }
-      },
-      "all_major_alarms": {
-        "name": "{i18n:custom.diagnostics.states.all-major-alarms}",
-        "root": false,
-        "layouts": {
-          "main": {
-            "widgets": {
-              "106a5add-e710-6fea-e975-a7f9b61e2802": {
-                "sizeX": 24,
-                "sizeY": 11,
-                "row": 0,
-                "col": 0
-              }
-            },
-            "gridSettings": {
-              "backgroundColor": "#ffffff",
-              "columns": 24,
-              "margin": 0,
-              "backgroundSizeMode": "100%",
-              "autoFillHeight": true,
-              "backgroundImageUrl": null,
-              "mobileAutoFillHeight": true,
-              "mobileRowHeight": 70,
-              "outerMargin": true,
-              "layoutType": "default"
-            }
-          }
-        }
-      },
       "all_alarm_badges": {
         "name": "{i18n:custom.diagnostics.states.all-alarm-badges}",
         "root": false,
@@ -5657,36 +5129,8 @@
           }
         }
       },
-      "Measurements_alarms": {
-        "name": "{i18n:custom.diagnostics.states.measurements-alarms}",
-        "root": false,
-        "layouts": {
-          "main": {
-            "widgets": {
-              "e6cefd55-e905-d7ce-8f86-08635fbe2679": {
-                "sizeX": 24,
-                "sizeY": 11,
-                "row": 0,
-                "col": 0
-              }
-            },
-            "gridSettings": {
-              "backgroundColor": "#ffffff",
-              "columns": 24,
-              "margin": 0,
-              "backgroundSizeMode": "100%",
-              "autoFillHeight": true,
-              "backgroundImageUrl": null,
-              "mobileAutoFillHeight": true,
-              "mobileRowHeight": 70,
-              "outerMargin": true,
-              "layoutType": "default"
-            }
-          }
-        }
-      },
       "measurement_alarms": {
-        "name": "{i18n:custom.diagnostics.states.measurement-alarms}",
+        "name": "measurement_alarms",
         "root": false,
         "layouts": {
           "main": {
@@ -5776,7 +5220,7 @@
         }
       },
       "projects_alarms": {
-        "name": "{i18n:custom.diagnostics.states.projects-alarms}",
+        "name": "projects_alarms",
         "root": false,
         "layouts": {
           "main": {
@@ -5995,7 +5439,7 @@
               "margin": 5,
               "outerMargin": false,
               "backgroundSizeMode": "auto 100%",
-              "autoFillHeight": false,
+              "autoFillHeight": true,
               "backgroundImageUrl": null,
               "mobileAutoFillHeight": false,
               "mobileRowHeight": 70,
@@ -7754,7 +7198,7 @@
     "entityType": "DASHBOARD",
     "id": "d086f510-f6be-11f0-adb4-33b9bcf3ddd0"
   },
-  "version": 282,
+  "version": 308,
   "ownerId": {
     "entityType": "TENANT",
     "id": "efb63c10-b576-11ee-a6c2-a149ed03c64d"
