@@ -109,40 +109,9 @@ if(entityId) {
             '</span>';
     }
 
-    // === State + Alarm Badge (Icon with Badge Pattern) ===
+    // === State + Alarm Badge (using library function) ===
     var totalAlarms = criticalCount + majorCount + minorCount + warningCount;
-    var stateStyle = ecoUtils.getAlarmStateStyle(state);
-
-    // Build State + Alarm Card
-    var stateAlarmCard = '';
-    if (totalAlarms > 0) {
-        // With alarms: State text (colored) + Bell icon (neutral gray) + Badge (colored)
-        stateAlarmCard = '<div id="measurement-alarms" class="state-alarm-card" style="' +
-            'display:inline-flex;align-items:center;gap:12px;' +
-            'padding:8px 14px;border-radius:8px;cursor:pointer;' +
-            'background:' + stateStyle.bgColor + ';' +
-            'transition:all 0.2s ease;">' +
-            // State text (colored, no icon)
-            '<span style="font-weight:600;font-size:13px;color:' + stateStyle.color + ';">' +
-                (stateStyle.i18nKey ? '{i18n:' + stateStyle.i18nKey + '}' : state) +
-            '</span>' +
-            // Bell icon (neutral gray) with colored badge
-            '<div style="position:relative;display:inline-flex;">' +
-                '<mat-icon style="font-size:22px;width:22px;height:22px;color:#666;">notifications</mat-icon>' +
-                '<span style="position:absolute;top:-6px;right:-8px;' +
-                    'min-width:18px;height:18px;padding:0 5px;' +
-                    'border-radius:9px;background:' + stateStyle.color + ';color:white;' +
-                    'font-size:11px;font-weight:600;' +
-                    'display:flex;align-items:center;justify-content:center;">' +
-                    totalAlarms +
-                '</span>' +
-            '</div>' +
-        '</div>';
-    } else {
-        // No alarms: Simple "Normal" text badge (not clickable, no bell)
-        stateAlarmCard = '<span class="status-badge" style="background:' + stateStyle.bgColor + ';color:' + stateStyle.color + ';">' +
-            '<span>' + (stateStyle.i18nKey ? '{i18n:' + stateStyle.i18nKey + '}' : state) + '</span></span>';
-    }
+    var stateAlarmCard = ecoUtils.createAlarmBadgeHtml(state, totalAlarms, 'measurement-alarms');
 
     // Progress Badge with getProgressColor scheme (orange->green->blue->red)
     var progressBadge = '';

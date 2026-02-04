@@ -774,14 +774,6 @@ class MigrationTool:
         total_projects = len(projects_to_migrate)
         for i, project in enumerate(projects_to_migrate, 1):
             project_name = project['name']
-
-            # Refresh token before each project to prevent 401 errors
-            if i > 1:
-                print(f"\n🔑 Refreshing authentication token...")
-                if not self.api.login():
-                    log.error(f"Token refresh failed before {project_name}")
-                    print(f"⚠️  Token refresh failed, continuing with existing token")
-
             print(f"\n{'='*70}")
             print(f"[{i}/{total_projects}] PROJECT: {project_name}")
             print(f"{'='*70}")
@@ -1283,42 +1275,8 @@ class MigrationTool:
             batch = data[i:i + batch_size]
 
             # Format for ThingsBoard: {ts: timestamp, values: {key: value}}
-            # Preserve original type, but convert numeric strings back to numbers
-            # (ThingsBoard API returns numbers as strings)
-            def preserve_type(v):
-                # Already correct types - keep as-is
-                if isinstance(v, bool):
-                    return v
-                if isinstance(v, (int, float)):
-                    return v
-                if v is None:
-                    return v
-                # String - convert back to original type if possible
-                if isinstance(v, str):
-                    v_stripped = v.strip()
-                    # Boolean strings
-                    if v_stripped.lower() == 'true':
-                        return True
-                    if v_stripped.lower() == 'false':
-                        return False
-                    # Empty or null
-                    if v_stripped.lower() in ('null', 'none', ''):
-                        return v
-                    # Try integer first (no decimal point)
-                    if '.' not in v_stripped:
-                        try:
-                            return int(v_stripped)
-                        except ValueError:
-                            pass
-                    # Try float
-                    try:
-                        return float(v_stripped)
-                    except ValueError:
-                        return v
-                return v
-
             telemetry_batch = [
-                {'ts': ts, 'values': {key: preserve_type(val)}}
+                {'ts': ts, 'values': {key: val}}
                 for ts, val in batch
             ]
 

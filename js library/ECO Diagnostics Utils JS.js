@@ -594,6 +594,56 @@ bgColor) {
     );
 }
 
+/**
+ * Erstellt ein kombiniertes State + Alarm Badge mit Icon Badge Pattern
+ *
+ * Zeigt State-Text (farbig) + Bell-Icon (grau) + Badge-Counter (farbig)
+ * Wenn keine Alarme: nur State-Text ohne Bell-Icon
+ *
+ * @param {string} state - Alarm State (critical, major, minor, normal)
+ * @param {number} totalAlarms - Gesamtzahl der Alarme
+ * @param {string} elementId - HTML Element ID fuer Click-Handler (optional)
+ * @returns {string} HTML String
+ *
+ * VERWENDUNG:
+ *   var alarmBadge = ecoUtils.createAlarmBadgeHtml(state, totalAlarms, 'measurement-alarms');
+ */
+export function createAlarmBadgeHtml(state, totalAlarms, elementId) {
+    var stateStyle = getAlarmStateStyle(state);
+    var stateLabel = stateStyle.i18nKey ?
+        '{i18n:' + stateStyle.i18nKey + '}' : state;
+
+    if (totalAlarms > 0) {
+        // With alarms: State text (colored) + Bell icon (neutral) + Badge (colored)
+        var idAttr = elementId ? 'id="' + elementId + '"' : '';
+        return '<div ' + idAttr + ' class="state-alarm-card" style="' +
+            'display:inline-flex;align-items:center;gap:12px;' +
+            'padding:8px 14px;border-radius:8px;cursor:pointer;' +
+            'background:' + stateStyle.bgColor + ';' +
+            'transition:all 0.2s ease;">' +
+            // State text (colored, no icon)
+            '<span style="font-weight:600;font-size:13px;color:' + stateStyle.color + ';">' +
+                stateLabel +
+            '</span>' +
+            // Bell icon (neutral gray) with colored badge
+            '<div style="position:relative;display:inline-flex;">' +
+                '<mat-icon style="font-size:22px;width:22px;height:22px;color:#666;">notifications</mat-icon>' +
+                '<span style="position:absolute;top:-6px;right:-8px;' +
+                    'min-width:18px;height:18px;padding:0 5px;' +
+                    'border-radius:9px;background:' + stateStyle.color + ';color:white;' +
+                    'font-size:11px;font-weight:600;' +
+                    'display:flex;align-items:center;justify-content:center;">' +
+                    totalAlarms +
+                '</span>' +
+            '</div>' +
+        '</div>';
+    } else {
+        // No alarms: Simple state text badge (not clickable, no bell)
+        return '<span class="status-badge" style="background:' + stateStyle.bgColor + ';color:' + stateStyle.color + ';">' +
+            '<span>' + stateLabel + '</span></span>';
+    }
+}
+
 // ============================================================================
 // ADDRESS SEARCH FUNCTIONS
 // ============================================================================

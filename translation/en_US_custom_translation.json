@@ -12378,8 +12378,22 @@
       "alarm-severity": {
         "critical": "Critical",
         "major": "Major",
+        "warning": "Warning",
         "minor": "Minor",
         "normal": "Normal"
+      },
+      "measurement-role": {
+        "generator": "Generator",
+        "circuit": "Circuit",
+        "sub-distribution": "Sub-Distribution"
+      },
+      "system-type": {
+        "radiator": "Radiator",
+        "floor-heating": "Floor Heating",
+        "fan-coil": "Fan Coil",
+        "ahu-coil": "AHU Coil",
+        "district-heating": "District Heating",
+        "chiller": "Chiller"
       },
       "switch-measurement": "Switch Measurement",
       "select-measurement": "Select Measurement",

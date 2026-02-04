@@ -4938,7 +4938,97 @@ export function openEditProjectDialog(widgetContext, projectId, projectName, pro
   });
 
   function openDialog(project, attrMap, customerName) {
-    const htmlTemplate = `
+    const htmlTemplate = `<style>
+/* ECO Design System - Edit Project Dialog */
+mat-toolbar.eco-dialog-header,
+.eco-dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  background-color: var(--tb-primary-500) !important;
+  background: var(--tb-primary-500) !important;
+  color: white !important;
+}
+.eco-dialog-header .header-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  color: white !important;
+}
+.eco-dialog-header .header-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 500;
+  color: white !important;
+}
+.eco-dialog-header .close-btn {
+  color: rgba(255,255,255,0.8) !important;
+  margin-left: auto;
+}
+.eco-dialog-header .close-btn:hover {
+  color: white !important;
+  background: rgba(255,255,255,0.1) !important;
+}
+.dialog-content {
+  padding: 16px 20px !important;
+  background: #f8fafc !important;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+.section-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid var(--tb-primary-500);
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #f1f5f9;
+  border-bottom: 1px solid #e2e8f0;
+  font-weight: 600;
+  font-size: 13px;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.section-header mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--tb-primary-500);
+}
+.section-body {
+  padding: 12px 14px;
+}
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-top: 1px solid #e2e8f0;
+  background: #fafafa;
+}
+.flex-1 { flex: 1; }
+.w-full { width: 100%; }
+.edit-project-form .mdc-text-field--filled.mdc-text-field--disabled {
+  background-color: rgba(244, 249, 254, 0.5) !important;
+}
+.edit-project-form .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+  background-color: #F4F9FE !important;
+}
+.edit-project-form .disabled-field input {
+  color: rgba(0, 0, 0, 0.6) !important;
+}
+</style>
 <form #editProjectForm="ngForm" [formGroup]="editProjectFormGroup"
       (ngSubmit)="save()" class="edit-project-form" style="width: 600px; max-width: 90vw;">
   <mat-toolbar class="eco-dialog-header">
@@ -5192,7 +5282,7 @@ mat-toolbar.eco-dialog-header,
   background-color: rgba(244, 249, 254, 0.5) !important;
 }`;
 
-    customDialog.customDialog(htmlTemplate, EditProjectDialogController, cssTemplate).subscribe();
+    customDialog.customDialog(htmlTemplate, EditProjectDialogController).subscribe();
 
     function EditProjectDialogController(instance) {
       const vm = instance;

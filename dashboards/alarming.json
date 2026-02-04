@@ -44,7 +44,7 @@
               "limit": 200
             }
           },
-          "showTitle": true,
+          "showTitle": false,
           "backgroundColor": "rgb(255, 255, 255)",
           "color": "rgba(0, 0, 0, 0.87)",
           "padding": "8px",
@@ -63,10 +63,10 @@
             "allowClear": true,
             "allowAssign": true,
             "displayActivity": true,
-            "displayPagination": false,
-            "defaultPageSize": 10,
+            "displayPagination": true,
+            "defaultPageSize": 15,
             "pageStepCount": 3,
-            "pageStepIncrement": 10,
+            "pageStepIncrement": 15,
             "defaultSortOrder": "-startTime",
             "useRowStyleFunction": false,
             "rowStyleFunction": ""
@@ -85,7 +85,7 @@
           "alarmSource": {
             "type": "entity",
             "name": null,
-            "entityAliasId": "8c2518f2-1dcc-c0b5-a2e9-8a9d79da0e8b",
+            "entityAliasId": "d94844e6-3522-8598-7fb2-07a44426b349",
             "filterId": null,
             "dataKeys": [
               {
@@ -183,10 +183,11 @@
               "CRITICAL",
               "MAJOR",
               "MINOR",
-              "WARNING"
+              "WARNING",
+              "INDETERMINATE"
             ],
             "typeList": [],
-            "searchPropagatedAlarms": false,
+            "searchPropagatedAlarms": true,
             "assignedToCurrentUser": false,
             "assigneeId": null
           },
@@ -215,10 +216,10 @@
             },
             "gridSettings": {
               "layoutType": "default",
-              "backgroundColor": "#eeeeee",
+              "backgroundColor": "#FFFFFF",
               "columns": 24,
               "margin": 10,
-              "outerMargin": true,
+              "outerMargin": false,
               "backgroundSizeMode": "100%",
               "minColumns": 24,
               "viewFormat": "grid",
@@ -246,6 +247,18 @@
       "8c2518f2-1dcc-c0b5-a2e9-8a9d79da0e8b": {
         "id": "8c2518f2-1dcc-c0b5-a2e9-8a9d79da0e8b",
         "alias": "User",
+        "filter": {
+          "type": "singleEntity",
+          "resolveMultiple": false,
+          "singleEntity": {
+            "entityType": "CURRENT_USER_OWNER",
+            "id": "13814000-1dd2-11b2-8080-808080808080"
+          }
+        }
+      },
+      "d94844e6-3522-8598-7fb2-07a44426b349": {
+        "id": "d94844e6-3522-8598-7fb2-07a44426b349",
+        "alias": "Customer",
         "filter": {
           "type": "singleEntity",
           "resolveMultiple": false,
@@ -315,7 +328,7 @@
   "customerId": null,
   "assignedCustomers": null,
   "externalId": null,
-  "version": 130,
+  "version": 153,
   "ownerId": {
     "entityType": "TENANT",
     "id": "efb63c10-b576-11ee-a6c2-a149ed03c64d"

@@ -12569,8 +12569,22 @@
       "alarm-severity": {
         "critical": "Kritisch",
         "major": "Schwerwiegend",
+        "warning": "Warnung",
         "minor": "Geringfügig",
         "normal": "Normal"
+      },
+      "measurement-role": {
+        "generator": "Erzeuger",
+        "circuit": "Abgang",
+        "sub-distribution": "Unterverteilung"
+      },
+      "system-type": {
+        "radiator": "Heizkörper",
+        "floor-heating": "Fußbodenheizung",
+        "fan-coil": "Gebläsekonvektor",
+        "ahu-coil": "RLT-Register",
+        "district-heating": "Fernwärme",
+        "chiller": "Kaltwassersatz"
       },
       "switch-measurement": "Messung wechseln",
       "select-measurement": "Messung auswählen",
