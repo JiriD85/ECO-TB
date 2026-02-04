@@ -167,12 +167,28 @@ def write_telemetry(api, entity_id: str, key: str, data: list) -> bool:
     success = True
 
     def to_number(v):
-        """Ensure numeric values are floats, not strings"""
-        if isinstance(v, (int, float)):
+        """Ensure numeric values are floats, not strings.
+        Preserves booleans, nulls, and non-numeric strings as-is."""
+        # Already a float
+        if isinstance(v, float):
+            return v
+        # Integer (but not bool, since bool is subclass of int)
+        if isinstance(v, int) and not isinstance(v, bool):
             return float(v)
+        # Boolean - keep as-is
+        if isinstance(v, bool):
+            return v
+        # None - keep as-is
+        if v is None:
+            return v
+        # String - try to convert if it looks numeric
         if isinstance(v, str):
+            v_stripped = v.strip()
+            # Skip obvious non-numeric strings
+            if v_stripped.lower() in ('true', 'false', 'null', 'none', ''):
+                return v
             try:
-                return float(v)
+                return float(v_stripped)
             except ValueError:
                 return v
         return v

@@ -1284,12 +1284,27 @@ class MigrationTool:
 
             # Format for ThingsBoard: {ts: timestamp, values: {key: value}}
             # IMPORTANT: Ensure numeric values are floats, not strings
+            # But preserve booleans, nulls, and non-numeric strings as-is
             def to_number(v):
-                if isinstance(v, (int, float)):
+                # Already a number
+                if isinstance(v, float):
+                    return v
+                if isinstance(v, int) and not isinstance(v, bool):
                     return float(v)
+                # Boolean - keep as-is
+                if isinstance(v, bool):
+                    return v
+                # None - keep as-is
+                if v is None:
+                    return v
+                # String - try to convert if it looks numeric
                 if isinstance(v, str):
+                    v_stripped = v.strip()
+                    # Skip obvious non-numeric strings
+                    if v_stripped.lower() in ('true', 'false', 'null', 'none', ''):
+                        return v
                     try:
-                        return float(v)
+                        return float(v_stripped)
                     except ValueError:
                         return v
                 return v
