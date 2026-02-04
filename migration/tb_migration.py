@@ -14,6 +14,8 @@ Usage:
     python tb_migration.py scan                              # Scan alle Projects/Measurements
     python tb_migration.py migrate <project_name>            # Dry-Run Migration
     python tb_migration.py migrate <project_name> --execute  # Echte Migration
+    python tb_migration.py migrate-all                       # Dry-Run ALLE Projects
+    python tb_migration.py migrate-all --execute             # Echte Migration ALLER Projects
     python tb_migration.py resume <project_name>             # Unterbrochene Migration fortsetzen
     python tb_migration.py status <project_name>             # Migrations-Status anzeigen
     python tb_migration.py rollback <project_name>           # Rollback aus Backup
@@ -23,6 +25,8 @@ Usage:
 import os
 import sys
 import json
+import logging
+import logging.handlers
 import requests
 from datetime import datetime
 from pathlib import Path
@@ -38,6 +42,53 @@ TB_USERNAME = os.getenv('TB_USERNAME')
 TB_PASSWORD = os.getenv('TB_PASSWORD')
 
 BACKUP_DIR = Path(__file__).parent / 'backups'
+MIGRATION_LOG = Path(__file__).parent / 'migration_log.json'
+LOG_DIR = Path(__file__).parent / 'logs'
+LOG_FILE = LOG_DIR / 'migration.log'
+LOG_MAX_SIZE = 1 * 1024 * 1024 * 1024  # 1 GB
+LOG_BACKUP_COUNT = 2  # Keep 2 old logs (migration.log.1, migration.log.2)
+
+# =============================================================================
+# Logging Setup
+# =============================================================================
+def setup_logging():
+    """Setup rotating file logger (max 1GB per file, keeps 2 backups)"""
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+    logger = logging.getLogger('migration')
+    logger.setLevel(logging.DEBUG)
+
+    # Rotating file handler (1GB max, 2 backups = max 3GB total)
+    file_handler = logging.handlers.RotatingFileHandler(
+        LOG_FILE,
+        maxBytes=LOG_MAX_SIZE,
+        backupCount=LOG_BACKUP_COUNT,
+        encoding='utf-8'
+    )
+    file_handler.setLevel(logging.DEBUG)
+
+    # Format: timestamp - level - message
+    formatter = logging.Formatter(
+        '%(asctime)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    file_handler.setFormatter(formatter)
+
+    logger.addHandler(file_handler)
+    return logger
+
+# Initialize logger
+log = setup_logging()
+
+# =============================================================================
+# Exclude List - Projects/Measurements to skip (RoomKit, LoRaWAN, etc.)
+# =============================================================================
+EXCLUDE_MEASUREMENTS = [
+    'BCH_1_6',  # RoomKit / LoRaWAN measurement
+]
+
+# Projects to completely skip (add project names here if needed)
+EXCLUDE_PROJECTS = []
 
 # =============================================================================
 # Telemetry Key Mapping (same as normalize_data.tbel)
@@ -106,8 +157,10 @@ class ThingsBoardAPI:
             data = response.json()
             self.token = data.get('token')
             self.refresh_token = data.get('refreshToken')
+            log.info(f"Login successful for {TB_USERNAME}")
             return True
         except Exception as e:
+            log.error(f"Login failed: {e}")
             print(f"❌ Login failed: {e}")
             return False
 
@@ -126,6 +179,7 @@ class ThingsBoardAPI:
             response.raise_for_status()
             return response.json()
         except Exception as e:
+            log.error(f"GET {endpoint} failed: {e}")
             print(f"❌ GET {endpoint} failed: {e}")
             return None
 
@@ -143,6 +197,7 @@ class ThingsBoardAPI:
             # Successful but no JSON response
             return {}
         except Exception as e:
+            log.error(f"POST {endpoint} failed: {e}")
             print(f"❌ POST {endpoint} failed: {e}")
             return None
 
@@ -591,6 +646,7 @@ class MigrationTool:
 
             except Exception as e:
                 error_msg = f"Error migrating {m_name}: {str(e)}"
+                log.error(error_msg, exc_info=True)
                 print(f"   ❌ {error_msg}")
                 state['errors'].append(error_msg)
                 self._save_state(state_file, state)
@@ -615,6 +671,222 @@ class MigrationTool:
             print("\n✅ Migration completed")
 
         return True
+
+    # =========================================================================
+    # MIGRATE ALL - Batch migration of all projects
+    # =========================================================================
+
+    def migrate_all(self, dry_run: bool = True):
+        """Migrate ALL projects (excluding configured exclusions)"""
+        log.info("=" * 70)
+        log.info(f"BATCH MIGRATION STARTED - dry_run={dry_run}")
+        log.info("=" * 70)
+
+        print(f"\n{'='*70}")
+        print(f"{'[DRY RUN] ' if dry_run else ''}BATCH MIGRATION - ALL PROJECTS")
+        print(f"{'='*70}\n")
+
+        # First, scan to get all projects
+        self.scan()
+
+        if not self.projects:
+            print("❌ No projects found")
+            return False
+
+        # Load migration log to check already completed projects
+        migration_log = self._load_migration_log()
+
+        # Filter projects
+        projects_to_migrate = []
+        skipped_excluded = []
+        skipped_completed = []
+        skipped_no_vr = []
+
+        for project in self.projects:
+            project_name = project['name']
+
+            # Check exclusions
+            if project_name in EXCLUDE_PROJECTS:
+                skipped_excluded.append(project_name)
+                continue
+
+            # Check if all measurements are excluded
+            measurements = project.get('measurements', [])
+            non_excluded_measurements = [
+                m for m in measurements
+                if m['name'] not in EXCLUDE_MEASUREMENTS
+            ]
+
+            if not non_excluded_measurements:
+                skipped_excluded.append(f"{project_name} (all measurements excluded)")
+                continue
+
+            # Check if already migrated (only in execute mode)
+            if not dry_run and project_name in migration_log.get('completed_projects', []):
+                skipped_completed.append(project_name)
+                continue
+
+            # Count VR devices for info display
+            has_vr = any(m.get('vr_devices') for m in non_excluded_measurements)
+            if not has_vr:
+                skipped_no_vr.append(project_name)
+                # Note: Still migrate! Attributes need migration, telemetry keys may need renaming
+
+            projects_to_migrate.append(project)
+
+        # Print summary before starting
+        print(f"📊 Migration Summary:")
+        print(f"   Total projects scanned: {len(self.projects)}")
+        print(f"   Projects to migrate: {len(projects_to_migrate)}")
+        print(f"   Skipped (excluded): {len(skipped_excluded)}")
+        print(f"   Skipped (already done): {len(skipped_completed)}")
+        print(f"   Without VR devices (will rename keys): {len(skipped_no_vr)}")
+        print()
+
+        if skipped_excluded:
+            print(f"   ⏭️  Excluded: {', '.join(skipped_excluded)}")
+        if skipped_completed:
+            print(f"   ✅ Already done: {', '.join(skipped_completed)}")
+        if skipped_no_vr:
+            print(f"   🔄 No VR (direct copy): {', '.join(skipped_no_vr)}")
+
+        if not projects_to_migrate:
+            print("\n✅ Nothing to migrate!")
+            return True
+
+        print(f"\n📋 Projects to migrate:")
+        for i, p in enumerate(projects_to_migrate, 1):
+            vr_count = sum(len(m.get('vr_devices', [])) for m in p.get('measurements', []))
+            print(f"   {i}. {p['name']} ({len(p.get('measurements', []))} measurements, {vr_count} VR devices)")
+
+        print()
+
+        # Track results
+        results = {
+            'started_at': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            'dry_run': dry_run,
+            'successful': [],
+            'failed': [],
+            'skipped_measurements': []
+        }
+
+        # Migrate each project
+        total_projects = len(projects_to_migrate)
+        for i, project in enumerate(projects_to_migrate, 1):
+            project_name = project['name']
+
+            # Refresh token before each project to prevent 401 errors
+            if i > 1:
+                print(f"\n🔑 Refreshing authentication token...")
+                if not self.api.login():
+                    log.error(f"Token refresh failed before {project_name}")
+                    print(f"⚠️  Token refresh failed, continuing with existing token")
+
+            print(f"\n{'='*70}")
+            print(f"[{i}/{total_projects}] PROJECT: {project_name}")
+            print(f"{'='*70}")
+
+            try:
+                # Filter out excluded measurements before migration
+                original_measurements = project.get('measurements', [])
+                filtered_measurements = [
+                    m for m in original_measurements
+                    if m['name'] not in EXCLUDE_MEASUREMENTS
+                ]
+
+                # Track skipped measurements
+                for m in original_measurements:
+                    if m['name'] in EXCLUDE_MEASUREMENTS:
+                        results['skipped_measurements'].append({
+                            'project': project_name,
+                            'measurement': m['name'],
+                            'reason': 'excluded'
+                        })
+                        print(f"   ⏭️  Skipping measurement: {m['name']} (excluded)")
+
+                # Temporarily replace measurements list
+                project['measurements'] = filtered_measurements
+
+                # Run migration
+                success = self.migrate(project_name, dry_run=dry_run)
+
+                # Restore original measurements
+                project['measurements'] = original_measurements
+
+                if success:
+                    results['successful'].append(project_name)
+                    log.info(f"SUCCESS: {project_name}")
+                    if not dry_run:
+                        # Update migration log
+                        if project_name not in migration_log.get('completed_projects', []):
+                            migration_log.setdefault('completed_projects', []).append(project_name)
+                            self._save_migration_log(migration_log)
+                else:
+                    log.error(f"FAILED: {project_name} - Migration returned False")
+                    results['failed'].append({'project': project_name, 'error': 'Migration returned False'})
+
+            except Exception as e:
+                error_msg = str(e)
+                log.error(f"FAILED: {project_name} - {error_msg}", exc_info=True)
+                print(f"\n❌ ERROR migrating {project_name}: {error_msg}")
+                results['failed'].append({'project': project_name, 'error': error_msg})
+                # Continue with next project
+
+        # Print final summary
+        results['completed_at'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        log.info("=" * 70)
+        log.info(f"BATCH MIGRATION COMPLETE - Successful: {len(results['successful'])}, Failed: {len(results['failed'])}")
+        log.info("=" * 70)
+
+        print(f"\n{'='*70}")
+        print("BATCH MIGRATION COMPLETE")
+        print(f"{'='*70}")
+        print(f"\n📊 Results:")
+        print(f"   ✅ Successful: {len(results['successful'])}")
+        print(f"   ❌ Failed: {len(results['failed'])}")
+        print(f"   ⏭️  Skipped measurements: {len(results['skipped_measurements'])}")
+
+        if results['successful']:
+            print(f"\n   Successful projects:")
+            for p in results['successful']:
+                print(f"      ✅ {p}")
+
+        if results['failed']:
+            print(f"\n   Failed projects:")
+            for f in results['failed']:
+                print(f"      ❌ {f['project']}: {f['error']}")
+
+        if results['skipped_measurements']:
+            print(f"\n   Skipped measurements:")
+            for s in results['skipped_measurements']:
+                print(f"      ⏭️  {s['project']}/{s['measurement']}: {s['reason']}")
+
+        # Save results to file
+        results_file = BACKUP_DIR / f"batch_migration_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        results_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(results_file, 'w', encoding='utf-8') as f:
+            json.dump(results, f, indent=2, ensure_ascii=False)
+        print(f"\n📁 Results saved to: {results_file}")
+
+        if dry_run:
+            print("\n⚠️  This was a DRY RUN. No changes were made to ThingsBoard.")
+            print("   Run with --execute to apply changes.")
+
+        return len(results['failed']) == 0
+
+    def _load_migration_log(self) -> dict:
+        """Load migration log (tracks completed projects)"""
+        if MIGRATION_LOG.exists():
+            with open(MIGRATION_LOG, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        return {'completed_projects': [], 'started_at': datetime.now().isoformat()}
+
+    def _save_migration_log(self, log: dict):
+        """Save migration log"""
+        log['updated_at'] = datetime.now().isoformat()
+        with open(MIGRATION_LOG, 'w', encoding='utf-8') as f:
+            json.dump(log, f, indent=2, ensure_ascii=False)
 
     def _migrate_project_attributes(self, project: dict, dry_run: bool) -> dict:
         """Migrate project attributes, returns backup data"""
@@ -731,16 +1003,12 @@ class MigrationTool:
 
     def _migrate_telemetry_with_backup(self, measurement: dict, dry_run: bool,
                                         state: dict = None, state_file: Path = None) -> dict:
-        """Migrate telemetry from VR devices to Measurement, returns backup data"""
+        """Migrate telemetry - either from VR devices or rename keys on Measurement directly"""
         m_id = measurement['id']['id']
         m_name = measurement['name']
         vr_devices = measurement.get('vr_devices', [])
 
-        telemetry_backup = {}  # {vr_device_id: {key: [(ts, val), ...]}}
-
-        if not vr_devices:
-            print(f"   ℹ️  No VR devices to migrate")
-            return telemetry_backup
+        telemetry_backup = {}
 
         # Get installationType from measurement attributes to determine Power/Energy keys
         attrs = self.api.get(
@@ -755,50 +1023,119 @@ class MigrationTool:
 
         # Get the correct key map based on installation type
         telemetry_key_map = get_telemetry_key_map(installation_type)
-        print(f"   📊 Migrating telemetry ({installation_type}) from {len(vr_devices)} VR device(s)...")
 
         # Initialize state tracking for this measurement
-        if state is not None and m_name not in state['completed_vr_devices']:
-            state['completed_vr_devices'][m_name] = []
+        if state is not None and m_name not in state.get('completed_vr_devices', {}):
+            state.setdefault('completed_vr_devices', {})[m_name] = []
 
         total_points = 0
-        total_vr = len(vr_devices)
 
-        for vr_idx, vr in enumerate(vr_devices, 1):
-            vr_id = vr['id']
-            vr_name = vr['name']
+        if vr_devices:
+            # === SCENARIO 1: VR Devices exist - copy telemetry from VR to Measurement ===
+            print(f"   📊 Migrating telemetry ({installation_type}) from {len(vr_devices)} VR device(s)...")
 
-            # Skip if already completed (for resume)
-            if state is not None and vr_id in state['completed_vr_devices'].get(m_name, []):
-                print(f"      [{vr_idx}/{total_vr}] ⏭️  {vr_name} (already migrated)")
-                continue
+            total_vr = len(vr_devices)
+            for vr_idx, vr in enumerate(vr_devices, 1):
+                vr_id = vr['id']
+                vr_name = vr['name']
 
-            # Determine device type from name suffix
-            device_type = self._get_device_type(vr_name)
-            print(f"      [{vr_idx}/{total_vr}] 🔄 {vr_name} ({device_type})")
+                # Skip if already completed (for resume)
+                if state is not None and vr_id in state['completed_vr_devices'].get(m_name, []):
+                    print(f"      [{vr_idx}/{total_vr}] ⏭️  {vr_name} (already migrated)")
+                    continue
 
-            # Get telemetry keys from VR device
-            keys = self.api.get(f"/api/plugins/telemetry/DEVICE/{vr_id}/keys/timeseries")
+                # Determine device type from name suffix
+                device_type = self._get_device_type(vr_name)
+                print(f"      [{vr_idx}/{total_vr}] 🔄 {vr_name} ({device_type})")
+
+                # Get telemetry keys from VR device
+                keys = self.api.get(f"/api/plugins/telemetry/DEVICE/{vr_id}/keys/timeseries")
+                if not keys:
+                    print(f"         ⚠️  No telemetry keys found")
+                    continue
+
+                # Filter only relevant keys based on installation type
+                relevant_keys = [k for k in keys if self._map_telemetry_key(k, device_type, telemetry_key_map)]
+                if not relevant_keys:
+                    print(f"         ⚠️  No relevant telemetry keys found")
+                    continue
+
+                telemetry_backup[vr_id] = {'device_name': vr_name, 'device_type': device_type, 'keys': {}}
+
+                # Read and transform telemetry for each relevant key
+                total_keys = len(relevant_keys)
+                for key_idx, old_key in enumerate(relevant_keys, 1):
+                    new_key = self._map_telemetry_key(old_key, device_type, telemetry_key_map)
+
+                    # Read telemetry data (this is our backup!)
+                    print(f"         [{key_idx}/{total_keys}] Reading {old_key}...", end="", flush=True)
+                    telemetry = self._read_telemetry(vr_id, 'DEVICE', old_key)
+
+                    if not telemetry:
+                        print(" (empty)")
+                        continue
+
+                    points = len(telemetry)
+                    total_points += points
+
+                    # Save to backup (metadata only - original data stays in ThingsBoard)
+                    telemetry_backup[vr_id]['keys'][old_key] = {
+                        'new_key': new_key,
+                        'points': points
+                    }
+
+                    # Apply conversion if needed for migration
+                    if old_key in TELEMETRY_CONVERSIONS:
+                        converter = TELEMETRY_CONVERSIONS[old_key]
+                        telemetry = [(ts, converter(val)) for ts, val in telemetry]
+
+                    print(f" → {new_key}: {points} points")
+
+                    if not dry_run:
+                        self._write_telemetry(m_id, 'ASSET', new_key, telemetry)
+
+                # Mark VR device as completed in state
+                if state is not None and state_file is not None:
+                    state['completed_vr_devices'][m_name].append(vr_id)
+                    self._save_state(state_file, state)
+
+        else:
+            # === SCENARIO 2: No VR Devices - copy telemetry to new keys on Measurement ===
+            print(f"   📊 Copying telemetry to new keys ({installation_type}) on Measurement...")
+
+            # Check if already completed (for resume)
+            if state is not None and 'direct_copy' in state['completed_vr_devices'].get(m_name, []):
+                print(f"      ⏭️  Already completed")
+                return telemetry_backup
+
+            # Get telemetry keys from Measurement
+            keys = self.api.get(f"/api/plugins/telemetry/ASSET/{m_id}/keys/timeseries")
             if not keys:
-                print(f"         ⚠️  No telemetry keys found")
-                continue
+                print(f"      ℹ️  No telemetry keys found on Measurement")
+                return telemetry_backup
 
-            # Filter only relevant keys based on installation type
-            relevant_keys = [k for k in keys if self._map_telemetry_key(k, device_type, telemetry_key_map)]
-            if not relevant_keys:
-                print(f"         ⚠️  No relevant telemetry keys found")
-                continue
+            # Filter only OLD keys that need renaming (don't process already normalized keys)
+            old_keys_to_rename = [k for k in keys if k in telemetry_key_map]
 
-            telemetry_backup[vr_id] = {'device_name': vr_name, 'device_type': device_type, 'keys': {}}
+            if not old_keys_to_rename:
+                # Check if already has new keys (already migrated or new format)
+                new_keys = ['T_flow_C', 'T_return_C', 'dT_K', 'Vdot_m3h', 'v_ms', 'P_th_kW', 'E_th_kWh', 'V_m3']
+                has_new_keys = any(k in keys for k in new_keys)
+                if has_new_keys:
+                    print(f"      ✅ Already using new telemetry keys")
+                else:
+                    print(f"      ℹ️  No old telemetry keys to rename")
+                return telemetry_backup
 
-            # Read and transform telemetry for each relevant key
-            total_keys = len(relevant_keys)
-            for key_idx, old_key in enumerate(relevant_keys, 1):
-                new_key = self._map_telemetry_key(old_key, device_type, telemetry_key_map)
+            telemetry_backup['measurement_direct'] = {'keys': {}}
 
-                # Read telemetry data (this is our backup!)
-                print(f"         [{key_idx}/{total_keys}] Reading {old_key}...", end="", flush=True)
-                telemetry = self._read_telemetry(vr_id, 'DEVICE', old_key)
+            total_keys = len(old_keys_to_rename)
+            for key_idx, old_key in enumerate(old_keys_to_rename, 1):
+                new_key = telemetry_key_map[old_key]
+
+                # Read telemetry data from Measurement
+                print(f"      [{key_idx}/{total_keys}] Reading {old_key}...", end="", flush=True)
+                telemetry = self._read_telemetry(m_id, 'ASSET', old_key)
 
                 if not telemetry:
                     print(" (empty)")
@@ -807,14 +1144,13 @@ class MigrationTool:
                 points = len(telemetry)
                 total_points += points
 
-                # Save to backup (original data)
-                telemetry_backup[vr_id]['keys'][old_key] = {
+                # Save to backup (metadata only - original data stays in ThingsBoard)
+                telemetry_backup['measurement_direct']['keys'][old_key] = {
                     'new_key': new_key,
-                    'points': points,
-                    'data': telemetry  # Original data for backup
+                    'points': points
                 }
 
-                # Apply conversion if needed for migration
+                # Apply conversion if needed
                 if old_key in TELEMETRY_CONVERSIONS:
                     converter = TELEMETRY_CONVERSIONS[old_key]
                     telemetry = [(ts, converter(val)) for ts, val in telemetry]
@@ -822,14 +1158,21 @@ class MigrationTool:
                 print(f" → {new_key}: {points} points")
 
                 if not dry_run:
+                    # Write under new key
                     self._write_telemetry(m_id, 'ASSET', new_key, telemetry)
+                    # Note: Old keys are NOT deleted to preserve data integrity
+                    # They can be manually cleaned up later if needed
 
-            # Mark VR device as completed in state
+            # Mark direct rename as completed in state
             if state is not None and state_file is not None:
-                state['completed_vr_devices'][m_name].append(vr_id)
+                state['completed_vr_devices'][m_name].append('direct_copy')
                 self._save_state(state_file, state)
 
-        print(f"   ✅ Total: {total_points} data points {'to migrate' if dry_run else 'migrated'}")
+        if total_points > 0:
+            print(f"   ✅ Total: {total_points} data points {'to migrate' if dry_run else 'migrated'}")
+        else:
+            print(f"   ℹ️  No telemetry data to migrate")
+
         return telemetry_backup
 
     def _get_device_type(self, device_name: str) -> str:
@@ -1126,6 +1469,7 @@ class MigrationTool:
 
             except Exception as e:
                 error_msg = f"Error migrating {m_name}: {str(e)}"
+                log.error(error_msg, exc_info=True)
                 print(f"   ❌ {error_msg}")
                 state['errors'].append(error_msg)
                 self._save_state(state_file, state)
@@ -1233,6 +1577,10 @@ def main():
         project_name = sys.argv[2]
         dry_run = '--execute' not in sys.argv
         tool.migrate(project_name, dry_run=dry_run)
+
+    elif command == 'migrate-all':
+        dry_run = '--execute' not in sys.argv
+        tool.migrate_all(dry_run=dry_run)
 
     elif command == 'rollback':
         if len(sys.argv) < 3:
