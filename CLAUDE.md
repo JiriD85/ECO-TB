@@ -98,7 +98,9 @@ Customer → Project → Measurement → Device
 in preparation → active → finished | aborted
 ```
 
-## Skills (Shortcuts)
+## Skills (PROAKTIV nutzen!)
+
+**Skills automatisch einsetzen wenn relevant - NICHT auf User warten!**
 
 ### ThingsBoard
 
