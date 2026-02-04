@@ -638,9 +638,16 @@ export function createAlarmBadgeHtml(state, totalAlarms, elementId) {
             '</div>' +
         '</div>';
     } else {
-        // No alarms: Simple state text badge (not clickable, no bell)
-        return '<span class="status-badge" style="background:' + stateStyle.bgColor + ';color:' + stateStyle.color + ';">' +
-            '<span>' + stateLabel + '</span></span>';
+        // No alarms: Styled badge like getProgressHtml (same look as "Finished" etc.)
+        var idAttr = elementId ? 'id="' + elementId + '"' : '';
+        return '<div ' + idAttr + ' class="state-alarm-card" style="' +
+            'display:inline-block;padding:4px 8px;border-radius:8px;' +
+            'line-height:20px;font-size:14px;font-weight:500;' +
+            'letter-spacing:0.25px;cursor:pointer;transition:all 0.2s ease;' +
+            'color:' + stateStyle.color + ';' +
+            'background-color:' + stateStyle.bgColor + ';">' +
+            stateLabel +
+        '</div>';
     }
 }
 
