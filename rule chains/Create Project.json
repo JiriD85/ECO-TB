@@ -33,7 +33,7 @@
       },
       {
         "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
-        "name": "Parse and Store Data",
+        "name": "Save Data and Prepare Login",
         "debugSettings": { "allEnabled": true },
         "singletonMode": false,
         "queueName": null,
@@ -41,29 +41,56 @@
         "configuration": {
           "scriptLang": "TBEL",
           "jsScript": "",
-          "tbelScript": "// Parse createProject JSON\nvar projectData = msg.createProject;\n\n// Store all data in metadata for later use\nmetadata.projectName = projectData.projectName;\nmetadata.address = projectData.address;\nmetadata.postalCode = projectData.postalCode;\nmetadata.city = projectData.city;\nmetadata.country = projectData.country;\nmetadata.latitude = projectData.latitude;\nmetadata.longitude = projectData.longitude;\nmetadata.normOutdoorTemp = projectData.normOutdoorTemp;\nmetadata.units = projectData.units;\n\n// Store area as JSON string (Project attribute)\nif (projectData.area != null) {\n    metadata.area = JSON.stringify(projectData.area);\n}\n\n// Store measurements as JSON string\nif (projectData.measurements != null) {\n    metadata.measurementsJson = JSON.stringify(projectData.measurements);\n} else {\n    metadata.measurementsJson = '[]';\n}\n\n// Store customer info from originator\nmetadata.customerId = metadata.originatorId;\nmetadata.customerType = metadata.originatorType;\n\nreturn { msg: {}, metadata: metadata, msgType: msgType };"
+          "tbelScript": "// Store ALL data in metadata (msg will be overwritten by API responses)\nvar projectData = msg.createProject;\n\n// Store project data\nmetadata.projectName = projectData.projectName;\nmetadata.address = projectData.address;\nmetadata.postalCode = projectData.postalCode;\nmetadata.city = projectData.city;\nmetadata.country = projectData.country;\nmetadata.latitude = String(projectData.latitude);\nmetadata.longitude = String(projectData.longitude);\nmetadata.normOutdoorTemp = String(projectData.normOutdoorTemp);\nmetadata.units = projectData.units;\n\n// Store area as JSON string\nif (projectData.area != null) {\n    metadata.area = JSON.stringify(projectData.area);\n}\n\n// Store measurements as JSON string\nif (projectData.measurements != null) {\n    metadata.measurementsJson = JSON.stringify(projectData.measurements);\n    metadata.measurementCount = String(projectData.measurements.length());\n} else {\n    metadata.measurementsJson = '[]';\n    metadata.measurementCount = '0';\n}\n\n// Store customer info\nmetadata.customerId = metadata.originatorId;\nmetadata.customerType = metadata.originatorType;\n\n// Prepare login body - REPLACE WITH ACTUAL CREDENTIALS\nvar loginBody = {\n    username: 'api-user@ecoenergygroup.com',\n    password: 'API_PASSWORD_HERE'\n};\n\nreturn { msg: loginBody, metadata: metadata, msgType: msgType };"
         },
         "additionalInfo": {
-          "description": "Parse JSON and store all data in metadata",
+          "description": "Save all data to metadata and prepare login request",
           "layoutX": 300,
           "layoutY": 200
         }
       },
       {
-        "type": "org.thingsboard.rule.engine.metadata.TbGetAttributesNode",
-        "name": "Get Customer Attributes",
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "Login API",
         "debugSettings": { "allEnabled": true },
         "singletonMode": false,
         "queueName": null,
-        "configurationVersion": 1,
+        "configurationVersion": 5,
         "configuration": {
-          "serverAttributeNames": ["shortName"],
-          "fetchTo": "METADATA",
-          "getLatestValueWithTs": false
+          "restEndpointUrlPattern": "https://diagnostics.ecoenergygroup.com/api/auth/login",
+          "requestMethod": "POST",
+          "useSimpleClientHttpFactory": false,
+          "parseToPlainText": false,
+          "ignoreRequestBody": false,
+          "enableProxy": false,
+          "readTimeoutMs": 5000,
+          "maxParallelRequestsCount": 0,
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "credentials": { "type": "anonymous" }
         },
         "additionalInfo": {
-          "description": "Fetch customer shortName for entityName generation",
+          "description": "Get JWT token for API calls",
           "layoutX": 500,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Extract Token and Get Groups",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "// msg now contains login response with token\nmetadata.jwtToken = msg.token;\n\n// Return empty body for GET request\nreturn { msg: {}, metadata: metadata, msgType: msgType };"
+        },
+        "additionalInfo": {
+          "description": "Extract JWT token from login response",
+          "layoutX": 700,
           "layoutY": 200
         }
       },
@@ -75,7 +102,7 @@
         "queueName": null,
         "configurationVersion": 5,
         "configuration": {
-          "restEndpointUrlPattern": "${TB_BASE_URL}/api/entityGroup/all/CUSTOMER/${originatorId}/ASSET",
+          "restEndpointUrlPattern": "https://diagnostics.ecoenergygroup.com/api/entityGroup/all/CUSTOMER/${customerId}/ASSET",
           "requestMethod": "GET",
           "useSimpleClientHttpFactory": false,
           "parseToPlainText": false,
@@ -85,13 +112,13 @@
           "maxParallelRequestsCount": 0,
           "headers": {
             "Content-Type": "application/json",
-            "X-Authorization": "Bearer ${systemJwtToken}"
+            "X-Authorization": "Bearer ${jwtToken}"
           },
           "credentials": { "type": "anonymous" }
         },
         "additionalInfo": {
           "description": "Get all Asset entity groups of the customer",
-          "layoutX": 700,
+          "layoutX": 900,
           "layoutY": 200
         }
       },
@@ -105,11 +132,11 @@
         "configuration": {
           "scriptLang": "TBEL",
           "jsScript": "",
-          "tbelScript": "// msg now contains the entity groups array from API response\nvar groups = msg;\nvar projectsGroupId = null;\nvar measurementsGroupId = null;\n\nforeach(g : groups) {\n    if (g.name == 'Projects') {\n        projectsGroupId = g.id.id;\n    }\n    if (g.name == 'Measurements') {\n        measurementsGroupId = g.id.id;\n    }\n}\n\nmetadata.projectsGroupId = projectsGroupId;\nmetadata.measurementsGroupId = measurementsGroupId;\n\n// Prepare request to get existing projects for numbering\nreturn { msg: {}, metadata: metadata, msgType: msgType };"
+          "tbelScript": "// msg contains entity groups array\nvar groups = msg;\nvar projectsGroupId = null;\nvar measurementsGroupId = null;\n\nforeach(g : groups) {\n    if (g.name == 'Projects') {\n        projectsGroupId = g.id.id;\n    }\n    if (g.name == 'Measurements') {\n        measurementsGroupId = g.id.id;\n    }\n}\n\nmetadata.projectsGroupId = projectsGroupId;\nmetadata.measurementsGroupId = measurementsGroupId;\n\nreturn { msg: {}, metadata: metadata, msgType: msgType };"
         },
         "additionalInfo": {
           "description": "Extract Projects and Measurements group IDs",
-          "layoutX": 900,
+          "layoutX": 1100,
           "layoutY": 200
         }
       },
@@ -121,7 +148,7 @@
         "queueName": null,
         "configurationVersion": 5,
         "configuration": {
-          "restEndpointUrlPattern": "${TB_BASE_URL}/api/entityGroup/${projectsGroupId}/assets?pageSize=1000&page=0",
+          "restEndpointUrlPattern": "https://diagnostics.ecoenergygroup.com/api/entityGroup/${projectsGroupId}/assets?pageSize=1000&page=0",
           "requestMethod": "GET",
           "useSimpleClientHttpFactory": false,
           "parseToPlainText": false,
@@ -131,13 +158,13 @@
           "maxParallelRequestsCount": 0,
           "headers": {
             "Content-Type": "application/json",
-            "X-Authorization": "Bearer ${systemJwtToken}"
+            "X-Authorization": "Bearer ${jwtToken}"
           },
           "credentials": { "type": "anonymous" }
         },
         "additionalInfo": {
-          "description": "Get existing projects to determine next project number",
-          "layoutX": 1100,
+          "description": "Get existing projects for numbering",
+          "layoutX": 1300,
           "layoutY": 200
         }
       },
@@ -151,11 +178,11 @@
         "configuration": {
           "scriptLang": "TBEL",
           "jsScript": "",
-          "tbelScript": "// msg contains paginated response with data array\nvar projects = msg.data;\nvar maxNum = 0;\n\n// Find highest project number\nforeach(p : projects) {\n    var name = p.name;\n    // Extract number from format: SHORTNAME_P-0001\n    var parts = name.split('_P-');\n    if (parts.length() == 2) {\n        var numStr = parts[1];\n        var num = parseInt(numStr);\n        if (num > maxNum) {\n            maxNum = num;\n        }\n    }\n}\n\nvar nextNum = maxNum + 1;\nvar paddedNum = 'P-' + ('0000' + nextNum).substring(nextNum.toString().length());\n\n// Use shortName or fallback to 'PRJ'\nvar shortName = metadata.ss_shortName;\nif (shortName == null || shortName == '') {\n    shortName = 'PRJ';\n}\n\nvar entityName = shortName + '_' + paddedNum;\nmetadata.projectEntityName = entityName;\n\n// Prepare Project asset body\nvar projectBody = {\n    name: entityName,\n    type: 'Project',\n    label: metadata.projectName,\n    customerId: {\n        entityType: 'CUSTOMER',\n        id: metadata.customerId\n    }\n};\n\nreturn { msg: projectBody, metadata: metadata, msgType: msgType };"
+          "tbelScript": "// msg contains paginated response\nvar projects = msg.data;\nvar maxNum = 0;\n\n// Find highest project number\nforeach(p : projects) {\n    var name = p.name;\n    var parts = name.split('_P-');\n    if (parts.length() == 2) {\n        var numStr = parts[1];\n        var num = parseInt(numStr);\n        if (num > maxNum) {\n            maxNum = num;\n        }\n    }\n}\n\nvar nextNum = maxNum + 1;\nvar paddedNum = 'P-' + ('0000' + nextNum).substring(String(nextNum).length());\n\n// Use customer shortName or fallback\nvar shortName = metadata.ss_shortName;\nif (shortName == null || shortName == '') {\n    shortName = 'PRJ';\n}\n\nvar entityName = shortName + '_' + paddedNum;\nmetadata.projectEntityName = entityName;\n\n// Prepare Project asset body\nvar projectBody = {\n    name: entityName,\n    type: 'Project',\n    label: metadata.projectName,\n    customerId: {\n        entityType: 'CUSTOMER',\n        id: metadata.customerId\n    }\n};\n\nreturn { msg: projectBody, metadata: metadata, msgType: msgType };"
         },
         "additionalInfo": {
-          "description": "Generate unique project entityName (e.g. PKE_P-0023)",
-          "layoutX": 1300,
+          "description": "Generate unique project entityName",
+          "layoutX": 1500,
           "layoutY": 200
         }
       },
@@ -167,7 +194,7 @@
         "queueName": null,
         "configurationVersion": 5,
         "configuration": {
-          "restEndpointUrlPattern": "${TB_BASE_URL}/api/asset?entityGroupId=${projectsGroupId}",
+          "restEndpointUrlPattern": "https://diagnostics.ecoenergygroup.com/api/asset?entityGroupId=${projectsGroupId}",
           "requestMethod": "POST",
           "useSimpleClientHttpFactory": false,
           "parseToPlainText": false,
@@ -177,13 +204,13 @@
           "maxParallelRequestsCount": 0,
           "headers": {
             "Content-Type": "application/json",
-            "X-Authorization": "Bearer ${systemJwtToken}"
+            "X-Authorization": "Bearer ${jwtToken}"
           },
           "credentials": { "type": "anonymous" }
         },
         "additionalInfo": {
-          "description": "Create the Project asset and add to Projects group",
-          "layoutX": 1500,
+          "description": "Create Project asset",
+          "layoutX": 1700,
           "layoutY": 200
         }
       },
@@ -197,11 +224,11 @@
         "configuration": {
           "scriptLang": "TBEL",
           "jsScript": "",
-          "tbelScript": "// msg contains created project response\nmetadata.projectId = msg.id.id;\nmetadata.projectEntityType = 'ASSET';\n\n// Prepare relation body: Customer OWNS Project\nvar relationBody = {\n    from: {\n        entityType: 'CUSTOMER',\n        id: metadata.customerId\n    },\n    to: {\n        entityType: 'ASSET',\n        id: metadata.projectId\n    },\n    type: 'Owns',\n    typeGroup: 'COMMON'\n};\n\nreturn { msg: relationBody, metadata: metadata, msgType: msgType };"
+          "tbelScript": "// msg contains created project\nmetadata.projectId = msg.id.id;\n\n// Prepare relation: Customer OWNS Project\nvar relationBody = {\n    from: {\n        entityType: 'CUSTOMER',\n        id: metadata.customerId\n    },\n    to: {\n        entityType: 'ASSET',\n        id: metadata.projectId\n    },\n    type: 'Owns',\n    typeGroup: 'COMMON'\n};\n\nreturn { msg: relationBody, metadata: metadata, msgType: msgType };"
         },
         "additionalInfo": {
-          "description": "Store project ID and prepare Customer-Project relation",
-          "layoutX": 1700,
+          "description": "Store project ID and prepare relation",
+          "layoutX": 1900,
           "layoutY": 200
         }
       },
@@ -213,7 +240,7 @@
         "queueName": null,
         "configurationVersion": 5,
         "configuration": {
-          "restEndpointUrlPattern": "${TB_BASE_URL}/api/relation",
+          "restEndpointUrlPattern": "https://diagnostics.ecoenergygroup.com/api/relation",
           "requestMethod": "POST",
           "useSimpleClientHttpFactory": false,
           "parseToPlainText": false,
@@ -223,13 +250,13 @@
           "maxParallelRequestsCount": 0,
           "headers": {
             "Content-Type": "application/json",
-            "X-Authorization": "Bearer ${systemJwtToken}"
+            "X-Authorization": "Bearer ${jwtToken}"
           },
           "credentials": { "type": "anonymous" }
         },
         "additionalInfo": {
-          "description": "Create Owns relation from Customer to Project",
-          "layoutX": 1900,
+          "description": "Create Owns relation",
+          "layoutX": 2100,
           "layoutY": 200
         }
       },
@@ -243,11 +270,11 @@
         "configuration": {
           "scriptLang": "TBEL",
           "jsScript": "",
-          "tbelScript": "// Prepare attributes body for Project\nvar attributes = {\n    progress: 'in preparation',\n    state: 'normal',\n    address: metadata.address,\n    postalCode: metadata.postalCode,\n    city: metadata.city,\n    country: metadata.country,\n    latitude: parseFloat(metadata.latitude),\n    longitude: parseFloat(metadata.longitude),\n    normOutdoorTemp: parseFloat(metadata.normOutdoorTemp),\n    units: metadata.units\n};\n\n// Add area if present (JSON object)\nif (metadata.area != null) {\n    attributes.area = JSON.parse(metadata.area);\n}\n\nreturn { msg: attributes, metadata: metadata, msgType: msgType };"
+          "tbelScript": "// Prepare attributes\nvar attributes = {\n    progress: 'in preparation',\n    state: 'normal',\n    address: metadata.address,\n    postalCode: metadata.postalCode,\n    city: metadata.city,\n    country: metadata.country,\n    latitude: parseFloat(metadata.latitude),\n    longitude: parseFloat(metadata.longitude),\n    normOutdoorTemp: parseFloat(metadata.normOutdoorTemp),\n    units: metadata.units\n};\n\nif (metadata.area != null) {\n    attributes.area = JSON.parse(metadata.area);\n}\n\nreturn { msg: attributes, metadata: metadata, msgType: msgType };"
         },
         "additionalInfo": {
-          "description": "Prepare Project attributes for saving",
-          "layoutX": 2100,
+          "description": "Prepare Project attributes",
+          "layoutX": 2300,
           "layoutY": 200
         }
       },
@@ -259,7 +286,7 @@
         "queueName": null,
         "configurationVersion": 5,
         "configuration": {
-          "restEndpointUrlPattern": "${TB_BASE_URL}/api/plugins/telemetry/ASSET/${projectId}/attributes/SERVER_SCOPE",
+          "restEndpointUrlPattern": "https://diagnostics.ecoenergygroup.com/api/plugins/telemetry/ASSET/${projectId}/attributes/SERVER_SCOPE",
           "requestMethod": "POST",
           "useSimpleClientHttpFactory": false,
           "parseToPlainText": false,
@@ -269,13 +296,31 @@
           "maxParallelRequestsCount": 0,
           "headers": {
             "Content-Type": "application/json",
-            "X-Authorization": "Bearer ${systemJwtToken}"
+            "X-Authorization": "Bearer ${jwtToken}"
           },
           "credentials": { "type": "anonymous" }
         },
         "additionalInfo": {
-          "description": "Save Project attributes via API",
-          "layoutX": 2300,
+          "description": "Save Project attributes",
+          "layoutX": 2500,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbJsSwitchNode",
+        "name": "Check for Measurements",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "var count = parseInt(metadata.measurementCount);\nif (count > 0) {\n    return ['hasMeasurements'];\n} else {\n    return ['done'];\n}"
+        },
+        "additionalInfo": {
+          "description": "Check if measurements exist",
+          "layoutX": 2700,
           "layoutY": 200
         }
       },
@@ -289,25 +334,25 @@
         "configuration": {
           "scriptLang": "TBEL",
           "jsScript": "",
-          "tbelScript": "// Parse measurements from metadata and add project info to each\nvar measurements = JSON.parse(metadata.measurementsJson);\nvar result = [];\nvar idx = 0;\n\nforeach(m : measurements) {\n    idx = idx + 1;\n    // Add project context to each measurement\n    m.projectId = metadata.projectId;\n    m.projectEntityName = metadata.projectEntityName;\n    m.customerId = metadata.customerId;\n    m.measurementsGroupId = metadata.measurementsGroupId;\n    m.measurementIndex = idx;\n    result.add(m);\n}\n\nreturn { msg: result, metadata: metadata, msgType: msgType };"
+          "tbelScript": "var measurements = JSON.parse(metadata.measurementsJson);\nvar result = [];\nvar idx = 0;\n\nforeach(m : measurements) {\n    idx = idx + 1;\n    m.projectId = metadata.projectId;\n    m.projectEntityName = metadata.projectEntityName;\n    m.customerId = metadata.customerId;\n    m.measurementsGroupId = metadata.measurementsGroupId;\n    m.jwtToken = metadata.jwtToken;\n    m.measurementIndex = idx;\n    result.add(m);\n}\n\nreturn { msg: result, metadata: metadata, msgType: msgType };"
         },
         "additionalInfo": {
-          "description": "Prepare measurements array with project context",
-          "layoutX": 2500,
+          "description": "Prepare measurements with context",
+          "layoutX": 2900,
           "layoutY": 200
         }
       },
       {
         "type": "org.thingsboard.rule.engine.transform.TbSplitArrayMsgNode",
-        "name": "Split Measurements Array",
+        "name": "Split Measurements",
         "debugSettings": { "allEnabled": true },
         "singletonMode": false,
         "queueName": null,
         "configurationVersion": 0,
         "configuration": {},
         "additionalInfo": {
-          "description": "Split measurements array into individual messages",
-          "layoutX": 2700,
+          "description": "Split array into messages",
+          "layoutX": 3100,
           "layoutY": 200
         }
       },
@@ -321,11 +366,11 @@
         "configuration": {
           "scriptLang": "TBEL",
           "jsScript": "",
-          "tbelScript": "// msg now contains single measurement object\nvar m = msg;\n\n// Generate measurement entityName: PROJECTNAME_M-01\nvar paddedIdx = 'M-' + ('00' + m.measurementIndex).substring(m.measurementIndex.toString().length());\nvar measurementEntityName = m.projectEntityName + '_' + paddedIdx;\n\n// Store for later use\nmetadata.measurementEntityName = measurementEntityName;\nmetadata.measurementName = m.measurementName;\nmetadata.measurementData = JSON.stringify(m);\nmetadata.projectId = m.projectId;\nmetadata.customerId = m.customerId;\nmetadata.measurementsGroupId = m.measurementsGroupId;\n\n// Prepare measurement asset body\nvar assetBody = {\n    name: measurementEntityName,\n    type: 'Measurement',\n    label: m.measurementName,\n    customerId: {\n        entityType: 'CUSTOMER',\n        id: m.customerId\n    }\n};\n\nreturn { msg: assetBody, metadata: metadata, msgType: msgType };"
+          "tbelScript": "var m = msg;\n\nvar paddedIdx = 'M-' + ('00' + m.measurementIndex).substring(String(m.measurementIndex).length());\nvar measurementEntityName = m.projectEntityName + '_' + paddedIdx;\n\nmetadata.measurementEntityName = measurementEntityName;\nmetadata.measurementData = JSON.stringify(m);\nmetadata.projectId = m.projectId;\nmetadata.customerId = m.customerId;\nmetadata.measurementsGroupId = m.measurementsGroupId;\nmetadata.jwtToken = m.jwtToken;\n\nvar assetBody = {\n    name: measurementEntityName,\n    type: 'Measurement',\n    label: m.measurementName,\n    customerId: {\n        entityType: 'CUSTOMER',\n        id: m.customerId\n    }\n};\n\nreturn { msg: assetBody, metadata: metadata, msgType: msgType };"
         },
         "additionalInfo": {
-          "description": "Generate measurement entityName and prepare asset body",
-          "layoutX": 2900,
+          "description": "Prepare measurement asset body",
+          "layoutX": 3300,
           "layoutY": 200
         }
       },
@@ -337,7 +382,7 @@
         "queueName": null,
         "configurationVersion": 5,
         "configuration": {
-          "restEndpointUrlPattern": "${TB_BASE_URL}/api/asset?entityGroupId=${measurementsGroupId}",
+          "restEndpointUrlPattern": "https://diagnostics.ecoenergygroup.com/api/asset?entityGroupId=${measurementsGroupId}",
           "requestMethod": "POST",
           "useSimpleClientHttpFactory": false,
           "parseToPlainText": false,
@@ -347,13 +392,13 @@
           "maxParallelRequestsCount": 0,
           "headers": {
             "Content-Type": "application/json",
-            "X-Authorization": "Bearer ${systemJwtToken}"
+            "X-Authorization": "Bearer ${jwtToken}"
           },
           "credentials": { "type": "anonymous" }
         },
         "additionalInfo": {
-          "description": "Create the Measurement asset and add to Measurements group",
-          "layoutX": 3100,
+          "description": "Create Measurement asset",
+          "layoutX": 3500,
           "layoutY": 200
         }
       },
@@ -367,11 +412,11 @@
         "configuration": {
           "scriptLang": "TBEL",
           "jsScript": "",
-          "tbelScript": "// msg contains created measurement response\nmetadata.measurementId = msg.id.id;\n\n// Prepare relation body: Project OWNS Measurement\nvar relationBody = {\n    from: {\n        entityType: 'ASSET',\n        id: metadata.projectId\n    },\n    to: {\n        entityType: 'ASSET',\n        id: metadata.measurementId\n    },\n    type: 'Owns',\n    typeGroup: 'COMMON'\n};\n\nreturn { msg: relationBody, metadata: metadata, msgType: msgType };"
+          "tbelScript": "metadata.measurementId = msg.id.id;\n\nvar relationBody = {\n    from: {\n        entityType: 'ASSET',\n        id: metadata.projectId\n    },\n    to: {\n        entityType: 'ASSET',\n        id: metadata.measurementId\n    },\n    type: 'Owns',\n    typeGroup: 'COMMON'\n};\n\nreturn { msg: relationBody, metadata: metadata, msgType: msgType };"
         },
         "additionalInfo": {
-          "description": "Store measurement ID and prepare Project-Measurement relation",
-          "layoutX": 3300,
+          "description": "Store measurement ID",
+          "layoutX": 3700,
           "layoutY": 200
         }
       },
@@ -383,7 +428,7 @@
         "queueName": null,
         "configurationVersion": 5,
         "configuration": {
-          "restEndpointUrlPattern": "${TB_BASE_URL}/api/relation",
+          "restEndpointUrlPattern": "https://diagnostics.ecoenergygroup.com/api/relation",
           "requestMethod": "POST",
           "useSimpleClientHttpFactory": false,
           "parseToPlainText": false,
@@ -393,13 +438,13 @@
           "maxParallelRequestsCount": 0,
           "headers": {
             "Content-Type": "application/json",
-            "X-Authorization": "Bearer ${systemJwtToken}"
+            "X-Authorization": "Bearer ${jwtToken}"
           },
           "credentials": { "type": "anonymous" }
         },
         "additionalInfo": {
-          "description": "Create Owns relation from Project to Measurement",
-          "layoutX": 3500,
+          "description": "Create Owns relation",
+          "layoutX": 3900,
           "layoutY": 200
         }
       },
@@ -413,11 +458,11 @@
         "configuration": {
           "scriptLang": "TBEL",
           "jsScript": "",
-          "tbelScript": "// Parse measurement data from metadata\nvar m = JSON.parse(metadata.measurementData);\n\n// Prepare attributes body for Measurement - ALL attributes from Data Catalog\nvar attributes = {\n    progress: 'in preparation',\n    state: 'normal',\n    installationType: m.installationType,\n    systemType: m.systemType,\n    measurementType: m.measurementType,\n    measurementRole: m.measurementRole,\n    hydraulicScheme: m.hydraulicScheme,\n    fluidType: m.fluidType,\n    designFlowTemp: m.designFlowTemp,\n    designReturnTemp: m.designReturnTemp,\n    designDeltaT: m.designDeltaT,\n    designPower: m.designPower,\n    designFlow: m.designFlow,\n    pipeDimension: m.pipeDimension,\n    valveDimension: m.valveDimension,\n    valveKvs: m.valveKvs,\n    flowOnThreshold: m.flowOnThreshold,\n    hysteresisMinutes: m.hysteresisMinutes,\n    weeklySchedule: m.weeklySchedule,\n    collapseThreshold: m.collapseThreshold,\n    spikeThreshold: m.spikeThreshold,\n    cyclingThreshold: m.cyclingThreshold,\n    stabilityThreshold: m.stabilityThreshold,\n    pumpPresent: m.pumpPresent,\n    pumpControlType: m.pumpControlType,\n    pumpRatedPower: m.pumpRatedPower,\n    auxSensor1: m.auxSensor1,\n    auxSensor2: m.auxSensor2,\n    calculatePower: m.calculatePower\n};\n\n// Remove null/undefined values\nvar cleanAttributes = {};\nvar keys = attributes.keys();\nforeach(k : keys) {\n    if (attributes[k] != null) {\n        cleanAttributes[k] = attributes[k];\n    }\n}\n\nreturn { msg: cleanAttributes, metadata: metadata, msgType: msgType };"
+          "tbelScript": "var m = JSON.parse(metadata.measurementData);\n\nvar attributes = {\n    progress: 'in preparation',\n    state: 'normal',\n    installationType: m.installationType,\n    systemType: m.systemType,\n    measurementType: m.measurementType,\n    measurementRole: m.measurementRole,\n    hydraulicScheme: m.hydraulicScheme,\n    fluidType: m.fluidType,\n    designFlowTemp: m.designFlowTemp,\n    designReturnTemp: m.designReturnTemp,\n    designDeltaT: m.designDeltaT,\n    designPower: m.designPower,\n    designFlow: m.designFlow,\n    pipeDimension: m.pipeDimension,\n    valveDimension: m.valveDimension,\n    valveKvs: m.valveKvs,\n    flowOnThreshold: m.flowOnThreshold,\n    hysteresisMinutes: m.hysteresisMinutes,\n    weeklySchedule: m.weeklySchedule,\n    collapseThreshold: m.collapseThreshold,\n    spikeThreshold: m.spikeThreshold,\n    cyclingThreshold: m.cyclingThreshold,\n    stabilityThreshold: m.stabilityThreshold,\n    pumpPresent: m.pumpPresent,\n    pumpControlType: m.pumpControlType,\n    pumpRatedPower: m.pumpRatedPower,\n    auxSensor1: m.auxSensor1,\n    auxSensor2: m.auxSensor2,\n    calculatePower: m.calculatePower\n};\n\n// Remove null values\nvar clean = {};\nvar keys = attributes.keys();\nforeach(k : keys) {\n    if (attributes[k] != null) {\n        clean[k] = attributes[k];\n    }\n}\n\nreturn { msg: clean, metadata: metadata, msgType: msgType };"
         },
         "additionalInfo": {
-          "description": "Prepare Measurement attributes for saving",
-          "layoutX": 3700,
+          "description": "Prepare measurement attributes",
+          "layoutX": 4100,
           "layoutY": 200
         }
       },
@@ -429,7 +474,7 @@
         "queueName": null,
         "configurationVersion": 5,
         "configuration": {
-          "restEndpointUrlPattern": "${TB_BASE_URL}/api/plugins/telemetry/ASSET/${measurementId}/attributes/SERVER_SCOPE",
+          "restEndpointUrlPattern": "https://diagnostics.ecoenergygroup.com/api/plugins/telemetry/ASSET/${measurementId}/attributes/SERVER_SCOPE",
           "requestMethod": "POST",
           "useSimpleClientHttpFactory": false,
           "parseToPlainText": false,
@@ -439,19 +484,19 @@
           "maxParallelRequestsCount": 0,
           "headers": {
             "Content-Type": "application/json",
-            "X-Authorization": "Bearer ${systemJwtToken}"
+            "X-Authorization": "Bearer ${jwtToken}"
           },
           "credentials": { "type": "anonymous" }
         },
         "additionalInfo": {
-          "description": "Save Measurement attributes via API",
-          "layoutX": 3900,
+          "description": "Save measurement attributes",
+          "layoutX": 4300,
           "layoutY": 200
         }
       },
       {
         "type": "org.thingsboard.rule.engine.action.TbLogNode",
-        "name": "Log Measurement Success",
+        "name": "Log Success",
         "debugSettings": { "allEnabled": true },
         "singletonMode": false,
         "queueName": null,
@@ -459,12 +504,30 @@
         "configuration": {
           "scriptLang": "TBEL",
           "jsScript": "",
-          "tbelScript": "return 'Measurement created: ' + metadata.measurementEntityName;"
+          "tbelScript": "return 'Project created: ' + metadata.projectEntityName + ', Measurement: ' + metadata.measurementEntityName;"
         },
         "additionalInfo": {
-          "description": "Log successful measurement creation",
-          "layoutX": 4100,
+          "description": "Log success",
+          "layoutX": 4500,
           "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "Log Project Done",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "return 'Project created without measurements: ' + metadata.projectEntityName;"
+        },
+        "additionalInfo": {
+          "description": "Log project done",
+          "layoutX": 2900,
+          "layoutY": 100
         }
       },
       {
@@ -477,11 +540,11 @@
         "configuration": {
           "scriptLang": "TBEL",
           "jsScript": "",
-          "tbelScript": "return 'Create Project Error: ' + JSON.stringify(msg) + ' Metadata: ' + JSON.stringify(metadata);"
+          "tbelScript": "return 'Create Project Error: ' + JSON.stringify(msg);"
         },
         "additionalInfo": {
           "description": "Log errors",
-          "layoutX": 1500,
+          "layoutX": 1700,
           "layoutY": 400
         }
       }
@@ -500,21 +563,26 @@
       { "fromIndex": 10, "toIndex": 11, "type": "Success" },
       { "fromIndex": 11, "toIndex": 12, "type": "Success" },
       { "fromIndex": 12, "toIndex": 13, "type": "Success" },
-      { "fromIndex": 13, "toIndex": 14, "type": "Success" },
+      { "fromIndex": 13, "toIndex": 14, "type": "hasMeasurements" },
+      { "fromIndex": 13, "toIndex": 24, "type": "done" },
       { "fromIndex": 14, "toIndex": 15, "type": "Success" },
       { "fromIndex": 15, "toIndex": 16, "type": "Success" },
       { "fromIndex": 16, "toIndex": 17, "type": "Success" },
       { "fromIndex": 17, "toIndex": 18, "type": "Success" },
       { "fromIndex": 18, "toIndex": 19, "type": "Success" },
       { "fromIndex": 19, "toIndex": 20, "type": "Success" },
-      { "fromIndex": 3, "toIndex": 21, "type": "Failure" },
-      { "fromIndex": 5, "toIndex": 21, "type": "Failure" },
-      { "fromIndex": 7, "toIndex": 21, "type": "Failure" },
-      { "fromIndex": 9, "toIndex": 21, "type": "Failure" },
-      { "fromIndex": 11, "toIndex": 21, "type": "Failure" },
-      { "fromIndex": 15, "toIndex": 21, "type": "Failure" },
-      { "fromIndex": 17, "toIndex": 21, "type": "Failure" },
-      { "fromIndex": 19, "toIndex": 21, "type": "Failure" }
+      { "fromIndex": 20, "toIndex": 21, "type": "Success" },
+      { "fromIndex": 21, "toIndex": 22, "type": "Success" },
+      { "fromIndex": 22, "toIndex": 23, "type": "Success" },
+      { "fromIndex": 2, "toIndex": 24, "type": "Failure" },
+      { "fromIndex": 4, "toIndex": 24, "type": "Failure" },
+      { "fromIndex": 6, "toIndex": 24, "type": "Failure" },
+      { "fromIndex": 8, "toIndex": 24, "type": "Failure" },
+      { "fromIndex": 10, "toIndex": 24, "type": "Failure" },
+      { "fromIndex": 12, "toIndex": 24, "type": "Failure" },
+      { "fromIndex": 17, "toIndex": 24, "type": "Failure" },
+      { "fromIndex": 19, "toIndex": 24, "type": "Failure" },
+      { "fromIndex": 22, "toIndex": 24, "type": "Failure" }
     ],
     "ruleChainConnections": null
   }

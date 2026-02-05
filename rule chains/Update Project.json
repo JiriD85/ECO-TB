@@ -7,7 +7,7 @@
     "debugMode": true,
     "configuration": null,
     "additionalInfo": {
-      "description": "Updates an existing Project Asset when 'updateProject' attribute is received on the Project. Triggered by external services via API."
+      "description": "Updates an existing Project Asset when 'updateProject' attribute is received. Triggered by external services via API."
     }
   },
   "metadata": {
@@ -33,7 +33,7 @@
       },
       {
         "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
-        "name": "Parse Update Data",
+        "name": "Save Data and Prepare Login",
         "debugSettings": { "allEnabled": true },
         "singletonMode": false,
         "queueName": null,
@@ -41,11 +41,56 @@
         "configuration": {
           "scriptLang": "TBEL",
           "jsScript": "",
-          "tbelScript": "// Parse updateProject JSON\nvar updateData = msg.updateProject;\n\n// Store project ID (the originator is the Project asset)\nmetadata.projectId = metadata.originatorId;\nmetadata.projectEntityType = metadata.originatorType;\n\n// Prepare attributes to update\nvar attributes = {};\n\n// Only include fields that are present in the update\nif (updateData.projectName != null) {\n    // Update label via asset API would need separate call\n    metadata.newLabel = updateData.projectName;\n}\nif (updateData.address != null) {\n    attributes.address = updateData.address;\n}\nif (updateData.postalCode != null) {\n    attributes.postalCode = updateData.postalCode;\n}\nif (updateData.city != null) {\n    attributes.city = updateData.city;\n}\nif (updateData.country != null) {\n    attributes.country = updateData.country;\n}\nif (updateData.latitude != null) {\n    attributes.latitude = parseFloat(updateData.latitude);\n}\nif (updateData.longitude != null) {\n    attributes.longitude = parseFloat(updateData.longitude);\n}\nif (updateData.normOutdoorTemp != null) {\n    attributes.normOutdoorTemp = parseFloat(updateData.normOutdoorTemp);\n}\nif (updateData.units != null) {\n    attributes.units = updateData.units;\n}\nif (updateData.area != null) {\n    attributes.area = updateData.area;\n}\nif (updateData.progress != null) {\n    attributes.progress = updateData.progress;\n}\n\n// Store measurements for later processing if present\nif (updateData.measurements != null) {\n    metadata.measurementsJson = JSON.stringify(updateData.measurements);\n    metadata.hasMeasurements = 'true';\n} else {\n    metadata.hasMeasurements = 'false';\n}\n\nreturn { msg: attributes, metadata: metadata, msgType: msgType };"
+          "tbelScript": "// Store update data in metadata\nvar updateData = msg.updateProject;\nmetadata.updateDataJson = JSON.stringify(updateData);\n\n// Store project ID (originator is the Project asset)\nmetadata.projectId = metadata.originatorId;\n\n// Check for measurements\nif (updateData.measurements != null && updateData.measurements.length() > 0) {\n    metadata.measurementsJson = JSON.stringify(updateData.measurements);\n    metadata.hasMeasurements = 'true';\n} else {\n    metadata.hasMeasurements = 'false';\n}\n\n// Prepare login body - REPLACE WITH ACTUAL CREDENTIALS\nvar loginBody = {\n    username: 'api-user@ecoenergygroup.com',\n    password: 'API_PASSWORD_HERE'\n};\n\nreturn { msg: loginBody, metadata: metadata, msgType: msgType };"
         },
         "additionalInfo": {
-          "description": "Parse update JSON and prepare attributes",
+          "description": "Save update data and prepare login",
           "layoutX": 300,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "Login API",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 5,
+        "configuration": {
+          "restEndpointUrlPattern": "https://diagnostics.ecoenergygroup.com/api/auth/login",
+          "requestMethod": "POST",
+          "useSimpleClientHttpFactory": false,
+          "parseToPlainText": false,
+          "ignoreRequestBody": false,
+          "enableProxy": false,
+          "readTimeoutMs": 5000,
+          "maxParallelRequestsCount": 0,
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "credentials": { "type": "anonymous" }
+        },
+        "additionalInfo": {
+          "description": "Get JWT token",
+          "layoutX": 500,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Extract Token and Prepare Attributes",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "// Extract token\nmetadata.jwtToken = msg.token;\n\n// Parse update data\nvar updateData = JSON.parse(metadata.updateDataJson);\n\n// Build attributes object (only non-null values)\nvar attributes = {};\n\nif (updateData.projectName != null) {\n    metadata.newLabel = updateData.projectName;\n}\nif (updateData.address != null) {\n    attributes.address = updateData.address;\n}\nif (updateData.postalCode != null) {\n    attributes.postalCode = updateData.postalCode;\n}\nif (updateData.city != null) {\n    attributes.city = updateData.city;\n}\nif (updateData.country != null) {\n    attributes.country = updateData.country;\n}\nif (updateData.latitude != null) {\n    attributes.latitude = updateData.latitude;\n}\nif (updateData.longitude != null) {\n    attributes.longitude = updateData.longitude;\n}\nif (updateData.normOutdoorTemp != null) {\n    attributes.normOutdoorTemp = updateData.normOutdoorTemp;\n}\nif (updateData.units != null) {\n    attributes.units = updateData.units;\n}\nif (updateData.area != null) {\n    attributes.area = updateData.area;\n}\nif (updateData.progress != null) {\n    attributes.progress = updateData.progress;\n}\n\nreturn { msg: attributes, metadata: metadata, msgType: msgType };"
+        },
+        "additionalInfo": {
+          "description": "Extract token and prepare project attributes",
+          "layoutX": 700,
           "layoutY": 200
         }
       },
@@ -57,7 +102,7 @@
         "queueName": null,
         "configurationVersion": 5,
         "configuration": {
-          "restEndpointUrlPattern": "${TB_BASE_URL}/api/plugins/telemetry/ASSET/${originatorId}/attributes/SERVER_SCOPE",
+          "restEndpointUrlPattern": "https://diagnostics.ecoenergygroup.com/api/plugins/telemetry/ASSET/${projectId}/attributes/SERVER_SCOPE",
           "requestMethod": "POST",
           "useSimpleClientHttpFactory": false,
           "parseToPlainText": false,
@@ -67,13 +112,13 @@
           "maxParallelRequestsCount": 0,
           "headers": {
             "Content-Type": "application/json",
-            "X-Authorization": "Bearer ${systemJwtToken}"
+            "X-Authorization": "Bearer ${jwtToken}"
           },
           "credentials": { "type": "anonymous" }
         },
         "additionalInfo": {
-          "description": "Update Project attributes via API",
-          "layoutX": 500,
+          "description": "Update Project attributes",
+          "layoutX": 900,
           "layoutY": 200
         }
       },
@@ -90,14 +135,14 @@
           "tbelScript": "if (metadata.hasMeasurements == 'true') {\n    return ['hasMeasurements'];\n} else {\n    return ['done'];\n}"
         },
         "additionalInfo": {
-          "description": "Check if there are measurements to update",
-          "layoutX": 700,
+          "description": "Check for measurement updates",
+          "layoutX": 1100,
           "layoutY": 200
         }
       },
       {
         "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
-        "name": "Prepare Measurements Update",
+        "name": "Prepare Measurements Array",
         "debugSettings": { "allEnabled": true },
         "singletonMode": false,
         "queueName": null,
@@ -105,25 +150,25 @@
         "configuration": {
           "scriptLang": "TBEL",
           "jsScript": "",
-          "tbelScript": "// Parse measurements from metadata\nvar measurements = JSON.parse(metadata.measurementsJson);\nvar result = [];\n\nforeach(m : measurements) {\n    // Each measurement update must include the measurementId\n    if (m.measurementId != null) {\n        result.add(m);\n    }\n}\n\nreturn { msg: result, metadata: metadata, msgType: msgType };"
+          "tbelScript": "var measurements = JSON.parse(metadata.measurementsJson);\nvar result = [];\n\nforeach(m : measurements) {\n    if (m.measurementId != null) {\n        m.jwtToken = metadata.jwtToken;\n        result.add(m);\n    }\n}\n\nreturn { msg: result, metadata: metadata, msgType: msgType };"
         },
         "additionalInfo": {
-          "description": "Prepare measurements array for updating",
-          "layoutX": 900,
+          "description": "Prepare measurements with token",
+          "layoutX": 1300,
           "layoutY": 200
         }
       },
       {
         "type": "org.thingsboard.rule.engine.transform.TbSplitArrayMsgNode",
-        "name": "Split Measurements Array",
+        "name": "Split Measurements",
         "debugSettings": { "allEnabled": true },
         "singletonMode": false,
         "queueName": null,
         "configurationVersion": 0,
         "configuration": {},
         "additionalInfo": {
-          "description": "Split measurements array into individual messages",
-          "layoutX": 1100,
+          "description": "Split into messages",
+          "layoutX": 1500,
           "layoutY": 200
         }
       },
@@ -137,11 +182,11 @@
         "configuration": {
           "scriptLang": "TBEL",
           "jsScript": "",
-          "tbelScript": "// msg now contains single measurement update object\nvar m = msg;\nmetadata.measurementId = m.measurementId;\n\n// Prepare attributes to update (only include non-null values) - ALL attributes from Data Catalog\nvar attributes = {};\n\nif (m.measurementName != null) {\n    metadata.newMeasurementLabel = m.measurementName;\n}\nif (m.installationType != null) {\n    attributes.installationType = m.installationType;\n}\nif (m.systemType != null) {\n    attributes.systemType = m.systemType;\n}\nif (m.measurementType != null) {\n    attributes.measurementType = m.measurementType;\n}\nif (m.measurementRole != null) {\n    attributes.measurementRole = m.measurementRole;\n}\nif (m.hydraulicScheme != null) {\n    attributes.hydraulicScheme = m.hydraulicScheme;\n}\nif (m.fluidType != null) {\n    attributes.fluidType = m.fluidType;\n}\nif (m.designFlowTemp != null) {\n    attributes.designFlowTemp = m.designFlowTemp;\n}\nif (m.designReturnTemp != null) {\n    attributes.designReturnTemp = m.designReturnTemp;\n}\nif (m.designDeltaT != null) {\n    attributes.designDeltaT = m.designDeltaT;\n}\nif (m.designPower != null) {\n    attributes.designPower = m.designPower;\n}\nif (m.designFlow != null) {\n    attributes.designFlow = m.designFlow;\n}\nif (m.pipeDimension != null) {\n    attributes.pipeDimension = m.pipeDimension;\n}\nif (m.valveDimension != null) {\n    attributes.valveDimension = m.valveDimension;\n}\nif (m.valveKvs != null) {\n    attributes.valveKvs = m.valveKvs;\n}\nif (m.flowOnThreshold != null) {\n    attributes.flowOnThreshold = m.flowOnThreshold;\n}\nif (m.hysteresisMinutes != null) {\n    attributes.hysteresisMinutes = m.hysteresisMinutes;\n}\nif (m.weeklySchedule != null) {\n    attributes.weeklySchedule = m.weeklySchedule;\n}\nif (m.collapseThreshold != null) {\n    attributes.collapseThreshold = m.collapseThreshold;\n}\nif (m.spikeThreshold != null) {\n    attributes.spikeThreshold = m.spikeThreshold;\n}\nif (m.cyclingThreshold != null) {\n    attributes.cyclingThreshold = m.cyclingThreshold;\n}\nif (m.stabilityThreshold != null) {\n    attributes.stabilityThreshold = m.stabilityThreshold;\n}\nif (m.pumpPresent != null) {\n    attributes.pumpPresent = m.pumpPresent;\n}\nif (m.pumpControlType != null) {\n    attributes.pumpControlType = m.pumpControlType;\n}\nif (m.pumpRatedPower != null) {\n    attributes.pumpRatedPower = m.pumpRatedPower;\n}\nif (m.auxSensor1 != null) {\n    attributes.auxSensor1 = m.auxSensor1;\n}\nif (m.auxSensor2 != null) {\n    attributes.auxSensor2 = m.auxSensor2;\n}\nif (m.calculatePower != null) {\n    attributes.calculatePower = m.calculatePower;\n}\nif (m.progress != null) {\n    attributes.progress = m.progress;\n}\n\nreturn { msg: attributes, metadata: metadata, msgType: msgType };"
+          "tbelScript": "var m = msg;\nmetadata.measurementId = m.measurementId;\nmetadata.jwtToken = m.jwtToken;\n\nvar attributes = {};\n\nif (m.installationType != null) { attributes.installationType = m.installationType; }\nif (m.systemType != null) { attributes.systemType = m.systemType; }\nif (m.measurementType != null) { attributes.measurementType = m.measurementType; }\nif (m.measurementRole != null) { attributes.measurementRole = m.measurementRole; }\nif (m.hydraulicScheme != null) { attributes.hydraulicScheme = m.hydraulicScheme; }\nif (m.fluidType != null) { attributes.fluidType = m.fluidType; }\nif (m.designFlowTemp != null) { attributes.designFlowTemp = m.designFlowTemp; }\nif (m.designReturnTemp != null) { attributes.designReturnTemp = m.designReturnTemp; }\nif (m.designDeltaT != null) { attributes.designDeltaT = m.designDeltaT; }\nif (m.designPower != null) { attributes.designPower = m.designPower; }\nif (m.designFlow != null) { attributes.designFlow = m.designFlow; }\nif (m.pipeDimension != null) { attributes.pipeDimension = m.pipeDimension; }\nif (m.valveDimension != null) { attributes.valveDimension = m.valveDimension; }\nif (m.valveKvs != null) { attributes.valveKvs = m.valveKvs; }\nif (m.flowOnThreshold != null) { attributes.flowOnThreshold = m.flowOnThreshold; }\nif (m.hysteresisMinutes != null) { attributes.hysteresisMinutes = m.hysteresisMinutes; }\nif (m.weeklySchedule != null) { attributes.weeklySchedule = m.weeklySchedule; }\nif (m.collapseThreshold != null) { attributes.collapseThreshold = m.collapseThreshold; }\nif (m.spikeThreshold != null) { attributes.spikeThreshold = m.spikeThreshold; }\nif (m.cyclingThreshold != null) { attributes.cyclingThreshold = m.cyclingThreshold; }\nif (m.stabilityThreshold != null) { attributes.stabilityThreshold = m.stabilityThreshold; }\nif (m.pumpPresent != null) { attributes.pumpPresent = m.pumpPresent; }\nif (m.pumpControlType != null) { attributes.pumpControlType = m.pumpControlType; }\nif (m.pumpRatedPower != null) { attributes.pumpRatedPower = m.pumpRatedPower; }\nif (m.auxSensor1 != null) { attributes.auxSensor1 = m.auxSensor1; }\nif (m.auxSensor2 != null) { attributes.auxSensor2 = m.auxSensor2; }\nif (m.calculatePower != null) { attributes.calculatePower = m.calculatePower; }\nif (m.progress != null) { attributes.progress = m.progress; }\n\nreturn { msg: attributes, metadata: metadata, msgType: msgType };"
         },
         "additionalInfo": {
-          "description": "Prepare individual measurement attributes for update",
-          "layoutX": 1300,
+          "description": "Prepare measurement attributes",
+          "layoutX": 1700,
           "layoutY": 200
         }
       },
@@ -153,7 +198,7 @@
         "queueName": null,
         "configurationVersion": 5,
         "configuration": {
-          "restEndpointUrlPattern": "${TB_BASE_URL}/api/plugins/telemetry/ASSET/${measurementId}/attributes/SERVER_SCOPE",
+          "restEndpointUrlPattern": "https://diagnostics.ecoenergygroup.com/api/plugins/telemetry/ASSET/${measurementId}/attributes/SERVER_SCOPE",
           "requestMethod": "POST",
           "useSimpleClientHttpFactory": false,
           "parseToPlainText": false,
@@ -163,32 +208,14 @@
           "maxParallelRequestsCount": 0,
           "headers": {
             "Content-Type": "application/json",
-            "X-Authorization": "Bearer ${systemJwtToken}"
+            "X-Authorization": "Bearer ${jwtToken}"
           },
           "credentials": { "type": "anonymous" }
         },
         "additionalInfo": {
-          "description": "Update Measurement attributes via API",
-          "layoutX": 1500,
+          "description": "Update measurement attributes",
+          "layoutX": 1900,
           "layoutY": 200
-        }
-      },
-      {
-        "type": "org.thingsboard.rule.engine.action.TbLogNode",
-        "name": "Log Success",
-        "debugSettings": { "allEnabled": true },
-        "singletonMode": false,
-        "queueName": null,
-        "configurationVersion": 0,
-        "configuration": {
-          "scriptLang": "TBEL",
-          "jsScript": "",
-          "tbelScript": "return 'Update Project completed for: ' + metadata.projectId;"
-        },
-        "additionalInfo": {
-          "description": "Log successful update",
-          "layoutX": 900,
-          "layoutY": 100
         }
       },
       {
@@ -204,9 +231,27 @@
           "tbelScript": "return 'Measurement updated: ' + metadata.measurementId;"
         },
         "additionalInfo": {
-          "description": "Log successful measurement update",
-          "layoutX": 1700,
+          "description": "Log success",
+          "layoutX": 2100,
           "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "Log Project Done",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "return 'Project updated: ' + metadata.projectId;"
+        },
+        "additionalInfo": {
+          "description": "Log project done",
+          "layoutX": 1300,
+          "layoutY": 100
         }
       },
       {
@@ -219,31 +264,12 @@
         "configuration": {
           "scriptLang": "TBEL",
           "jsScript": "",
-          "tbelScript": "return 'Update Project Error: ' + JSON.stringify(msg) + ' Metadata: ' + JSON.stringify(metadata);"
+          "tbelScript": "return 'Update Project Error: ' + JSON.stringify(msg);"
         },
         "additionalInfo": {
           "description": "Log errors",
-          "layoutX": 500,
+          "layoutX": 900,
           "layoutY": 400
-        }
-      },
-      {
-        "type": "org.thingsboard.rule.engine.telemetry.TbMsgDeleteAttributesNode",
-        "name": "Delete Trigger Attribute",
-        "debugSettings": { "allEnabled": true },
-        "singletonMode": false,
-        "queueName": null,
-        "configurationVersion": 1,
-        "configuration": {
-          "scope": "SERVER_SCOPE",
-          "keys": ["updateProject"],
-          "sendAttributesDeletedNotification": false,
-          "notifyDevice": false
-        },
-        "additionalInfo": {
-          "description": "Clean up the trigger attribute after processing",
-          "layoutX": 1100,
-          "layoutY": 100
         }
       }
     ],
@@ -251,15 +277,17 @@
       { "fromIndex": 0, "toIndex": 1, "type": "hasUpdate" },
       { "fromIndex": 1, "toIndex": 2, "type": "Success" },
       { "fromIndex": 2, "toIndex": 3, "type": "Success" },
-      { "fromIndex": 3, "toIndex": 4, "type": "hasMeasurements" },
-      { "fromIndex": 3, "toIndex": 8, "type": "done" },
+      { "fromIndex": 3, "toIndex": 4, "type": "Success" },
       { "fromIndex": 4, "toIndex": 5, "type": "Success" },
-      { "fromIndex": 5, "toIndex": 6, "type": "Success" },
+      { "fromIndex": 5, "toIndex": 6, "type": "hasMeasurements" },
+      { "fromIndex": 5, "toIndex": 11, "type": "done" },
       { "fromIndex": 6, "toIndex": 7, "type": "Success" },
-      { "fromIndex": 7, "toIndex": 9, "type": "Success" },
-      { "fromIndex": 8, "toIndex": 11, "type": "Success" },
-      { "fromIndex": 2, "toIndex": 10, "type": "Failure" },
-      { "fromIndex": 7, "toIndex": 10, "type": "Failure" }
+      { "fromIndex": 7, "toIndex": 8, "type": "Success" },
+      { "fromIndex": 8, "toIndex": 9, "type": "Success" },
+      { "fromIndex": 9, "toIndex": 10, "type": "Success" },
+      { "fromIndex": 2, "toIndex": 12, "type": "Failure" },
+      { "fromIndex": 4, "toIndex": 12, "type": "Failure" },
+      { "fromIndex": 9, "toIndex": 12, "type": "Failure" }
     ],
     "ruleChainConnections": null
   }
