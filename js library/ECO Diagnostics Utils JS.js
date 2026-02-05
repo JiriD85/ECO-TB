@@ -638,15 +638,21 @@ export function createAlarmBadgeHtml(state, totalAlarms, elementId) {
             '</div>' +
         '</div>';
     } else {
-        // No alarms: Styled badge like getProgressHtml (same look as "Finished" etc.)
+        // No alarms: Same dimensions as "with alarms" to prevent layout shift
         var idAttr = elementId ? 'id="' + elementId + '"' : '';
         return '<div ' + idAttr + ' class="state-alarm-card" style="' +
-            'display:inline-block;padding:4px 8px;border-radius:8px;' +
-            'line-height:20px;font-size:14px;font-weight:500;' +
-            'letter-spacing:0.25px;cursor:pointer;transition:all 0.2s ease;' +
-            'color:' + stateStyle.color + ';' +
-            'background-color:' + stateStyle.bgColor + ';">' +
-            stateLabel +
+            'display:inline-flex;align-items:center;gap:12px;' +
+            'padding:8px 14px;border-radius:8px;cursor:pointer;' +
+            'background:' + stateStyle.bgColor + ';' +
+            'transition:all 0.2s ease;">' +
+            // State text (colored)
+            '<span style="font-weight:600;font-size:13px;color:' + stateStyle.color + ';">' +
+                stateLabel +
+            '</span>' +
+            // Bell icon placeholder (same size as with alarms, but muted)
+            '<div style="position:relative;display:inline-flex;">' +
+                '<mat-icon style="font-size:22px;width:22px;height:22px;color:#bbb;">notifications_none</mat-icon>' +
+            '</div>' +
         '</div>';
     }
 }
