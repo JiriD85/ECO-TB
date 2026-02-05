@@ -5548,3 +5548,369 @@ mat-toolbar.eco-dialog-header,
     }
   }
 }
+
+// ============================================================================
+// REPROCESS CALCULATED FIELDS DIALOG
+// ============================================================================
+
+/**
+ * Opens the Reprocess Calculated Fields dialog
+ * Allows reprocessing of calculated fields for a measurement
+ *
+ * @param {Object} widgetContext - ThingsBoard widget context
+ * @param {Object} measurementId - Measurement entity ID { id: string, entityType: 'ASSET' }
+ * @param {Function} callback - Optional callback after reprocessing
+ */
+export function openReprocessDialog(widgetContext, measurementId, callback) {
+  const $injector = widgetContext.$scope.$injector;
+  const customDialog = $injector.get(widgetContext.servicesMap.get('customDialog'));
+  const http = $injector.get(widgetContext.servicesMap.get('http'));
+  const attributeService = $injector.get(widgetContext.servicesMap.get('attributeService'));
+
+  // Calculated Field IDs grouped by category
+  const cfGroups = {
+    basic: {
+      label: 'Basic (is_on, load_class, dT_flag, data_quality)',
+      id: '6cac3240-0211-11f1-9b0a-33b9bcf3ddd0'
+    },
+    power: {
+      label: 'Power (P_th_calc_kW, P_deviation_pct, P_sensor_flag)',
+      id: '8d2f1a50-0211-11f1-9979-9f3434877bb4'
+    },
+    schedule: {
+      label: 'Schedule (schedule_violation)',
+      id: 'aee1f6e0-0211-11f1-9979-9f3434877bb4'
+    },
+    oscillation: {
+      label: 'Oscillation Detection',
+      id: '30eb6890-0133-11f1-9979-9f3434877bb4'
+    },
+    dt_collapse: {
+      label: 'dT Collapse Flag',
+      id: '684c01c0-0127-11f1-9979-9f3434877bb4'
+    },
+    flow_spike: {
+      label: 'Flow Spike Flag',
+      id: '685884e0-0127-11f1-9979-9f3434877bb4'
+    },
+    power_stability: {
+      label: 'Power Stability',
+      id: 'a065a960-0129-11f1-9979-9f3434877bb4'
+    },
+    runtime_pct: {
+      label: 'Runtime Percentage',
+      id: 'a06e8300-0129-11f1-9979-9f3434877bb4'
+    },
+    cycling: {
+      label: 'Cycling Flag',
+      id: 'aedba340-012a-11f1-9979-9f3434877bb4'
+    }
+  };
+
+  // Fetch measurement timestamps to get time range
+  attributeService.getEntityAttributes(measurementId, 'SERVER_SCOPE', ['startTimeMs', 'endTimeMs']).subscribe(
+    function(attributes) {
+      const attrMap = {};
+      attributes.forEach(function(a) { attrMap[a.key] = a.value; });
+      openDialog(attrMap);
+    },
+    function(error) {
+      console.error('Error fetching measurement attributes:', error);
+      openDialog({});
+    }
+  );
+
+  function openDialog(attrMap) {
+    const htmlTemplate = `<style>
+/* ECO Design System - Reprocess Dialog */
+mat-toolbar.eco-dialog-header,
+.eco-dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  background-color: var(--tb-primary-500) !important;
+  background: var(--tb-primary-500) !important;
+  color: white !important;
+}
+.eco-dialog-header .header-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  color: white !important;
+}
+.eco-dialog-header .header-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 500;
+  color: white !important;
+}
+.eco-dialog-header .close-btn {
+  color: rgba(255,255,255,0.8) !important;
+  margin-left: auto;
+}
+.eco-dialog-header .close-btn:hover {
+  color: white !important;
+  background: rgba(255,255,255,0.1) !important;
+}
+.dialog-content {
+  padding: 16px 20px !important;
+  background: #f8fafc !important;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.section-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid var(--tb-primary-500);
+  border-radius: 4px;
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #f1f5f9;
+  border-bottom: 1px solid #e2e8f0;
+  font-weight: 600;
+  font-size: 13px;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.section-header mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--tb-primary-500);
+}
+.section-body {
+  padding: 12px 14px;
+}
+.cf-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cf-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+}
+.cf-item mat-checkbox {
+  font-size: 14px;
+}
+.select-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.select-actions button {
+  font-size: 12px;
+  padding: 4px 8px;
+  min-width: auto;
+}
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-top: 1px solid #e2e8f0;
+  background: #fafafa;
+}
+.result-message {
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-top: 8px;
+}
+.result-success {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+.result-error {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+.result-message mat-icon {
+  vertical-align: middle;
+  margin-right: 8px;
+}
+.flex-1 { flex: 1; }
+.w-full { width: 100%; }
+</style>
+<form #reprocessForm="ngForm" [formGroup]="reprocessFormGroup"
+      (ngSubmit)="reprocess()" class="reprocess-form" style="width: 500px; max-width: 90vw;">
+  <mat-toolbar class="eco-dialog-header">
+    <mat-icon class="header-icon">refresh</mat-icon>
+    <h2 class="header-title">Reprocess Calculated Fields</h2>
+    <span class="flex-1"></span>
+    <button mat-icon-button (click)="cancel()" type="button" class="close-btn">
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-toolbar>
+  <mat-progress-bar color="warn" mode="indeterminate" *ngIf="isLoading">
+  </mat-progress-bar>
+  <div style="height: 4px;" *ngIf="!isLoading"></div>
+  <div class="dialog-content">
+
+    <!-- Derived Fields Section -->
+    <div class="section-card">
+      <div class="section-header">
+        <mat-icon>calculate</mat-icon>
+        <span>Derived Fields</span>
+      </div>
+      <div class="section-body">
+        <div class="select-actions">
+          <button mat-stroked-button type="button" (click)="selectAll()">Select All</button>
+          <button mat-stroked-button type="button" (click)="selectNone()">Deselect All</button>
+        </div>
+        <div class="cf-group">
+          <div class="cf-item" *ngFor="let cf of cfList">
+            <mat-checkbox [formControlName]="cf.key">{{ cf.label }}</mat-checkbox>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result Message -->
+    <div *ngIf="resultMessage" class="result-message" [ngClass]="resultSuccess ? 'result-success' : 'result-error'">
+      <mat-icon>{{ resultSuccess ? 'check_circle' : 'error' }}</mat-icon>
+      {{ resultMessage }}
+    </div>
+
+  </div>
+  <div class="dialog-footer">
+    <button mat-button type="button" (click)="cancel()">Cancel</button>
+    <button mat-raised-button color="primary" type="submit"
+            [disabled]="isLoading || !hasSelection()">
+      <mat-icon>refresh</mat-icon>
+      Reprocess Selected
+    </button>
+  </div>
+</form>`;
+
+    customDialog.customDialog(htmlTemplate, ReprocessDialogController, {
+      measurementId,
+      cfGroups,
+      attrMap
+    }).subscribe();
+  }
+
+  function ReprocessDialogController(instance) {
+    const vm = instance;
+    const config = vm.data;
+
+    vm.isLoading = false;
+    vm.resultMessage = '';
+    vm.resultSuccess = false;
+    vm.measurementId = config.measurementId;
+    vm.startTs = config.attrMap.startTimeMs || (Date.now() - 30 * 24 * 60 * 60 * 1000); // Default: 30 days ago
+    vm.endTs = config.attrMap.endTimeMs || Date.now();
+
+    // Build CF list for checkboxes
+    vm.cfList = Object.keys(config.cfGroups).map(function(key) {
+      return {
+        key: key,
+        label: config.cfGroups[key].label,
+        id: config.cfGroups[key].id
+      };
+    });
+
+    // Create form group with checkbox for each CF
+    const formGroupConfig = {};
+    vm.cfList.forEach(function(cf) {
+      formGroupConfig[cf.key] = [false];
+    });
+    vm.reprocessFormGroup = vm.fb.group(formGroupConfig);
+
+    vm.selectAll = function() {
+      vm.cfList.forEach(function(cf) {
+        vm.reprocessFormGroup.get(cf.key).setValue(true);
+      });
+    };
+
+    vm.selectNone = function() {
+      vm.cfList.forEach(function(cf) {
+        vm.reprocessFormGroup.get(cf.key).setValue(false);
+      });
+    };
+
+    vm.hasSelection = function() {
+      return vm.cfList.some(function(cf) {
+        return vm.reprocessFormGroup.get(cf.key).value === true;
+      });
+    };
+
+    vm.cancel = function() {
+      vm.dialogRef.close(null);
+    };
+
+    vm.reprocess = function() {
+      if (!vm.hasSelection()) {
+        vm.resultMessage = 'Please select at least one calculated field.';
+        vm.resultSuccess = false;
+        return;
+      }
+
+      vm.isLoading = true;
+      vm.resultMessage = '';
+
+      // Get selected CF IDs
+      const selectedCfs = vm.cfList.filter(function(cf) {
+        return vm.reprocessFormGroup.get(cf.key).value === true;
+      });
+
+      // Process each selected CF sequentially
+      let completed = 0;
+      let errors = [];
+      let successes = [];
+
+      function processNext(index) {
+        if (index >= selectedCfs.length) {
+          // All done
+          vm.isLoading = false;
+          if (errors.length === 0) {
+            vm.resultSuccess = true;
+            vm.resultMessage = 'Successfully started reprocessing for ' + successes.length + ' calculated field(s).';
+          } else if (successes.length > 0) {
+            vm.resultSuccess = false;
+            vm.resultMessage = 'Reprocessing started for ' + successes.length + ' field(s), but ' + errors.length + ' failed: ' + errors.join(', ');
+          } else {
+            vm.resultSuccess = false;
+            vm.resultMessage = 'Reprocessing failed: ' + errors.join(', ');
+          }
+          if (callback && successes.length > 0) {
+            callback();
+          }
+          return;
+        }
+
+        const cf = selectedCfs[index];
+        const url = '/api/calculatedField/' + cf.id + '/reprocess?startTs=' + vm.startTs + '&endTs=' + vm.endTs;
+
+        http.get(url).subscribe(
+          function(response) {
+            successes.push(cf.label);
+            processNext(index + 1);
+          },
+          function(error) {
+            console.error('Reprocess error for ' + cf.key + ':', error);
+            errors.push(cf.label);
+            processNext(index + 1);
+          }
+        );
+      }
+
+      processNext(0);
+    };
+  }
+}
