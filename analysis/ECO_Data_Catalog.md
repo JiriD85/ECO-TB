@@ -701,10 +701,44 @@ foreach(v: is_on) {
 ```
 
 **TBEL-Besonderheiten:**
-- Verwende `foreach(v: argName)` für Iteration
-- Verwende `argName.count()` für Anzahl (nicht `.values.length`)
-- Verwende `!=` statt `!==` (strict equality nicht unterstützt)
-- Verwende `toInt()` für Integer-Konvertierung
+- Verwende `foreach(v: argName)` fuer Iteration
+- Verwende `argName.count()` fuer Anzahl (nicht `.values.length`)
+- Verwende `!=` statt `!==` (strict equality nicht unterstuetzt)
+- Verwende `toInt()` fuer Integer-Konvertierung
+
+**TBEL Boolean-Handling (KRITISCH):**
+
+TBEL erfordert besondere Vorsicht beim Zuweisen von Booleans zu Map-Keys. Die falsche Verwendung von Ternary-Operatoren kann zu `Null key for a Map not allowed in JSON` Fehlern fuehren.
+
+```javascript
+// FALSCH - Verursacht "null key" Fehler in bestimmten Faellen:
+result["is_on"] = (isOn) ? true : false;
+result["flag"] = isCondition ? true : false;
+
+// RICHTIG - Verwende if/else fuer Boolean-Zuweisungen:
+if (Vdot_m3h > threshold) {
+  result["is_on"] = true;
+} else {
+  result["is_on"] = false;
+}
+
+// RICHTIG - Falls Ternary noetig, GESAMTEN Ausdruck in Klammern:
+result["is_on"] = (isOn ? true : false);  // Klammern um gesamten Ternary!
+
+// RICHTIG - Fuer nicht-Boolean Ternary (z.B. Objekt-Auswahl):
+var schedule = (isMap(weeklySchedule) ? weeklySchedule : JSON.parse(weeklySchedule));
+```
+
+**Attribut-Guards:**
+Immer pruefen ob Attribute vorhanden sind, bevor sie verwendet werden:
+
+```javascript
+// Attribut mit Default-Wert absichern
+var threshold = flowOnThreshold;
+if (threshold == null) {
+  threshold = 0.1;  // Default
+}
+```
 
 ---
 
