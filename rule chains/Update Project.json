@@ -1,0 +1,266 @@
+{
+  "ruleChain": {
+    "name": "Update Project",
+    "type": "CORE",
+    "firstRuleNodeId": null,
+    "root": false,
+    "debugMode": true,
+    "configuration": null,
+    "additionalInfo": {
+      "description": "Updates an existing Project Asset when 'updateProject' attribute is received on the Project. Triggered by external services via API."
+    }
+  },
+  "metadata": {
+    "firstNodeIndex": 0,
+    "nodes": [
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbJsSwitchNode",
+        "name": "Check updateProject",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "if (msg.updateProject != null) {\n    return ['hasUpdate'];\n} else {\n    return ['other'];\n}"
+        },
+        "additionalInfo": {
+          "description": "Check if message contains updateProject attribute",
+          "layoutX": 100,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Parse Update Data",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "// Parse updateProject JSON\nvar updateData = msg.updateProject;\n\n// Store project ID (the originator is the Project asset)\nmetadata.projectId = metadata.originatorId;\nmetadata.projectEntityType = metadata.originatorType;\n\n// Prepare attributes to update\nvar attributes = {};\n\n// Only include fields that are present in the update\nif (updateData.projectName != null) {\n    // Update label via asset API would need separate call\n    metadata.newLabel = updateData.projectName;\n}\nif (updateData.address != null) {\n    attributes.address = updateData.address;\n}\nif (updateData.postalCode != null) {\n    attributes.postalCode = updateData.postalCode;\n}\nif (updateData.city != null) {\n    attributes.city = updateData.city;\n}\nif (updateData.country != null) {\n    attributes.country = updateData.country;\n}\nif (updateData.latitude != null) {\n    attributes.latitude = parseFloat(updateData.latitude);\n}\nif (updateData.longitude != null) {\n    attributes.longitude = parseFloat(updateData.longitude);\n}\nif (updateData.normOutdoorTemp != null) {\n    attributes.normOutdoorTemp = parseFloat(updateData.normOutdoorTemp);\n}\nif (updateData.units != null) {\n    attributes.units = updateData.units;\n}\nif (updateData.area != null) {\n    attributes.area = updateData.area;\n}\nif (updateData.progress != null) {\n    attributes.progress = updateData.progress;\n}\n\n// Store measurements for later processing if present\nif (updateData.measurements != null) {\n    metadata.measurementsJson = JSON.stringify(updateData.measurements);\n    metadata.hasMeasurements = 'true';\n} else {\n    metadata.hasMeasurements = 'false';\n}\n\nreturn { msg: attributes, metadata: metadata, msgType: msgType };"
+        },
+        "additionalInfo": {
+          "description": "Parse update JSON and prepare attributes",
+          "layoutX": 300,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "Update Project Attributes",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 5,
+        "configuration": {
+          "restEndpointUrlPattern": "${TB_BASE_URL}/api/plugins/telemetry/ASSET/${originatorId}/attributes/SERVER_SCOPE",
+          "requestMethod": "POST",
+          "useSimpleClientHttpFactory": false,
+          "parseToPlainText": false,
+          "ignoreRequestBody": false,
+          "enableProxy": false,
+          "readTimeoutMs": 5000,
+          "maxParallelRequestsCount": 0,
+          "headers": {
+            "Content-Type": "application/json",
+            "X-Authorization": "Bearer ${systemJwtToken}"
+          },
+          "credentials": { "type": "anonymous" }
+        },
+        "additionalInfo": {
+          "description": "Update Project attributes via API",
+          "layoutX": 500,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbJsSwitchNode",
+        "name": "Check for Measurements",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "if (metadata.hasMeasurements == 'true') {\n    return ['hasMeasurements'];\n} else {\n    return ['done'];\n}"
+        },
+        "additionalInfo": {
+          "description": "Check if there are measurements to update",
+          "layoutX": 700,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Prepare Measurements Update",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "// Parse measurements from metadata\nvar measurements = JSON.parse(metadata.measurementsJson);\nvar result = [];\n\nforeach(m : measurements) {\n    // Each measurement update must include the measurementId\n    if (m.measurementId != null) {\n        result.add(m);\n    }\n}\n\nreturn { msg: result, metadata: metadata, msgType: msgType };"
+        },
+        "additionalInfo": {
+          "description": "Prepare measurements array for updating",
+          "layoutX": 900,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbSplitArrayMsgNode",
+        "name": "Split Measurements Array",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {},
+        "additionalInfo": {
+          "description": "Split measurements array into individual messages",
+          "layoutX": 1100,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Prepare Measurement Attributes",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "// msg now contains single measurement update object\nvar m = msg;\nmetadata.measurementId = m.measurementId;\n\n// Prepare attributes to update (only include non-null values) - ALL attributes from Data Catalog\nvar attributes = {};\n\nif (m.measurementName != null) {\n    metadata.newMeasurementLabel = m.measurementName;\n}\nif (m.installationType != null) {\n    attributes.installationType = m.installationType;\n}\nif (m.systemType != null) {\n    attributes.systemType = m.systemType;\n}\nif (m.measurementType != null) {\n    attributes.measurementType = m.measurementType;\n}\nif (m.measurementRole != null) {\n    attributes.measurementRole = m.measurementRole;\n}\nif (m.hydraulicScheme != null) {\n    attributes.hydraulicScheme = m.hydraulicScheme;\n}\nif (m.fluidType != null) {\n    attributes.fluidType = m.fluidType;\n}\nif (m.designFlowTemp != null) {\n    attributes.designFlowTemp = m.designFlowTemp;\n}\nif (m.designReturnTemp != null) {\n    attributes.designReturnTemp = m.designReturnTemp;\n}\nif (m.designDeltaT != null) {\n    attributes.designDeltaT = m.designDeltaT;\n}\nif (m.designPower != null) {\n    attributes.designPower = m.designPower;\n}\nif (m.designFlow != null) {\n    attributes.designFlow = m.designFlow;\n}\nif (m.pipeDimension != null) {\n    attributes.pipeDimension = m.pipeDimension;\n}\nif (m.valveDimension != null) {\n    attributes.valveDimension = m.valveDimension;\n}\nif (m.valveKvs != null) {\n    attributes.valveKvs = m.valveKvs;\n}\nif (m.flowOnThreshold != null) {\n    attributes.flowOnThreshold = m.flowOnThreshold;\n}\nif (m.hysteresisMinutes != null) {\n    attributes.hysteresisMinutes = m.hysteresisMinutes;\n}\nif (m.weeklySchedule != null) {\n    attributes.weeklySchedule = m.weeklySchedule;\n}\nif (m.collapseThreshold != null) {\n    attributes.collapseThreshold = m.collapseThreshold;\n}\nif (m.spikeThreshold != null) {\n    attributes.spikeThreshold = m.spikeThreshold;\n}\nif (m.cyclingThreshold != null) {\n    attributes.cyclingThreshold = m.cyclingThreshold;\n}\nif (m.stabilityThreshold != null) {\n    attributes.stabilityThreshold = m.stabilityThreshold;\n}\nif (m.pumpPresent != null) {\n    attributes.pumpPresent = m.pumpPresent;\n}\nif (m.pumpControlType != null) {\n    attributes.pumpControlType = m.pumpControlType;\n}\nif (m.pumpRatedPower != null) {\n    attributes.pumpRatedPower = m.pumpRatedPower;\n}\nif (m.auxSensor1 != null) {\n    attributes.auxSensor1 = m.auxSensor1;\n}\nif (m.auxSensor2 != null) {\n    attributes.auxSensor2 = m.auxSensor2;\n}\nif (m.calculatePower != null) {\n    attributes.calculatePower = m.calculatePower;\n}\nif (m.progress != null) {\n    attributes.progress = m.progress;\n}\n\nreturn { msg: attributes, metadata: metadata, msgType: msgType };"
+        },
+        "additionalInfo": {
+          "description": "Prepare individual measurement attributes for update",
+          "layoutX": 1300,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "Update Measurement Attributes",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 5,
+        "configuration": {
+          "restEndpointUrlPattern": "${TB_BASE_URL}/api/plugins/telemetry/ASSET/${measurementId}/attributes/SERVER_SCOPE",
+          "requestMethod": "POST",
+          "useSimpleClientHttpFactory": false,
+          "parseToPlainText": false,
+          "ignoreRequestBody": false,
+          "enableProxy": false,
+          "readTimeoutMs": 5000,
+          "maxParallelRequestsCount": 0,
+          "headers": {
+            "Content-Type": "application/json",
+            "X-Authorization": "Bearer ${systemJwtToken}"
+          },
+          "credentials": { "type": "anonymous" }
+        },
+        "additionalInfo": {
+          "description": "Update Measurement attributes via API",
+          "layoutX": 1500,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "Log Success",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "return 'Update Project completed for: ' + metadata.projectId;"
+        },
+        "additionalInfo": {
+          "description": "Log successful update",
+          "layoutX": 900,
+          "layoutY": 100
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "Log Measurement Updated",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "return 'Measurement updated: ' + metadata.measurementId;"
+        },
+        "additionalInfo": {
+          "description": "Log successful measurement update",
+          "layoutX": 1700,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "Log Error",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "return 'Update Project Error: ' + JSON.stringify(msg) + ' Metadata: ' + JSON.stringify(metadata);"
+        },
+        "additionalInfo": {
+          "description": "Log errors",
+          "layoutX": 500,
+          "layoutY": 400
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.telemetry.TbMsgDeleteAttributesNode",
+        "name": "Delete Trigger Attribute",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "scope": "SERVER_SCOPE",
+          "keys": ["updateProject"],
+          "sendAttributesDeletedNotification": false,
+          "notifyDevice": false
+        },
+        "additionalInfo": {
+          "description": "Clean up the trigger attribute after processing",
+          "layoutX": 1100,
+          "layoutY": 100
+        }
+      }
+    ],
+    "connections": [
+      { "fromIndex": 0, "toIndex": 1, "type": "hasUpdate" },
+      { "fromIndex": 1, "toIndex": 2, "type": "Success" },
+      { "fromIndex": 2, "toIndex": 3, "type": "Success" },
+      { "fromIndex": 3, "toIndex": 4, "type": "hasMeasurements" },
+      { "fromIndex": 3, "toIndex": 8, "type": "done" },
+      { "fromIndex": 4, "toIndex": 5, "type": "Success" },
+      { "fromIndex": 5, "toIndex": 6, "type": "Success" },
+      { "fromIndex": 6, "toIndex": 7, "type": "Success" },
+      { "fromIndex": 7, "toIndex": 9, "type": "Success" },
+      { "fromIndex": 8, "toIndex": 11, "type": "Success" },
+      { "fromIndex": 2, "toIndex": 10, "type": "Failure" },
+      { "fromIndex": 7, "toIndex": 10, "type": "Failure" }
+    ],
+    "ruleChainConnections": null
+  }
+}

@@ -1,0 +1,521 @@
+{
+  "ruleChain": {
+    "name": "Create Project",
+    "type": "CORE",
+    "firstRuleNodeId": null,
+    "root": false,
+    "debugMode": true,
+    "configuration": null,
+    "additionalInfo": {
+      "description": "Creates a Project Asset with Measurements when 'createProject' attribute is received on a Customer. Triggered by external services via API."
+    }
+  },
+  "metadata": {
+    "firstNodeIndex": 0,
+    "nodes": [
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbJsSwitchNode",
+        "name": "Check createProject",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "if (msg.createProject != null) {\n    return ['hasProject'];\n} else {\n    return ['other'];\n}"
+        },
+        "additionalInfo": {
+          "description": "Check if message contains createProject attribute",
+          "layoutX": 100,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Parse and Store Data",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "// Parse createProject JSON\nvar projectData = msg.createProject;\n\n// Store all data in metadata for later use\nmetadata.projectName = projectData.projectName;\nmetadata.address = projectData.address;\nmetadata.postalCode = projectData.postalCode;\nmetadata.city = projectData.city;\nmetadata.country = projectData.country;\nmetadata.latitude = projectData.latitude;\nmetadata.longitude = projectData.longitude;\nmetadata.normOutdoorTemp = projectData.normOutdoorTemp;\nmetadata.units = projectData.units;\n\n// Store area as JSON string (Project attribute)\nif (projectData.area != null) {\n    metadata.area = JSON.stringify(projectData.area);\n}\n\n// Store measurements as JSON string\nif (projectData.measurements != null) {\n    metadata.measurementsJson = JSON.stringify(projectData.measurements);\n} else {\n    metadata.measurementsJson = '[]';\n}\n\n// Store customer info from originator\nmetadata.customerId = metadata.originatorId;\nmetadata.customerType = metadata.originatorType;\n\nreturn { msg: {}, metadata: metadata, msgType: msgType };"
+        },
+        "additionalInfo": {
+          "description": "Parse JSON and store all data in metadata",
+          "layoutX": 300,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.metadata.TbGetAttributesNode",
+        "name": "Get Customer Attributes",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "serverAttributeNames": ["shortName"],
+          "fetchTo": "METADATA",
+          "getLatestValueWithTs": false
+        },
+        "additionalInfo": {
+          "description": "Fetch customer shortName for entityName generation",
+          "layoutX": 500,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "Get Customer Entity Groups",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 5,
+        "configuration": {
+          "restEndpointUrlPattern": "${TB_BASE_URL}/api/entityGroup/all/CUSTOMER/${originatorId}/ASSET",
+          "requestMethod": "GET",
+          "useSimpleClientHttpFactory": false,
+          "parseToPlainText": false,
+          "ignoreRequestBody": true,
+          "enableProxy": false,
+          "readTimeoutMs": 5000,
+          "maxParallelRequestsCount": 0,
+          "headers": {
+            "Content-Type": "application/json",
+            "X-Authorization": "Bearer ${systemJwtToken}"
+          },
+          "credentials": { "type": "anonymous" }
+        },
+        "additionalInfo": {
+          "description": "Get all Asset entity groups of the customer",
+          "layoutX": 700,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Extract Group IDs",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "// msg now contains the entity groups array from API response\nvar groups = msg;\nvar projectsGroupId = null;\nvar measurementsGroupId = null;\n\nforeach(g : groups) {\n    if (g.name == 'Projects') {\n        projectsGroupId = g.id.id;\n    }\n    if (g.name == 'Measurements') {\n        measurementsGroupId = g.id.id;\n    }\n}\n\nmetadata.projectsGroupId = projectsGroupId;\nmetadata.measurementsGroupId = measurementsGroupId;\n\n// Prepare request to get existing projects for numbering\nreturn { msg: {}, metadata: metadata, msgType: msgType };"
+        },
+        "additionalInfo": {
+          "description": "Extract Projects and Measurements group IDs",
+          "layoutX": 900,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "Get Existing Projects",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 5,
+        "configuration": {
+          "restEndpointUrlPattern": "${TB_BASE_URL}/api/entityGroup/${projectsGroupId}/assets?pageSize=1000&page=0",
+          "requestMethod": "GET",
+          "useSimpleClientHttpFactory": false,
+          "parseToPlainText": false,
+          "ignoreRequestBody": true,
+          "enableProxy": false,
+          "readTimeoutMs": 5000,
+          "maxParallelRequestsCount": 0,
+          "headers": {
+            "Content-Type": "application/json",
+            "X-Authorization": "Bearer ${systemJwtToken}"
+          },
+          "credentials": { "type": "anonymous" }
+        },
+        "additionalInfo": {
+          "description": "Get existing projects to determine next project number",
+          "layoutX": 1100,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Generate Project Name",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "// msg contains paginated response with data array\nvar projects = msg.data;\nvar maxNum = 0;\n\n// Find highest project number\nforeach(p : projects) {\n    var name = p.name;\n    // Extract number from format: SHORTNAME_P-0001\n    var parts = name.split('_P-');\n    if (parts.length() == 2) {\n        var numStr = parts[1];\n        var num = parseInt(numStr);\n        if (num > maxNum) {\n            maxNum = num;\n        }\n    }\n}\n\nvar nextNum = maxNum + 1;\nvar paddedNum = 'P-' + ('0000' + nextNum).substring(nextNum.toString().length());\n\n// Use shortName or fallback to 'PRJ'\nvar shortName = metadata.ss_shortName;\nif (shortName == null || shortName == '') {\n    shortName = 'PRJ';\n}\n\nvar entityName = shortName + '_' + paddedNum;\nmetadata.projectEntityName = entityName;\n\n// Prepare Project asset body\nvar projectBody = {\n    name: entityName,\n    type: 'Project',\n    label: metadata.projectName,\n    customerId: {\n        entityType: 'CUSTOMER',\n        id: metadata.customerId\n    }\n};\n\nreturn { msg: projectBody, metadata: metadata, msgType: msgType };"
+        },
+        "additionalInfo": {
+          "description": "Generate unique project entityName (e.g. PKE_P-0023)",
+          "layoutX": 1300,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "Create Project Asset",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 5,
+        "configuration": {
+          "restEndpointUrlPattern": "${TB_BASE_URL}/api/asset?entityGroupId=${projectsGroupId}",
+          "requestMethod": "POST",
+          "useSimpleClientHttpFactory": false,
+          "parseToPlainText": false,
+          "ignoreRequestBody": false,
+          "enableProxy": false,
+          "readTimeoutMs": 5000,
+          "maxParallelRequestsCount": 0,
+          "headers": {
+            "Content-Type": "application/json",
+            "X-Authorization": "Bearer ${systemJwtToken}"
+          },
+          "credentials": { "type": "anonymous" }
+        },
+        "additionalInfo": {
+          "description": "Create the Project asset and add to Projects group",
+          "layoutX": 1500,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Store Project ID",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "// msg contains created project response\nmetadata.projectId = msg.id.id;\nmetadata.projectEntityType = 'ASSET';\n\n// Prepare relation body: Customer OWNS Project\nvar relationBody = {\n    from: {\n        entityType: 'CUSTOMER',\n        id: metadata.customerId\n    },\n    to: {\n        entityType: 'ASSET',\n        id: metadata.projectId\n    },\n    type: 'Owns',\n    typeGroup: 'COMMON'\n};\n\nreturn { msg: relationBody, metadata: metadata, msgType: msgType };"
+        },
+        "additionalInfo": {
+          "description": "Store project ID and prepare Customer-Project relation",
+          "layoutX": 1700,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "Create Customer-Project Relation",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 5,
+        "configuration": {
+          "restEndpointUrlPattern": "${TB_BASE_URL}/api/relation",
+          "requestMethod": "POST",
+          "useSimpleClientHttpFactory": false,
+          "parseToPlainText": false,
+          "ignoreRequestBody": false,
+          "enableProxy": false,
+          "readTimeoutMs": 5000,
+          "maxParallelRequestsCount": 0,
+          "headers": {
+            "Content-Type": "application/json",
+            "X-Authorization": "Bearer ${systemJwtToken}"
+          },
+          "credentials": { "type": "anonymous" }
+        },
+        "additionalInfo": {
+          "description": "Create Owns relation from Customer to Project",
+          "layoutX": 1900,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Prepare Project Attributes",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "// Prepare attributes body for Project\nvar attributes = {\n    progress: 'in preparation',\n    state: 'normal',\n    address: metadata.address,\n    postalCode: metadata.postalCode,\n    city: metadata.city,\n    country: metadata.country,\n    latitude: parseFloat(metadata.latitude),\n    longitude: parseFloat(metadata.longitude),\n    normOutdoorTemp: parseFloat(metadata.normOutdoorTemp),\n    units: metadata.units\n};\n\n// Add area if present (JSON object)\nif (metadata.area != null) {\n    attributes.area = JSON.parse(metadata.area);\n}\n\nreturn { msg: attributes, metadata: metadata, msgType: msgType };"
+        },
+        "additionalInfo": {
+          "description": "Prepare Project attributes for saving",
+          "layoutX": 2100,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "Save Project Attributes",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 5,
+        "configuration": {
+          "restEndpointUrlPattern": "${TB_BASE_URL}/api/plugins/telemetry/ASSET/${projectId}/attributes/SERVER_SCOPE",
+          "requestMethod": "POST",
+          "useSimpleClientHttpFactory": false,
+          "parseToPlainText": false,
+          "ignoreRequestBody": false,
+          "enableProxy": false,
+          "readTimeoutMs": 5000,
+          "maxParallelRequestsCount": 0,
+          "headers": {
+            "Content-Type": "application/json",
+            "X-Authorization": "Bearer ${systemJwtToken}"
+          },
+          "credentials": { "type": "anonymous" }
+        },
+        "additionalInfo": {
+          "description": "Save Project attributes via API",
+          "layoutX": 2300,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Prepare Measurements Array",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "// Parse measurements from metadata and add project info to each\nvar measurements = JSON.parse(metadata.measurementsJson);\nvar result = [];\nvar idx = 0;\n\nforeach(m : measurements) {\n    idx = idx + 1;\n    // Add project context to each measurement\n    m.projectId = metadata.projectId;\n    m.projectEntityName = metadata.projectEntityName;\n    m.customerId = metadata.customerId;\n    m.measurementsGroupId = metadata.measurementsGroupId;\n    m.measurementIndex = idx;\n    result.add(m);\n}\n\nreturn { msg: result, metadata: metadata, msgType: msgType };"
+        },
+        "additionalInfo": {
+          "description": "Prepare measurements array with project context",
+          "layoutX": 2500,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbSplitArrayMsgNode",
+        "name": "Split Measurements Array",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {},
+        "additionalInfo": {
+          "description": "Split measurements array into individual messages",
+          "layoutX": 2700,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Prepare Measurement Asset",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "// msg now contains single measurement object\nvar m = msg;\n\n// Generate measurement entityName: PROJECTNAME_M-01\nvar paddedIdx = 'M-' + ('00' + m.measurementIndex).substring(m.measurementIndex.toString().length());\nvar measurementEntityName = m.projectEntityName + '_' + paddedIdx;\n\n// Store for later use\nmetadata.measurementEntityName = measurementEntityName;\nmetadata.measurementName = m.measurementName;\nmetadata.measurementData = JSON.stringify(m);\nmetadata.projectId = m.projectId;\nmetadata.customerId = m.customerId;\nmetadata.measurementsGroupId = m.measurementsGroupId;\n\n// Prepare measurement asset body\nvar assetBody = {\n    name: measurementEntityName,\n    type: 'Measurement',\n    label: m.measurementName,\n    customerId: {\n        entityType: 'CUSTOMER',\n        id: m.customerId\n    }\n};\n\nreturn { msg: assetBody, metadata: metadata, msgType: msgType };"
+        },
+        "additionalInfo": {
+          "description": "Generate measurement entityName and prepare asset body",
+          "layoutX": 2900,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "Create Measurement Asset",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 5,
+        "configuration": {
+          "restEndpointUrlPattern": "${TB_BASE_URL}/api/asset?entityGroupId=${measurementsGroupId}",
+          "requestMethod": "POST",
+          "useSimpleClientHttpFactory": false,
+          "parseToPlainText": false,
+          "ignoreRequestBody": false,
+          "enableProxy": false,
+          "readTimeoutMs": 5000,
+          "maxParallelRequestsCount": 0,
+          "headers": {
+            "Content-Type": "application/json",
+            "X-Authorization": "Bearer ${systemJwtToken}"
+          },
+          "credentials": { "type": "anonymous" }
+        },
+        "additionalInfo": {
+          "description": "Create the Measurement asset and add to Measurements group",
+          "layoutX": 3100,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Store Measurement ID",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "// msg contains created measurement response\nmetadata.measurementId = msg.id.id;\n\n// Prepare relation body: Project OWNS Measurement\nvar relationBody = {\n    from: {\n        entityType: 'ASSET',\n        id: metadata.projectId\n    },\n    to: {\n        entityType: 'ASSET',\n        id: metadata.measurementId\n    },\n    type: 'Owns',\n    typeGroup: 'COMMON'\n};\n\nreturn { msg: relationBody, metadata: metadata, msgType: msgType };"
+        },
+        "additionalInfo": {
+          "description": "Store measurement ID and prepare Project-Measurement relation",
+          "layoutX": 3300,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "Create Project-Measurement Relation",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 5,
+        "configuration": {
+          "restEndpointUrlPattern": "${TB_BASE_URL}/api/relation",
+          "requestMethod": "POST",
+          "useSimpleClientHttpFactory": false,
+          "parseToPlainText": false,
+          "ignoreRequestBody": false,
+          "enableProxy": false,
+          "readTimeoutMs": 5000,
+          "maxParallelRequestsCount": 0,
+          "headers": {
+            "Content-Type": "application/json",
+            "X-Authorization": "Bearer ${systemJwtToken}"
+          },
+          "credentials": { "type": "anonymous" }
+        },
+        "additionalInfo": {
+          "description": "Create Owns relation from Project to Measurement",
+          "layoutX": 3500,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Prepare Measurement Attributes",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "// Parse measurement data from metadata\nvar m = JSON.parse(metadata.measurementData);\n\n// Prepare attributes body for Measurement - ALL attributes from Data Catalog\nvar attributes = {\n    progress: 'in preparation',\n    state: 'normal',\n    installationType: m.installationType,\n    systemType: m.systemType,\n    measurementType: m.measurementType,\n    measurementRole: m.measurementRole,\n    hydraulicScheme: m.hydraulicScheme,\n    fluidType: m.fluidType,\n    designFlowTemp: m.designFlowTemp,\n    designReturnTemp: m.designReturnTemp,\n    designDeltaT: m.designDeltaT,\n    designPower: m.designPower,\n    designFlow: m.designFlow,\n    pipeDimension: m.pipeDimension,\n    valveDimension: m.valveDimension,\n    valveKvs: m.valveKvs,\n    flowOnThreshold: m.flowOnThreshold,\n    hysteresisMinutes: m.hysteresisMinutes,\n    weeklySchedule: m.weeklySchedule,\n    collapseThreshold: m.collapseThreshold,\n    spikeThreshold: m.spikeThreshold,\n    cyclingThreshold: m.cyclingThreshold,\n    stabilityThreshold: m.stabilityThreshold,\n    pumpPresent: m.pumpPresent,\n    pumpControlType: m.pumpControlType,\n    pumpRatedPower: m.pumpRatedPower,\n    auxSensor1: m.auxSensor1,\n    auxSensor2: m.auxSensor2,\n    calculatePower: m.calculatePower\n};\n\n// Remove null/undefined values\nvar cleanAttributes = {};\nvar keys = attributes.keys();\nforeach(k : keys) {\n    if (attributes[k] != null) {\n        cleanAttributes[k] = attributes[k];\n    }\n}\n\nreturn { msg: cleanAttributes, metadata: metadata, msgType: msgType };"
+        },
+        "additionalInfo": {
+          "description": "Prepare Measurement attributes for saving",
+          "layoutX": 3700,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "Save Measurement Attributes",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 5,
+        "configuration": {
+          "restEndpointUrlPattern": "${TB_BASE_URL}/api/plugins/telemetry/ASSET/${measurementId}/attributes/SERVER_SCOPE",
+          "requestMethod": "POST",
+          "useSimpleClientHttpFactory": false,
+          "parseToPlainText": false,
+          "ignoreRequestBody": false,
+          "enableProxy": false,
+          "readTimeoutMs": 5000,
+          "maxParallelRequestsCount": 0,
+          "headers": {
+            "Content-Type": "application/json",
+            "X-Authorization": "Bearer ${systemJwtToken}"
+          },
+          "credentials": { "type": "anonymous" }
+        },
+        "additionalInfo": {
+          "description": "Save Measurement attributes via API",
+          "layoutX": 3900,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "Log Measurement Success",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "return 'Measurement created: ' + metadata.measurementEntityName;"
+        },
+        "additionalInfo": {
+          "description": "Log successful measurement creation",
+          "layoutX": 4100,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "Log Error",
+        "debugSettings": { "allEnabled": true },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "return 'Create Project Error: ' + JSON.stringify(msg) + ' Metadata: ' + JSON.stringify(metadata);"
+        },
+        "additionalInfo": {
+          "description": "Log errors",
+          "layoutX": 1500,
+          "layoutY": 400
+        }
+      }
+    ],
+    "connections": [
+      { "fromIndex": 0, "toIndex": 1, "type": "hasProject" },
+      { "fromIndex": 1, "toIndex": 2, "type": "Success" },
+      { "fromIndex": 2, "toIndex": 3, "type": "Success" },
+      { "fromIndex": 3, "toIndex": 4, "type": "Success" },
+      { "fromIndex": 4, "toIndex": 5, "type": "Success" },
+      { "fromIndex": 5, "toIndex": 6, "type": "Success" },
+      { "fromIndex": 6, "toIndex": 7, "type": "Success" },
+      { "fromIndex": 7, "toIndex": 8, "type": "Success" },
+      { "fromIndex": 8, "toIndex": 9, "type": "Success" },
+      { "fromIndex": 9, "toIndex": 10, "type": "Success" },
+      { "fromIndex": 10, "toIndex": 11, "type": "Success" },
+      { "fromIndex": 11, "toIndex": 12, "type": "Success" },
+      { "fromIndex": 12, "toIndex": 13, "type": "Success" },
+      { "fromIndex": 13, "toIndex": 14, "type": "Success" },
+      { "fromIndex": 14, "toIndex": 15, "type": "Success" },
+      { "fromIndex": 15, "toIndex": 16, "type": "Success" },
+      { "fromIndex": 16, "toIndex": 17, "type": "Success" },
+      { "fromIndex": 17, "toIndex": 18, "type": "Success" },
+      { "fromIndex": 18, "toIndex": 19, "type": "Success" },
+      { "fromIndex": 19, "toIndex": 20, "type": "Success" },
+      { "fromIndex": 3, "toIndex": 21, "type": "Failure" },
+      { "fromIndex": 5, "toIndex": 21, "type": "Failure" },
+      { "fromIndex": 7, "toIndex": 21, "type": "Failure" },
+      { "fromIndex": 9, "toIndex": 21, "type": "Failure" },
+      { "fromIndex": 11, "toIndex": 21, "type": "Failure" },
+      { "fromIndex": 15, "toIndex": 21, "type": "Failure" },
+      { "fromIndex": 17, "toIndex": 21, "type": "Failure" },
+      { "fromIndex": 19, "toIndex": 21, "type": "Failure" }
+    ],
+    "ruleChainConnections": null
+  }
+}
