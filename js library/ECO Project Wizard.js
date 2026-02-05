@@ -2686,6 +2686,17 @@ mat-toolbar.eco-dialog-header mat-icon {
           </mat-select>
         </mat-form-field>
       </div>
+
+      <!-- Calculate Power Toggle (aligned under Measurement Role) -->
+      <div class="flex items-center justify-end" style="margin-top: 8px;">
+        <mat-slide-toggle formControlName="calculatePower" color="primary">
+          Calculate Power (P_th)
+        </mat-slide-toggle>
+        <mat-icon style="margin-left: 8px; font-size: 18px; color: #666; cursor: help;"
+                  matTooltip="Enable thermal power calculation from flow and temperature data">
+          help_outline
+        </mat-icon>
+      </div>
     </div>
     </div>
 
@@ -3169,6 +3180,7 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
       entityLabel: [''],
       measurementType: ['ultrasonic'],
       measurementRole: [null],
+      calculatePower: [false],
       // Status fields
       progress: ['in preparation'],
       startDate: [null],
@@ -3244,6 +3256,9 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
       }
       if (attributeMap.measurementRole) {
         vm.parametersFormGroup.get('measurementRole').setValue(attributeMap.measurementRole);
+      }
+      if (attributeMap.calculatePower !== undefined) {
+        vm.parametersFormGroup.get('calculatePower').setValue(attributeMap.calculatePower === true);
       }
 
       // Status fields
@@ -3697,6 +3712,7 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
         // Measurement info
         { key: 'measurementType', value: formData.measurementType },
         { key: 'measurementRole', value: formData.measurementRole },
+        { key: 'calculatePower', value: formData.calculatePower === true },
         // Status
         { key: 'progress', value: formData.progress },
         { key: 'startTimeMs', value: startDateTime ? startDateTime.getTime() : null },
