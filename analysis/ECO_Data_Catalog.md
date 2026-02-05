@@ -280,64 +280,87 @@ Tenant (ECO Energy Group)
 
 ## 8. Telemetrie-Keys
 
-### Sensor-Werte (Momentan)
+### Architektur-Uebersicht
+
+```
+Device Telemetrie (CHC_*)
+        |
+        v
+Rule Chain "resi_device" - Node "Normalize Data"
+        |
+        +-- Nur Key-Mapping (CHC_* -> canonical)
+        +-- Keine Berechnungen
+        |
+        v
+Canonical Telemetrie (T_flow_C, Vdot_m3h, P_th_kW, ...)
+        |
+        v
+Calculated Fields (Asset Profile "Measurement")
+        |
+        +-- derived_basic: is_on, load_class, dT_flag, data_quality
+        +-- derived_power: P_th_calc_kW, P_deviation_pct, P_sensor_flag
+        +-- derived_schedule: schedule_violation
+        +-- Rolling-Window CFs: dT_collapse_flag, cycling_flag, etc.
+```
+
+### Raw Telemetrie (vom Device, nach Key-Mapping)
+
+| Key | Einheit | Quelle | Beschreibung |
+|-----|---------|--------|--------------|
+| `T_flow_C` | °C | CHC_S_TemperatureFlow | Vorlauftemperatur |
+| `T_return_C` | °C | CHC_S_TemperatureReturn | Ruecklauftemperatur |
+| `dT_K` | K | CHC_S_TemperatureDiff | Temperaturdifferenz (Delta-T) |
+| `Vdot_m3h` | m³/h | CHC_S_VolumeFlow / 1000 | Volumenstrom (Input: l/h) |
+| `v_ms` | m/s | CHC_S_Velocity | Stroemungsgeschwindigkeit |
+| `P_th_kW` | kW | CHC_S_Power_* | Thermische Leistung (je nach installationType) |
+| `E_th_kWh` | kWh | CHC_M_Energy_* | Energie-Zaehlerstand |
+| `V_m3` | m³ | CHC_M_Volume | Volumen-Zaehlerstand |
+| `auxT1_C` | °C | temperature (TS1) | Hilfstemperatur 1 |
+| `auxT2_C` | °C | temperature (TS2) | Hilfstemperatur 2 |
+
+### Kontext-Telemetrie (vom Project)
 
 | Key | Einheit | Beschreibung |
 |-----|---------|--------------|
-| `T_flow_C` | °C | Vorlauftemperatur |
-| `T_return_C` | °C | Rücklauftemperatur |
-| `dT_K` | K | Temperaturdifferenz (Delta-T) |
-| `Vdot_m3h` | m³/h | Volumenstrom |
-| `v_ms` | m/s | Strömungsgeschwindigkeit |
-| `P_th_kW` | kW | Thermische Leistung |
+| `T_outside_C` | °C | Aussentemperatur (Wetter-API) |
+| `RH_outside_pct` | % | Aussenluftfeuchtigkeit |
 
-### Zählerstand (Meter)
+### Calculated Fields - Instant (CF: derived_basic)
 
-| Key | Einheit | Beschreibung |
-|-----|---------|--------------|
-| `E_th_kWh` | kWh | Energie-Zählerstand |
-| `V_m3` | m³ | Volumen-Zählerstand |
+| Key | Typ | Werte | CF ID | Beschreibung |
+|-----|-----|-------|-------|--------------|
+| `is_on` | boolean | `true`, `false` | 6cac3240-... | Anlage laeuft |
+| `load_class` | string | `low`, `mid`, `high` | 6cac3240-... | Lastklasse |
+| `dT_flag` | string | `ok`, `warn`, `severe` | 6cac3240-... | DeltaT-Bewertung |
+| `data_quality` | string | `ok`, `error` | 6cac3240-... | Datenqualitaet (Outlier Detection) |
 
-### Hilfssensoren
+### Calculated Fields - Power (CF: derived_power)
 
-| Key | Einheit | Beschreibung |
-|-----|---------|--------------|
-| `auxT1_C` | °C | Hilfstemperatur 1 |
-| `auxT2_C` | °C | Hilfstemperatur 2 |
+| Key | Typ | Werte | CF ID | Beschreibung |
+|-----|-----|-------|-------|--------------|
+| `P_th_calc_kW` | number | kW | 8d2f1a50-... | Berechnete Leistung (cp×m×DeltaT) |
+| `P_deviation_pct` | number | % | 8d2f1a50-... | Abweichung gemessen vs. berechnet |
+| `P_sensor_flag` | string | `ok`, `warn`, `error` | 8d2f1a50-... | Sensor-Plausibilitaet |
 
-### Kontext (vom Project)
+### Calculated Fields - Schedule (CF: derived_schedule)
 
-| Key | Einheit | Beschreibung |
-|-----|---------|--------------|
-| `T_outside_C` | °C | Außentemperatur |
-| `RH_outside_pct` | % | Außenluftfeuchtigkeit |
+| Key | Typ | Werte | CF ID | Beschreibung |
+|-----|-----|-------|-------|--------------|
+| `schedule_violation` | boolean | `true`, `false` | aee1f6e0-... | Betrieb ausserhalb Sollzeiten |
 
-### Derived (berechnet via Rule Chain)
+### Calculated Fields - Rolling Window
 
-| Key | Typ | Werte | Beschreibung |
-|-----|-----|-------|--------------|
-| `is_on` | boolean | `true`, `false` | Anlage läuft |
-| `load_class` | string | `low`, `mid`, `high` | Lastklasse |
-| `dT_flag` | string | `ok`, `warn`, `severe` | ΔT-Bewertung |
-| `data_quality` | string | `ok`, `error` | Datenqualität |
-| `schedule_violation` | boolean | `true`, `false` | Betrieb außerhalb Sollzeiten |
-| `P_th_calc_kW` | number | kW | Berechnete Leistung (cp×ṁ×ΔT) |
-| `P_deviation_pct` | number | % | Abweichung gemessen vs. berechnet |
-| `P_sensor_flag` | string | `ok`, `warn`, `error` | Sensor-Plausibilität |
-
-### Calculated Fields (berechnet via Asset Profile)
-
-| Key | Typ | Werte | Beschreibung |
-|-----|-----|-------|--------------|
-| `dT_collapse_flag` | boolean | `true`, `false` | Plötzlicher ΔT-Einbruch erkannt |
-| `flow_spike_flag` | boolean | `true`, `false` | Plötzlicher Durchfluss-Spike erkannt |
-| `cycling_flag` | boolean | `true`, `false` | Taktbetrieb erkannt (häufiges Ein/Aus) |
-| `cycle_count` | number | 0-n | Anzahl Zustandswechsel in 30 Min |
-| `power_stability` | number | 0-1+ | Variationskoeffizient der Leistung (CV) |
-| `power_unstable_flag` | boolean | `true`, `false` | Hohe Leistungsvariabilität erkannt |
-| `oscillation_count` | number | 0-n | Anzahl Richtungswechsel in 15 Min |
-| `oscillation_flag` | boolean | `true`, `false` | Schwingen/Oszillation erkannt |
-| `runtime_pct` | number | 0-100 | Laufzeitanteil in % (letzte Stunde) |
+| Key | Typ | Werte | Window | Beschreibung |
+|-----|-----|-------|--------|--------------|
+| `dT_collapse_flag` | boolean | `true`, `false` | 15 Min | Ploetzlicher DeltaT-Einbruch |
+| `flow_spike_flag` | boolean | `true`, `false` | 5 Min | Ploetzlicher Durchfluss-Spike |
+| `cycling_flag` | boolean | `true`, `false` | 30 Min | Taktbetrieb (haeufiges Ein/Aus) |
+| `cycle_count` | number | 0-n | 30 Min | Anzahl Zustandswechsel |
+| `power_stability` | number | 0-1+ | 15 Min | Variationskoeffizient der Leistung |
+| `power_unstable_flag` | boolean | `true`, `false` | 15 Min | Hohe Leistungsvariabilitaet |
+| `oscillation_count` | number | 0-n | 15 Min | Anzahl Richtungswechsel |
+| `oscillation_flag` | boolean | `true`, `false` | 15 Min | Schwingen/Oszillation |
+| `runtime_pct` | number | 0-100 | 1 Std | Laufzeitanteil in %
 
 ---
 
@@ -409,12 +432,30 @@ in preparation → active → finished
 
 | Kategorie | Anzahl | Keys |
 |-----------|--------|------|
-| **Sensor** | 6 | `T_flow_C`, `T_return_C`, `dT_K`, `Vdot_m3h`, `v_ms`, `P_th_kW` |
-| **Zähler** | 2 | `E_th_kWh`, `V_m3` |
-| **Hilfs** | 2 | `auxT1_C`, `auxT2_C` |
-| **Kontext** | 2 | `T_outside_C`, `RH_outside_pct` |
-| **Derived (Rule Chain)** | 8 | `is_on`, `load_class`, `dT_flag`, `data_quality`, `schedule_violation`, `P_th_calc_kW`, `P_deviation_pct`, `P_sensor_flag` |
-| **Calculated Fields** | 9 | `dT_collapse_flag`, `flow_spike_flag`, `cycling_flag`, `cycle_count`, `power_stability`, `power_unstable_flag`, `oscillation_count`, `oscillation_flag`, `runtime_pct` |
+| **Raw (Sensor)** | 6 | `T_flow_C`, `T_return_C`, `dT_K`, `Vdot_m3h`, `v_ms`, `P_th_kW` |
+| **Raw (Zaehler)** | 2 | `E_th_kWh`, `V_m3` |
+| **Raw (Hilfs)** | 2 | `auxT1_C`, `auxT2_C` |
+| **Kontext (Project)** | 2 | `T_outside_C`, `RH_outside_pct` |
+| **CF: derived_basic** | 4 | `is_on`, `load_class`, `dT_flag`, `data_quality` |
+| **CF: derived_power** | 3 | `P_th_calc_kW`, `P_deviation_pct`, `P_sensor_flag` |
+| **CF: derived_schedule** | 1 | `schedule_violation` |
+| **CF: Rolling-Window** | 9 | `dT_collapse_flag`, `flow_spike_flag`, `cycling_flag`, `cycle_count`, `power_stability`, `power_unstable_flag`, `oscillation_count`, `oscillation_flag`, `runtime_pct` |
+
+**Gesamt:** 12 Raw + 2 Kontext + 17 Calculated Fields = **31 Telemetrie-Keys**
+
+### Calculated Field IDs (Asset Profile: Measurement)
+
+| CF Name | CF ID | Output Keys |
+|---------|-------|-------------|
+| derived_basic | `6cac3240-0211-11f1-9b0a-33b9bcf3ddd0` | is_on, load_class, dT_flag, data_quality |
+| derived_power | `8d2f1a50-0211-11f1-9979-9f3434877bb4` | P_th_calc_kW, P_deviation_pct, P_sensor_flag |
+| derived_schedule | `aee1f6e0-0211-11f1-9979-9f3434877bb4` | schedule_violation |
+| oscillation_detection | `30eb6890-0133-11f1-9979-9f3434877bb4` | oscillation_count, oscillation_flag |
+| dT_collapse_flag | `684c01c0-0127-11f1-9979-9f3434877bb4` | dT_collapse_flag |
+| flow_spike_flag | `685884e0-0127-11f1-9979-9f3434877bb4` | flow_spike_flag |
+| power_stability | `a065a960-0129-11f1-9979-9f3434877bb4` | power_stability, power_unstable_flag |
+| runtime_pct | `a06e8300-0129-11f1-9979-9f3434877bb4` | runtime_pct |
+| cycling_flag | `aedba340-012a-11f1-9979-9f3434877bb4` | cycling_flag, cycle_count |
 
 ---
 
