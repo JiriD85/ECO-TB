@@ -5929,7 +5929,7 @@
     "entityType": "DASHBOARD",
     "id": "d0012340-f6be-11f0-9979-9f3434877bb4"
   },
-  "version": 487,
+  "version": 496,
   "ownerId": {
     "entityType": "TENANT",
     "id": "efb63c10-b576-11ee-a6c2-a149ed03c64d"

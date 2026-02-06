@@ -16258,7 +16258,7 @@
     "entityType": "DASHBOARD",
     "id": "5fbebde0-5b97-11ef-ba52-9b04c3d309dd"
   },
-  "version": 28,
+  "version": 48,
   "ownerId": {
     "entityType": "TENANT",
     "id": "efb63c10-b576-11ee-a6c2-a149ed03c64d"
