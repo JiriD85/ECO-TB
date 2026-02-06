@@ -433,6 +433,67 @@ async function pullTranslations(api, locales = []) {
   logger.log(`Pull completed: ${downloadedCount} translation(s)`);
 }
 
+async function pushTranslationsCommand(args) {
+  const locales = args.filter((arg) => !arg.startsWith('--'));
+
+  const config = loadConfig();
+  const api = new ThingsBoardApi({ ...config, logger });
+  await api.login();
+
+  // Find local translation files
+  let localFiles;
+  try {
+    localFiles = await readJsonFiles(path.join(process.cwd(), SOURCE_DIRS.translations));
+  } catch (err) {
+    logger.error(`Cannot read translations directory: ${err.message}`);
+    process.exit(1);
+  }
+
+  if (localFiles.length === 0) {
+    logger.warn('No translation files found');
+    return;
+  }
+
+  // Filter files if specific locales provided
+  let filesToPush = localFiles;
+  if (locales.length > 0) {
+    filesToPush = localFiles.filter(f => {
+      const filename = path.basename(f).toLowerCase();
+      return locales.some(locale => filename.includes(locale.toLowerCase()));
+    });
+
+    if (filesToPush.length === 0) {
+      logger.error(`No matching translation files found for: ${locales.join(', ')}`);
+      process.exit(1);
+    }
+  }
+
+  let pushedCount = 0;
+  for (const file of filesToPush) {
+    const filename = path.basename(file);
+    // Extract locale from filename (e.g., "de_DE" from "de_DE_custom_translation.json")
+    const match = filename.match(/^([a-z]{2}_[A-Z]{2})_custom_translation\.json$/);
+    if (!match) {
+      logger.warn(`Skipping ${filename}: does not match expected pattern`);
+      continue;
+    }
+
+    const locale = match[1];
+    const translationMap = await loadJson(file);
+
+    try {
+      logger.log(`Uploading: ${locale}`);
+      await api.saveCustomTranslation(locale, translationMap);
+      logger.log(`Pushed: ${filename}`);
+      pushedCount++;
+    } catch (err) {
+      logger.error(`Failed to push ${locale}: ${err.message}`);
+    }
+  }
+
+  logger.log(`Push completed: ${pushedCount} translation(s)`);
+}
+
 async function pushCommand(args) {
   // Push specific dashboards by name
   const names = args.filter((arg) => !arg.startsWith('--'));
@@ -1115,6 +1176,7 @@ function printUsage() {
   logger.log('    list-widgets            List all widget bundles on server');
   logger.log('');
   logger.log('  Translations:');
+  logger.log('    push-i18n [locales]     Push custom translation(s)');
   logger.log('    pull-i18n [locales]     Download custom translations');
   logger.log('    list-i18n               List available custom translations');
   logger.log('');
@@ -1172,6 +1234,10 @@ async function main() {
       case 'pull-i18n':
       case 'pull-translations':
         await pullTranslationsCommand(args);
+        break;
+      case 'push-i18n':
+      case 'push-translations':
+        await pushTranslationsCommand(args);
         break;
       case 'list':
         await listCommand();
