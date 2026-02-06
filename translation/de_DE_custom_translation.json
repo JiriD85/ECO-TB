@@ -12591,7 +12591,10 @@
       "no-other-measurements": "Keine weiteren Messungen verfügbar",
       "nav": {
         "raw-data": "Rohdaten",
-        "load-analysis": "Lastanalyse"
+        "load-analysis": "Lastanalyse",
+        "heatmap": "Heatmap",
+        "sankey": "Sankey",
+        "heatcurve": "Heizkurve"
       },
       "kits": {
         "title": "Diagnostic Kits"

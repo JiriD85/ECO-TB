@@ -12400,7 +12400,10 @@
       "no-other-measurements": "No other measurements available",
       "nav": {
         "raw-data": "Raw Data",
-        "load-analysis": "Load Analysis"
+        "load-analysis": "Load Analysis",
+        "heatmap": "Heatmap",
+        "sankey": "Sankey",
+        "heatcurve": "Heating Curve"
       },
       "kits": {
         "title": "Diagnostic Kits"
