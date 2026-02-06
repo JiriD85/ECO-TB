@@ -912,6 +912,182 @@ async function pushRuleChainCommand(args) {
   logger.log(`Push completed: ${pushedCount} rule chain(s)`);
 }
 
+// ==================== Widgets ====================
+
+async function listWidgetsCommand() {
+  const config = loadConfig();
+  const api = new ThingsBoardApi({ ...config, logger });
+  await api.login();
+
+  logger.log('Fetching widget bundles from server...');
+  const bundles = await api.getWidgetsBundles();
+
+  logger.log(`\nFound ${bundles.length} widget bundles:\n`);
+  for (const b of bundles) {
+    const title = b.title;
+    const id = b.id.id;
+    const alias = b.alias || '';
+    const isSystem = b.tenantId?.id === '13814000-1dd2-11b2-8080-808080808080' ? ' (SYSTEM)' : '';
+    logger.log(`  ${title}${isSystem}`);
+    logger.log(`    ID: ${id}`);
+    logger.log(`    Alias: ${alias}`);
+  }
+}
+
+async function pullWidgetCommand(args) {
+  const config = loadConfig();
+  const api = new ThingsBoardApi({ ...config, logger });
+  await api.login();
+
+  const flags = new Set(args.filter((arg) => arg.startsWith('--')));
+  const names = args.filter((arg) => !arg.startsWith('--'));
+
+  logger.log('Fetching widget bundles from server...');
+  const allBundles = await api.getWidgetsBundles();
+
+  // Filter out system bundles (tenant ID is null or system tenant)
+  const tenantBundles = allBundles.filter(b => {
+    const tenantId = b.tenantId?.id;
+    return tenantId && tenantId !== '13814000-1dd2-11b2-8080-808080808080';
+  });
+  logger.log(`Found ${tenantBundles.length} tenant widget bundles (${allBundles.length} total)`);
+
+  let bundlesToPull = [];
+
+  if (flags.has('--all')) {
+    bundlesToPull = tenantBundles;
+  } else if (names.length > 0) {
+    // Pull specific bundles by name (partial match)
+    for (const b of tenantBundles) {
+      const bName = (b.title || b.alias || '').toLowerCase();
+      for (const search of names) {
+        if (bName.includes(search.toLowerCase()) || bName === search.toLowerCase()) {
+          bundlesToPull.push(b);
+          break;
+        }
+      }
+    }
+  } else {
+    logger.error('Usage: node sync/sync.js pull-widget <name> [name2...]');
+    logger.log('       node sync/sync.js pull-widget --all');
+    process.exit(1);
+  }
+
+  if (bundlesToPull.length === 0) {
+    logger.warn('No matching widget bundles found');
+    return;
+  }
+
+  // Ensure widgets directory exists
+  const widgetDir = path.join(process.cwd(), SOURCE_DIRS.widgets);
+  await fs.mkdir(widgetDir, { recursive: true });
+
+  for (const b of bundlesToPull) {
+    const bundleId = b.id.id;
+    const title = b.title || b.alias;
+
+    try {
+      logger.log(`Downloading: ${title}`);
+      const exported = await api.exportWidgetsBundle(bundleId);
+
+      // Generate filename from title
+      const filename = sanitizeFilename(title) + '.json';
+      const filePath = path.join(widgetDir, filename);
+
+      // Write formatted JSON
+      await fs.writeFile(filePath, JSON.stringify(exported, null, 2));
+      logger.log(`Saved: ${filename} (${exported.widgetTypes?.length || 0} widget types)`);
+    } catch (err) {
+      logger.error(`Failed to download ${title}: ${err.message}`);
+    }
+  }
+
+  // Update status
+  const { updateStatus } = require('./backup');
+  await updateStatus({ lastPull: new Date().toISOString().replace('T', '_').substring(0, 19) });
+
+  logger.log(`Pull completed: ${bundlesToPull.length} widget bundle(s)`);
+}
+
+async function pushWidgetCommand(args) {
+  const names = args.filter((arg) => !arg.startsWith('--'));
+
+  if (names.length === 0) {
+    logger.error('Usage: node sync/sync.js push-widget <name> [name2...]');
+    logger.log('Example: node sync/sync.js push-widget "SD Map Projects"');
+    process.exit(1);
+  }
+
+  const config = loadConfig();
+  const api = new ThingsBoardApi({ ...config, logger });
+  await api.login();
+
+  // Get existing widget bundles from server for ID lookup
+  logger.log('Fetching existing widget bundles from server...');
+  const existingBundles = await api.getWidgetsBundles();
+
+  // Create lookup by title and alias
+  const bundleByName = new Map();
+  for (const b of existingBundles) {
+    if (b.title) bundleByName.set(b.title.toLowerCase(), b);
+    if (b.alias) bundleByName.set(b.alias.toLowerCase(), b);
+  }
+
+  // Find local files
+  let localFiles;
+  try {
+    localFiles = await readJsonFiles(path.join(process.cwd(), SOURCE_DIRS.widgets));
+  } catch (err) {
+    logger.error(`Cannot read widgets directory: ${err.message}`);
+    process.exit(1);
+  }
+
+  let pushedCount = 0;
+  for (const searchName of names) {
+    const searchLower = searchName.toLowerCase();
+
+    // Find local file that matches the search name
+    const matchingFile = localFiles.find((f) => {
+      const basename = path.basename(f, '.json').toLowerCase();
+      return basename.includes(searchLower) || basename === searchLower;
+    });
+
+    if (!matchingFile) {
+      logger.error(`No local file found matching: ${searchName}`);
+      continue;
+    }
+
+    const filename = path.basename(matchingFile);
+    const payload = await loadJson(matchingFile);
+
+    // Get bundle name from payload
+    const bundleTitle = payload.widgetsBundle?.title || payload.widgetsBundle?.alias;
+    if (!bundleTitle) {
+      logger.error(`Invalid widget bundle file (no title found): ${filename}`);
+      continue;
+    }
+
+    // Check if bundle exists on server
+    const existing = bundleByName.get(bundleTitle.toLowerCase());
+
+    try {
+      if (existing) {
+        logger.log(`Updating: ${bundleTitle} (ID: ${existing.id.id})`);
+        await api.importWidgetsBundle(payload, existing.id.id);
+      } else {
+        logger.log(`Creating: ${bundleTitle}`);
+        await api.importWidgetsBundle(payload);
+      }
+      logger.log(`Pushed: ${filename}`);
+      pushedCount++;
+    } catch (err) {
+      logger.error(`Failed to push ${filename}: ${err.message}`);
+    }
+  }
+
+  logger.log(`Push completed: ${pushedCount} widget bundle(s)`);
+}
+
 function printUsage() {
   logger.log('Usage: node sync/sync.js <command> [options]');
   logger.log('');
@@ -932,6 +1108,11 @@ function printUsage() {
   logger.log('    push-rulechain <name>   Push SPECIFIC rule chain(s)');
   logger.log('    pull-rulechain <name>   Download rule chain(s)');
   logger.log('    list-rulechains         List all rule chains on server');
+  logger.log('');
+  logger.log('  Widgets:');
+  logger.log('    push-widget <name>      Push SPECIFIC widget bundle(s)');
+  logger.log('    pull-widget <name>      Download widget bundle(s)');
+  logger.log('    list-widgets            List all widget bundles on server');
   logger.log('');
   logger.log('  Translations:');
   logger.log('    pull-i18n [locales]     Download custom translations');
@@ -959,6 +1140,9 @@ function printUsage() {
   logger.log('  node sync/sync.js pull-rulechain "Measurement"');
   logger.log('  node sync/sync.js pull-rulechain --all');
   logger.log('  node sync/sync.js list-rulechains');
+  logger.log('  node sync/sync.js push-widget "SD Map Projects"');
+  logger.log('  node sync/sync.js pull-widget --all');
+  logger.log('  node sync/sync.js list-widgets');
 }
 
 async function main() {
@@ -1007,6 +1191,15 @@ async function main() {
         break;
       case 'list-rulechains':
         await listRuleChainsCommand();
+        break;
+      case 'push-widget':
+        await pushWidgetCommand(args);
+        break;
+      case 'pull-widget':
+        await pullWidgetCommand(args);
+        break;
+      case 'list-widgets':
+        await listWidgetsCommand();
         break;
       case 'backup':
         await backupCommand();

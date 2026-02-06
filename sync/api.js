@@ -213,6 +213,78 @@ class ThingsBoardApi {
     return response.data || response || [];
   }
 
+  async getWidgetsBundle(bundleId) {
+    return this.request('GET', `/api/widgetsBundle/${bundleId}?inlineImages=true`);
+  }
+
+  async getWidgetTypes(bundleId = null) {
+    let path = '/api/widgetTypes?pageSize=1000&page=0';
+    if (bundleId) {
+      path = `/api/widgetTypes?widgetsBundleId=${bundleId}`;
+    }
+    const response = await this.request('GET', path);
+    return response.data || response || [];
+  }
+
+  async getWidgetTypesDetails(bundleId) {
+    const response = await this.request('GET', `/api/widgetTypesDetails?widgetsBundleId=${bundleId}&includeResources=true`);
+    return response.data || response || [];
+  }
+
+  async getWidgetType(widgetTypeId) {
+    return this.request('GET', `/api/widgetType/${widgetTypeId}?includeResources=true`);
+  }
+
+  async saveWidgetType(widgetType) {
+    return this.request('POST', '/api/widgetType?updateExistingByFqn=true', widgetType);
+  }
+
+  async exportWidgetsBundle(bundleId) {
+    // Export bundle with all widget types
+    const bundle = await this.getWidgetsBundle(bundleId);
+    const widgetTypes = await this.getWidgetTypesDetails(bundleId);
+
+    return {
+      widgetsBundle: {
+        title: bundle.title,
+        alias: bundle.alias,
+        image: bundle.image,
+        description: bundle.description,
+        order: bundle.order,
+        scada: bundle.scada
+      },
+      widgetTypes: widgetTypes
+    };
+  }
+
+  async importWidgetsBundle(bundleExport, existingId = null) {
+    const bundleData = { ...bundleExport.widgetsBundle };
+
+    // Create/update bundle
+    if (existingId) {
+      const current = await this.getWidgetsBundle(existingId);
+      bundleData.id = current.id;
+      bundleData.version = current.version;
+      bundleData.tenantId = current.tenantId;
+    }
+
+    const bundleResult = await this.request('POST', '/api/widgetsBundle', bundleData);
+
+    // Import widget types
+    if (bundleExport.widgetTypes && bundleExport.widgetTypes.length > 0) {
+      for (const widgetType of bundleExport.widgetTypes) {
+        try {
+          await this.saveWidgetType(widgetType);
+        } catch (err) {
+          // Log but continue with other widgets
+          console.error(`Failed to import widget type ${widgetType.name || widgetType.fqn}: ${err.message}`);
+        }
+      }
+    }
+
+    return bundleResult;
+  }
+
   // ==================== JS Resources (JS Modules) ====================
 
   async getResources(resourceType = null) {
