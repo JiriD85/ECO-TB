@@ -1,0 +1,373 @@
+{
+  "ruleChain": {
+    "name": "CF Reprocess Handler",
+    "type": "CORE",
+    "firstRuleNodeId": null,
+    "root": false,
+    "debugMode": true,
+    "configuration": null,
+    "additionalInfo": {
+      "description": "Handles CF reprocessing requests triggered by reprocessRequest attribute on Measurement assets."
+    }
+  },
+  "metadata": {
+    "version": 5,
+    "firstNodeIndex": 0,
+    "nodes": [
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbJsSwitchNode",
+        "name": "Check reprocessRequest",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1770316351625
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "if (msg.reprocessRequest != null) {\n    return ['hasRequest'];\n} else {\n    return ['other'];\n}"
+        },
+        "additionalInfo": {
+          "description": "Check if message contains reprocessRequest attribute",
+          "layoutX": 220,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Save Data and Prepare Login",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1770316351625
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "var request = msg.reprocessRequest;\nvar startTs = request.startTs != null ? request.startTs : (Date.now() - 30 * 24 * 60 * 60 * 1000);\nvar endTs = request.endTs != null ? request.endTs : Date.now();\nvar cfType = request.type != null ? request.type : 'basic';\n\nmetadata.reprocessStartTs = '' + startTs;\nmetadata.reprocessEndTs = '' + endTs;\nmetadata.cfType = cfType;\nmetadata.assetId = metadata.originatorId;\nmetadata.cfName = 'reprocess_' + cfType + '_' + Date.now();\n\nvar loginBody = {\n    username: 'j.dockal+api@pke.at',\n    password: 'Z2XGvXwuPyuzuVL@'\n};\n\nreturn { msg: loginBody, metadata: metadata, msgType: msgType };"
+        },
+        "additionalInfo": {
+          "description": "Extract reprocess params and prepare login",
+          "layoutX": 400,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "Login API",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1770316351625
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 5,
+        "configuration": {
+          "restEndpointUrlPattern": "https://diagnostics.ecoenergygroup.com/api/auth/login",
+          "requestMethod": "POST",
+          "useSimpleClientHttpFactory": false,
+          "parseToPlainText": false,
+          "ignoreRequestBody": false,
+          "enableProxy": false,
+          "readTimeoutMs": 5000,
+          "maxParallelRequestsCount": 0,
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "credentials": {
+            "type": "anonymous"
+          }
+        },
+        "additionalInfo": {
+          "description": "Get JWT token",
+          "layoutX": 580,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Extract Token and Build CF",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1770316351625
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "metadata.jwtToken = msg.token;\n\nvar entityIdObj = { entityType: 'ASSET', id: metadata.assetId };\nvar outputObj = { type: 'TIME_SERIES' };\nvar args = {};\nvar expression = '';\n\nif (metadata.cfType == 'basic') {\n    args['Vdot_m3h'] = { refEntityKey: { key: 'Vdot_m3h', type: 'TS_ROLLING' }, timeWindow: 120000, limit: 10 };\n    args['P_th_kW'] = { refEntityKey: { key: 'P_th_kW', type: 'TS_ROLLING' }, timeWindow: 120000, limit: 10 };\n    args['dT_K'] = { refEntityKey: { key: 'dT_K', type: 'TS_ROLLING' }, timeWindow: 120000, limit: 10 };\n    args['T_flow_C'] = { refEntityKey: { key: 'T_flow_C', type: 'TS_ROLLING' }, timeWindow: 120000, limit: 10 };\n    args['T_return_C'] = { refEntityKey: { key: 'T_return_C', type: 'TS_ROLLING' }, timeWindow: 120000, limit: 10 };\n    args['flowOnThreshold'] = { refEntityKey: { key: 'flowOnThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '0.05' };\n    args['designPower'] = { refEntityKey: { key: 'designPower', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' } };\n    args['designDeltaT'] = { refEntityKey: { key: 'designDeltaT', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' } };\n    expression = 'var vdot = Vdot_m3h.last(); var pth = P_th_kW.last(); var dt = dT_K.last(); if (vdot == null) { return {}; } var threshold = flowOnThreshold; if (threshold == null) { threshold = 0.1; } var result = {}; if (vdot > threshold) { result[\"is_on\"] = true; } else { result[\"is_on\"] = false; } if (pth != null && designPower != null && designPower > 0) { var loadPct = (pth / designPower) * 100; if (loadPct < 30) { result[\"load_class\"] = \"low\"; } else if (loadPct < 60) { result[\"load_class\"] = \"mid\"; } else { result[\"load_class\"] = \"high\"; } } if (dt != null && designDeltaT != null && designDeltaT > 0 && result[\"load_class\"] != null) { var dTRatio = dt / designDeltaT; if (result[\"load_class\"] == \"low\") { if (dTRatio >= 0.3) { result[\"dT_flag\"] = \"ok\"; } else { result[\"dT_flag\"] = \"warn\"; } } else { if (dTRatio >= 0.5) { result[\"dT_flag\"] = \"ok\"; } else { result[\"dT_flag\"] = \"warn\"; } } } result[\"data_quality\"] = \"ok\"; return {\"ts\": ctx.latestTs, \"values\": result};';\n} else if (metadata.cfType == 'power') {\n    args['Vdot_m3h'] = { refEntityKey: { key: 'Vdot_m3h', type: 'TS_ROLLING' }, timeWindow: 120000, limit: 10 };\n    args['dT_K'] = { refEntityKey: { key: 'dT_K', type: 'TS_ROLLING' }, timeWindow: 120000, limit: 10 };\n    args['P_th_kW'] = { refEntityKey: { key: 'P_th_kW', type: 'TS_ROLLING' }, timeWindow: 120000, limit: 10 };\n    args['calculatePower'] = { refEntityKey: { key: 'calculatePower', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: 'false' };\n    args['fluidType'] = { refEntityKey: { key: 'fluidType', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: 'water' };\n    expression = 'var vdot = Vdot_m3h.last(); var dt = dT_K.last(); var pth = P_th_kW.last(); if (calculatePower != true || vdot == null || dt == null) { return {}; } var result = {}; var cp = 4.18; var rho = 998; if (fluidType == \"glycol20\") { cp = 3.95; rho = 1032; } else if (fluidType == \"glycol30\") { cp = 3.74; rho = 1045; } else if (fluidType == \"glycol40\") { cp = 3.55; rho = 1058; } var P_calc = rho * cp * vdot * dt / 3600; result[\"P_th_calc_kW\"] = P_calc; if (pth != null && P_calc > 0.1) { var deviation = ((pth - P_calc) / P_calc) * 100; result[\"P_deviation_pct\"] = deviation; var absDeviation = deviation; if (deviation < 0) { absDeviation = -deviation; } if (absDeviation < 10) { result[\"P_sensor_flag\"] = \"ok\"; } else if (absDeviation < 25) { result[\"P_sensor_flag\"] = \"warn\"; } else { result[\"P_sensor_flag\"] = \"error\"; } } return {\"ts\": ctx.latestTs, \"values\": result};';\n} else if (metadata.cfType == 'schedule') {\n    args['is_on'] = { refEntityKey: { key: 'is_on', type: 'TS_ROLLING' }, timeWindow: 120000, limit: 10 };\n    args['weeklySchedule'] = { refEntityKey: { key: 'weeklySchedule', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: 'null' };\n    expression = 'var isOn = is_on.last(); if (isOn == null || weeklySchedule == null || weeklySchedule == \"\") { return {}; } var schedule = isMap(weeklySchedule) ? weeklySchedule : JSON.parse(weeklySchedule); if (schedule == null) { return {}; } var tzOffset = 60; if (schedule[\"timezoneOffset\"] != null) { tzOffset = toInt(schedule[\"timezoneOffset\"]); } var ts = ctx.latestTs; var msPerDay = 86400000; var localTs = ts + tzOffset * 60000; var dayIndex = (toInt(localTs / msPerDay) + 4) % 7; var dayNames = [\"sunday\", \"monday\", \"tuesday\", \"wednesday\", \"thursday\", \"friday\", \"saturday\"]; var dayName = dayNames[dayIndex]; var msInDay = localTs % msPerDay; var currentMinutes = toInt(msInDay / 60000); var isWithinSchedule = false; var todayValue = schedule[dayName]; if (todayValue != null) { var todayStr = \"\" + todayValue; if (todayStr == \"true\") { isWithinSchedule = true; } else if (todayStr != \"false\") { var enabled = todayValue[\"enabled\"]; if ((\"\" + enabled) == \"true\") { var startStr = todayValue[\"start\"]; var endStr = todayValue[\"end\"]; if (startStr != null && endStr != null) { var startH = toInt(parseLong(startStr.substring(0, 2))); var startM = toInt(parseLong(startStr.substring(3, 5))); var startMinutes = startH * 60 + startM; var endH = toInt(parseLong(endStr.substring(0, 2))); var endM = toInt(parseLong(endStr.substring(3, 5))); var endMinutes = endH * 60 + endM; if (currentMinutes >= startMinutes && currentMinutes <= endMinutes) { isWithinSchedule = true; } } else { isWithinSchedule = true; } } } } var scheduleViolation = false; if (isOn == true && !isWithinSchedule) { scheduleViolation = true; } return {\"ts\": ctx.latestTs, \"values\": { \"schedule_violation\": scheduleViolation }};';\n} else if (metadata.cfType == 'oscillation') {\n    args['P_th_kW'] = { refEntityKey: { key: 'P_th_kW', type: 'TS_ROLLING' }, limit: 60, timeWindow: 900000 };\n    args['is_on'] = { refEntityKey: { key: 'is_on', type: 'TS_ROLLING' }, limit: 60, timeWindow: 900000 };\n    args['oscillationThreshold'] = { refEntityKey: { key: 'oscillationThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '8' };\n    expression = 'var countPower = P_th_kW.count(); if (countPower < 10) { return {}; } var onCount = 0; foreach(v: is_on) { if (v.value == true) { onCount = onCount + 1; } } var runtimePct = (onCount / is_on.count()) * 100; if (runtimePct < 80) { return {}; } var avgPower = P_th_kW.mean(); if (avgPower < 1.0) { return {}; } var threshold = oscillationThreshold; if (threshold == null) { threshold = 8; } var directionChanges = 0; var prevValue = null; var prevDirection = null; foreach(v: P_th_kW) { if (prevValue != null) { var diff = v.value - prevValue; var currentDirection = 0; if (diff > 0.1) { currentDirection = 1; } else if (diff < -0.1) { currentDirection = -1; } if (prevDirection != null && currentDirection != 0 && prevDirection != currentDirection) { directionChanges = directionChanges + 1; } if (currentDirection != 0) { prevDirection = currentDirection; } } prevValue = v.value; } var oscillationFlag = false; if (directionChanges > threshold) { oscillationFlag = true; } return {\"ts\": ctx.latestTs, \"values\": { \"oscillation_count\": directionChanges, \"oscillation_flag\": oscillationFlag }};';\n} else if (metadata.cfType == 'dt_collapse') {\n    args['dT_K'] = { refEntityKey: { key: 'dT_K', type: 'TS_ROLLING' }, limit: 100, timeWindow: 900000 };\n    args['collapseThreshold'] = { refEntityKey: { key: 'collapseThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '0.5' };\n    expression = 'var currentDT = dT_K.last(); var avgDT = dT_K.mean(); var countDT = dT_K.count(); if (countDT < 3 || avgDT == 0) { return {}; } var threshold = collapseThreshold; if (threshold == null) { threshold = 0.5; } var collapsed = false; if (currentDT < avgDT * threshold) { collapsed = true; } return {\"ts\": ctx.latestTs, \"values\": { \"dT_collapse_flag\": collapsed }};';\n} else if (metadata.cfType == 'flow_spike') {\n    args['Vdot_m3h'] = { refEntityKey: { key: 'Vdot_m3h', type: 'TS_ROLLING' }, limit: 50, timeWindow: 300000 };\n    args['spikeThreshold'] = { refEntityKey: { key: 'spikeThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '2.0' };\n    expression = 'var currentFlow = Vdot_m3h.last(); var avgFlow = Vdot_m3h.mean(); var countFlow = Vdot_m3h.count(); if (countFlow < 3 || avgFlow == 0) { return {}; } var threshold = spikeThreshold; if (threshold == null) { threshold = 2.0; } var spiked = false; if (currentFlow > avgFlow * threshold) { spiked = true; } return {\"ts\": ctx.latestTs, \"values\": { \"flow_spike_flag\": spiked }};';\n} else if (metadata.cfType == 'power_stability') {\n    args['P_th_kW'] = { refEntityKey: { key: 'P_th_kW', type: 'TS_ROLLING' }, limit: 50, timeWindow: 900000 };\n    args['is_on'] = { refEntityKey: { key: 'is_on', type: 'TS_ROLLING' }, limit: 50, timeWindow: 900000 };\n    args['stabilityThreshold'] = { refEntityKey: { key: 'stabilityThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '0.5' };\n    expression = 'var avgPower = P_th_kW.mean(); var stdPower = P_th_kW.std(); var countPower = P_th_kW.count(); if (countPower < 5) { return {}; } if (avgPower < 1.0) { return {}; } var onCount = 0; foreach(v: is_on) { if (v.value == true) { onCount = onCount + 1; } } var runtimePct = (onCount / is_on.count()) * 100; if (runtimePct < 80) { return {}; } var threshold = stabilityThreshold; if (threshold == null) { threshold = 0.5; } var stability = stdPower / avgPower; var isUnstable = false; if (stability > threshold) { isUnstable = true; } return {\"ts\": ctx.latestTs, \"values\": { \"power_stability\": Math.round(stability * 1000) / 1000, \"power_unstable_flag\": isUnstable }};';\n} else if (metadata.cfType == 'runtime_pct') {\n    args['is_on'] = { refEntityKey: { key: 'is_on', type: 'TS_ROLLING' }, limit: 200, timeWindow: 3600000 };\n    expression = 'var countAll = is_on.count(); if (countAll < 2) { return {}; } var onCount = 0; foreach(v: is_on) { if (v.value == true) { onCount = onCount + 1; } } var runtimePct = (onCount / countAll) * 100; return {\"ts\": ctx.latestTs, \"values\": { \"runtime_pct\": Math.round(runtimePct * 10) / 10 }};';\n} else if (metadata.cfType == 'cycling') {\n    args['is_on'] = { refEntityKey: { key: 'is_on', type: 'TS_ROLLING' }, limit: 200, timeWindow: 1800000 };\n    args['cyclingThreshold'] = { refEntityKey: { key: 'cyclingThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '5' };\n    expression = 'var countAll = is_on.count(); if (countAll < 3) { return {}; } var threshold = cyclingThreshold; if (threshold == null) { threshold = 6; } var transitions = 0; var prevValue = null; foreach(v: is_on) { if (prevValue != null && prevValue != v.value) { transitions = transitions + 1; } prevValue = v.value; } var isCycling = false; if (transitions > threshold) { isCycling = true; } return {\"ts\": ctx.latestTs, \"values\": { \"cycling_flag\": isCycling, \"cycle_count\": transitions }};';\n} else {\n    return { msg: {}, metadata: metadata, msgType: msgType };\n}\n\nvar configInner = { type: 'SCRIPT', arguments: args, expression: expression, output: outputObj };\nvar cfDef = { entityId: entityIdObj, type: 'SCRIPT', name: metadata.cfName, configurationVersion: 0, configuration: configInner };\nreturn { msg: cfDef, metadata: metadata, msgType: msgType };"
+        },
+        "additionalInfo": {
+          "description": "Build CF definition",
+          "layoutX": 760,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "Create CF",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1770316351625
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 5,
+        "configuration": {
+          "restEndpointUrlPattern": "https://diagnostics.ecoenergygroup.com/api/calculatedField",
+          "requestMethod": "POST",
+          "useSimpleClientHttpFactory": false,
+          "parseToPlainText": false,
+          "ignoreRequestBody": false,
+          "enableProxy": false,
+          "readTimeoutMs": 30000,
+          "maxParallelRequestsCount": 0,
+          "headers": {
+            "Content-Type": "application/json",
+            "X-Authorization": "Bearer ${jwtToken}"
+          },
+          "credentials": {
+            "type": "anonymous"
+          }
+        },
+        "additionalInfo": {
+          "description": "Create CF via API",
+          "layoutX": 940,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Extract CF ID",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1770316351625
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "metadata.cfId = msg.id.id;\nreturn { msg: {}, metadata: metadata, msgType: msgType };"
+        },
+        "additionalInfo": {
+          "layoutX": 1120,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "Trigger Reprocess",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1770316351625
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 5,
+        "configuration": {
+          "restEndpointUrlPattern": "https://diagnostics.ecoenergygroup.com/api/calculatedField/${cfId}/reprocess?startTs=${reprocessStartTs}&endTs=${reprocessEndTs}",
+          "requestMethod": "GET",
+          "useSimpleClientHttpFactory": false,
+          "parseToPlainText": false,
+          "ignoreRequestBody": true,
+          "enableProxy": false,
+          "readTimeoutMs": 60000,
+          "maxParallelRequestsCount": 0,
+          "headers": {
+            "X-Authorization": "Bearer ${jwtToken}"
+          },
+          "credentials": {
+            "type": "anonymous"
+          }
+        },
+        "additionalInfo": {
+          "layoutX": 1300,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Prepare Delete",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1770316351625
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "return { msg: {}, metadata: metadata, msgType: msgType };"
+        },
+        "additionalInfo": {
+          "layoutX": 1480,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "Delete CF",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1770316351625
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 5,
+        "configuration": {
+          "restEndpointUrlPattern": "https://diagnostics.ecoenergygroup.com/api/calculatedField/${cfId}",
+          "requestMethod": "DELETE",
+          "useSimpleClientHttpFactory": false,
+          "parseToPlainText": false,
+          "ignoreRequestBody": true,
+          "enableProxy": false,
+          "readTimeoutMs": 30000,
+          "maxParallelRequestsCount": 0,
+          "headers": {
+            "X-Authorization": "Bearer ${jwtToken}"
+          },
+          "credentials": {
+            "type": "anonymous"
+          }
+        },
+        "additionalInfo": {
+          "layoutX": 1660,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "Log Success",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1770316351625
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "return 'CF Reprocess Success: Asset=' + metadata.assetId + ', CF=' + metadata.cfName;"
+        },
+        "additionalInfo": {
+          "layoutX": 1840,
+          "layoutY": 200
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "Log Error",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1770316351625
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "",
+          "tbelScript": "return 'CF Reprocess Error: ' + JSON.stringify(msg);"
+        },
+        "additionalInfo": {
+          "layoutX": 940,
+          "layoutY": 50
+        }
+      }
+    ],
+    "connections": [
+      {
+        "fromIndex": 0,
+        "toIndex": 1,
+        "type": "hasRequest"
+      },
+      {
+        "fromIndex": 1,
+        "toIndex": 2,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 1,
+        "toIndex": 10,
+        "type": "Failure"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 3,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 10,
+        "type": "Failure"
+      },
+      {
+        "fromIndex": 3,
+        "toIndex": 4,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 4,
+        "toIndex": 5,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 4,
+        "toIndex": 10,
+        "type": "Failure"
+      },
+      {
+        "fromIndex": 5,
+        "toIndex": 6,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 6,
+        "toIndex": 7,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 6,
+        "toIndex": 10,
+        "type": "Failure"
+      },
+      {
+        "fromIndex": 7,
+        "toIndex": 8,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 8,
+        "toIndex": 9,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 8,
+        "toIndex": 10,
+        "type": "Failure"
+      }
+    ],
+    "ruleChainConnections": null
+  }
+}

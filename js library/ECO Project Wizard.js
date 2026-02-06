@@ -5131,6 +5131,12 @@ mat-toolbar.eco-dialog-header,
           <input matInput formControlName="longitude">
         </mat-form-field>
       </div>
+      <mat-form-field appearance="fill" class="w-full">
+        <mat-label>Norm Outdoor Temperature (NAT)</mat-label>
+        <input matInput formControlName="normOutdoorTemp" type="number" step="0.1">
+        <span matSuffix>&deg;C</span>
+        <mat-hint *ngIf="natLookupInfo">{{ natLookupInfo }}</mat-hint>
+      </mat-form-field>
     </div>
     </div>
 
@@ -5566,12 +5572,598 @@ mat-toolbar.eco-dialog-header,
 }
 
 // ============================================================================
+// ADD PROJECT DIALOG
+// ============================================================================
+
+/**
+ * Opens the Add Project dialog
+ * Creates a new project asset with address, coordinates, and NAT lookup
+ *
+ * @param {Object} widgetContext - ThingsBoard widget context
+ * @param {Function} callback - Optional callback after project creation
+ */
+export function openAddProjectDialog(widgetContext, callback) {
+  const $injector = widgetContext.$scope.$injector;
+  const customDialog = $injector.get(widgetContext.servicesMap.get('customDialog'));
+  const assetService = $injector.get(widgetContext.servicesMap.get('assetService'));
+  const entityGroupService = $injector.get(widgetContext.servicesMap.get('entityGroupService'));
+  const attributeService = $injector.get(widgetContext.servicesMap.get('attributeService'));
+  const entityRelationService = $injector.get(widgetContext.servicesMap.get('entityRelationService'));
+  const customerService = $injector.get(widgetContext.servicesMap.get('customerService'));
+
+  const ctx = widgetContext;
+  const isTenantAdmin = ctx.currentUser.authority === 'TENANT_ADMIN';
+
+  let customers = [];
+  let customerId;
+  let customerName;
+  let customerShortName;
+  let nextProjectId = 0;
+
+  // Load climate reference data
+  let climateData = null;
+  const climateAssetName = 'Austrian Climate Reference (OIB-RL 6)';
+
+  // Load customers first
+  const pageLink = ctx.pageLink(1000, 0, null, null, null);
+  customerService.getUserCustomers(pageLink).subscribe(function(pageData) {
+    customers = (pageData && pageData.data) ? pageData.data : [];
+
+    // Non-Tenant-Admin has exactly one customer
+    if (!isTenantAdmin && customers.length === 1) {
+      const c = customers[0];
+      customerId = { id: c.id.id, entityType: 'CUSTOMER' };
+      customerName = c.name;
+    }
+
+    // Load climate reference data
+    loadClimateData().then(function() {
+      openDialog();
+    }).catch(function(err) {
+      console.warn('[AddProject] Climate data not available:', err);
+      openDialog();
+    });
+  });
+
+  function loadClimateData() {
+    return new Promise(function(resolve, reject) {
+      const searchPageLink = { page: 0, pageSize: 10, textSearch: climateAssetName };
+      assetService.getTenantAssetInfos(searchPageLink).subscribe(
+        function(response) {
+          const assets = response.data || [];
+          const asset = assets.find(function(a) { return a.name === climateAssetName; });
+          if (!asset) {
+            reject('Asset not found');
+            return;
+          }
+          attributeService.getEntityAttributes(asset.id, 'SERVER_SCOPE', ['climateData']).subscribe(
+            function(attrs) {
+              const attr = attrs.find(function(a) { return a.key === 'climateData'; });
+              if (attr && attr.value) {
+                climateData = attr.value;
+                console.log('[AddProject] Climate data loaded:', climateData.cnt, 'records');
+                resolve();
+              } else {
+                reject('Attribute not found');
+              }
+            },
+            reject
+          );
+        },
+        reject
+      );
+    });
+  }
+
+  function lookupNormTemp(lat, lon) {
+    if (!climateData || !climateData.d) return null;
+    let nearest = null;
+    let minDist = Infinity;
+    const toRad = Math.PI / 180;
+    for (var i = 0; i < climateData.d.length; i++) {
+      var r = climateData.d[i];
+      if (r.la === null || r.lo === null) continue;
+      // Simple distance calculation
+      var dLat = (r.la - lat) * toRad;
+      var dLon = (r.lo - lon) * toRad;
+      var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat * toRad) * Math.cos(r.la * toRad) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+      var dist = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) * 6371;
+      if (dist < minDist) {
+        minDist = dist;
+        nearest = r;
+      }
+    }
+    if (!nearest) return null;
+    return {
+      normTemp: nearest.t,
+      name: nearest.n,
+      bundesland: nearest.b,
+      distance: Math.round(minDist * 100) / 100
+    };
+  }
+
+  function getLastProjectId(projects) {
+    let maxNumber = 0;
+    projects.forEach(function(item) {
+      const name = item.name;
+      const parts = name.split('_');
+      if (parts.length === 2) {
+        const number = parseInt(parts[1], 10);
+        if (number > maxNumber) {
+          maxNumber = number;
+        }
+      }
+    });
+    return maxNumber + 1;
+  }
+
+  // HTML Template with improved CSS
+  const htmlTemplate = '<style>' +
+    '.add-project-form { width: 600px; max-width: 95vw; }' +
+    '.eco-dialog-header { display: flex; align-items: center; gap: 12px; padding: 0 16px; height: 52px; background: var(--tb-primary-500); color: white; }' +
+    '.eco-dialog-header .header-icon { font-size: 22px; width: 22px; height: 22px; }' +
+    '.eco-dialog-header .header-title { margin: 0; font-size: 17px; font-weight: 500; }' +
+    '.eco-dialog-header .close-btn { color: rgba(255,255,255,0.8) !important; margin-left: auto; }' +
+    '.eco-dialog-header .close-btn:hover { color: white !important; background: rgba(255,255,255,0.1) !important; }' +
+    '.dialog-content { padding: 12px 16px !important; background: #f8fafc !important; max-height: calc(90vh - 120px); overflow-y: auto; }' +
+    '.section-card { background: white; border: 1px solid #e2e8f0; border-left: 3px solid var(--tb-primary-500); margin-bottom: 10px; }' +
+    '.section-header { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; font-weight: 600; font-size: 12px; color: #334155; text-transform: uppercase; letter-spacing: 0.3px; }' +
+    '.section-header mat-icon { font-size: 16px; width: 16px; height: 16px; color: var(--tb-primary-500); }' +
+    '.section-body { padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; }' +
+    '.section-body .mat-mdc-form-field { width: 100%; }' +
+    '.section-body .mat-mdc-form-field-subscript-wrapper { margin-bottom: -6px; }' +
+    '.dialog-footer { display: flex; justify-content: flex-end; align-items: center; gap: 12px; padding: 10px 16px; border-top: 1px solid #e2e8f0; background: #fafafa; }' +
+    '.flex { display: flex; }' +
+    '.gap-2 { gap: 8px; }' +
+    '.w-full { width: 100%; }' +
+    'tb-image-input .tb-image-input-container { min-height: 50px !important; max-height: 50px !important; }' +
+    'tb-image-input .dropzone { min-height: 42px !important; padding: 4px 8px !important; flex-direction: row !important; gap: 8px !important; }' +
+    'tb-image-input .dropzone mat-icon { font-size: 18px !important; width: 18px !important; height: 18px !important; }' +
+    'tb-image-input .dropzone span { font-size: 11px !important; }' +
+    '.nat-info { font-size: 11px; color: #64748b; margin-top: 2px; }' +
+    '.nat-info.success { color: #059669; }' +
+    '.mdc-text-field--filled:not(.mdc-text-field--disabled) { background-color: #F4F9FE !important; }' +
+    '.mdc-text-field--filled.mdc-text-field--disabled { background-color: rgba(244, 249, 254, 0.5) !important; }' +
+    '.mat-mdc-dialog-container, .mat-mdc-dialog-surface, .mdc-dialog__surface { border-radius: 0 !important; }' +
+    '</style>' +
+    '<form #addProjectForm="ngForm" [formGroup]="addProjectFormGroup" (ngSubmit)="save()" class="add-project-form">' +
+    '<mat-toolbar class="eco-dialog-header">' +
+    '<mat-icon class="header-icon">folder_open</mat-icon>' +
+    '<h2 class="header-title">Add Project</h2>' +
+    '<span style="flex:1"></span>' +
+    '<button mat-icon-button (click)="cancel()" type="button" class="close-btn"><mat-icon>close</mat-icon></button>' +
+    '</mat-toolbar>' +
+    '<mat-progress-bar color="warn" mode="indeterminate" *ngIf="isLoading$ | async"></mat-progress-bar>' +
+    '<div style="height: 4px;" *ngIf="!(isLoading$ | async)"></div>' +
+    '<div mat-dialog-content class="dialog-content">' +
+    '<div class="section-card">' +
+    '<div class="section-header"><mat-icon>business</mat-icon><span>Customer</span></div>' +
+    '<div class="section-body">' +
+    '<mat-form-field appearance="fill" class="w-full">' +
+    '<mat-label>Customer</mat-label>' +
+    '<mat-select formControlName="customer" (selectionChange)="onCustomerChange()" required>' +
+    '<mat-option *ngFor="let c of customers" [value]="c">{{ c.name }}</mat-option>' +
+    '</mat-select>' +
+    '<mat-error *ngIf="addProjectFormGroup.get(\'customer\')?.hasError(\'required\')">Customer is required.</mat-error>' +
+    '</mat-form-field>' +
+    '</div></div>' +
+    '<div class="section-card">' +
+    '<div class="section-header"><mat-icon>folder</mat-icon><span>Project Info</span></div>' +
+    '<div class="section-body">' +
+    '<tb-image-input formControlName="projectPicture" label="Project Picture" noImageText="No picture"></tb-image-input>' +
+    '<mat-form-field appearance="fill" class="w-full">' +
+    '<mat-label>Project ID</mat-label>' +
+    '<input matInput formControlName="name" required readonly>' +
+    '</mat-form-field>' +
+    '<mat-form-field appearance="fill" class="w-full">' +
+    '<mat-label>Label</mat-label>' +
+    '<input matInput formControlName="entityLabel">' +
+    '</mat-form-field>' +
+    '</div></div>' +
+    '<div class="section-card">' +
+    '<div class="section-header"><mat-icon>location_on</mat-icon><span>Address</span></div>' +
+    '<div class="section-body">' +
+    '<mat-form-field appearance="fill" class="w-full">' +
+    '<mat-label>Project address</mat-label>' +
+    '<input matInput formControlName="address" [matAutocomplete]="addrAuto" autocomplete="off">' +
+    '<button mat-icon-button matSuffix type="button" (click)="searchAddress()" [disabled]="(addProjectFormGroup.get(\'address\').value || \'\').length < 5"><mat-icon>search</mat-icon></button>' +
+    '<mat-autocomplete #addrAuto="matAutocomplete" [displayWith]="displayAddressOption" (optionSelected)="onAddressSelected($event.option.value)">' +
+    '<mat-option *ngFor="let opt of addressOptions" [value]="opt">{{ opt.label }}</mat-option>' +
+    '</mat-autocomplete>' +
+    '<mat-hint *ngIf="(addProjectFormGroup.get(\'address\').value || \'\').length < 5">Enter at least 5 characters</mat-hint>' +
+    '</mat-form-field>' +
+    '<div class="flex gap-2">' +
+    '<mat-form-field appearance="fill" style="flex: 1;"><mat-label>Postal Code</mat-label><input matInput formControlName="postalCode"></mat-form-field>' +
+    '<mat-form-field appearance="fill" style="flex: 2;"><mat-label>City</mat-label><input matInput formControlName="city"></mat-form-field>' +
+    '</div>' +
+    '<div class="flex gap-2">' +
+    '<mat-form-field appearance="fill" style="flex: 1;"><mat-label>Latitude</mat-label><input matInput formControlName="latitude"></mat-form-field>' +
+    '<mat-form-field appearance="fill" style="flex: 1;"><mat-label>Longitude</mat-label><input matInput formControlName="longitude"></mat-form-field>' +
+    '</div>' +
+    '<mat-form-field appearance="fill" class="w-full">' +
+    '<mat-label>Norm Outdoor Temperature (NAT)</mat-label>' +
+    '<input matInput formControlName="normOutdoorTemp" type="number" step="0.1">' +
+    '<span matSuffix>&deg;C</span>' +
+    '</mat-form-field>' +
+    '<div class="nat-info" [class.success]="natLookupInfo" *ngIf="natLookupInfo">{{ natLookupInfo }}</div>' +
+    '</div></div>' +
+    '</div>' +
+    '<div class="dialog-footer">' +
+    '<button mat-button (click)="cancel()" type="button">Cancel</button>' +
+    '<button mat-raised-button color="primary" type="submit" [disabled]="(isLoading$ | async) || addProjectFormGroup.invalid || !addProjectFormGroup.dirty">' +
+    '<mat-icon style="font-size: 18px; width: 18px; height: 18px; margin-right: 4px;">save</mat-icon>Save' +
+    '</button>' +
+    '</div></form>';
+
+  function openDialog() {
+    customDialog.customDialog(htmlTemplate, AddProjectDialogController).subscribe();
+  }
+
+  function AddProjectDialogController(instance) {
+    var vm = instance;
+
+    vm.isTenantAdmin = isTenantAdmin;
+    vm.customers = customers;
+    vm.natLookupInfo = '';
+
+    vm.addProjectFormGroup = vm.fb.group({
+      customer: [{ value: null, disabled: !isTenantAdmin }, vm.validators.required],
+      name: [{ value: '', disabled: true }, vm.validators.required],
+      entityLabel: [''],
+      projectPicture: [null],
+      address: [''],
+      postalCode: [''],
+      city: [''],
+      latitude: [''],
+      longitude: [''],
+      normOutdoorTemp: [null]
+    });
+
+    // Address search state
+    vm.addressOptions = [];
+    vm._lastSelectedAddressLabel = null;
+
+    vm.displayAddressOption = function(opt) {
+      if (!opt) return '';
+      return (typeof opt === 'string') ? opt : (opt.label || '');
+    };
+
+    vm.searchAddress = function() {
+      var qRaw = vm.addProjectFormGroup.get('address').value || '';
+      var q = (typeof qRaw === 'string') ? qRaw.trim() : vm.displayAddressOption(qRaw).trim();
+      if (q.length < 5) {
+        vm.addressOptions = [];
+        return;
+      }
+      searchAddressViaPhoton(q);
+    };
+
+    vm.onAddressSelected = function(opt) {
+      if (!opt) return;
+      vm._lastSelectedAddressLabel = opt.label;
+
+      var patchData = {
+        address: opt.label,
+        latitude: opt.lat,
+        longitude: opt.lon
+      };
+
+      var currentPostalCode = (vm.addProjectFormGroup.get('postalCode').value || '').trim();
+      var currentCity = (vm.addProjectFormGroup.get('city').value || '').trim();
+
+      if (!currentPostalCode && opt.postcode) patchData.postalCode = opt.postcode;
+      if (!currentCity && opt.city) patchData.city = opt.city;
+
+      // NAT Lookup
+      if (opt.lat && opt.lon && climateData) {
+        var natResult = lookupNormTemp(opt.lat, opt.lon);
+        if (natResult) {
+          patchData.normOutdoorTemp = natResult.normTemp;
+          vm.natLookupInfo = natResult.name + ' (' + natResult.bundesland + '), ' + natResult.distance + ' km';
+        }
+      }
+
+      vm.addProjectFormGroup.patchValue(patchData);
+      vm.addProjectFormGroup.get('address').markAsDirty();
+      vm.addProjectFormGroup.get('latitude').markAsDirty();
+      vm.addProjectFormGroup.get('longitude').markAsDirty();
+      if (patchData.normOutdoorTemp) vm.addProjectFormGroup.get('normOutdoorTemp').markAsDirty();
+      if (!currentPostalCode && opt.postcode) vm.addProjectFormGroup.get('postalCode').markAsDirty();
+      if (!currentCity && opt.city) vm.addProjectFormGroup.get('city').markAsDirty();
+
+      vm.addressOptions = [];
+    };
+
+    // Debounced address search
+    var addrTimer = null;
+    var lastQuery = '';
+
+    vm.addProjectFormGroup.get('address').valueChanges.subscribe(function(val) {
+      if (typeof val === 'string' && vm._lastSelectedAddressLabel && val === vm._lastSelectedAddressLabel) return;
+
+      var s = (typeof val === 'string') ? val.trim() : (vm.displayAddressOption(val) || '').trim();
+      if (s.length < 5) {
+        vm.addressOptions = [];
+        lastQuery = s;
+        if (addrTimer) { clearTimeout(addrTimer); addrTimer = null; }
+        return;
+      }
+      if (s === lastQuery) return;
+      lastQuery = s;
+
+      if (addrTimer) clearTimeout(addrTimer);
+      addrTimer = setTimeout(function() { searchAddressViaPhoton(s); }, 350);
+    });
+
+    function searchAddressViaPhoton(query) {
+      var postalCode = (vm.addProjectFormGroup.get('postalCode').value || '').trim();
+      var city = (vm.addProjectFormGroup.get('city').value || '').trim();
+
+      var refinedQuery = query;
+      if (postalCode) refinedQuery += ' ' + postalCode;
+      if (city) refinedQuery += ' ' + city;
+
+      var url = 'https://photon.komoot.io/api?q=' + encodeURIComponent(refinedQuery) + '&limit=5';
+
+      fetch(url)
+        .then(function(res) {
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return res.json();
+        })
+        .then(function(data) {
+          var features = (data && data.features) ? data.features : [];
+          vm.addressOptions = features.map(function(f) {
+            var p = f.properties || {};
+            var coords = (f.geometry && f.geometry.coordinates) ? f.geometry.coordinates : [null, null];
+            var lon = coords[0];
+            var lat = coords[1];
+
+            var street = p.street || p.name || '';
+            var house = p.housenumber ? (' ' + p.housenumber) : '';
+            var place = (street + house).trim() || (p.label || p.name || '').trim();
+
+            var cc = (p.countrycode || '').toUpperCase();
+            var postcode = p.postcode || '';
+            var cityFromResult = p.city || p.town || p.village || p.state || '';
+
+            var tail = '';
+            if (cc || postcode || cityFromResult) {
+              tail = cc ? cc : '';
+              if (cc && postcode) tail += '-' + postcode;
+              else if (!cc && postcode) tail += postcode;
+              if ((cc || postcode) && cityFromResult) tail += ' ' + cityFromResult;
+              else if (!cc && !postcode && cityFromResult) tail += cityFromResult;
+            }
+
+            var label = tail ? (place + ', ' + tail) : place;
+
+            return {
+              label: label,
+              lat: (typeof lat === 'number') ? lat : parseFloat(lat),
+              lon: (typeof lon === 'number') ? lon : parseFloat(lon),
+              postcode: postcode,
+              city: cityFromResult,
+              raw: f
+            };
+          });
+        })
+        .catch(function(err) {
+          console.error('Address search failed', err);
+          vm.addressOptions = [];
+        });
+    }
+
+    // Auto-select customer for non-tenant-admin
+    if (!isTenantAdmin && customerId) {
+      vm.addProjectFormGroup.patchValue({ customer: customers[0] });
+      vm.addProjectFormGroup.get('customer').markAsDirty();
+      loadCustomerData(customerId);
+    }
+
+    vm.onCustomerChange = function() {
+      var c = vm.addProjectFormGroup.value.customer;
+      if (!c) return;
+
+      customerId = { id: c.id.id, entityType: 'CUSTOMER' };
+      customerName = c.name;
+      loadCustomerData(customerId);
+    };
+
+    function loadCustomerData(custId) {
+      var assetSearchQuery = {
+        parameters: {
+          rootId: custId.id,
+          rootType: 'CUSTOMER',
+          direction: 'FROM',
+          relationTypeGroup: 'COMMON',
+          maxLevel: 10,
+          fetchLastLevelOnly: false
+        },
+        relationType: 'Owns',
+        assetTypes: ['Project']
+      };
+
+      assetService.findByQuery(assetSearchQuery).subscribe(function(projects) {
+        nextProjectId = getLastProjectId(projects);
+
+        attributeService.getEntityAttributes(custId, 'SERVER_SCOPE', ['shortName']).subscribe(function(attributes) {
+          var shortNameAttr = attributes.find(function(a) { return a.key === 'shortName'; });
+          customerShortName = shortNameAttr ? shortNameAttr.value : customerName;
+
+          vm.addProjectFormGroup.patchValue({ name: customerShortName + '_' + nextProjectId });
+          vm.addProjectFormGroup.get('name').markAsDirty();
+        });
+      });
+    }
+
+    vm.cancel = function() {
+      vm.dialogRef.close(null);
+    };
+
+    vm.save = function() {
+      vm.addProjectFormGroup.markAsPristine();
+      saveProjectObservable(customerId).subscribe(function(Project) {
+        widgetContext.rxjs.forkJoin([
+          saveCustomerToProjectRelation(customerId, Project.id),
+          saveAttributes(Project.id)
+        ]).subscribe(function() {
+          var params = widgetContext.stateController.getStateParams();
+          params['selectedProject'] = { entityId: Project.id, entityName: Project.name, entityLabel: '' };
+          widgetContext.updateAliases();
+          vm.dialogRef.close(null);
+          if (callback) callback();
+        });
+      });
+    };
+
+    function saveProjectObservable(custId) {
+      return getProjectsGroup(custId).pipe(
+        widgetContext.rxjs.switchMap(function(ProjectsGroup) {
+          var formValues = vm.addProjectFormGroup.getRawValue();
+          var Project = {
+            name: formValues.name,
+            type: 'Project',
+            label: formValues.entityLabel,
+            customerId: custId
+          };
+          return assetService.saveAsset(Project, ProjectsGroup.id.id);
+        })
+      );
+    }
+
+    function getProjectsGroup(custId) {
+      return entityGroupService.getEntityGroupsByOwnerId(custId.entityType, custId.id, 'ASSET').pipe(
+        widgetContext.rxjs.switchMap(function(entityGroups) {
+          var ProjectsGroup = entityGroups.find(function(group) { return group.name === 'Projects'; });
+          if (ProjectsGroup) {
+            return widgetContext.rxjs.of(ProjectsGroup);
+          } else {
+            ProjectsGroup = {
+              type: 'ASSET',
+              name: 'Projects',
+              ownerId: custId
+            };
+            return entityGroupService.saveEntityGroup(ProjectsGroup);
+          }
+        })
+      );
+    }
+
+    function saveCustomerToProjectRelation(custId, ProjectId) {
+      var relation = {
+        from: custId,
+        to: ProjectId,
+        typeGroup: 'COMMON',
+        type: 'Owns'
+      };
+      return entityRelationService.saveRelation(relation);
+    }
+
+    function saveAttributes(entityId) {
+      var formValues = vm.addProjectFormGroup.value;
+      var attributesArray = [
+        { key: 'latitude', value: formValues.latitude || 48.1406022 },
+        { key: 'longitude', value: formValues.longitude || 16.2932688 },
+        { key: 'address', value: formValues.address || '' },
+        { key: 'postalCode', value: formValues.postalCode || '' },
+        { key: 'city', value: formValues.city || '' },
+        { key: 'progress', value: 'in preparation' },
+        { key: 'units', value: 'metric' }
+      ];
+
+      if (formValues.normOutdoorTemp !== null && formValues.normOutdoorTemp !== '') {
+        attributesArray.push({ key: 'normOutdoorTemp', value: formValues.normOutdoorTemp });
+      }
+
+      if (formValues.projectPicture) {
+        attributesArray.push({ key: 'projectPicture', value: formValues.projectPicture });
+      }
+
+      return attributeService.saveEntityAttributes(entityId, 'SERVER_SCOPE', attributesArray);
+    }
+  }
+}
+
+// ============================================================================
 // REPROCESS CALCULATED FIELDS DIALOG
 // ============================================================================
 
 /**
+ * Reprocess CF Definitions (TS_ROLLING versions for historical data)
+ * These CFs are created at Asset level (not Asset Profile) for individual reprocessing
+ *
+ * Key difference from realtime CFs:
+ * - Use TS_ROLLING with .last() instead of TS_LATEST
+ * - Created per-Asset so only that measurement is reprocessed
+ */
+const REPROCESS_CF_DEFINITIONS = {
+  basic: {
+    type: 'SCRIPT',
+    name: 'derived_basic_reprocess',
+    configurationVersion: 0,
+    configuration: {
+      type: 'SCRIPT',
+      arguments: {
+        Vdot_m3h: { refEntityKey: { key: 'Vdot_m3h', type: 'TS_ROLLING' }, timeWindow: 120000, limit: 10 },
+        P_th_kW: { refEntityKey: { key: 'P_th_kW', type: 'TS_ROLLING' }, timeWindow: 120000, limit: 10 },
+        dT_K: { refEntityKey: { key: 'dT_K', type: 'TS_ROLLING' }, timeWindow: 120000, limit: 10 },
+        T_flow_C: { refEntityKey: { key: 'T_flow_C', type: 'TS_ROLLING' }, timeWindow: 120000, limit: 10 },
+        T_return_C: { refEntityKey: { key: 'T_return_C', type: 'TS_ROLLING' }, timeWindow: 120000, limit: 10 },
+        flowOnThreshold: { refEntityKey: { key: 'flowOnThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '0.05' },
+        designPower: { refEntityKey: { key: 'designPower', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' } },
+        designDeltaT: { refEntityKey: { key: 'designDeltaT', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' } }
+      },
+      expression: '// Reprocess Version - uses TS_ROLLING with .last()\nvar vdot = Vdot_m3h.last();\nvar pth = P_th_kW.last();\nvar dt = dT_K.last();\nvar tflow = T_flow_C.last();\nvar treturn = T_return_C.last();\n\nif (vdot == null) { return {}; }\n\nvar threshold = flowOnThreshold;\nif (threshold == null) { threshold = 0.1; }\n\nvar result = {};\n\n// is_on\nif (vdot > threshold) { result["is_on"] = true; } else { result["is_on"] = false; }\n\n// load_class\nif (pth != null && designPower != null && designPower > 0) {\n  var loadPct = (pth / designPower) * 100;\n  if (loadPct < 30) { result["load_class"] = "low"; }\n  else if (loadPct < 60) { result["load_class"] = "mid"; }\n  else { result["load_class"] = "high"; }\n}\n\n// dT_flag\nif (dt != null && designDeltaT != null && designDeltaT > 0 && result["load_class"] != null) {\n  var dTRatio = dt / designDeltaT;\n  if (result["load_class"] == "low") {\n    if (dTRatio >= 0.3) { result["dT_flag"] = "ok"; }\n    else if (dTRatio >= 0.15) { result["dT_flag"] = "warn"; }\n    else { result["dT_flag"] = "severe"; }\n  } else {\n    if (dTRatio >= 0.5) { result["dT_flag"] = "ok"; }\n    else if (dTRatio >= 0.3) { result["dT_flag"] = "warn"; }\n    else { result["dT_flag"] = "severe"; }\n  }\n}\n\n// data_quality\nvar isOutlier = false;\nif (tflow != null && (tflow < -50 || tflow > 150)) { isOutlier = true; }\nif (treturn != null && (treturn < -50 || treturn > 150)) { isOutlier = true; }\nif (dt != null && (dt < -50 || dt > 100)) { isOutlier = true; }\nif (vdot != null && (vdot < 0 || vdot > 1000)) { isOutlier = true; }\nif (pth != null && (pth < -10000 || pth > 10000)) { isOutlier = true; }\n\nif (isOutlier) { result["data_quality"] = "error"; } else { result["data_quality"] = "ok"; }\n\nreturn result;',
+      output: { type: 'TIME_SERIES' }
+    }
+  },
+  power: {
+    type: 'SCRIPT',
+    name: 'derived_power_reprocess',
+    configurationVersion: 0,
+    configuration: {
+      type: 'SCRIPT',
+      arguments: {
+        Vdot_m3h: { refEntityKey: { key: 'Vdot_m3h', type: 'TS_ROLLING' }, timeWindow: 120000, limit: 10 },
+        dT_K: { refEntityKey: { key: 'dT_K', type: 'TS_ROLLING' }, timeWindow: 120000, limit: 10 },
+        P_th_kW: { refEntityKey: { key: 'P_th_kW', type: 'TS_ROLLING' }, timeWindow: 120000, limit: 10 },
+        calculatePower: { refEntityKey: { key: 'calculatePower', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: 'false' },
+        fluidType: { refEntityKey: { key: 'fluidType', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: 'water' }
+      },
+      expression: '// Reprocess Version - uses TS_ROLLING with .last()\nvar vdot = Vdot_m3h.last();\nvar dt = dT_K.last();\nvar pth = P_th_kW.last();\n\nif (calculatePower != true || vdot == null || dt == null) { return {}; }\n\nvar result = {};\nvar cp = 4.18; var rho = 998;\n\nif (fluidType == "glycol20") { cp = 3.95; rho = 1032; }\nelse if (fluidType == "glycol30") { cp = 3.74; rho = 1045; }\nelse if (fluidType == "glycol40") { cp = 3.55; rho = 1058; }\n\nvar P_calc = rho * cp * vdot * dt / 3600;\nresult["P_th_calc_kW"] = Math.round(P_calc * 1000) / 1000;\n\nif (pth != null && P_calc > 0.1) {\n  var deviation = ((pth - P_calc) / P_calc) * 100;\n  result["P_deviation_pct"] = Math.round(deviation * 10) / 10;\n  var absDeviation = deviation; if (deviation < 0) { absDeviation = -deviation; }\n  if (absDeviation < 10) { result["P_sensor_flag"] = "ok"; }\n  else if (absDeviation < 25) { result["P_sensor_flag"] = "warn"; }\n  else { result["P_sensor_flag"] = "error"; }\n}\n\nreturn result;',
+      output: { type: 'TIME_SERIES' }
+    }
+  },
+  schedule: {
+    type: 'SCRIPT',
+    name: 'derived_schedule_reprocess',
+    configurationVersion: 0,
+    configuration: {
+      type: 'SCRIPT',
+      arguments: {
+        is_on: { refEntityKey: { key: 'is_on', type: 'TS_ROLLING' }, timeWindow: 120000, limit: 10 },
+        weeklySchedule: { refEntityKey: { key: 'weeklySchedule', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: 'null' }
+      },
+      expression: '// Reprocess Version - uses TS_ROLLING with .last()\nvar isOn = is_on.last();\n\nif (isOn == null || weeklySchedule == null || weeklySchedule == "") { return {}; }\n\nvar schedule = isMap(weeklySchedule) ? weeklySchedule : JSON.parse(weeklySchedule);\nif (schedule == null) { return {}; }\n\nvar tzOffset = 60;\nif (schedule["timezoneOffset"] != null) { tzOffset = toInt(schedule["timezoneOffset"]); }\n\nvar ts = ctx.latestTs;\nvar msPerDay = 86400000;\nvar daysSince1970 = toInt(ts / msPerDay);\nvar year = 1970; var days = daysSince1970;\n\nwhile (days >= 365) {\n  var daysInYear = 365;\n  if (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)) { daysInYear = 366; }\n  if (days >= daysInYear) { days = days - daysInYear; year = year + 1; } else { break; }\n}\n\nvar daysInMonths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];\nif (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)) { daysInMonths[1] = 29; }\nvar month = 0;\nwhile (month < 12 && days >= daysInMonths[month]) { days = days - daysInMonths[month]; month = month + 1; }\nmonth = month + 1;\nvar dayOfMonth = days + 1;\n\nvar isDST = false;\nif (month >= 4 && month <= 9) { isDST = true; }\nelse if (month == 3 && dayOfMonth >= 25) { isDST = true; }\nelse if (month == 10 && dayOfMonth < 25) { isDST = true; }\n\nvar effectiveOffset = tzOffset;\nif (isDST) { effectiveOffset = tzOffset + 60; }\n\nvar localTs = ts + effectiveOffset * 60000;\nvar dayIndex = (toInt(localTs / msPerDay) + 4) % 7;\nvar dayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];\nvar dayName = dayNames[dayIndex];\nvar msInDay = localTs % msPerDay;\nvar currentMinutes = toInt(msInDay / 60000);\n\nvar isWithinSchedule = false;\nvar todayValue = schedule[dayName];\n\nif (todayValue != null) {\n  var todayStr = "" + todayValue;\n  if (todayStr == "true") { isWithinSchedule = true; }\n  else if (todayStr == "false") { isWithinSchedule = false; }\n  else {\n    var enabled = todayValue["enabled"];\n    if (("" + enabled) == "true") {\n      var startStr = todayValue["start"];\n      var endStr = todayValue["end"];\n      if (startStr != null && endStr != null) {\n        var startH = toInt(parseLong(startStr.substring(0, 2)));\n        var startM = toInt(parseLong(startStr.substring(3, 5)));\n        var startMinutes = startH * 60 + startM;\n        var endH = toInt(parseLong(endStr.substring(0, 2)));\n        var endM = toInt(parseLong(endStr.substring(3, 5)));\n        var endMinutes = endH * 60 + endM;\n        if (currentMinutes >= startMinutes && currentMinutes <= endMinutes) { isWithinSchedule = true; }\n      } else { isWithinSchedule = true; }\n    }\n  }\n}\n\nvar scheduleViolation = false;\nif (isOn == true && !isWithinSchedule) { scheduleViolation = true; }\n\nreturn { "schedule_violation": scheduleViolation };',
+      output: { type: 'TIME_SERIES' }
+    }
+  }
+};
+
+/**
+ * CFs that need Asset-level reprocess versions (TS_LATEST -> TS_ROLLING)
+ * Other CFs already use TS_ROLLING and can be reprocessed directly via Asset Profile
+ */
+const NEEDS_ASSET_LEVEL_CF = ['basic', 'power', 'schedule'];
+
+/**
  * Opens the Reprocess Calculated Fields dialog
  * Allows reprocessing of calculated fields for a measurement
+ *
+ * For basic/power/schedule: Creates Asset-level CFs with TS_ROLLING if needed
+ * For other CFs: Uses existing Asset Profile CFs (already TS_ROLLING)
  *
  * @param {Object} widgetContext - ThingsBoard widget context
  * @param {Object} measurementId - Measurement entity ID { id: string, entityType: 'ASSET' }
@@ -5583,43 +6175,72 @@ export function openReprocessDialog(widgetContext, measurementId, callback) {
   const http = $injector.get(widgetContext.servicesMap.get('http'));
   const attributeService = $injector.get(widgetContext.servicesMap.get('attributeService'));
 
-  // Calculated Field IDs grouped by category
+  // CF definitions for reprocessing via Rule Chain
+  // Order matters: basic must run first (produces is_on used by others)
+  // dependsOn: CFs that must be selected before this one can be selected
   const cfGroups = {
     basic: {
       label: 'Basic (is_on, load_class, dT_flag, data_quality)',
-      id: '6cac3240-0211-11f1-9b0a-33b9bcf3ddd0'
+      profileId: '6cac3240-0211-11f1-9b0a-33b9bcf3ddd0',
+      needsAssetLevel: true,
+      order: 1,
+      dependsOn: []
     },
     power: {
       label: 'Power (P_th_calc_kW, P_deviation_pct, P_sensor_flag)',
-      id: '8d2f1a50-0211-11f1-9979-9f3434877bb4'
+      profileId: '8d2f1a50-0211-11f1-9979-9f3434877bb4',
+      needsAssetLevel: true,
+      order: 2,
+      dependsOn: []
     },
     schedule: {
       label: 'Schedule (schedule_violation)',
-      id: 'aee1f6e0-0211-11f1-9979-9f3434877bb4'
+      profileId: 'aee1f6e0-0211-11f1-9979-9f3434877bb4',
+      needsAssetLevel: true,
+      order: 3,
+      dependsOn: ['basic']  // needs is_on
     },
     oscillation: {
-      label: 'Oscillation Detection',
-      id: '30eb6890-0133-11f1-9979-9f3434877bb4'
+      label: 'Oscillation (oscillation_flag, oscillation_count)',
+      profileId: '30eb6890-0133-11f1-9979-9f3434877bb4',
+      needsAssetLevel: true,
+      order: 4,
+      dependsOn: ['basic']  // needs is_on
     },
     dt_collapse: {
-      label: 'dT Collapse Flag',
-      id: '684c01c0-0127-11f1-9979-9f3434877bb4'
+      label: 'dT Collapse (dT_collapse_flag)',
+      profileId: '684c01c0-0127-11f1-9979-9f3434877bb4',
+      needsAssetLevel: true,
+      order: 5,
+      dependsOn: []  // uses dT_K directly
     },
     flow_spike: {
-      label: 'Flow Spike Flag',
-      id: '685884e0-0127-11f1-9979-9f3434877bb4'
+      label: 'Flow Spike (flow_spike_flag)',
+      profileId: '685884e0-0127-11f1-9979-9f3434877bb4',
+      needsAssetLevel: true,
+      order: 6,
+      dependsOn: []  // uses Vdot_m3h directly
     },
     power_stability: {
-      label: 'Power Stability',
-      id: 'a065a960-0129-11f1-9979-9f3434877bb4'
+      label: 'Power Stability (power_unstable_flag)',
+      profileId: 'a065a960-0129-11f1-9979-9f3434877bb4',
+      needsAssetLevel: true,
+      order: 7,
+      dependsOn: ['basic']  // needs is_on
     },
     runtime_pct: {
-      label: 'Runtime Percentage',
-      id: 'a06e8300-0129-11f1-9979-9f3434877bb4'
+      label: 'Runtime Percentage (runtime_pct)',
+      profileId: 'a06e8300-0129-11f1-9979-9f3434877bb4',
+      needsAssetLevel: true,
+      order: 8,
+      dependsOn: ['basic']  // needs is_on
     },
     cycling: {
-      label: 'Cycling Flag',
-      id: 'aedba340-012a-11f1-9979-9f3434877bb4'
+      label: 'Cycling (cycling_flag, cycle_count)',
+      profileId: 'aedba340-012a-11f1-9979-9f3434877bb4',
+      needsAssetLevel: true,
+      order: 9,
+      dependsOn: ['basic']  // needs is_on
     }
   };
 
@@ -5722,6 +6343,15 @@ mat-toolbar.eco-dialog-header,
 .cf-item mat-checkbox {
   font-size: 14px;
 }
+.cf-item mat-checkbox.disabled-checkbox {
+  opacity: 0.5;
+}
+.cf-item .dependency-hint {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-left: 28px;
+  font-style: italic;
+}
 .select-actions {
   display: flex;
   gap: 12px;
@@ -5791,7 +6421,11 @@ mat-toolbar.eco-dialog-header,
         </div>
         <div class="cf-group">
           <div class="cf-item" *ngFor="let cf of cfList">
-            <mat-checkbox [formControlName]="cf.key">{{ cf.label }}</mat-checkbox>
+            <mat-checkbox [formControlName]="cf.key"
+                          [disabled]="!isDependencyMet(cf)"
+                          [class.disabled-checkbox]="!isDependencyMet(cf)"
+                          (change)="onCfChange(cf.key)">{{ cf.label }}</mat-checkbox>
+            <div *ngIf="!isDependencyMet(cf)" class="dependency-hint">{{ getDependencyHint(cf) }}</div>
           </div>
         </div>
       </div>
@@ -5832,13 +6466,18 @@ mat-toolbar.eco-dialog-header,
     vm.startTs = config.attrMap.startTimeMs || (Date.now() - 30 * 24 * 60 * 60 * 1000); // Default: 30 days ago
     vm.endTs = config.attrMap.endTimeMs || Date.now();
 
-    // Build CF list for checkboxes
+    // Build CF list for checkboxes, sorted by order (basic first, then power, then rest)
     vm.cfList = Object.keys(config.cfGroups).map(function(key) {
       return {
         key: key,
         label: config.cfGroups[key].label,
-        id: config.cfGroups[key].id
+        profileId: config.cfGroups[key].profileId,
+        needsAssetLevel: config.cfGroups[key].needsAssetLevel,
+        order: config.cfGroups[key].order || 99,
+        dependsOn: config.cfGroups[key].dependsOn || []
       };
+    }).sort(function(a, b) {
+      return a.order - b.order;
     });
 
     // Create form group with checkbox for each CF
@@ -5848,7 +6487,46 @@ mat-toolbar.eco-dialog-header,
     });
     vm.reprocessFormGroup = vm.fb.group(formGroupConfig);
 
+    // Check if dependencies are met for a CF
+    vm.isDependencyMet = function(cf) {
+      if (!cf.dependsOn || cf.dependsOn.length === 0) {
+        return true;
+      }
+      return cf.dependsOn.every(function(depKey) {
+        return vm.reprocessFormGroup.get(depKey).value === true;
+      });
+    };
+
+    // Get dependency hint for disabled CFs
+    vm.getDependencyHint = function(cf) {
+      if (vm.isDependencyMet(cf)) {
+        return '';
+      }
+      const missingDeps = cf.dependsOn.filter(function(depKey) {
+        return vm.reprocessFormGroup.get(depKey).value !== true;
+      });
+      const depLabels = missingDeps.map(function(depKey) {
+        const dep = vm.cfList.find(function(c) { return c.key === depKey; });
+        return dep ? dep.key.charAt(0).toUpperCase() + dep.key.slice(1) : depKey;
+      });
+      return 'Requires: ' + depLabels.join(', ');
+    };
+
+    // When a dependency is unchecked, also uncheck dependent CFs
+    vm.onCfChange = function(cfKey) {
+      const isChecked = vm.reprocessFormGroup.get(cfKey).value;
+      if (!isChecked) {
+        // Uncheck all CFs that depend on this one
+        vm.cfList.forEach(function(cf) {
+          if (cf.dependsOn && cf.dependsOn.indexOf(cfKey) !== -1) {
+            vm.reprocessFormGroup.get(cf.key).setValue(false);
+          }
+        });
+      }
+    };
+
     vm.selectAll = function() {
+      // Select in order to respect dependencies
       vm.cfList.forEach(function(cf) {
         vm.reprocessFormGroup.get(cf.key).setValue(true);
       });
@@ -5880,53 +6558,64 @@ mat-toolbar.eco-dialog-header,
       vm.isLoading = true;
       vm.resultMessage = '';
 
-      // Get selected CF IDs
+      // Get selected CFs (only those that need asset-level reprocessing)
       const selectedCfs = vm.cfList.filter(function(cf) {
-        return vm.reprocessFormGroup.get(cf.key).value === true;
+        return vm.reprocessFormGroup.get(cf.key).value === true && cf.needsAssetLevel;
       });
 
-      // Process each selected CF sequentially
-      let completed = 0;
-      let errors = [];
-      let successes = [];
+      if (selectedCfs.length === 0) {
+        vm.isLoading = false;
+        vm.resultMessage = 'No supported calculated fields selected. Only basic, power, and schedule can be reprocessed.';
+        vm.resultSuccess = false;
+        return;
+      }
 
-      function processNext(index) {
+      // Process CFs sequentially via Rule Chain (set reprocessRequest attribute)
+      let triggeredCount = 0;
+
+      function triggerNext(index) {
         if (index >= selectedCfs.length) {
-          // All done
           vm.isLoading = false;
-          if (errors.length === 0) {
-            vm.resultSuccess = true;
-            vm.resultMessage = 'Successfully started reprocessing for ' + successes.length + ' calculated field(s).';
-          } else if (successes.length > 0) {
-            vm.resultSuccess = false;
-            vm.resultMessage = 'Reprocessing started for ' + successes.length + ' field(s), but ' + errors.length + ' failed: ' + errors.join(', ');
-          } else {
-            vm.resultSuccess = false;
-            vm.resultMessage = 'Reprocessing failed: ' + errors.join(', ');
-          }
-          if (callback && successes.length > 0) {
-            callback();
-          }
+          vm.resultSuccess = true;
+          vm.resultMessage = 'Reprocessing triggered for ' + triggeredCount + ' field(s). Progress is handled in background via Rule Chain.';
+          if (callback) { callback(); }
           return;
         }
 
         const cf = selectedCfs[index];
-        const url = '/api/calculatedField/' + cf.id + '/reprocess?startTs=' + vm.startTs + '&endTs=' + vm.endTs;
+        vm.resultMessage = 'Triggering ' + cf.label + '...';
 
-        http.get(url).subscribe(
-          function(response) {
-            successes.push(cf.label);
-            processNext(index + 1);
+        const reprocessRequest = {
+          type: cf.key,
+          startTs: vm.startTs,
+          endTs: vm.endTs,
+          assetId: vm.measurementId.id
+        };
+
+        attributeService.saveEntityAttributes(
+          vm.measurementId,
+          'SERVER_SCOPE',
+          [{ key: 'reprocessRequest', value: reprocessRequest }]
+        ).subscribe(
+          function() {
+            triggeredCount++;
+            console.log('[Reprocess] Triggered via Rule Chain:', cf.key);
+            // Wait a bit before triggering next to let Rule Chain process
+            setTimeout(function() {
+              triggerNext(index + 1);
+            }, 2000);
           },
           function(error) {
-            console.error('Reprocess error for ' + cf.key + ':', error);
-            errors.push(cf.label);
-            processNext(index + 1);
+            console.error('[Reprocess] Error setting attribute:', error);
+            vm.isLoading = false;
+            vm.resultMessage = 'Error triggering ' + cf.label + ': ' + JSON.stringify(error);
+            vm.resultSuccess = false;
           }
         );
       }
 
-      processNext(0);
+      triggerNext(0);
     };
+
   }
 }
