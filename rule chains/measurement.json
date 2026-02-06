@@ -2,7 +2,10 @@
   "ruleChain": {
     "name": "Measurement",
     "type": "CORE",
-    "firstRuleNodeId": null,
+    "firstRuleNodeId": {
+      "entityType": "RULE_NODE",
+      "id": "ec329d30-0390-11f1-9b0a-33b9bcf3ddd0"
+    },
     "root": false,
     "debugMode": false,
     "configuration": null,
@@ -11,13 +14,30 @@
     }
   },
   "metadata": {
-    "version": 56,
+    "ruleChainId": {
+      "entityType": "RULE_CHAIN",
+      "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
+    },
+    "version": 57,
     "firstNodeIndex": 6,
     "nodes": [
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "ec327620-0390-11f1-9b0a-33b9bcf3ddd0"
+        },
+        "createdTime": 1770405639810,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
+        },
         "type": "org.thingsboard.rule.engine.telemetry.TbMsgTimeseriesNode",
         "name": "Save Timeseries",
-        "debugSettings": null,
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 0
+        },
         "singletonMode": false,
         "queueName": null,
         "configurationVersion": 1,
@@ -28,15 +48,29 @@
             "type": "ON_EVERY_MESSAGE"
           }
         },
+        "externalId": null,
         "additionalInfo": {
-          "layoutX": 822,
-          "layoutY": 294
+          "layoutX": 615,
+          "layoutY": 285
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "ec327621-0390-11f1-9b0a-33b9bcf3ddd0"
+        },
+        "createdTime": 1770405639810,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
+        },
         "type": "org.thingsboard.rule.engine.telemetry.TbMsgAttributesNode",
         "name": "Save Client Attributes",
-        "debugSettings": null,
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 0
+        },
         "singletonMode": false,
         "queueName": null,
         "configurationVersion": 3,
@@ -49,18 +83,28 @@
           "sendAttributesUpdatedNotification": false,
           "updateAttributesOnlyOnValueChange": true
         },
+        "externalId": null,
         "additionalInfo": {
-          "layoutX": 824,
-          "layoutY": 221
+          "layoutX": 617,
+          "layoutY": 212
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "ec327622-0390-11f1-9b0a-33b9bcf3ddd0"
+        },
+        "createdTime": 1770405639810,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
+        },
         "type": "org.thingsboard.rule.engine.filter.TbMsgTypeSwitchNode",
         "name": "Message Type Switch",
         "debugSettings": {
           "failuresEnabled": true,
           "allEnabled": false,
-          "allEnabledUntil": 1770396885572
+          "allEnabledUntil": 0
         },
         "singletonMode": false,
         "queueName": null,
@@ -68,16 +112,30 @@
         "configuration": {
           "version": 0
         },
+        "externalId": null,
         "additionalInfo": {
           "description": null,
-          "layoutX": 494,
-          "layoutY": 309
+          "layoutX": 287,
+          "layoutY": 300
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "ec327623-0390-11f1-9b0a-33b9bcf3ddd0"
+        },
+        "createdTime": 1770405639810,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
+        },
         "type": "org.thingsboard.rule.engine.action.TbLogNode",
         "name": "Log RPC from Device",
-        "debugSettings": null,
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 0
+        },
         "singletonMode": false,
         "queueName": null,
         "configurationVersion": 0,
@@ -86,15 +144,29 @@
           "jsScript": "return '\\nIncoming message:\\n' + JSON.stringify(msg) + '\\nIncoming metadata:\\n' + JSON.stringify(metadata);",
           "tbelScript": "return '\\nIncoming message:\\n' + JSON.stringify(msg) + '\\nIncoming metadata:\\n' + JSON.stringify(metadata);"
         },
+        "externalId": null,
         "additionalInfo": {
-          "layoutX": 824,
-          "layoutY": 383
+          "layoutX": 617,
+          "layoutY": 374
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "ec327624-0390-11f1-9b0a-33b9bcf3ddd0"
+        },
+        "createdTime": 1770405639810,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
+        },
         "type": "org.thingsboard.rule.engine.action.TbLogNode",
         "name": "Log Other",
-        "debugSettings": null,
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 0
+        },
         "singletonMode": false,
         "queueName": null,
         "configurationVersion": 0,
@@ -103,30 +175,58 @@
           "jsScript": "return '\\nIncoming message:\\n' + JSON.stringify(msg) + '\\nIncoming metadata:\\n' + JSON.stringify(metadata);",
           "tbelScript": "return '\\nIncoming message:\\n' + JSON.stringify(msg) + '\\nIncoming metadata:\\n' + JSON.stringify(metadata);"
         },
+        "externalId": null,
         "additionalInfo": {
-          "layoutX": 823,
-          "layoutY": 444
+          "layoutX": 616,
+          "layoutY": 435
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "ec327625-0390-11f1-9b0a-33b9bcf3ddd0"
+        },
+        "createdTime": 1770405639810,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
+        },
         "type": "org.thingsboard.rule.engine.rpc.TbSendRPCRequestNode",
         "name": "RPC Call Request",
-        "debugSettings": null,
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 0
+        },
         "singletonMode": false,
         "queueName": null,
         "configurationVersion": 0,
         "configuration": {
           "timeoutInSeconds": 60
         },
+        "externalId": null,
         "additionalInfo": {
-          "layoutX": 822,
-          "layoutY": 507
+          "layoutX": 615,
+          "layoutY": 498
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "ec329d30-0390-11f1-9b0a-33b9bcf3ddd0"
+        },
+        "createdTime": 1770405639811,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
+        },
         "type": "org.thingsboard.rule.engine.profile.TbDeviceProfileNode",
         "name": "Device Profile Node",
-        "debugSettings": null,
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 0
+        },
         "singletonMode": false,
         "queueName": null,
         "configurationVersion": 1,
@@ -134,19 +234,29 @@
           "persistAlarmRulesState": false,
           "fetchAlarmRulesStateOnStart": false
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "",
-          "layoutX": 209,
-          "layoutY": 307
+          "layoutX": 2,
+          "layoutY": 298
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "ec329d31-0390-11f1-9b0a-33b9bcf3ddd0"
+        },
+        "createdTime": 1770405639811,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
+        },
         "type": "org.thingsboard.rule.engine.filter.TbJsSwitchNode",
         "name": "Check dT Collapse",
         "debugSettings": {
           "failuresEnabled": false,
           "allEnabled": false,
-          "allEnabledUntil": 1770288907611
+          "allEnabledUntil": 0
         },
         "singletonMode": false,
         "queueName": null,
@@ -156,23 +266,33 @@
           "jsScript": "",
           "tbelScript": "var v = msg.get('values');\nvar f = (v != null) ? v.get('dT_collapse_flag') : null;\nif (f == null) return ['skip'];\nreturn f == true ? ['create'] : ['clear'];"
         },
+        "externalId": null,
         "additionalInfo": {
           "description": null,
-          "layoutX": 1130,
-          "layoutY": 163
+          "layoutX": 923,
+          "layoutY": 154
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "ec329d32-0390-11f1-9b0a-33b9bcf3ddd0"
+        },
+        "createdTime": 1770405639811,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
+        },
         "type": "org.thingsboard.rule.engine.action.TbCreateAlarmNode",
         "name": "Create dT Collapse Alarm",
         "debugSettings": {
           "failuresEnabled": false,
           "allEnabled": false,
-          "allEnabledUntil": 1770146452725
+          "allEnabledUntil": 0
         },
         "singletonMode": false,
         "queueName": null,
-        "configurationVersion": 1,
+        "configurationVersion": 0,
         "configuration": {
           "scriptLang": "TBEL",
           "alarmDetailsBuildJs": null,
@@ -188,16 +308,30 @@
           "propagateToTenant": false,
           "dynamicSeverity": false
         },
+        "externalId": null,
         "additionalInfo": {
           "description": null,
-          "layoutX": 1430,
-          "layoutY": 133
+          "layoutX": 1223,
+          "layoutY": 124
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "ec329d33-0390-11f1-9b0a-33b9bcf3ddd0"
+        },
+        "createdTime": 1770405639811,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
+        },
         "type": "org.thingsboard.rule.engine.action.TbClearAlarmNode",
         "name": "Clear dT Collapse Alarm",
-        "debugSettings": null,
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 0
+        },
         "singletonMode": false,
         "queueName": null,
         "configurationVersion": 0,
@@ -207,19 +341,29 @@
           "alarmDetailsBuildTbel": "var details = {};\nif (metadata.prevAlarmDetails != null) {\n    details = JSON.parse(metadata.prevAlarmDetails);\n    //remove prevAlarmDetails from metadata\n    metadata.remove('prevAlarmDetails');\n    //now metadata is the same as it comes IN this rule node\n}\n\nreturn details;",
           "alarmType": "dT_Collapse"
         },
+        "externalId": null,
         "additionalInfo": {
           "description": null,
-          "layoutX": 1430,
-          "layoutY": 193
+          "layoutX": 1223,
+          "layoutY": 184
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "ec329d34-0390-11f1-9b0a-33b9bcf3ddd0"
+        },
+        "createdTime": 1770405639811,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
+        },
         "type": "org.thingsboard.rule.engine.filter.TbJsSwitchNode",
         "name": "Check Cycling",
         "debugSettings": {
           "failuresEnabled": false,
           "allEnabled": false,
-          "allEnabledUntil": 1770289282266
+          "allEnabledUntil": 0
         },
         "singletonMode": false,
         "queueName": null,
@@ -229,23 +373,33 @@
           "jsScript": "",
           "tbelScript": "var v = msg.get('values');\nvar f = (v != null) ? v.get('cycling_flag') : null;\nif (f == null) return ['skip'];\nreturn f == true ? ['create'] : ['clear'];"
         },
+        "externalId": null,
         "additionalInfo": {
           "description": null,
-          "layoutX": 1130,
-          "layoutY": 313
+          "layoutX": 923,
+          "layoutY": 304
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "ec329d35-0390-11f1-9b0a-33b9bcf3ddd0"
+        },
+        "createdTime": 1770405639811,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
+        },
         "type": "org.thingsboard.rule.engine.action.TbCreateAlarmNode",
         "name": "Create Cycling Alarm",
         "debugSettings": {
           "failuresEnabled": false,
           "allEnabled": false,
-          "allEnabledUntil": 1770146536941
+          "allEnabledUntil": 0
         },
         "singletonMode": false,
         "queueName": null,
-        "configurationVersion": 1,
+        "configurationVersion": 0,
         "configuration": {
           "scriptLang": "TBEL",
           "alarmDetailsBuildJs": null,
@@ -261,16 +415,30 @@
           "propagateToTenant": false,
           "dynamicSeverity": false
         },
+        "externalId": null,
         "additionalInfo": {
           "description": null,
-          "layoutX": 1430,
-          "layoutY": 283
+          "layoutX": 1223,
+          "layoutY": 274
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "ec329d36-0390-11f1-9b0a-33b9bcf3ddd0"
+        },
+        "createdTime": 1770405639811,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
+        },
         "type": "org.thingsboard.rule.engine.action.TbClearAlarmNode",
         "name": "Clear Cycling Alarm",
-        "debugSettings": null,
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 0
+        },
         "singletonMode": false,
         "queueName": null,
         "configurationVersion": 0,
@@ -280,19 +448,29 @@
           "alarmDetailsBuildTbel": "var details = {};\nif (metadata.prevAlarmDetails != null) {\n    details = JSON.parse(metadata.prevAlarmDetails);\n    //remove prevAlarmDetails from metadata\n    metadata.remove('prevAlarmDetails');\n    //now metadata is the same as it comes IN this rule node\n}\n\n\nreturn details;",
           "alarmType": "Cycling"
         },
+        "externalId": null,
         "additionalInfo": {
           "description": null,
-          "layoutX": 1430,
-          "layoutY": 343
+          "layoutX": 1223,
+          "layoutY": 334
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "ec329d37-0390-11f1-9b0a-33b9bcf3ddd0"
+        },
+        "createdTime": 1770405639811,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
+        },
         "type": "org.thingsboard.rule.engine.filter.TbJsSwitchNode",
         "name": "Check Flow Spike",
         "debugSettings": {
           "failuresEnabled": false,
           "allEnabled": false,
-          "allEnabledUntil": 1770289282266
+          "allEnabledUntil": 0
         },
         "singletonMode": false,
         "queueName": null,
@@ -302,23 +480,33 @@
           "jsScript": "",
           "tbelScript": "var v = msg.get('values');\nvar f = (v != null) ? v.get('flow_spike_flag') : null;\nif (f == null) return ['skip'];\nreturn f == true ? ['create'] : ['clear'];"
         },
+        "externalId": null,
         "additionalInfo": {
           "description": null,
-          "layoutX": 1130,
-          "layoutY": 463
+          "layoutX": 923,
+          "layoutY": 454
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "ec32c440-0390-11f1-9b0a-33b9bcf3ddd0"
+        },
+        "createdTime": 1770405639812,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
+        },
         "type": "org.thingsboard.rule.engine.action.TbCreateAlarmNode",
         "name": "Create Flow Spike Alarm",
         "debugSettings": {
           "failuresEnabled": false,
           "allEnabled": false,
-          "allEnabledUntil": 1770146536941
+          "allEnabledUntil": 0
         },
         "singletonMode": false,
         "queueName": null,
-        "configurationVersion": 1,
+        "configurationVersion": 0,
         "configuration": {
           "scriptLang": "TBEL",
           "alarmDetailsBuildJs": null,
@@ -334,16 +522,30 @@
           "propagateToTenant": false,
           "dynamicSeverity": false
         },
+        "externalId": null,
         "additionalInfo": {
           "description": null,
-          "layoutX": 1430,
-          "layoutY": 433
+          "layoutX": 1223,
+          "layoutY": 424
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "ec32c441-0390-11f1-9b0a-33b9bcf3ddd0"
+        },
+        "createdTime": 1770405639812,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
+        },
         "type": "org.thingsboard.rule.engine.action.TbClearAlarmNode",
         "name": "Clear Flow Spike Alarm",
-        "debugSettings": null,
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 0
+        },
         "singletonMode": false,
         "queueName": null,
         "configurationVersion": 0,
@@ -353,16 +555,30 @@
           "alarmDetailsBuildTbel": "var details = {};\nif (metadata.prevAlarmDetails != null) {\n    details = JSON.parse(metadata.prevAlarmDetails);\n    //remove prevAlarmDetails from metadata\n    metadata.remove('prevAlarmDetails');\n    //now metadata is the same as it comes IN this rule node\n}\n\n\nreturn details;",
           "alarmType": "Flow_Spike"
         },
+        "externalId": null,
         "additionalInfo": {
           "description": null,
-          "layoutX": 1430,
-          "layoutY": 493
+          "layoutX": 1223,
+          "layoutY": 484
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "ec32c442-0390-11f1-9b0a-33b9bcf3ddd0"
+        },
+        "createdTime": 1770405639812,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
+        },
         "type": "org.thingsboard.rule.engine.filter.TbJsSwitchNode",
         "name": "Check Power Unstable",
-        "debugSettings": null,
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 0
+        },
         "singletonMode": false,
         "queueName": null,
         "configurationVersion": 0,
@@ -371,22 +587,32 @@
           "jsScript": "",
           "tbelScript": "var v = msg.get('values');\nvar f = (v != null) ? v.get('power_unstable_flag') : null;\nif (f == null) return ['skip'];\nreturn f == true ? ['create'] : ['clear'];"
         },
+        "externalId": null,
         "additionalInfo": {
-          "layoutX": 1130,
-          "layoutY": 763
+          "layoutX": 923,
+          "layoutY": 754
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "ec32c443-0390-11f1-9b0a-33b9bcf3ddd0"
+        },
+        "createdTime": 1770405639812,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
+        },
         "type": "org.thingsboard.rule.engine.action.TbCreateAlarmNode",
         "name": "Create Power Unstable Alarm",
         "debugSettings": {
           "failuresEnabled": false,
           "allEnabled": false,
-          "allEnabledUntil": 1770146536941
+          "allEnabledUntil": 0
         },
         "singletonMode": false,
         "queueName": null,
-        "configurationVersion": 1,
+        "configurationVersion": 0,
         "configuration": {
           "scriptLang": "TBEL",
           "alarmDetailsBuildJs": null,
@@ -402,16 +628,30 @@
           "propagateToTenant": false,
           "dynamicSeverity": false
         },
+        "externalId": null,
         "additionalInfo": {
           "description": null,
-          "layoutX": 1430,
-          "layoutY": 733
+          "layoutX": 1223,
+          "layoutY": 724
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "ec32c444-0390-11f1-9b0a-33b9bcf3ddd0"
+        },
+        "createdTime": 1770405639812,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
+        },
         "type": "org.thingsboard.rule.engine.action.TbClearAlarmNode",
         "name": "Clear Power Unstable Alarm",
-        "debugSettings": null,
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 0
+        },
         "singletonMode": false,
         "queueName": null,
         "configurationVersion": 0,
@@ -421,15 +661,29 @@
           "alarmDetailsBuildTbel": "var details = {};\nif (metadata.prevAlarmDetails != null) {\n    details = JSON.parse(metadata.prevAlarmDetails);\n    metadata.remove('prevAlarmDetails');\n}\nreturn details;",
           "alarmType": "Power_Unstable"
         },
+        "externalId": null,
         "additionalInfo": {
-          "layoutX": 1430,
-          "layoutY": 793
+          "layoutX": 1223,
+          "layoutY": 784
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "ec32c445-0390-11f1-9b0a-33b9bcf3ddd0"
+        },
+        "createdTime": 1770405639812,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
+        },
         "type": "org.thingsboard.rule.engine.flow.TbRuleChainInputNode",
         "name": "EM Alarm Handler",
-        "debugSettings": null,
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 0
+        },
         "singletonMode": false,
         "queueName": null,
         "configurationVersion": 1,
@@ -437,18 +691,28 @@
           "ruleChainId": "88aee890-6f6c-11ef-8170-db057079800d",
           "forwardMsgToDefaultRuleChain": false
         },
+        "externalId": null,
         "additionalInfo": {
-          "layoutX": 1731,
-          "layoutY": 362
+          "layoutX": 1524,
+          "layoutY": 353
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "ec32c446-0390-11f1-9b0a-33b9bcf3ddd0"
+        },
+        "createdTime": 1770405639812,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
+        },
         "type": "org.thingsboard.rule.engine.filter.TbJsSwitchNode",
         "name": "Check Oscillation",
         "debugSettings": {
           "failuresEnabled": false,
           "allEnabled": false,
-          "allEnabledUntil": 1770289295349
+          "allEnabledUntil": 0
         },
         "singletonMode": false,
         "queueName": null,
@@ -458,19 +722,33 @@
           "jsScript": "",
           "tbelScript": "var v = msg.get('values');\nvar f = (v != null) ? v.get('oscillation_flag') : null;\nif (f == null) return ['skip'];\nreturn f == true ? ['create'] : ['clear'];"
         },
+        "externalId": null,
         "additionalInfo": {
           "description": null,
-          "layoutX": 1130,
-          "layoutY": 613
+          "layoutX": 923,
+          "layoutY": 604
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "ec32c447-0390-11f1-9b0a-33b9bcf3ddd0"
+        },
+        "createdTime": 1770405639812,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
+        },
         "type": "org.thingsboard.rule.engine.action.TbCreateAlarmNode",
         "name": "Create Oscillation Alarm",
-        "debugSettings": null,
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 0
+        },
         "singletonMode": false,
         "queueName": null,
-        "configurationVersion": 1,
+        "configurationVersion": 0,
         "configuration": {
           "alarmType": "Oscillation",
           "severity": "MINOR",
@@ -483,15 +761,29 @@
           "scriptLang": "TBEL",
           "alarmDetailsBuildTbel": "var details = {};\nif (metadata.prevAlarmDetails != null) {\n  details = JSON.parse(metadata.prevAlarmDetails);\n  metadata.remove('prevAlarmDetails');\n}\n\ndetails.message = 'Oszillation/Schwingen erkannt';\ndetails.flag = 'oscillation_flag';\ndetails.timestamp = new Date().toISOString();\n\nif (msg.oscillation_count != null) {\n  details.oscillation_count = msg.oscillation_count;\n}\nif (msg.P_th_kW != null) {\n  details.current_power_kW = msg.P_th_kW;\n}\n\nreturn JSON.stringify(details);"
         },
+        "externalId": null,
         "additionalInfo": {
-          "layoutX": 1430,
-          "layoutY": 583
+          "layoutX": 1223,
+          "layoutY": 574
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "ec32eb50-0390-11f1-9b0a-33b9bcf3ddd0"
+        },
+        "createdTime": 1770405639813,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
+        },
         "type": "org.thingsboard.rule.engine.action.TbClearAlarmNode",
         "name": "Clear Oscillation Alarm",
-        "debugSettings": null,
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 0
+        },
         "singletonMode": false,
         "queueName": null,
         "configurationVersion": 0,
@@ -501,13 +793,23 @@
           "alarmDetailsBuildTbel": "var details = {};\nif (metadata.prevAlarmDetails != null) {\n    details = JSON.parse(metadata.prevAlarmDetails);\n    //remove prevAlarmDetails from metadata\n    metadata.remove('prevAlarmDetails');\n    //now metadata is the same as it comes IN this rule node\n}\n\n\nreturn details;",
           "alarmType": "Oscillation"
         },
+        "externalId": null,
         "additionalInfo": {
           "description": null,
-          "layoutX": 1430,
-          "layoutY": 643
+          "layoutX": 1223,
+          "layoutY": 634
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "ec32eb51-0390-11f1-9b0a-33b9bcf3ddd0"
+        },
+        "createdTime": 1770405639813,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
+        },
         "type": "org.thingsboard.rule.engine.flow.TbRuleChainInputNode",
         "name": "EM Alarm Handler",
         "debugSettings": {
@@ -522,19 +824,29 @@
           "forwardMsgToDefaultRuleChain": false,
           "ruleChainId": "88aee890-6f6c-11ef-8170-db057079800d"
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "",
-          "layoutX": 360,
-          "layoutY": 539
+          "layoutX": 153,
+          "layoutY": 530
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "ec32eb52-0390-11f1-9b0a-33b9bcf3ddd0"
+        },
+        "createdTime": 1770405639813,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
+        },
         "type": "org.thingsboard.rule.engine.filter.TbJsSwitchNode",
         "name": "Check reprocessRequest",
         "debugSettings": {
           "failuresEnabled": false,
           "allEnabled": false,
-          "allEnabledUntil": 1770405053749
+          "allEnabledUntil": 0
         },
         "singletonMode": false,
         "queueName": null,
@@ -544,13 +856,23 @@
           "jsScript": "",
           "tbelScript": "if (msg.reprocessRequest != null) {\n    return ['hasRequest'];\n} else {\n    return ['other'];\n}"
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "Check if message contains reprocessRequest attribute",
-          "layoutX": 616,
-          "layoutY": 613
+          "layoutX": 409,
+          "layoutY": 604
         }
       },
       {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "ec32eb53-0390-11f1-9b0a-33b9bcf3ddd0"
+        },
+        "createdTime": 1770405639813,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "0e7937d0-012c-11f1-9979-9f3434877bb4"
+        },
         "type": "org.thingsboard.rule.engine.flow.TbRuleChainInputNode",
         "name": "Trigger CF Reprocessing",
         "debugSettings": {
@@ -565,10 +887,11 @@
           "forwardMsgToDefaultRuleChain": false,
           "ruleChainId": "1df62e50-0386-11f1-9b0a-33b9bcf3ddd0"
         },
+        "externalId": null,
         "additionalInfo": {
           "description": "",
-          "layoutX": 660,
-          "layoutY": 742
+          "layoutX": 453,
+          "layoutY": 733
         }
       }
     ],

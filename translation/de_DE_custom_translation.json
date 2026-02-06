@@ -12366,7 +12366,10 @@
         "volume": "Volumen",
         "temperature-return": "Temperaturrückfluss",
         "temperature-flow": "Temperaturfluss",
-        "cooling-power": "Kühlungsleistung"
+        "cooling-power": "Kühlungsleistung",
+        "parent": "Uebergeordnete Messung",
+        "parent-none": "Keine (Root/Generator)",
+        "parent-hint": "Fuer Energiefluss-Hierarchie (Sankey)"
       },
       "measurement-details": {
         "progress": "Fortschritt",

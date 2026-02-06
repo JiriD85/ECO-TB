@@ -12178,7 +12178,10 @@
         "volume": "Volume",
         "temperature-return": "Temperature Return",
         "temperature-flow": "Temperature Flow",
-        "cooling-power": "Cooling Power"
+        "cooling-power": "Cooling Power",
+        "parent": "Parent Measurement",
+        "parent-none": "None (Root/Generator)",
+        "parent-hint": "For energy flow hierarchy (Sankey)"
       },
       "measurement-details": {
         "progress": "Progress",

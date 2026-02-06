@@ -8,7 +8,7 @@
  */
 
 // ============================================================================
-// STYLING FUNCTIONS (inline, da keine imports möglich)
+// STYLING FUNCTIONS (inline, da keine imports moeglich)
 // ============================================================================
 
 function getProgressColor(progress) {
@@ -2050,6 +2050,32 @@ mat-toolbar.eco-dialog-header mat-icon {
         </mat-error>
       </mat-form-field>
 
+      <!-- Parent Measurement (Hierarchy) - hidden for generators (they are root nodes) -->
+      <mat-form-field appearance="fill" class="w-full" *ngIf="availableMeasurements?.length > 0 && addMeasurementFormGroup.get('measurementRole').value !== 'generator'">
+        <mat-label>{{'custom.diagnostics.measurement.parent' | translate}}</mat-label>
+        <mat-select formControlName="parentMeasurement">
+          <mat-select-trigger>
+            {{ getParentDisplayName() }}
+          </mat-select-trigger>
+          <mat-option [value]="null">
+            <div class="flex items-center gap-2">
+              <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #9e9e9e;">remove</mat-icon>
+              <span>{{'custom.diagnostics.measurement.parent-none' | translate}}</span>
+            </div>
+          </mat-option>
+          <mat-option *ngFor="let m of availableMeasurements" [value]="m.id">
+            <div class="flex items-center gap-2">
+              <mat-icon *ngIf="m.role === 'generator'" style="font-size: 18px; width: 18px; height: 18px; color: #ff9800;">power</mat-icon>
+              <mat-icon *ngIf="m.role === 'subDistribution'" style="font-size: 18px; width: 18px; height: 18px; color: #2196f3;">account_tree</mat-icon>
+              <mat-icon *ngIf="m.role === 'circuit'" style="font-size: 18px; width: 18px; height: 18px; color: #4caf50;">thermostat</mat-icon>
+              <mat-icon *ngIf="!m.role" style="font-size: 18px; width: 18px; height: 18px; color: #9e9e9e;">assessment</mat-icon>
+              <span>{{ m.label || m.name }}</span>
+            </div>
+          </mat-option>
+        </mat-select>
+        <mat-hint>{{'custom.diagnostics.measurement.parent-hint' | translate}}</mat-hint>
+      </mat-form-field>
+
       <!-- Connect Measurement Option (only for ultrasonic) -->
       <div *ngIf="addMeasurementFormGroup.get('measurementType')?.value === 'ultrasonic'"
            class="flex items-center gap-3"
@@ -2145,15 +2171,57 @@ export function openAddMeasurementDialog(widgetContext, projectId, projectName, 
               const shortNameAttr = customerAttr.find(a => a.key === 'shortName');
               const customerShortName = shortNameAttr ? shortNameAttr.value : '';
 
-              openDialog({
-                nextMeasurementId,
-                projectName,
-                projectId,
-                customerId,
-                longitude,
-                latitude,
-                address,
-                customerShortName
+              // Prepare available measurements for parent selection
+              const availableMeasurements = measurements.map(function(m) {
+                return {
+                  id: { entityType: 'ASSET', id: m.id.id },
+                  name: m.name,
+                  label: m.label || '',
+                  role: null // Will be loaded if needed
+                };
+              });
+
+              // Load measurementRole for each measurement
+              const rolePromises = measurements.map(function(m) {
+                return attributeService.getEntityAttributes(
+                  { entityType: 'ASSET', id: m.id.id },
+                  'SERVER_SCOPE',
+                  ['measurementRole', 'Label']
+                ).toPromise();
+              });
+
+              Promise.all(rolePromises).then(function(results) {
+                results.forEach(function(attrs, idx) {
+                  const roleAttr = attrs.find(function(a) { return a.key === 'measurementRole'; });
+                  const labelAttr = attrs.find(function(a) { return a.key === 'Label'; });
+                  if (roleAttr) availableMeasurements[idx].role = roleAttr.value;
+                  if (labelAttr) availableMeasurements[idx].label = labelAttr.value;
+                });
+
+                openDialog({
+                  nextMeasurementId,
+                  projectName,
+                  projectId,
+                  customerId,
+                  longitude,
+                  latitude,
+                  address,
+                  customerShortName,
+                  availableMeasurements
+                });
+              }).catch(function() {
+                // Fallback without roles
+                openDialog({
+                  nextMeasurementId,
+                  projectName,
+                  projectId,
+                  customerId,
+                  longitude,
+                  latitude,
+                  address,
+                  customerShortName,
+                  availableMeasurements
+                });
               });
             },
             function(error) {
@@ -2166,7 +2234,8 @@ export function openAddMeasurementDialog(widgetContext, projectId, projectName, 
                 longitude,
                 latitude,
                 address,
-                customerShortName: ''
+                customerShortName: '',
+                availableMeasurements: []
               });
             }
           );
@@ -2206,13 +2275,27 @@ export function openAddMeasurementDialog(widgetContext, projectId, projectName, 
     const config = vm.data;
 
     vm.isLoading = false;
+    vm.availableMeasurements = config.availableMeasurements || [];
+
+    // Helper function to get parent display name for mat-select-trigger
+    vm.getParentDisplayName = function() {
+      const selectedId = vm.addMeasurementFormGroup ? vm.addMeasurementFormGroup.get('parentMeasurement').value : null;
+      if (!selectedId) {
+        return 'None (Root/Generator)';
+      }
+      const found = vm.availableMeasurements.find(function(m) {
+        return m.id && m.id.id === selectedId.id;
+      });
+      return found ? (found.label || found.name) : 'None (Root/Generator)';
+    };
 
     vm.addMeasurementFormGroup = vm.fb.group({
       name: [config.projectName + '_' + config.nextMeasurementId],
       label: [''],
       installationType: ['heating', [vm.validators.required]],
       measurementType: ['ultrasonic', [vm.validators.required]],
-      connectKit: [false]
+      connectKit: [false],
+      parentMeasurement: [null]
     });
 
     vm.cancel = function() {
@@ -2225,10 +2308,12 @@ export function openAddMeasurementDialog(widgetContext, projectId, projectName, 
 
       saveMeasurementObservable().subscribe(
         function(measurement) {
+          const formValues = vm.addMeasurementFormGroup.value;
           const observables = [
             saveCustomerToMeasurementRelation(measurement.id),
             saveProjectToMeasurementRelation(measurement.id),
-            saveAttributes(measurement.id)
+            saveAttributes(measurement.id),
+            saveMeasurementHierarchyRelation(formValues.parentMeasurement, measurement.id)
           ];
 
           forkJoin(observables).subscribe(
@@ -2319,6 +2404,20 @@ export function openAddMeasurementDialog(widgetContext, projectId, projectName, 
         to: measurementId,
         typeGroup: 'COMMON',
         type: 'Owns'
+      };
+      return entityRelationService.saveRelation(relation);
+    }
+
+    function saveMeasurementHierarchyRelation(parentMeasurementId, childMeasurementId) {
+      // If no parent selected, return empty observable
+      if (!parentMeasurementId) {
+        return of(null);
+      }
+      const relation = {
+        from: parentMeasurementId,
+        to: childMeasurementId,
+        typeGroup: 'COMMON',
+        type: 'MeasurementHierarchy'
       };
       return entityRelationService.saveRelation(relation);
     }
@@ -2674,7 +2773,7 @@ mat-toolbar.eco-dialog-header mat-icon {
             </mat-option>
           </mat-select>
           <mat-hint *ngIf="!canEditMeasurementType">
-            Type can only be changed in preparation/planned status
+            Locked after activation
           </mat-hint>
         </mat-form-field>
         <mat-form-field appearance="fill" style="flex: 1;">
@@ -2686,6 +2785,32 @@ mat-toolbar.eco-dialog-header mat-icon {
           </mat-select>
         </mat-form-field>
       </div>
+
+      <!-- Parent Measurement (Hierarchy) - hidden for generators (they are root nodes) -->
+      <mat-form-field appearance="fill" class="w-full" *ngIf="siblingMeasurements?.length > 0 && parametersFormGroup.get('measurementRole').value !== 'generator'">
+        <mat-label>{{'custom.diagnostics.measurement.parent' | translate}}</mat-label>
+        <mat-select formControlName="parentMeasurement">
+          <mat-select-trigger>
+            {{ getParentDisplayName() }}
+          </mat-select-trigger>
+          <mat-option [value]="null">
+            <div class="flex items-center gap-2">
+              <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #9e9e9e;">remove</mat-icon>
+              <span>{{'custom.diagnostics.measurement.parent-none' | translate}}</span>
+            </div>
+          </mat-option>
+          <mat-option *ngFor="let m of siblingMeasurements" [value]="m.id.id">
+            <div class="flex items-center gap-2">
+              <mat-icon *ngIf="m.role === 'generator'" style="font-size: 18px; width: 18px; height: 18px; color: #ff9800;">power</mat-icon>
+              <mat-icon *ngIf="m.role === 'subDistribution'" style="font-size: 18px; width: 18px; height: 18px; color: #2196f3;">account_tree</mat-icon>
+              <mat-icon *ngIf="m.role === 'circuit'" style="font-size: 18px; width: 18px; height: 18px; color: #4caf50;">thermostat</mat-icon>
+              <mat-icon *ngIf="!m.role" style="font-size: 18px; width: 18px; height: 18px; color: #9e9e9e;">assessment</mat-icon>
+              <span>{{ m.label || m.name }}</span>
+            </div>
+          </mat-option>
+        </mat-select>
+        <mat-hint>{{'custom.diagnostics.measurement.parent-hint' | translate}}</mat-hint>
+      </mat-form-field>
 
       <!-- Calculate Power Toggle (aligned under Measurement Role) -->
       <div class="flex items-center justify-end" style="margin-top: 8px;">
@@ -3089,10 +3214,15 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
   const customDialog = $injector.get(widgetContext.servicesMap.get('customDialog'));
   const attributeService = $injector.get(widgetContext.servicesMap.get('attributeService'));
   const assetService = $injector.get(widgetContext.servicesMap.get('assetService'));
+  const entityRelationService = $injector.get(widgetContext.servicesMap.get('entityRelationService'));
+
+  const { of, forkJoin } = widgetContext.rxjs;
 
   // Fetch asset info first, then attributes
   let fetchedAttributes = [];
   let fetchedAsset = null;
+  let fetchedParentId = null;
+  let fetchedSiblingMeasurements = [];
 
   assetService.getAsset(measurementId.id).subscribe(
     function(asset) {
@@ -3109,10 +3239,174 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
     attributeService.getEntityAttributes(measurementId, 'SERVER_SCOPE').subscribe(
       function(attributes) {
         fetchedAttributes = attributes;
-        openDialog();
+        fetchHierarchyData();
       },
       function(error) {
         console.error('Error fetching attributes:', error);
+        fetchHierarchyData();
+      }
+    );
+  }
+
+  function fetchHierarchyData() {
+    // Check if this is a generator - generators have no parent by definition
+    const roleAttr = fetchedAttributes.find(function(a) { return a.key === 'measurementRole'; });
+    const currentRole = roleAttr ? roleAttr.value : null;
+
+    if (currentRole === 'generator') {
+      // Generators are root nodes - skip parent lookup, go directly to siblings
+      fetchedParentId = null;
+      fetchSiblingMeasurements();
+      return;
+    }
+
+    // Find current parent (MeasurementHierarchy relation TO this measurement)
+    entityRelationService.findByTo(measurementId, 'MeasurementHierarchy').subscribe(
+      function(relations) {
+        if (relations && relations.length > 0) {
+          const parentCandidate = relations[0].from;
+
+          // Verify that parent is actually a Measurement (not Project!)
+          assetService.getAsset(parentCandidate.id).subscribe(
+            function(parentAsset) {
+              if (parentAsset && parentAsset.type === 'Measurement') {
+                fetchedParentId = parentCandidate;
+              } else {
+                fetchedParentId = null;
+              }
+              fetchSiblingMeasurements();
+            },
+            function(error) {
+              fetchedParentId = null;
+              fetchSiblingMeasurements();
+            }
+          );
+        } else {
+          fetchedParentId = null;
+          fetchSiblingMeasurements();
+        }
+      },
+      function(error) {
+        fetchedParentId = null;
+        fetchSiblingMeasurements();
+      }
+    );
+  }
+
+  function fetchSiblingMeasurements() {
+    // Find the project that owns this measurement
+    entityRelationService.findByTo(measurementId, 'Owns').subscribe(
+      function(ownsRelations) {
+
+        // Find ASSET relations (could be Project or Parent Measurement)
+        const assetRelations = ownsRelations.filter(function(r) {
+          return r.from.entityType === 'ASSET';
+        });
+
+        if (assetRelations.length === 0) {
+          openDialog();
+          return;
+        }
+
+        // Check each asset to find the Project (not a Measurement)
+        function findProjectFromRelations(relations, index) {
+          if (index >= relations.length) {
+            openDialog();
+            return;
+          }
+
+          const rel = relations[index];
+          assetService.getAsset(rel.from.id).subscribe(
+            function(asset) {
+              if (asset.type === 'Project') {
+                loadSiblingsFromProject(rel.from.id);
+              } else {
+                // Not a project, try next relation
+                findProjectFromRelations(relations, index + 1);
+              }
+            },
+            function(err) {
+              findProjectFromRelations(relations, index + 1);
+            }
+          );
+        }
+
+        findProjectFromRelations(assetRelations, 0);
+      },
+      function(err) {
+        console.error('[Hierarchy] Error fetching Owns relations:', err);
+        openDialog();
+      }
+    );
+  }
+
+  function loadSiblingsFromProject(projectId) {
+
+    // Find all measurements owned by this project
+    const assetSearchQuery = {
+      parameters: {
+        rootId: projectId,
+        rootType: 'ASSET',
+        direction: 'FROM',
+        relationTypeGroup: 'COMMON',
+        maxLevel: 1,
+        fetchLastLevelOnly: false
+      },
+      relationType: 'Owns',
+      assetTypes: ['Measurement']
+    };
+
+    assetService.findByQuery(assetSearchQuery).subscribe(
+      function(measurements) {
+        // Filter out current measurement and load attributes
+        const otherMeasurements = measurements.filter(function(m) {
+          return m.id.id !== measurementId.id;
+        });
+
+
+        if (otherMeasurements.length === 0) {
+          openDialog();
+          return;
+        }
+
+        // Load measurementRole for each sibling
+        const rolePromises = otherMeasurements.map(function(m) {
+          return attributeService.getEntityAttributes(
+            { entityType: 'ASSET', id: m.id.id },
+            'SERVER_SCOPE',
+            ['measurementRole', 'Label']
+          ).toPromise();
+        });
+
+        Promise.all(rolePromises).then(function(results) {
+          fetchedSiblingMeasurements = otherMeasurements.map(function(m, idx) {
+            const attrs = results[idx] || [];
+            const roleAttr = attrs.find(function(a) { return a.key === 'measurementRole'; });
+            const labelAttr = attrs.find(function(a) { return a.key === 'Label'; });
+            return {
+              id: { entityType: 'ASSET', id: m.id.id },
+              name: m.name,
+              label: labelAttr ? labelAttr.value : (m.label || ''),
+              role: roleAttr ? roleAttr.value : null
+            };
+          });
+          openDialog();
+        }).catch(function(err) {
+          console.error('[Hierarchy] Error loading roles:', err);
+          // Fallback without roles
+          fetchedSiblingMeasurements = otherMeasurements.map(function(m) {
+            return {
+              id: { entityType: 'ASSET', id: m.id.id },
+              name: m.name,
+              label: m.label || '',
+              role: null
+            };
+          });
+          openDialog();
+        });
+      },
+      function(error) {
+        console.error('Error fetching sibling measurements:', error);
         openDialog();
       }
     );
@@ -3123,7 +3417,11 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
       measurementId,
       attributes: fetchedAttributes,
       entityName: fetchedAsset ? fetchedAsset.name : '',
-      entityLabel: fetchedAsset ? fetchedAsset.label : ''
+      entityLabel: fetchedAsset ? fetchedAsset.label : '',
+      currentParentId: fetchedParentId,
+      siblingMeasurements: fetchedSiblingMeasurements,
+      entityRelationService,
+      rxjs: { of, forkJoin }
     }, measurementParametersCss).subscribe();
   }
 
@@ -3137,6 +3435,22 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
     vm.originalEntityLabel = config.entityLabel || '';
     vm.canEditMeasurementType = true; // Will be set based on progress
     vm.scheduleExpanded = false; // Collapsed by default
+
+    // Hierarchy data
+    vm.siblingMeasurements = config.siblingMeasurements || [];
+    vm.originalParentId = (config.currentParentId && config.currentParentId.id) ? config.currentParentId.id : null;
+
+    // Helper function to get parent display name for mat-select-trigger
+    vm.getParentDisplayName = function() {
+      const selectedId = vm.parametersFormGroup ? vm.parametersFormGroup.get('parentMeasurement').value : null;
+      if (!selectedId) {
+        return 'None (Root/Generator)';
+      }
+      const found = vm.siblingMeasurements.find(function(m) {
+        return m.id.id === selectedId;
+      });
+      return found ? (found.label || found.name) : 'None (Root/Generator)';
+    };
 
     // Shared schedule time controls (for Day-Pills UI)
     vm.scheduleStartTime = vm.fb.control('06:00');
@@ -3180,6 +3494,7 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
       entityLabel: [''],
       measurementType: ['ultrasonic'],
       measurementRole: [null],
+      parentMeasurement: [null],
       calculatePower: [false],
       // Status fields
       progress: ['in preparation'],
@@ -3256,6 +3571,10 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
       }
       if (attributeMap.measurementRole) {
         vm.parametersFormGroup.get('measurementRole').setValue(attributeMap.measurementRole);
+      }
+      // Set parent measurement from loaded hierarchy data
+      if (vm.originalParentId) {
+        vm.parametersFormGroup.get('parentMeasurement').setValue(vm.originalParentId);
       }
       if (attributeMap.calculatePower !== undefined) {
         vm.parametersFormGroup.get('calculatePower').setValue(attributeMap.calculatePower === true);
@@ -3769,6 +4088,90 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
       const newLabel = formData.entityLabel || '';
       const labelChanged = newLabel !== vm.originalEntityLabel;
 
+      // Check if parent measurement changed
+      const newParentId = formData.parentMeasurement || null;
+      const parentChanged = newParentId !== vm.originalParentId;
+
+      // Function to update hierarchy relation
+      function updateHierarchyRelation() {
+        if (!parentChanged) {
+          return config.rxjs.of(null);
+        }
+
+        const entityRelationService = config.entityRelationService;
+        const { of } = config.rxjs;
+
+        return new widgetContext.rxjs.Observable(function(observer) {
+
+          // Step 1: Delete old relation if exists (ignore errors)
+          function deleteOldRelation() {
+            if (!vm.originalParentId) {
+              createNewRelation();
+              return;
+            }
+            entityRelationService.deleteRelation(
+              { entityType: 'ASSET', id: vm.originalParentId },
+              'MeasurementHierarchy',
+              vm.measurementId
+            ).subscribe(
+              function() {
+                createNewRelation();
+              },
+              function(err) {
+                // Ignore 404 - relation didn't exist, continue anyway
+                createNewRelation();
+              }
+            );
+          }
+
+          // Step 2: Create new relation if parent selected
+          function createNewRelation() {
+            if (!newParentId) {
+              observer.next(null);
+              observer.complete();
+              return;
+            }
+            entityRelationService.saveRelation({
+              from: { entityType: 'ASSET', id: newParentId },
+              to: vm.measurementId,
+              typeGroup: 'COMMON',
+              type: 'MeasurementHierarchy'
+            }).subscribe(
+              function(result) {
+                observer.next(result);
+                observer.complete();
+              },
+              function(err) {
+                console.error('[Hierarchy] Error creating relation:', err);
+                observer.error(err);
+              }
+            );
+          }
+
+          deleteOldRelation();
+        });
+      }
+
+      // Function to finalize save
+      function finalizeSave() {
+        updateHierarchyRelation().subscribe(
+          function() {
+            vm.isLoading = false;
+            widgetContext.updateAliases();
+            vm.dialogRef.close(null);
+            if (callback) {
+              callback();
+            }
+          },
+          function(error) {
+            console.error('Error updating hierarchy relation:', error);
+            vm.isLoading = false;
+            widgetContext.updateAliases();
+            vm.dialogRef.close(null);
+          }
+        );
+      }
+
       if (labelChanged) {
         // First get current asset, update label, then save attributes
         assetService.getAsset(vm.measurementId.id).subscribe(
@@ -3779,12 +4182,7 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
                 // Now save attributes
                 saveAttributes$.subscribe(
                   function() {
-                    vm.isLoading = false;
-                    widgetContext.updateAliases();
-                    vm.dialogRef.close(null);
-                    if (callback) {
-                      callback();
-                    }
+                    finalizeSave();
                   },
                   function(error) {
                     console.error('Error saving measurement parameters:', error);
@@ -3807,12 +4205,7 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
         // Just save attributes
         saveAttributes$.subscribe(
           function() {
-            vm.isLoading = false;
-            widgetContext.updateAliases();
-            vm.dialogRef.close(null);
-            if (callback) {
-              callback();
-            }
+            finalizeSave();
           },
           function(error) {
             console.error('Error saving measurement parameters:', error);
