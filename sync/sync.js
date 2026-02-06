@@ -739,51 +739,226 @@ async function pullTranslationsCommand(args) {
   await updateStatus({ lastPull: new Date().toISOString().replace('T', '_').substring(0, 19) });
 }
 
+// ==================== Rule Chains ====================
+
+async function listRuleChainsCommand() {
+  const config = loadConfig();
+  const api = new ThingsBoardApi({ ...config, logger });
+  await api.login();
+
+  logger.log('Fetching rule chains from server...');
+  const ruleChains = await api.getRuleChains();
+
+  logger.log(`\nFound ${ruleChains.length} rule chains:\n`);
+  for (const rc of ruleChains) {
+    const name = rc.name;
+    const id = rc.id.id;
+    const type = rc.type || 'CORE';
+    const root = rc.root ? ' (ROOT)' : '';
+    logger.log(`  ${name}${root}`);
+    logger.log(`    ID: ${id}`);
+    logger.log(`    Type: ${type}`);
+  }
+}
+
+async function pullRuleChainCommand(args) {
+  const config = loadConfig();
+  const api = new ThingsBoardApi({ ...config, logger });
+  await api.login();
+
+  const flags = new Set(args.filter((arg) => arg.startsWith('--')));
+  const names = args.filter((arg) => !arg.startsWith('--'));
+
+  logger.log('Fetching rule chains from server...');
+  const allRuleChains = await api.getRuleChains();
+  logger.log(`Found ${allRuleChains.length} rule chains on server`);
+
+  let ruleChainsToPull = [];
+
+  if (flags.has('--all')) {
+    ruleChainsToPull = allRuleChains;
+  } else if (names.length > 0) {
+    // Pull specific rule chains by name (partial match)
+    for (const rc of allRuleChains) {
+      const rcName = (rc.name || '').toLowerCase();
+      for (const search of names) {
+        if (rcName.includes(search.toLowerCase()) || rcName === search.toLowerCase()) {
+          ruleChainsToPull.push(rc);
+          break;
+        }
+      }
+    }
+  } else {
+    logger.error('Usage: node sync/sync.js pull-rulechain <name> [name2...]');
+    logger.log('       node sync/sync.js pull-rulechain --all');
+    process.exit(1);
+  }
+
+  if (ruleChainsToPull.length === 0) {
+    logger.warn('No matching rule chains found');
+    return;
+  }
+
+  // Ensure rule chains directory exists
+  const rcDir = path.join(process.cwd(), SOURCE_DIRS.rulechains);
+  await fs.mkdir(rcDir, { recursive: true });
+
+  for (const rc of ruleChainsToPull) {
+    const ruleChainId = rc.id.id;
+    const name = rc.name;
+
+    try {
+      logger.log(`Downloading: ${name}`);
+      const exported = await api.exportRuleChain(ruleChainId);
+
+      // Generate filename from name
+      const filename = sanitizeFilename(name) + '.json';
+      const filePath = path.join(rcDir, filename);
+
+      // Write formatted JSON
+      await fs.writeFile(filePath, JSON.stringify(exported, null, 2));
+      logger.log(`Saved: ${filename}`);
+    } catch (err) {
+      logger.error(`Failed to download ${name}: ${err.message}`);
+    }
+  }
+
+  // Update status
+  const { updateStatus } = require('./backup');
+  await updateStatus({ lastPull: new Date().toISOString().replace('T', '_').substring(0, 19) });
+
+  logger.log(`Pull completed: ${ruleChainsToPull.length} rule chain(s)`);
+}
+
+async function pushRuleChainCommand(args) {
+  const names = args.filter((arg) => !arg.startsWith('--'));
+
+  if (names.length === 0) {
+    logger.error('Usage: node sync/sync.js push-rulechain <name> [name2...]');
+    logger.log('Example: node sync/sync.js push-rulechain "Measurement"');
+    process.exit(1);
+  }
+
+  const config = loadConfig();
+  const api = new ThingsBoardApi({ ...config, logger });
+  await api.login();
+
+  // Get existing rule chains from server for ID lookup
+  logger.log('Fetching existing rule chains from server...');
+  const existingRuleChains = await api.getRuleChains();
+
+  // Create lookup by name
+  const rcByName = new Map();
+  for (const rc of existingRuleChains) {
+    if (rc.name) {
+      rcByName.set(rc.name.toLowerCase(), rc);
+    }
+  }
+
+  // Find local files
+  let localFiles;
+  try {
+    localFiles = await readJsonFiles(path.join(process.cwd(), SOURCE_DIRS.rulechains));
+  } catch (err) {
+    logger.error(`Cannot read rule chains directory: ${err.message}`);
+    process.exit(1);
+  }
+
+  let pushedCount = 0;
+  for (const searchName of names) {
+    const searchLower = searchName.toLowerCase();
+
+    // Find local file that matches the search name
+    const matchingFile = localFiles.find((f) => {
+      const basename = path.basename(f, '.json').toLowerCase();
+      return basename.includes(searchLower) || basename === searchLower;
+    });
+
+    if (!matchingFile) {
+      logger.error(`No local file found matching: ${searchName}`);
+      continue;
+    }
+
+    const filename = path.basename(matchingFile);
+    const payload = await loadJson(matchingFile);
+
+    // Get rule chain name from payload
+    const rcName = payload.ruleChain?.name || payload.name;
+    if (!rcName) {
+      logger.error(`Invalid rule chain file (no name found): ${filename}`);
+      continue;
+    }
+
+    // Check if rule chain exists on server
+    const existing = rcByName.get(rcName.toLowerCase());
+
+    try {
+      if (existing) {
+        logger.log(`Updating: ${rcName} (ID: ${existing.id.id})`);
+        await api.importRuleChain(payload, existing.id.id);
+      } else {
+        // Remove ID for new creation
+        if (payload.ruleChain.id) delete payload.ruleChain.id;
+        logger.log(`Creating: ${rcName}`);
+        await api.importRuleChain(payload);
+      }
+      logger.log(`Pushed: ${filename}`);
+      pushedCount++;
+    } catch (err) {
+      logger.error(`Failed to push ${filename}: ${err.message}`);
+    }
+  }
+
+  logger.log(`Push completed: ${pushedCount} rule chain(s)`);
+}
+
 function printUsage() {
   logger.log('Usage: node sync/sync.js <command> [options]');
   logger.log('');
   logger.log('Commands:');
-  logger.log('  sync [options]       Push ALL local files to ThingsBoard');
-  logger.log('  push <name...>       Push SPECIFIC dashboard(s) to ThingsBoard');
-  logger.log('  push-js <name...>    Push SPECIFIC JS library/ies to ThingsBoard');
-  logger.log('  pull [titles...]     Download dashboards from ThingsBoard');
-  logger.log('  pull-js [names...]   Download JS modules from ThingsBoard');
-  logger.log('  pull-i18n [locales]  Download custom translations');
-  logger.log('  list                 List all dashboards on server');
-  logger.log('  list-js              List all JS modules on server');
-  logger.log('  list-i18n            List available custom translations');
-  logger.log('  backup               Create a backup of local files');
-  logger.log('  rollback             Restore from latest backup');
-  logger.log('  status               Show sync status');
+  logger.log('  sync [options]            Push ALL local files to ThingsBoard (BATCH - use with caution!)');
   logger.log('');
-  logger.log('Sync options:');
-  logger.log('  --dashboards         Sync only dashboards');
-  logger.log('  --rulechains         Sync only rule chains');
-  logger.log('  --widgets            Sync only widgets');
-  logger.log('  --jslibraries, --js  Sync only JS libraries');
-  logger.log('  --translations, --i18n  Sync only translations');
-  logger.log('  --all                Sync everything (default)');
+  logger.log('  Dashboards:');
+  logger.log('    push <name...>          Push SPECIFIC dashboard(s)');
+  logger.log('    pull [name...]          Download dashboard(s)');
+  logger.log('    list                    List all dashboards on server');
   logger.log('');
-  logger.log('Push options:');
-  logger.log('  <name>               Dashboard filename (partial match)');
+  logger.log('  JS Libraries:');
+  logger.log('    push-js <name...>       Push SPECIFIC JS library/ies');
+  logger.log('    pull-js [name...]       Download JS module(s)');
+  logger.log('    list-js                 List all JS modules on server');
   logger.log('');
-  logger.log('Pull options:');
-  logger.log('  --all                Download all items');
-  logger.log('  <title/name/locale>  Download items matching pattern');
+  logger.log('  Rule Chains:');
+  logger.log('    push-rulechain <name>   Push SPECIFIC rule chain(s)');
+  logger.log('    pull-rulechain <name>   Download rule chain(s)');
+  logger.log('    list-rulechains         List all rule chains on server');
+  logger.log('');
+  logger.log('  Translations:');
+  logger.log('    pull-i18n [locales]     Download custom translations');
+  logger.log('    list-i18n               List available custom translations');
+  logger.log('');
+  logger.log('  Utilities:');
+  logger.log('    backup                  Create a backup of local files');
+  logger.log('    rollback                Restore from latest backup');
+  logger.log('    status                  Show sync status');
+  logger.log('');
+  logger.log('Sync options (BATCH - dangerous!):');
+  logger.log('  --dashboards              Sync only dashboards');
+  logger.log('  --rulechains              Sync only rule chains');
+  logger.log('  --widgets                 Sync only widgets');
+  logger.log('  --jslibraries, --js       Sync only JS libraries');
+  logger.log('  --translations, --i18n    Sync only translations');
+  logger.log('  --all                     Sync everything (default)');
   logger.log('');
   logger.log('Examples:');
   logger.log('  node sync/sync.js push administration');
-  logger.log('  node sync/sync.js push measurements navigation');
   logger.log('  node sync/sync.js push-js "ECO Project Wizard"');
-  logger.log('  node sync/sync.js sync --dashboards');
-  logger.log('  node sync/sync.js sync --js');
-  logger.log('  node sync/sync.js sync --i18n');
-  logger.log('  node sync/sync.js pull "Smart Diagnostics"');
+  logger.log('  node sync/sync.js push-rulechain "Measurement"');
+  logger.log('  node sync/sync.js pull measurements');
   logger.log('  node sync/sync.js pull-js "ECO Data"');
-  logger.log('  node sync/sync.js pull-js --all');
-  logger.log('  node sync/sync.js pull-i18n de_DE en_US');
-  logger.log('  node sync/sync.js list-js');
-  logger.log('  node sync/sync.js list-i18n');
+  logger.log('  node sync/sync.js pull-rulechain "Measurement"');
+  logger.log('  node sync/sync.js pull-rulechain --all');
+  logger.log('  node sync/sync.js list-rulechains');
 }
 
 async function main() {
@@ -823,6 +998,15 @@ async function main() {
       case 'list-i18n':
       case 'list-translations':
         await listTranslationsCommand();
+        break;
+      case 'push-rulechain':
+        await pushRuleChainCommand(args);
+        break;
+      case 'pull-rulechain':
+        await pullRuleChainCommand(args);
+        break;
+      case 'list-rulechains':
+        await listRuleChainsCommand();
         break;
       case 'backup':
         await backupCommand();

@@ -143,6 +143,71 @@ class ThingsBoardApi {
     return response.data || response || [];
   }
 
+  async getRuleChain(ruleChainId) {
+    return this.request('GET', `/api/ruleChain/${ruleChainId}`);
+  }
+
+  async getRuleChainMetadata(ruleChainId) {
+    return this.request('GET', `/api/ruleChain/${ruleChainId}/metadata`);
+  }
+
+  async exportRuleChain(ruleChainId) {
+    // Combine ruleChain info with metadata for full export
+    const ruleChain = await this.getRuleChain(ruleChainId);
+    const metadata = await this.getRuleChainMetadata(ruleChainId);
+
+    // Build export format matching ThingsBoard's export structure
+    return {
+      ruleChain: {
+        name: ruleChain.name,
+        type: ruleChain.type || 'CORE',
+        firstRuleNodeId: ruleChain.firstRuleNodeId,
+        root: ruleChain.root || false,
+        debugMode: ruleChain.debugMode || false,
+        configuration: ruleChain.configuration || null,
+        additionalInfo: ruleChain.additionalInfo || null
+      },
+      metadata: metadata
+    };
+  }
+
+  async importRuleChain(ruleChainExport, existingId = null) {
+    // For new rule chains or updates, we need to:
+    // 1. Create/Update the rule chain itself (with current version for optimistic locking)
+    // 2. Update the metadata (nodes and connections)
+
+    const ruleChainData = { ...ruleChainExport.ruleChain };
+    const metadataData = ruleChainExport.metadata;
+
+    // Step 1: Create or update rule chain
+    if (existingId) {
+      // Fetch current version to avoid 409 conflicts
+      const current = await this.getRuleChain(existingId);
+      ruleChainData.id = current.id;
+      ruleChainData.version = current.version;
+      ruleChainData.createdTime = current.createdTime;
+      ruleChainData.tenantId = current.tenantId;
+    }
+    const ruleChainResult = await this.request('POST', '/api/ruleChain', ruleChainData);
+    const ruleChainId = ruleChainResult.id.id;
+
+    // Step 2: Update metadata (nodes and connections)
+    // POST /api/ruleChain/metadata (not /api/ruleChain/{id}/metadata which is GET only)
+    if (metadataData) {
+      // Fetch current metadata version
+      const currentMetadata = await this.getRuleChainMetadata(ruleChainId);
+
+      const metadataPayload = {
+        ...metadataData,
+        ruleChainId: { id: ruleChainId, entityType: 'RULE_CHAIN' },
+        version: currentMetadata.version
+      };
+      await this.request('POST', '/api/ruleChain/metadata', metadataPayload);
+    }
+
+    return ruleChainResult;
+  }
+
   async getWidgetsBundles() {
     const response = await this.request('GET', '/api/widgetsBundles?pageSize=1000&page=0');
     return response.data || response || [];
