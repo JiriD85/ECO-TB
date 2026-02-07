@@ -12596,8 +12596,8 @@
         "raw-data": "Rohdaten",
         "load-analysis": "Lastanalyse",
         "heatmap": "Heatmap",
-        "sankey": "Sankey",
-        "heatcurve": "Heizkurve"
+        "heatcurve": "Heizkurve",
+        "energy-flow": "Energiefluss"
       },
       "kits": {
         "title": "Diagnostic Kits"

@@ -12405,8 +12405,8 @@
         "raw-data": "Raw Data",
         "load-analysis": "Load Analysis",
         "heatmap": "Heatmap",
-        "sankey": "Sankey",
-        "heatcurve": "Heating Curve"
+        "heatcurve": "Heating Curve",
+        "energy-flow": "Energy Flow"
       },
       "kits": {
         "title": "Diagnostic Kits"
