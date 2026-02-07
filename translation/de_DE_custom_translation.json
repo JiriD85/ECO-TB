@@ -12597,7 +12597,8 @@
         "load-analysis": "Lastanalyse",
         "heatmap": "Heatmap",
         "heatcurve": "Heizkurve",
-        "energy-flow": "Energiefluss"
+        "energy-flow": "Energiefluss",
+        "hdd": "Heizgradtage"
       },
       "kits": {
         "title": "Diagnostic Kits"

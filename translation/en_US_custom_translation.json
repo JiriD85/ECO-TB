@@ -12406,7 +12406,8 @@
         "load-analysis": "Load Analysis",
         "heatmap": "Heatmap",
         "heatcurve": "Heating Curve",
-        "energy-flow": "Energy Flow"
+        "energy-flow": "Energy Flow",
+        "hdd": "Heating Degree Days"
       },
       "kits": {
         "title": "Diagnostic Kits"
