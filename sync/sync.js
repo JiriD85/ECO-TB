@@ -928,11 +928,16 @@ async function pushRuleChainCommand(args) {
   let pushedCount = 0;
   for (const searchName of names) {
     const searchLower = searchName.toLowerCase();
+    const searchSanitized = sanitizeFilename(searchName);
 
     // Find local file that matches the search name
+    // Prefer sanitized match (pull creates sanitized filenames)
     const matchingFile = localFiles.find((f) => {
       const basename = path.basename(f, '.json').toLowerCase();
-      return basename.includes(searchLower) || basename === searchLower;
+      return basename === searchSanitized;
+    }) || localFiles.find((f) => {
+      const basename = path.basename(f, '.json').toLowerCase();
+      return basename === searchLower || basename.includes(searchSanitized) || basename.includes(searchLower);
     });
 
     if (!matchingFile) {
@@ -1106,11 +1111,16 @@ async function pushWidgetCommand(args) {
   let pushedCount = 0;
   for (const searchName of names) {
     const searchLower = searchName.toLowerCase();
+    const searchSanitized = sanitizeFilename(searchName);
 
     // Find local file that matches the search name
+    // Prefer sanitized match (pull creates sanitized filenames)
     const matchingFile = localFiles.find((f) => {
       const basename = path.basename(f, '.json').toLowerCase();
-      return basename.includes(searchLower) || basename === searchLower;
+      return basename === searchSanitized;
+    }) || localFiles.find((f) => {
+      const basename = path.basename(f, '.json').toLowerCase();
+      return basename === searchLower || basename.includes(searchSanitized) || basename.includes(searchLower);
     });
 
     if (!matchingFile) {
