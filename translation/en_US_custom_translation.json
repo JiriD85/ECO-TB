@@ -12407,7 +12407,8 @@
         "heatmap": "Heatmap",
         "heatcurve": "Heating Curve",
         "energy-flow": "Energy Flow",
-        "hdd": "Heating Degree Days"
+        "hdd": "Heating Degree Days",
+        "valve-sizing": "Valve Sizing"
       },
       "kits": {
         "title": "Diagnostic Kits"

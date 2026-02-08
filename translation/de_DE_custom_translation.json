@@ -12598,7 +12598,8 @@
         "heatmap": "Heatmap",
         "heatcurve": "Heizkurve",
         "energy-flow": "Energiefluss",
-        "hdd": "Heizgradtage"
+        "hdd": "Heizgradtage",
+        "valve-sizing": "Ventildimensionierung"
       },
       "kits": {
         "title": "Diagnostic Kits"
