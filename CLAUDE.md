@@ -6,6 +6,25 @@
 **Platform:** ThingsBoard 4.2 PE
 **Purpose:** HVAC/Building Automation Monitoring
 
+### Verwandte Repos
+
+| Repo | Zweck |
+|------|-------|
+| **ECO-TB** (dieses) | Dashboards, JS Libraries, Rule Chains, Widgets, i18n |
+| **ECO-TB-Custom-Widgets** | 10 ECharts Widgets, shared utils |
+| **ECO-IOT-GW** | IoT Gateway (FastAPI + Vue.js, Raspberry Pi) |
+| **ECO-TB-Forecast** | AI/ML Forecasting |
+| **ECO-TB-Weather** | Wetterdaten-Integration |
+| **ECO-TB-Analysis** | Data Catalog, Analytics Docs |
+
+**Datenfluss:** Sensoren → IoT Gateway (ECO-IOT-GW) → TB Gateway Docker → TB Server (Rule Chains) → Dashboards (ECO-TB) + Widgets (ECO-TB-Custom-Widgets)
+
+### Memory & Projektmanagement
+
+- **claude-mem** erfasst automatisch Entscheidungen und Patterns ueber Sessions
+- **GSD** (`/gsd:*`) fuer Milestone-Planung und Phase-Execution
+- **MEMORY.md** in `~/.claude/projects/` fuer persistenten Kontext
+
 ## KRITISCHE WORKFLOW-REGELN
 
 ### Reihenfolge bei JEDER Bearbeitung

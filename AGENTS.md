@@ -1,16 +1,40 @@
 # AGENTS.md
 
-Konfiguration für den Multi-Agent Workflow mit Claude Code und OpenAI Codex CLI.
+Konfiguration fuer den Claude Code Multi-Agent Workflow.
 
-## Workflow Übersicht
+## ECO Projekt-Landschaft
+
+| Repo | Zweck | Primaer-Skills |
+|------|-------|---------------|
+| **ECO-TB** | Dashboards, JS Libraries, Rule Chains, i18n | /tbsync, /tb-widget, /tb-state, /deploy |
+| **ECO-TB-Custom-Widgets** | 10 ECharts Widgets | /tb-widget, /tbsync, /validate |
+| **ECO-IOT-GW** | IoT Gateway (FastAPI + Vue.js, Raspberry Pi) | /ssh, /commit |
+| **ECO-TB-Forecast** | AI/ML Forecasting | /validate |
+| **ECO-TB-Weather** | Wetterdaten-Integration | /validate |
+| **ECO-TB-Analysis** | Data Catalog, Analytics Docs | - |
+
+**Cross-Repo Beziehungen:**
+- ECO-TB Dashboards referenzieren ECO-TB-Custom-Widgets (ECharts)
+- ECO-TB JS Libraries werden in Dashboard Actions genutzt
+- ECO-IOT-GW kommuniziert via ThingsBoard Gateway Docker Container
+- Rule Chains verarbeiten Daten von IoT Gateway Devices
+
+## Workflow Uebersicht
 
 ```
-Claude Code (Planung) → Codex CLI (Umsetzung) → Claude Code (Review)
+Claude Code (Planung + Umsetzung + Review)
+  ├── Subagenten (Explore, code-architect, code-reviewer)
+  ├── Skills (/tbsync, /tb-widget, /deploy, etc.)
+  ├── GSD (/gsd:* fuer Milestones und Phasen)
+  └── claude-mem (automatisches Session-Memory)
 ```
+
+**Kein Codex/Gemini CLI** - Claude Code mit Subagenten und Skills deckt den TB-Workflow komplett ab.
+Externe Agents erst sinnvoll bei reinen Code-Repos (Mobile App, AI Backend).
 
 ---
 
-## Spezialisierte Agents
+## Spezialisierte Subagenten
 
 ### 1. ThingsBoard Widget Agent (`tb-widget-agent`)
 
@@ -51,10 +75,9 @@ self.ctx.dashboard          // Dashboard Controller
 self.ctx.dashboard.onUpdateTimewindow(startTime, endTime);
 ```
 
-**Codex Integration:**
-```bash
-source ~/.nvm/nvm.sh && nvm use 20
-codex exec --approval-mode full-auto -q "Als tb-widget-agent: [Aufgabe]"
+**Als Subagent nutzen:**
+```
+Task(subagent_type="feature-dev:code-architect", prompt="Als tb-widget-agent: [Aufgabe]")
 ```
 
 ---
@@ -138,10 +161,9 @@ const attributeService = $injector.get(widgetContext.servicesMap.get('attributeS
 const entityRelationService = $injector.get(widgetContext.servicesMap.get('entityRelationService'));
 ```
 
-**Codex Integration:**
-```bash
-source ~/.nvm/nvm.sh && nvm use 20
-codex exec --approval-mode full-auto -q "Als tb-dialog-agent: [Aufgabe]"
+**Als Subagent nutzen:**
+```
+Task(subagent_type="feature-dev:code-architect", prompt="Als tb-dialog-agent: [Aufgabe]")
 ```
 
 ---
@@ -184,64 +206,46 @@ codex exec --approval-mode full-auto -q "Als tb-dialog-agent: [Aufgabe]"
 - [ ] Action-Struktur valide
 - [ ] Dashboard State Navigation korrekt
 
-**Codex Integration:**
-```bash
-source ~/.nvm/nvm.sh && nvm use 20
-codex exec --approval-mode full-auto -q "Als code-review-agent: Review [Datei/Änderungen]"
+**Als Subagent nutzen:**
+```
+Task(subagent_type="feature-dev:code-reviewer", prompt="Review [Datei/Aenderungen]")
 ```
 
 ---
 
 ## Standard Workflow
 
-### 1. Planung (Claude Code)
+### 1. Planung
 
-Claude Code ist verantwortlich für:
+Claude Code ist verantwortlich fuer:
 - Architektur und Design-Entscheidungen
 - Risikoanalyse und Edge-Cases identifizieren
 - Akzeptanzkriterien definieren
-- Task-Spezifikationen in `tasks/` erstellen
+- GSD nutzen fuer strukturierte Milestones (`/gsd:new-milestone`, `/gsd:plan-phase`)
 
-### Task erstellen
-Claude erstellt für jede Aufgabe eine Datei in `tasks/TASK_NAME.md` mit folgendem Format.
+### 2. Umsetzung
 
-### 2. Umsetzung (Codex CLI)
+Claude Code implementiert direkt, unterstuetzt durch:
+- **Subagenten** fuer parallele Analyse und Code-Generierung
+- **Skills** fuer TB-spezifische Operationen (/tbsync, /tb-widget, etc.)
+- **claude-mem** liefert automatisch Kontext aus frueheren Sessions
 
-Codex CLI führt die Implementierung durch basierend auf den Task-Spezifikationen.
-
-**Automatisierte Ausführung (durch Claude Code):**
-```bash
-source ~/.nvm/nvm.sh && nvm use 20
-codex exec --approval-mode full-auto -q "Aufgabe"
+**Workflow pro Aenderung:**
+```
+1. /tbpull (aktuelle Version vom Server holen)
+2. Aenderungen implementieren
+3. /validate (Code pruefen)
+4. /tbsync (zum Server pushen)
+5. /tb-ui (visuell verifizieren)
+6. /commit (Git Commit)
 ```
 
-**Mit speziellem Agent:**
-```bash
-codex exec --approval-mode full-auto -q "Als [agent-name]: Aufgabe gemäß tasks/TASK_NAME.md"
-```
+### 3. Review
 
-**Manuelle Ausführung:**
-```bash
-# Im Projektverzeichnis
-codex "Implementiere die Aufgabe gemäß tasks/TASK_NAME.md"
-
-# Oder im Full-Auto Modus
-codex --approval-mode full-auto "Implementiere tasks/TASK_NAME.md"
-```
-
-### Codex Richtlinien
-- Lies immer zuerst die Task-Datei vollständig
-- Halte dich strikt an die Akzeptanzkriterien
-- Erstelle atomare Commits mit aussagekräftigen Messages
-- Bei Unklarheiten: Stoppen und nachfragen
-
-### 3. Review (Claude Code)
-
-Nach der Codex-Implementierung:
-- Code-Review der Änderungen mit `git diff`
-- Edge-Cases und Fehlerbehandlung prüfen
-- Performance und Best Practices validieren
-- Verbesserungsvorschläge dokumentieren
+- Code-Review via `feature-dev:code-reviewer` Subagent
+- `/tb-ui` fuer visuelle Verifikation
+- `/tb-debug` bei Problemen
+- Edge-Cases und Performance pruefen
 
 ---
 
@@ -280,22 +284,24 @@ Jede Task-Datei in `tasks/` muss folgendes Format haben:
 
 ---
 
-## Projekt-Kontext für Codex
+## Projekt-Kontext
 
 ### Technologie-Stack
 - **Platform:** ThingsBoard 4.2 PE
 - **Sprachen:** JSON (Konfiguration), JavaScript (Widgets/Libraries)
-- **Zweck:** Smart Diagnostics für HVAC/Gebäudeautomation
-
-### Verzeichnisstruktur
-- `dashboards/` - ThingsBoard Dashboard-Konfigurationen (JSON)
-- `js library/` - JavaScript Utility-Bibliotheken
-- `rule chains/` - ThingsBoard Rule Chains für Datenverarbeitung
-- `widgets/` - Custom Widget-Implementierungen
-- `tasks/` - Task-Spezifikationen für Codex
+- **Zweck:** Smart Diagnostics fuer HVAC/Gebaeudeautomation
+- **IoT Gateway:** FastAPI + Vue.js 3 auf Raspberry Pi (ECO-IOT-GW)
 
 ### Wichtige Hinweise
-- Dashboard-JSONs sind sehr groß (bis 3.4 MB) - gezielt bearbeiten
+- Dashboard-JSONs sind sehr gross (bis 3.4 MB) - Subagenten fuer Suche verwenden
 - Widget-Konfigurationen folgen ThingsBoard-Schema
 - JavaScript in Widgets verwendet ThingsBoard Widget API
 - Rule Chains definieren Nachrichtenfluss mit Nodes und Connections
+- **NIEMALS** Batch-Sync ausfuehren (sync --js, sync --dashboards)
+- **IMMER** Pull vor Edit, dann einzeln Push
+
+### Geplante Erweiterungen
+- **Mobile App** - Native/Hybrid App fuer Techniker (neues Repo, ggf. Codex/Gemini CLI)
+- **Edge Computing** - Lokale Datenverarbeitung am Gateway (ECO-IOT-GW)
+- **AI + Forecasting** - ML-basierte Vorhersagen (ECO-TB-Forecast, ggf. Codex/Gemini CLI)
+- **Alarming 2.0** - Erweiterte Eskalation und Notifications
