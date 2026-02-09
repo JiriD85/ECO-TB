@@ -13007,7 +13007,7 @@
         "safety": "Safety",
         "recommendation": "Recommendation",
         "reserve": "Reserve",
-        "current-valve": "Current (IST)",
+        "current-valve": "Current Valve",
         "comparison": "IST/SOLL",
         "oversized": "Oversized",
         "undersized": "Undersized",
