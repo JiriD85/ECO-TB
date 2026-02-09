@@ -2050,8 +2050,43 @@ mat-toolbar.eco-dialog-header mat-icon {
         </mat-error>
       </mat-form-field>
 
+      <!-- Measurement Role -->
+      <mat-form-field appearance="fill" class="w-full">
+        <mat-label>Measurement Role</mat-label>
+        <mat-select formControlName="measurementRole" required>
+          <mat-select-trigger>
+            <div class="flex items-center gap-2">
+              <mat-icon *ngIf="addMeasurementFormGroup.get('measurementRole')?.value === 'generator'" style="font-size: 18px; width: 18px; height: 18px; color: #ff9800;">power</mat-icon>
+              <mat-icon *ngIf="addMeasurementFormGroup.get('measurementRole')?.value === 'subDistribution'" style="font-size: 18px; width: 18px; height: 18px; color: #2196f3;">account_tree</mat-icon>
+              <mat-icon *ngIf="addMeasurementFormGroup.get('measurementRole')?.value === 'circuit'" style="font-size: 18px; width: 18px; height: 18px; color: #4caf50;">thermostat</mat-icon>
+              <span *ngIf="addMeasurementFormGroup.get('measurementRole')?.value === 'generator'">{{'custom.diagnostics.measurement-role.generator' | translate}}</span>
+              <span *ngIf="addMeasurementFormGroup.get('measurementRole')?.value === 'subDistribution'">{{'custom.diagnostics.measurement-role.sub-distribution' | translate}}</span>
+              <span *ngIf="addMeasurementFormGroup.get('measurementRole')?.value === 'circuit'">{{'custom.diagnostics.measurement-role.circuit' | translate}}</span>
+            </div>
+          </mat-select-trigger>
+          <mat-option value="generator">
+            <div class="flex items-center gap-2">
+              <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #ff9800;">power</mat-icon>
+              <span>{{'custom.diagnostics.measurement-role.generator' | translate}}</span>
+            </div>
+          </mat-option>
+          <mat-option value="subDistribution">
+            <div class="flex items-center gap-2">
+              <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #2196f3;">account_tree</mat-icon>
+              <span>{{'custom.diagnostics.measurement-role.sub-distribution' | translate}}</span>
+            </div>
+          </mat-option>
+          <mat-option value="circuit">
+            <div class="flex items-center gap-2">
+              <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #4caf50;">thermostat</mat-icon>
+              <span>{{'custom.diagnostics.measurement-role.circuit' | translate}}</span>
+            </div>
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
       <!-- Parent Measurement (Hierarchy) - hidden for generators (they are root nodes) -->
-      <mat-form-field appearance="fill" class="w-full" *ngIf="availableMeasurements?.length > 0 && addMeasurementFormGroup.get('measurementRole').value !== 'generator'">
+      <mat-form-field appearance="fill" class="w-full" *ngIf="availableMeasurements?.length > 0 && addMeasurementFormGroup.get('measurementRole')?.value !== 'generator'">
         <mat-label>{{'custom.diagnostics.measurement.parent' | translate}}</mat-label>
         <mat-select formControlName="parentMeasurement">
           <mat-select-trigger>
@@ -2294,6 +2329,7 @@ export function openAddMeasurementDialog(widgetContext, projectId, projectName, 
       label: [''],
       installationType: ['heating', [vm.validators.required]],
       measurementType: ['ultrasonic', [vm.validators.required]],
+      measurementRole: ['circuit', [vm.validators.required]],
       connectKit: [false],
       parentMeasurement: [null]
     });
@@ -2431,6 +2467,7 @@ export function openAddMeasurementDialog(widgetContext, projectId, projectName, 
         { key: 'installationType', value: formValues.installationType },
         { key: 'locationName', value: formValues.label },
         { key: 'measurementType', value: formValues.measurementType },
+        { key: 'measurementRole', value: formValues.measurementRole },
         { key: 'state', value: 'normal' },
         { key: 'progress', value: 'in preparation' },
         { key: 'active', value: 'true' },
