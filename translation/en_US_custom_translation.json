@@ -13166,13 +13166,24 @@
         "group-peak-shaving": "Peak-Shaving Simulation",
         "enable-peak-shaving": "Enable Peak-Shaving / Spitzenlast-Simulation aktivieren",
         "demand-charge": "Demand Charge (\u20AC/kW/yr) / Leistungspreis",
+        "demand-charge-default": "Default Demand Charge / Leistungspreis Fallback",
         "energy-price": "Energy Price (\u20AC/kWh) / Arbeitspreis",
+        "energy-price-default": "Default Energy Price / Arbeitspreis Fallback",
         "peak-shaving-color": "Peak Shaving Color / Farbe",
         "peak-shaving-opacity": "Peak Shaving Opacity / Deckkraft",
         "show-peak-text": "Show Summary Text / Zusammenfassung anzeigen",
         "val-demand-savings": "Demand Savings (\u20AC) / Einsp. Leistungspreis",
         "val-energy-savings": "Energy Savings (\u20AC) / Einsp. Arbeitspreis",
-        "val-total-savings": "Total Savings (\u20AC) / Gesamteinsparung"
+        "val-total-savings": "Total Savings (\u20AC) / Gesamteinsparung",
+        "group-hdd": "HDD Normalization",
+        "heating-threshold": "Heating Threshold (\u00B0C) / Heizgrenze",
+        "indoor-temp": "Indoor Temperature (\u00B0C) / Innentemperatur",
+        "reference-gtz": "Reference GTZ (Kd/a) / Referenz-GTZ",
+        "building-area": "Building Area (m\u00B2) / Geb\u00E4udefl\u00E4che",
+        "val-measured-hdd": "Measured HDD (Kd) / Gemessene GTZ",
+        "val-normalized-energy": "Norm. Annual Energy / Norm. Jahresverbrauch",
+        "val-specific-consumption": "Specific Cons. (kWh/Kd) / Spez. Verbrauch",
+        "val-kwh-per-m2": "kWh/(m\u00B2\u00B7a)"
       }
     }
   },

@@ -13364,13 +13364,24 @@
         "group-peak-shaving": "Spitzenlast-Simulation",
         "enable-peak-shaving": "Spitzenlast-Simulation aktivieren",
         "demand-charge": "Leistungspreis (\u20AC/kW/a)",
+        "demand-charge-default": "Leistungspreis Fallback",
         "energy-price": "Arbeitspreis (\u20AC/kWh)",
+        "energy-price-default": "Arbeitspreis Fallback",
         "peak-shaving-color": "Farbe",
         "peak-shaving-opacity": "Deckkraft",
         "show-peak-text": "Zusammenfassung anzeigen",
         "val-demand-savings": "Einsp. Leistungspreis (\u20AC)",
         "val-energy-savings": "Einsp. Arbeitspreis (\u20AC)",
-        "val-total-savings": "Gesamteinsparung (\u20AC)"
+        "val-total-savings": "Gesamteinsparung (\u20AC)",
+        "group-hdd": "Gradtagzahl-Normierung",
+        "heating-threshold": "Heizgrenze (\u00B0C)",
+        "indoor-temp": "Innentemperatur (\u00B0C)",
+        "reference-gtz": "Referenz-GTZ (Kd/a)",
+        "building-area": "Geb\u00E4udefl\u00E4che (m\u00B2)",
+        "val-measured-hdd": "Gemessene GTZ (Kd)",
+        "val-normalized-energy": "Norm. Jahresverbrauch",
+        "val-specific-consumption": "Spez. Verbrauch (kWh/Kd)",
+        "val-kwh-per-m2": "kWh/(m\u00B2\u00B7a)"
       }
     }
   },
