@@ -13174,6 +13174,7 @@
         "val-energy-savings": "Energy Savings (\u20AC) / Einsp. Arbeitspreis",
         "val-total-savings": "Total Savings (\u20AC) / Gesamteinsparung",
         "group-hdd": "HDD Normalization",
+        "hdd-trim-days": "Trim partial days / Unvollst. Tage entfernen",
         "heating-threshold": "Heating Limit (\u00B0C) / Heizgrenze",
         "indoor-temp": "Indoor Temp (\u00B0C) / Innentemp.",
         "reference-gtz": "Reference HDD (Kd/a) / Ref.-GTZ",

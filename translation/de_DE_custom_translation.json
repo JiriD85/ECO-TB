@@ -13372,6 +13372,7 @@
         "val-energy-savings": "Einsp. Arbeitspreis (\u20AC)",
         "val-total-savings": "Gesamteinsparung (\u20AC)",
         "group-hdd": "Gradtagzahl-Normierung",
+        "hdd-trim-days": "Unvollst\u00E4ndige Tage entfernen",
         "heating-threshold": "Heizgrenze (\u00B0C)",
         "indoor-temp": "Innentemp. (\u00B0C)",
         "reference-gtz": "Referenz-GTZ (Kd/a)",
