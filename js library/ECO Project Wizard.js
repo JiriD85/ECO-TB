@@ -3298,9 +3298,11 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
     }
 
     // Find current parent (MeasurementHierarchy relation TO this measurement)
+    // NOTE: findByTo may return ALL relations, so we must filter by type ourselves
     entityRelationService.findByTo(measurementId, 'MeasurementHierarchy').subscribe(
-      function(relations) {
-        if (relations && relations.length > 0) {
+      function(allRelations) {
+        var relations = (allRelations || []).filter(function(r) { return r.type === 'MeasurementHierarchy'; });
+        if (relations.length > 0) {
           const parentCandidate = relations[0].from;
 
           // Verify that parent is actually a Measurement (not Project!)
@@ -3332,10 +3334,12 @@ export function openMeasurementParametersDialog(widgetContext, measurementId, ca
 
   function fetchSiblingMeasurements() {
     // Find the project that owns this measurement
+    // NOTE: findByTo may return ALL relations, so we must filter by type ourselves
     entityRelationService.findByTo(measurementId, 'Owns').subscribe(
-      function(ownsRelations) {
+      function(allRelations) {
+        var ownsRelations = (allRelations || []).filter(function(r) { return r.type === 'Owns'; });
 
-        // Find ASSET relations (could be Project or Parent Measurement)
+        // Find ASSET Owns relations (could be Project or Parent Measurement)
         const assetRelations = ownsRelations.filter(function(r) {
           return r.from.entityType === 'ASSET';
         });
