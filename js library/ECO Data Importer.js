@@ -31,10 +31,6 @@ export function csvDataImportDialog(widgetContext, entityId, entityName, options
   const isTenantAdmin = widgetContext.currentUser.authority === 'TENANT_ADMIN';
   const pageLink = widgetContext.pageLink(1000, 0, null, null, null);
 
-  console.log('CSV Import Dialog - stateParams:', stateParams);
-  console.log('CSV Import Dialog - isTenantAdmin:', isTenantAdmin);
-  console.log('CSV Import Dialog - options:', opts);
-
   // Check if measurement is passed directly via options (from Project Wizard)
   const directMeasurement = opts.selectedMeasurement ? {
     entityId: opts.selectedMeasurement.entityId || opts.selectedMeasurement.id,
@@ -69,14 +65,11 @@ export function csvDataImportDialog(widgetContext, entityId, entityName, options
     skipToUpload: skipMeasurementSelection
   };
 
-  console.log('CSV Import Dialog - config.needsCustomerSelection:', config.needsCustomerSelection);
-  console.log('CSV Import Dialog - config.needsProjectSelection:', config.needsProjectSelection);
-  console.log('CSV Import Dialog - config.needsMeasurementSelection:', config.needsMeasurementSelection);
-
   // If not Tenant Admin, get customer from current user
   if (!isTenantAdmin) {
+    var custId = widgetContext.currentUser.customerId;
     config.selectedCustomer = {
-      id: widgetContext.currentUser.customerId,
+      id: custId && custId.id ? custId.id : custId,
       entityType: 'CUSTOMER'
     };
   }
@@ -1109,14 +1102,6 @@ mat-icon {
     vm.selectedMeasurementEntity = null;
     vm.lockMeasurementSelection = config.lockMeasurementSelection;
 
-    console.log('Controller initialized:');
-    console.log('  needsCustomerSelection:', vm.needsCustomerSelection);
-    console.log('  needsProjectSelection:', vm.needsProjectSelection);
-    console.log('  needsMeasurementSelection:', vm.needsMeasurementSelection);
-    console.log('  customers:', vm.customers);
-    console.log('  projects:', vm.projects);
-    console.log('  measurements:', vm.measurements);
-
     // Delimiters and timestamp formats
     vm.delimiters = [
       { key: ',', value: ',' },
@@ -1223,7 +1208,7 @@ mat-icon {
       loadingSubject.next(true);
 
       // Fetch measurements for selected project
-      const assetSearchQuery = {
+      var assetSearchQuery = {
         parameters: {
           rootId: project.id.id,
           rootType: 'ASSET',
@@ -1238,14 +1223,19 @@ mat-icon {
 
       assetService.findByQuery(assetSearchQuery).subscribe(
         function(measurements) {
-          vm.measurements = measurements;
-          config.measurements = measurements;
-          selectMeasurementFromList(measurements);
-          loadingSubject.next(false);
+          if (measurements && measurements.length > 0) {
+            vm.measurements = measurements;
+            config.measurements = measurements;
+            selectMeasurementFromList(measurements);
+            loadingSubject.next(false);
+          } else {
+            // Fallback for customer users: use relation service
+            loadMeasurementsViaRelations(project.id.id);
+          }
         },
-        function(error) {
-          console.error('Failed to load measurements:', error);
-          loadingSubject.next(false);
+        function() {
+          // Fallback for customer users: use relation service
+          loadMeasurementsViaRelations(project.id.id);
         }
       );
     };
@@ -1354,49 +1344,109 @@ mat-icon {
       );
     }
 
-    // Initialize: Auto-load measurements if project is already selected
-    if (config.selectedProject && config.needsMeasurementSelection) {
-      loadingSubject.next(true);
-      const assetSearchQuery = {
-        parameters: {
-          rootId: config.selectedProject.entityId.id,
-          rootType: 'ASSET',
-          direction: 'FROM',
-          relationTypeGroup: 'COMMON',
-          maxLevel: 10,
-          fetchLastLevelOnly: false
-        },
-        relationType: 'Owns',
-        assetTypes: ['Measurement']
-      };
-
-      assetService.findByQuery(assetSearchQuery).subscribe(
-        function(measurements) {
-          vm.measurements = measurements;
-          config.measurements = measurements;
-          selectMeasurementFromList(measurements);
-          loadingSubject.next(false);
+    // Helper: Load measurements via entityRelationService (works for customer users)
+    function loadMeasurementsViaRelations(projectRootId) {
+      var fromEntity = { id: projectRootId, entityType: 'ASSET' };
+      entityRelationService.findByFrom(fromEntity, 'Owns').subscribe(
+        function(relations) {
+          var assetRelations = relations.filter(function(r) { return r.to.entityType === 'ASSET'; });
+          if (assetRelations.length === 0) {
+            vm.measurements = [];
+            config.measurements = [];
+            loadingSubject.next(false);
+            return;
+          }
+          var completed = 0;
+          var results = [];
+          assetRelations.forEach(function(r) {
+            assetService.getAsset(r.to.id).subscribe(
+              function(asset) {
+                if (asset && asset.type === 'Measurement') results.push(asset);
+                completed++;
+                if (completed === assetRelations.length) {
+                  vm.measurements = results;
+                  config.measurements = results;
+                  selectMeasurementFromList(results);
+                  loadingSubject.next(false);
+                }
+              },
+              function() {
+                completed++;
+                if (completed === assetRelations.length) {
+                  vm.measurements = results;
+                  config.measurements = results;
+                  selectMeasurementFromList(results);
+                  loadingSubject.next(false);
+                }
+              }
+            );
+          });
         },
         function(error) {
-          console.error('Failed to load measurements:', error);
+          console.error('Failed to load measurement relations:', error);
+          vm.measurements = [];
+          config.measurements = [];
           loadingSubject.next(false);
         }
       );
     }
-    if (!config.selectedProject && config.selectedMeasurement && config.selectedMeasurement.entityId) {
-      loadingSubject.next(true);
-      assetService.getAsset(config.selectedMeasurement.entityId.id).subscribe(
-        function(measurement) {
-          vm.measurements = measurement ? [measurement] : [];
-          config.measurements = vm.measurements;
-          selectMeasurementFromList(vm.measurements);
-          loadingSubject.next(false);
-        },
-        function(error) {
-          console.error('Failed to load measurement:', error);
-          loadingSubject.next(false);
-        }
-      );
+
+    // Initialize: Auto-load measurements if project is already selected
+    if (config.selectedProject && config.needsMeasurementSelection) {
+      var projectEntityId = config.selectedProject.entityId;
+      var rootId = projectEntityId ? (projectEntityId.id || projectEntityId) : null;
+      if (rootId) {
+        loadingSubject.next(true);
+        var assetSearchQuery = {
+          parameters: {
+            rootId: rootId,
+            rootType: 'ASSET',
+            direction: 'FROM',
+            relationTypeGroup: 'COMMON',
+            maxLevel: 10,
+            fetchLastLevelOnly: false
+          },
+          relationType: 'Owns',
+          assetTypes: ['Measurement']
+        };
+
+        assetService.findByQuery(assetSearchQuery).subscribe(
+          function(measurements) {
+            if (measurements && measurements.length > 0) {
+              vm.measurements = measurements;
+              config.measurements = measurements;
+              selectMeasurementFromList(measurements);
+              loadingSubject.next(false);
+            } else {
+              loadMeasurementsViaRelations(rootId);
+            }
+          },
+          function() {
+            loadMeasurementsViaRelations(rootId);
+          }
+        );
+      }
+    }
+    if (config.selectedMeasurement && config.selectedMeasurement.entityId) {
+      var measEntityId = config.selectedMeasurement.entityId;
+      var measId = measEntityId.id || measEntityId;
+      if (measId && vm.measurements.length === 0) {
+        loadingSubject.next(true);
+        assetService.getAsset(measId).subscribe(
+          function(measurement) {
+            if (measurement && vm.measurements.length === 0) {
+              vm.measurements = [measurement];
+              config.measurements = vm.measurements;
+              selectMeasurementFromList(vm.measurements);
+            }
+            loadingSubject.next(false);
+          },
+          function(error) {
+            console.error('Failed to load measurement:', error);
+            loadingSubject.next(false);
+          }
+        );
+      }
     }
 
     // Clear file and reset
@@ -1421,21 +1471,40 @@ mat-icon {
     };
 
     // Download example CSV (using new ECO Data Catalog keys)
+    // Helper: trigger file download (works in sandboxed iframes)
+    function triggerDownload(blob, filename) {
+      var url = URL.createObjectURL(blob);
+      try {
+        // Use top-level window to bypass iframe sandbox download restriction
+        var doc = window.top.document;
+        var link = doc.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.style.display = 'none';
+        doc.body.appendChild(link);
+        link.click();
+        doc.body.removeChild(link);
+      } catch(e) {
+        // Fallback: try current document
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+      setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+    }
+
     vm.downloadExampleCSV = function() {
-      const exampleCSV = 'Timestamp;T_flow_C;T_return_C;dT_K;Vdot_m3h;v_ms;P_th_kW;E_th_kWh;V_m3;auxT1_C;auxT2_C\n' +
+      var exampleCSV = 'Timestamp;T_flow_C;T_return_C;dT_K;Vdot_m3h;v_ms;P_th_kW;E_th_kWh;V_m3;auxT1_C;auxT2_C\n' +
         '2025-01-07 17:56:28;48.3;43.1;5.2;2.8;0.95;18.5;4523.7;1234.5;45.2;42.8\n' +
         '2025-01-07 18:56:28;48.7;43.3;5.4;2.9;0.98;19.2;4651.8;1281.3;45.5;43.0\n' +
         '2025-01-07 19:56:28;49.1;43.6;5.5;3.0;1.01;19.8;4783.0;1329.4;45.9;43.3';
 
-      const blob = new Blob([exampleCSV], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', 'example_telemetry.csv');
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      var blob = new Blob([exampleCSV], { type: 'text/csv;charset=utf-8;' });
+      triggerDownload(blob, 'example_telemetry.csv');
     };
 
     // Download normalized CSV
@@ -1573,15 +1642,8 @@ mat-icon {
       });
 
       // Trigger download
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', 'normalized_telemetry.csv');
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      triggerDownload(blob, 'normalized_telemetry.csv');
     };
 
     // Re-parse CSV when delimiter changes
