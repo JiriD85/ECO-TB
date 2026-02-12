@@ -38,7 +38,7 @@
             },
             "aggregation": {
               "type": "NONE",
-              "limit": 200
+              "limit": 100000
             },
             "timezone": null
           },
@@ -409,7 +409,7 @@
             },
             "aggregation": {
               "type": "AVG",
-              "limit": 25000
+              "limit": 100000
             }
           },
           "showTitle": false,
@@ -490,7 +490,7 @@
             },
             "aggregation": {
               "type": "NONE",
-              "limit": 200
+              "limit": 100000
             }
           },
           "showTitle": true,
@@ -705,7 +705,7 @@
                 "name": "Connect Measurement",
                 "icon": "add_chart",
                 "useShowWidgetActionFunction": true,
-                "showWidgetActionFunction": "var progress = data.Progress || data.progress;\nvar isUltrasonic = data['Measurement Type'] === 'ultrasonic';\nreturn isUltrasonic && (progress === 'in preparation' || progress === 'planned');",
+                "showWidgetActionFunction": "var progress = data.Progress || data.progress || data.Fortschritt;\nreturn (progress === 'in preparation' || progress === 'planned');",
                 "type": "custom",
                 "customFunction": {
                   "body": "utils.dataConnectorDialog(widgetContext, entityId, entityName);",
@@ -1017,7 +1017,7 @@
             },
             "aggregation": {
               "type": "AVG",
-              "limit": 25000
+              "limit": 100000
             }
           },
           "showTitle": false,
@@ -1224,7 +1224,7 @@
             },
             "aggregation": {
               "type": "NONE",
-              "limit": 200
+              "limit": 100000
             },
             "timezone": null
           },
@@ -1424,7 +1424,7 @@
             },
             "aggregation": {
               "type": "NONE",
-              "limit": 200
+              "limit": 100000
             }
           },
           "showTitle": true,
@@ -1855,7 +1855,7 @@
             },
             "aggregation": {
               "type": "AVG",
-              "limit": 25000
+              "limit": 100000
             }
           },
           "showTitle": false,
@@ -2125,7 +2125,7 @@
             },
             "aggregation": {
               "type": "AVG",
-              "limit": 25000
+              "limit": 100000
             }
           },
           "showTitle": false,
@@ -2283,7 +2283,7 @@
             },
             "aggregation": {
               "type": "AVG",
-              "limit": 25000
+              "limit": 100000
             }
           },
           "showTitle": false,
@@ -2396,7 +2396,7 @@
             },
             "aggregation": {
               "type": "AVG",
-              "limit": 25000
+              "limit": 100000
             }
           },
           "showTitle": false,
@@ -2677,7 +2677,7 @@
             },
             "aggregation": {
               "type": "AVG",
-              "limit": 25000
+              "limit": 100000
             }
           },
           "showTitle": false,
@@ -2881,7 +2881,7 @@
             },
             "aggregation": {
               "type": "AVG",
-              "limit": 50000
+              "limit": 100000
             }
           },
           "showTitle": false,
@@ -3306,7 +3306,7 @@
             },
             "aggregation": {
               "type": "AVG",
-              "limit": 50000
+              "limit": 100000
             }
           },
           "showTitle": false,
@@ -3822,7 +3822,7 @@
             },
             "aggregation": {
               "type": "AVG",
-              "limit": 25000
+              "limit": 100000
             }
           },
           "showTitle": false,
@@ -3937,216 +3937,6 @@
         "row": 0,
         "col": 0,
         "id": "e354c44b-c1c8-fb3d-5b59-a5289253db07"
-      },
-      "f62841bb-db11-3baa-12d5-aea51d799525": {
-        "typeFullFqn": "tenant.eco_custom_widgets.eco_load_duration_curve",
-        "type": "timeseries",
-        "sizeX": 10,
-        "sizeY": 8,
-        "config": {
-          "datasources": [
-            {
-              "type": "entity",
-              "name": "",
-              "entityAliasId": "a05e02ae-75d9-4410-c6f7-17ceb5a28ba9",
-              "filterId": null,
-              "dataKeys": [
-                {
-                  "name": "P_th_kW",
-                  "type": "timeseries",
-                  "label": "Power",
-                  "color": "#048AD3",
-                  "settings": {},
-                  "_hash": 0.530239266852971,
-                  "aggregationType": null,
-                  "units": "kW",
-                  "decimals": 1,
-                  "funcBody": null,
-                  "usePostProcessing": null,
-                  "postFuncBody": null
-                },
-                {
-                  "name": "is_on",
-                  "type": "timeseries",
-                  "label": "is_on",
-                  "color": "#4caf50",
-                  "settings": {},
-                  "_hash": 0.3104755725321964
-                }
-              ],
-              "alarmFilterConfig": {
-                "statusList": [
-                  "ACTIVE"
-                ]
-              },
-              "latestDataKeys": [
-                {
-                  "name": "startTimeMs",
-                  "type": "attribute",
-                  "label": "startTimeMs",
-                  "color": "#f44336",
-                  "settings": {},
-                  "_hash": 0.4803910446663644
-                },
-                {
-                  "name": "endTimeMs",
-                  "type": "attribute",
-                  "label": "endTimeMs",
-                  "color": "#ffc107",
-                  "settings": {},
-                  "_hash": 0.3590134894785407
-                }
-              ]
-            },
-            {
-              "type": "entity",
-              "entityAliasId": "8520bbb4-c9f0-7635-5364-ec3b685f1ff7",
-              "dataKeys": [
-                {
-                  "name": "outsideTemp",
-                  "type": "timeseries",
-                  "label": "Temperature Outside",
-                  "color": "#607d8b",
-                  "settings": {},
-                  "_hash": 0.13488693727596213,
-                  "aggregationType": null,
-                  "units": "°C",
-                  "decimals": 1,
-                  "funcBody": null,
-                  "usePostProcessing": null,
-                  "postFuncBody": null
-                }
-              ],
-              "alarmFilterConfig": {
-                "statusList": [
-                  "ACTIVE"
-                ]
-              },
-              "latestDataKeys": []
-            }
-          ],
-          "timewindow": {
-            "hideAggregation": false,
-            "hideAggInterval": false,
-            "hideTimezone": false,
-            "selectedTab": 0,
-            "realtime": {
-              "realtimeType": 0,
-              "timewindowMs": 86400000,
-              "quickInterval": "CURRENT_DAY",
-              "interval": 60000
-            },
-            "aggregation": {
-              "type": "AVG",
-              "limit": 25000
-            }
-          },
-          "showTitle": false,
-          "backgroundColor": "#fff",
-          "color": "rgba(0, 0, 0, 0.87)",
-          "padding": "8px",
-          "settings": {
-            "showDurationCurve": true,
-            "showLoadProfile": true,
-            "dataType": "power",
-            "energyToPower": null,
-            "showDataZoomSlider": false,
-            "enableMouseZoom": null,
-            "secondaryDataKey": "outsideTemp",
-            "secondaryColor": "#FF9800",
-            "secondaryLineWidth": 2,
-            "secondaryLineStyle": "solid",
-            "showLegend": true,
-            "legendStyle": "card",
-            "legendPosition": "top",
-            "legendAlign": "center",
-            "legendCardColorMode": "auto",
-            "legendCardColor": "#2196F3",
-            "legendValues": [
-              "current",
-              "min",
-              "max",
-              "mean",
-              "median",
-              "baseload",
-              "peak",
-              "volllaststunden",
-              "auslastung",
-              "peakEnergy",
-              "totalEnergy"
-            ],
-            "secondaryLegendValues": [
-              "current",
-              "min",
-              "max",
-              "mean"
-            ],
-            "showTimestamp": false,
-            "timestampFormat": "YYYY-MM-DD HH:mm:ss",
-            "showTooltip": true,
-            "yAxisLabel": null,
-            "yAxisMin": null,
-            "yAxisMax": null,
-            "removeOutliers": true,
-            "outlierMethod": "iqr",
-            "outlierIqrMultiplier": 1.5,
-            "outlierZscoreThreshold": 3,
-            "outlierMinValue": null,
-            "outlierMaxValue": null,
-            "smoothingEnabled": true,
-            "smoothingWindow": 60,
-            "filterDurationCurveByIsOn": true,
-            "isOnDataKey": "is_on",
-            "showToolbox": false,
-            "toolboxFeatures": [
-              "saveAsImage",
-              "dataView",
-              "dataZoom",
-              "restore"
-            ],
-            "showTimewindowSelector": true,
-            "twSelectorDefaultMode": "custom",
-            "twSelectorColor": "#435B63",
-            "twSelectorPosition": "center",
-            "twSelectorDayFormat": "D MMM YYYY",
-            "twSelectorWeekFormat": "D-D MMM",
-            "twSelectorMonthFormat": "MMM YYYY",
-            "twCustomStartTime": "${startTimeMs}",
-            "twCustomEndTime": "${endTimeMs}",
-            "twAggregationType": "NONE",
-            "twMaxDataPoints": 100000,
-            "showMeanLine": true,
-            "meanMethod": "mean_all",
-            "meanLineColor": "#FF9800",
-            "showMedianLine": true,
-            "medianMethod": "median_operating",
-            "medianPercentile": 50,
-            "medianLineColor": "#9C27B0",
-            "showBaseloadLine": true,
-            "baseloadMethod": "percentile",
-            "baseloadPercentile": 10,
-            "baseloadLineColor": "#4CAF50",
-            "showPeakloadLine": true,
-            "peakloadMethod": "percentile",
-            "peakloadPercentile": 95,
-            "peakloadSigma": 2,
-            "peakloadLineColor": "#F44336"
-          },
-          "title": "Duration Curve",
-          "dropShadow": false,
-          "enableFullscreen": true,
-          "enableDataExport": false,
-          "useDashboardTimewindow": true,
-          "displayTimewindow": true,
-          "hasAdditionalLatestDataKeys": true,
-          "widgetStyle": {},
-          "widgetCss": "",
-          "pageSize": 1024,
-          "noDataDisplayMessage": ""
-        },
-        "row": 0,
-        "col": 0,
-        "id": "f62841bb-db11-3baa-12d5-aea51d799525"
       },
       "1ee843bb-c0dd-4547-e431-e8c7136e25b8": {
         "typeFullFqn": "tenant.eco_custom_widgets.eco_timeseries_zoom_sync",
@@ -4333,7 +4123,7 @@
             },
             "aggregation": {
               "type": "AVG",
-              "limit": 25000
+              "limit": 100000
             }
           },
           "showTitle": false,
@@ -4366,13 +4156,13 @@
             "yAxis2Min": null,
             "yAxis2Max": null,
             "removeOutliers": true,
-            "outlierMethod": "iqr",
+            "outlierMethod": "zscore",
             "outlierIqrMultiplier": 1.5,
-            "outlierZscoreThreshold": 3,
+            "outlierZscoreThreshold": 10,
             "outlierMinValue": null,
             "outlierMaxValue": null,
             "smoothingEnabled": true,
-            "smoothingWindowMinutes": 5,
+            "smoothingWindowMinutes": 1,
             "showToolbox": false,
             "toolboxFeatures": [
               "saveAsImage",
@@ -4570,7 +4360,7 @@
             },
             "aggregation": {
               "type": "AVG",
-              "limit": 25000
+              "limit": 100000
             }
           },
           "showTitle": false,
@@ -4581,6 +4371,8 @@
             "viewMode": "custom",
             "timeResolution": "1h",
             "showCellValues": false,
+            "highlightWeekends": true,
+            "weekendColor": "#F44336",
             "customStartTime": "${startTimeMs}",
             "customEndTime": "${endTimeMs}",
             "calculateConsumption": null,
@@ -4614,9 +4406,9 @@
             "showTimestamp": false,
             "timestampFormat": "YYYY-MM-DD HH:mm:ss",
             "removeOutliers": true,
-            "outlierMethod": "iqr",
+            "outlierMethod": "zscore",
             "outlierIqrMultiplier": 1.5,
-            "outlierZscoreThreshold": 3,
+            "outlierZscoreThreshold": 10,
             "outlierMinValue": null,
             "outlierMaxValue": null,
             "smoothingEnabled": true,
@@ -4651,7 +4443,15 @@
             "peakloadPercentile": 95,
             "peakloadSigma": 2,
             "peakThresholdValue": 150,
-            "peakColor": "#FF5722"
+            "peakColor": "#FF5722",
+            "enablePeakSimulation": true,
+            "peakSliderMin": 10,
+            "peakSliderMax": 200,
+            "peakSliderStep": 1,
+            "peakSliderDefault": null,
+            "peakSliderColor": "#FF5722",
+            "showPeakKpiCards": true,
+            "showPeaksOnlyToggle": true
           },
           "title": "Heatmap Cartesian",
           "dropShadow": false,
@@ -4734,7 +4534,7 @@
             },
             "aggregation": {
               "type": "AVG",
-              "limit": 25000
+              "limit": 100000
             }
           },
           "showTitle": false,
@@ -4747,7 +4547,7 @@
             "energyAttribute": "E_th_kWh",
             "weightAttribute": "interpolationWeight",
             "targetState": "",
-            "defaultMode": "power",
+            "defaultMode": "energy",
             "showToolbar": true,
             "showAnimation": true,
             "dotsPerLine": 3,
@@ -4881,7 +4681,7 @@
             },
             "aggregation": {
               "type": "AVG",
-              "limit": 25000
+              "limit": 100000
             }
           },
           "showTitle": false,
@@ -4906,9 +4706,9 @@
             "aggregateBucketMinutes": 60,
             "isOnDataKey": "is_on",
             "removeOutliers": true,
-            "outlierMethod": "iqr",
+            "outlierMethod": "zscore",
             "outlierIqrMultiplier": 1.5,
-            "outlierZscoreThreshold": 3,
+            "outlierZscoreThreshold": 10,
             "outlierMinValue": null,
             "outlierMaxValue": null,
             "smoothingEnabled": true,
@@ -5062,7 +4862,7 @@
             },
             "aggregation": {
               "type": "NONE",
-              "limit": 25000
+              "limit": 100000
             }
           },
           "showTitle": false,
@@ -5133,9 +4933,9 @@
             "filterIncompleteDays": "trim",
             "minDayHours": 23,
             "removeOutliers": true,
-            "outlierMethod": "iqr",
+            "outlierMethod": "zscore",
             "outlierIqrMultiplier": 1.5,
-            "outlierZscoreThreshold": 3,
+            "outlierZscoreThreshold": 10,
             "outlierMinValue": null,
             "outlierMaxValue": null,
             "showToolbox": false,
@@ -5347,7 +5147,7 @@
             },
             "aggregation": {
               "type": "NONE",
-              "limit": 25000
+              "limit": 100000
             }
           },
           "showTitle": false,
@@ -5389,9 +5189,9 @@
             "showMarkPoints": true,
             "showDataZoomSlider": false,
             "removeOutliers": true,
-            "outlierMethod": "iqr",
+            "outlierMethod": "zscore",
             "outlierIqrMultiplier": 1.5,
-            "outlierZscoreThreshold": 3,
+            "outlierZscoreThreshold": 10,
             "outlierMinValue": null,
             "outlierMaxValue": null,
             "filterMinPower": 1,
@@ -5583,10 +5383,10 @@
             },
             "aggregation": {
               "type": "NONE",
-              "limit": 25000
+              "limit": 100000
             }
           },
-          "showTitle": true,
+          "showTitle": false,
           "backgroundColor": "#fff",
           "color": "rgba(0, 0, 0, 0.87)",
           "padding": "8px",
@@ -5595,13 +5395,14 @@
             "dtDataKey": "dT_K",
             "dtFlagDataKey": "dT_flag",
             "outsideTempDataKey": "outsideTemp",
+            "vdotDataKey": "Vdot_m3h",
             "designDeltaTKey": "${designDeltaT}",
             "designDeltaTValue": 10,
-            "maxTimestampDiffSeconds": 300,
+            "maxTimestampDiffSeconds": 3600,
             "xAxisLabel": null,
-            "xAxisUnit": "kW",
+            "xAxisUnit": "",
             "yAxisLabel": null,
-            "yAxisUnit": "K",
+            "yAxisUnit": "",
             "pointSize": 8,
             "pointOpacity": 0.7,
             "minBubbleSize": 4,
@@ -5616,11 +5417,15 @@
             "aggregateBucketMinutes": 5,
             "isOnDataKey": "is_on",
             "removeOutliers": true,
-            "outlierMethod": "iqr",
+            "outlierMethod": "zscore",
             "outlierIqrMultiplier": 1.5,
-            "outlierZscoreThreshold": 3,
+            "outlierZscoreThreshold": 10,
             "outlierMinValue": null,
             "outlierMaxValue": null,
+            "pumpRatedPowerKey": null,
+            "pumpRatedPowerValue": null,
+            "pumpControlTypeKey": null,
+            "currentPumpPowerKey": null,
             "showKpiCards": true,
             "showLegend": true,
             "enableZoom": false,
@@ -5661,6 +5466,277 @@
         "row": 0,
         "col": 0,
         "id": "c2394469-7696-cec4-8033-fc9fa9c8c79f"
+      },
+      "949f1723-a3d4-d935-8ddc-c42b3e461815": {
+        "typeFullFqn": "tenant.eco_custom_widgets.eco_load_duration_curve",
+        "type": "timeseries",
+        "sizeX": 10,
+        "sizeY": 8,
+        "config": {
+          "datasources": [
+            {
+              "type": "entity",
+              "name": "",
+              "entityAliasId": "a05e02ae-75d9-4410-c6f7-17ceb5a28ba9",
+              "filterId": null,
+              "dataKeys": [
+                {
+                  "name": "P_th_kW",
+                  "type": "timeseries",
+                  "label": "Power",
+                  "color": "#048AD3",
+                  "settings": {},
+                  "_hash": 0.530239266852971,
+                  "aggregationType": null,
+                  "units": "kW",
+                  "decimals": 1,
+                  "funcBody": null,
+                  "usePostProcessing": null,
+                  "postFuncBody": null
+                },
+                {
+                  "name": "is_on",
+                  "type": "timeseries",
+                  "label": "is_on",
+                  "color": "#4caf50",
+                  "settings": {},
+                  "_hash": 0.3104755725321964
+                }
+              ],
+              "alarmFilterConfig": {
+                "statusList": [
+                  "ACTIVE"
+                ]
+              },
+              "latestDataKeys": [
+                {
+                  "name": "startTimeMs",
+                  "type": "attribute",
+                  "label": "startTimeMs",
+                  "color": "#f44336",
+                  "settings": {},
+                  "_hash": 0.4803910446663644
+                },
+                {
+                  "name": "endTimeMs",
+                  "type": "attribute",
+                  "label": "endTimeMs",
+                  "color": "#ffc107",
+                  "settings": {},
+                  "_hash": 0.3590134894785407
+                },
+                {
+                  "name": "area",
+                  "type": "attribute",
+                  "label": "area",
+                  "color": "#03a9f4",
+                  "settings": {},
+                  "_hash": 0.42368228483391346
+                }
+              ]
+            },
+            {
+              "type": "entity",
+              "entityAliasId": "8520bbb4-c9f0-7635-5364-ec3b685f1ff7",
+              "dataKeys": [
+                {
+                  "name": "outsideTemp",
+                  "type": "timeseries",
+                  "label": "Temperature Outside",
+                  "color": "#607d8b",
+                  "settings": {},
+                  "_hash": 0.13488693727596213,
+                  "aggregationType": null,
+                  "units": "°C",
+                  "decimals": 1,
+                  "funcBody": null,
+                  "usePostProcessing": null,
+                  "postFuncBody": null
+                }
+              ],
+              "alarmFilterConfig": {
+                "statusList": [
+                  "ACTIVE"
+                ]
+              },
+              "latestDataKeys": [
+                {
+                  "name": "hddHeatingLimit",
+                  "type": "attribute",
+                  "label": "hddHeatingLimit",
+                  "color": "#9c27b0",
+                  "settings": {},
+                  "_hash": 0.40976528434675874
+                },
+                {
+                  "name": "hddIndoorTemp",
+                  "type": "attribute",
+                  "label": "hddIndoorTemp",
+                  "color": "#8bc34a",
+                  "settings": {},
+                  "_hash": 0.34281741299592017
+                },
+                {
+                  "name": "hddReference",
+                  "type": "attribute",
+                  "label": "hddReference",
+                  "color": "#3f51b5",
+                  "settings": {},
+                  "_hash": 0.18960013931233255
+                },
+                {
+                  "name": "energyPrice",
+                  "type": "attribute",
+                  "label": "energyPrice",
+                  "color": "#e91e63",
+                  "settings": {},
+                  "_hash": 0.8682012676502189
+                },
+                {
+                  "name": "demandCharge",
+                  "type": "attribute",
+                  "label": "demandCharge",
+                  "color": "#ffeb3b",
+                  "settings": {},
+                  "_hash": 0.9213518192172886
+                }
+              ]
+            }
+          ],
+          "timewindow": {
+            "hideAggregation": false,
+            "hideAggInterval": false,
+            "hideTimezone": false,
+            "selectedTab": 0,
+            "realtime": {
+              "realtimeType": 0,
+              "timewindowMs": 86400000,
+              "quickInterval": "CURRENT_DAY",
+              "interval": 60000
+            },
+            "aggregation": {
+              "type": "AVG",
+              "limit": 100000
+            }
+          },
+          "showTitle": false,
+          "backgroundColor": "#fff",
+          "color": "rgba(0, 0, 0, 0.87)",
+          "padding": "8px",
+          "settings": {
+            "showDurationCurve": true,
+            "showLoadProfile": true,
+            "dataType": "power",
+            "energyToPower": null,
+            "showDataZoomSlider": false,
+            "enableMouseZoom": null,
+            "secondaryDataKey": "outsideTemp",
+            "secondaryColor": "#FF9800",
+            "secondaryLineWidth": 2,
+            "secondaryLineStyle": "solid",
+            "showLegend": true,
+            "legendStyle": "card",
+            "legendPosition": "top",
+            "legendAlign": "center",
+            "legendCardColorMode": "auto",
+            "legendCardColor": "#2196F3",
+            "legendValues": [
+              "current",
+              "min",
+              "max",
+              "mean",
+              "median",
+              "baseload",
+              "peak",
+              "volllaststunden",
+              "auslastung",
+              "peakEnergy",
+              "totalEnergy"
+            ],
+            "secondaryLegendValues": [
+              "current",
+              "min",
+              "max",
+              "mean"
+            ],
+            "showTimestamp": false,
+            "timestampFormat": "YYYY-MM-DD HH:mm:ss",
+            "showTooltip": true,
+            "yAxisLabel": null,
+            "yAxisMin": null,
+            "yAxisMax": null,
+            "removeOutliers": true,
+            "outlierMethod": "zscore",
+            "outlierIqrMultiplier": 1.5,
+            "outlierZscoreThreshold": 10,
+            "outlierMinValue": null,
+            "outlierMaxValue": null,
+            "smoothingEnabled": true,
+            "smoothingWindow": 5,
+            "filterDurationCurveByIsOn": true,
+            "isOnDataKey": "is_on",
+            "showToolbox": false,
+            "toolboxFeatures": [
+              "saveAsImage",
+              "dataView",
+              "dataZoom",
+              "restore"
+            ],
+            "showTimewindowSelector": true,
+            "twSelectorDefaultMode": "custom",
+            "twSelectorColor": "#435B63",
+            "twSelectorPosition": "center",
+            "twSelectorDayFormat": "D MMM YYYY",
+            "twSelectorWeekFormat": "D-D MMM",
+            "twSelectorMonthFormat": "MMM YYYY",
+            "twCustomStartTime": "${startTimeMs}",
+            "twCustomEndTime": "${endTimeMs}",
+            "twAggregationType": "NONE",
+            "twMaxDataPoints": 100000,
+            "showMeanLine": true,
+            "meanMethod": "mean_all",
+            "meanLineColor": "#FF9800",
+            "showMedianLine": true,
+            "medianMethod": "median_operating",
+            "medianPercentile": 50,
+            "medianLineColor": "#9C27B0",
+            "showBaseloadLine": true,
+            "baseloadMethod": "percentile",
+            "baseloadPercentile": 10,
+            "baseloadLineColor": "#4CAF50",
+            "showPeakloadLine": true,
+            "peakloadMethod": "percentile",
+            "peakloadPercentile": 95,
+            "peakloadSigma": 2,
+            "peakloadLineColor": "#F44336",
+            "enablePeakShaving": true,
+            "demandChargeKW": "${demandCharge}",
+            "energyPriceKWh": "${energyPrice}",
+            "includeEnergyPrice": false,
+            "peakShavingColor": "#ff4d4d",
+            "peakShavingOpacity": 0.3,
+            "showPeakShavingText": true,
+            "hddTrimPartialDays": true,
+            "heatingThreshold": "${hddHeatingLimit}",
+            "indoorTemp": "${hddIndoorTemp}",
+            "referenceGTZ": "${hddReference}",
+            "buildingArea": "${area}"
+          },
+          "title": "Duration Curve",
+          "dropShadow": false,
+          "enableFullscreen": true,
+          "enableDataExport": false,
+          "useDashboardTimewindow": true,
+          "displayTimewindow": true,
+          "hasAdditionalLatestDataKeys": true,
+          "widgetStyle": {},
+          "widgetCss": "",
+          "pageSize": 1024,
+          "noDataDisplayMessage": ""
+        },
+        "row": 0,
+        "col": 0,
+        "id": "949f1723-a3d4-d935-8ddc-c42b3e461815"
       }
     },
     "states": {
@@ -6162,7 +6238,7 @@
         "layouts": {
           "main": {
             "widgets": {
-              "f62841bb-db11-3baa-12d5-aea51d799525": {
+              "949f1723-a3d4-d935-8ddc-c42b3e461815": {
                 "sizeX": 80,
                 "sizeY": 42,
                 "row": 0,
@@ -7941,10 +8017,10 @@
       "history": {
         "historyType": 1,
         "fixedTimewindow": {
-          "startTimeMs": 1769506475279,
-          "endTimeMs": 1770665966585
+          "startTimeMs": 1762329600000,
+          "endTimeMs": 1764241200000
         },
-        "interval": 3600000,
+        "interval": 3824000,
         "hideInterval": false,
         "hideLastInterval": false,
         "hideQuickInterval": false
@@ -7988,7 +8064,7 @@
     "entityType": "DASHBOARD",
     "id": "d086f510-f6be-11f0-adb4-33b9bcf3ddd0"
   },
-  "version": 422,
+  "version": 461,
   "ownerId": {
     "entityType": "TENANT",
     "id": "efb63c10-b576-11ee-a6c2-a149ed03c64d"

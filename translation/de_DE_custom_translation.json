@@ -13365,6 +13365,7 @@
         "enable-peak-shaving": "Spitzenlast-Simulation aktivieren",
         "demand-charge": "Leistungspreis (\u20AC/kW/a)",
         "energy-price": "Arbeitspreis (\u20AC/kWh)",
+        "include-energy-price": "Arbeitspreis einbeziehen",
         "peak-shaving-color": "Farbe",
         "peak-shaving-opacity": "Deckkraft",
         "show-peak-text": "Zusammenfassung anzeigen",
