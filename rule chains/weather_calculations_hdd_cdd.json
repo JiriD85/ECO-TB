@@ -1,0 +1,131 @@
+{
+  "ruleChain": {
+    "name": "Weather Calculations (HDD/CDD)",
+    "type": "CORE",
+    "firstRuleNodeId": {
+      "entityType": "RULE_NODE",
+      "id": "a8dff8e1-fc27-11f0-9979-9f3434877bb4"
+    },
+    "root": false,
+    "debugMode": false,
+    "configuration": null,
+    "additionalInfo": {
+      "description": "Calculates Heating Degree Days (HDD) and Cooling Degree Days (CDD) from incoming weather telemetry. Uses base_temp from Project server attributes (default: 18.0 C)."
+    }
+  },
+  "metadata": {
+    "ruleChainId": {
+      "entityType": "RULE_CHAIN",
+      "id": "b5f16f40-fbb0-11f0-9fc4-33b9bcf3ddd0"
+    },
+    "version": 13,
+    "firstNodeIndex": 0,
+    "nodes": [
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "a8dff8e1-fc27-11f0-9979-9f3434877bb4"
+        },
+        "createdTime": 1769590771566,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "b5f16f40-fbb0-11f0-9fc4-33b9bcf3ddd0"
+        },
+        "type": "org.thingsboard.rule.engine.metadata.TbGetAttributesNode",
+        "name": "Fetch Base Temperature",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "tellFailureIfAbsent": false,
+          "fetchTo": "METADATA",
+          "clientAttributeNames": [],
+          "sharedAttributeNames": [],
+          "serverAttributeNames": [
+            "base_temp"
+          ],
+          "latestTsKeyNames": [],
+          "getLatestValueWithTs": false
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Fetches base_temp from Project (originator) server attributes. Attribute will be available as metadata.ss_base_temp",
+          "layoutX": 362,
+          "layoutY": 105
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "a8dff8e2-fc27-11f0-9979-9f3434877bb4"
+        },
+        "createdTime": 1769590771566,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "b5f16f40-fbb0-11f0-9fc4-33b9bcf3ddd0"
+        },
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Calculate HDD/CDD",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "var temp = msg.outsideTemp;\nif (temp === null || temp === undefined) {\n    return { msg: msg, metadata: metadata, msgType: msgType };\n}\n\nvar baseTemp = metadata.ss_base_temp ? parseFloat(metadata.ss_base_temp) : 18.0;\nvar hdd = Math.max(0, baseTemp - temp);\nvar cdd = Math.max(0, temp - baseTemp);\n\nmsg.hdd = hdd;\nmsg.cdd = cdd;\n\nreturn { msg: msg, metadata: metadata, msgType: msgType };",
+          "tbelScript": "var temp = msg.outsideTemp;\nif (temp === null || temp === undefined) {\n    return { msg: msg, metadata: metadata, msgType: msgType };\n}\n\nvar baseTemp = metadata.ss_base_temp ? parseFloat(metadata.ss_base_temp) : 18.0;\nvar hdd = Math.max(0, baseTemp - temp);\nvar cdd = Math.max(0, temp - baseTemp);\n\nmsg.hdd = hdd;\nmsg.cdd = cdd;\n\nreturn { msg: msg, metadata: metadata, msgType: msgType };"
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Calculates HDD and CDD based on temperature and base_temp. HDD = max(0, baseTemp - temp), CDD = max(0, temp - baseTemp)",
+          "layoutX": 506,
+          "layoutY": 203
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "a8e01ff0-fc27-11f0-9979-9f3434877bb4"
+        },
+        "createdTime": 1769590771567,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "b5f16f40-fbb0-11f0-9fc4-33b9bcf3ddd0"
+        },
+        "type": "org.thingsboard.rule.engine.telemetry.TbMsgTimeseriesNode",
+        "name": "Save Timeseries",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "defaultTTL": 0,
+          "useServerTs": false,
+          "processingSettings": {
+            "type": "ON_EVERY_MESSAGE"
+          }
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Persists the enriched telemetry including original values plus calculated hdd and cdd",
+          "layoutX": 652,
+          "layoutY": 104
+        }
+      }
+    ],
+    "connections": [
+      {
+        "fromIndex": 0,
+        "toIndex": 1,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 1,
+        "toIndex": 2,
+        "type": "Success"
+      }
+    ],
+    "ruleChainConnections": null
+  }
+}

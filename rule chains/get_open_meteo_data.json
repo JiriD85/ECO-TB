@@ -1,0 +1,505 @@
+{
+  "ruleChain": {
+    "name": "Get Open-Meteo Data",
+    "type": "CORE",
+    "firstRuleNodeId": {
+      "entityType": "RULE_NODE",
+      "id": "38d08ab0-fc36-11f0-9979-9f3434877bb4"
+    },
+    "root": false,
+    "debugMode": false,
+    "configuration": null,
+    "additionalInfo": {
+      "description": "Fetches current weather data from Open-Meteo Commercial API for all active Projects"
+    }
+  },
+  "metadata": {
+    "ruleChainId": {
+      "entityType": "RULE_CHAIN",
+      "id": "863ed1e0-fbbd-11f0-9979-9f3434877bb4"
+    },
+    "version": 42,
+    "firstNodeIndex": 0,
+    "nodes": [
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "38d08ab0-fc36-11f0-9979-9f3434877bb4"
+        },
+        "createdTime": 1769597026011,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "863ed1e0-fbbd-11f0-9979-9f3434877bb4"
+        },
+        "type": "org.thingsboard.rule.engine.transform.TbDuplicateMsgToGroupByNameNode",
+        "name": "Duplicate To Customers",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "searchEntityGroupForTenantOnly": false,
+          "considerMessageOriginatorAsAGroupOwner": false,
+          "groupType": "CUSTOMER",
+          "groupName": "All"
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Iterate over all customers",
+          "layoutX": 309,
+          "layoutY": 106
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "38d08ab1-fc36-11f0-9979-9f3434877bb4"
+        },
+        "createdTime": 1769597026011,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "863ed1e0-fbbd-11f0-9979-9f3434877bb4"
+        },
+        "type": "org.thingsboard.rule.engine.metadata.TbGetAttributesNode",
+        "name": "Get Project Attributes",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "tellFailureIfAbsent": true,
+          "fetchTo": "METADATA",
+          "clientAttributeNames": [],
+          "sharedAttributeNames": [],
+          "serverAttributeNames": [
+            "latitude",
+            "longitude",
+            "progress"
+          ],
+          "latestTsKeyNames": [],
+          "getLatestValueWithTs": false
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Fetch latitude, longitude, progress from Project",
+          "layoutX": 626,
+          "layoutY": 202
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "38d0b1c0-fc36-11f0-9979-9f3434877bb4"
+        },
+        "createdTime": 1769597026012,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "863ed1e0-fbbd-11f0-9979-9f3434877bb4"
+        },
+        "type": "org.thingsboard.rule.engine.filter.TbJsSwitchNode",
+        "name": "Check Active",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return ['other'];",
+          "tbelScript": "if (metadata.ss_progress == 'active') {\n    return ['active'];\n} else {\n    return ['inactive'];\n}"
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Only proceed if project is active",
+          "layoutX": 937,
+          "layoutY": 202
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "38d0b1c1-fc36-11f0-9979-9f3434877bb4"
+        },
+        "createdTime": 1769597026012,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "863ed1e0-fbbd-11f0-9979-9f3434877bb4"
+        },
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "Open-Meteo API",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 1771015485041
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 3,
+        "configuration": {
+          "restEndpointUrlPattern": "https://customer-api.open-meteo.com/v1/forecast?latitude=${ss_latitude}&longitude=${ss_longitude}&current=temperature_2m,relative_humidity_2m,precipitation,shortwave_radiation&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1&apikey=${openMeteoApiKey}",
+          "requestMethod": "GET",
+          "useSimpleClientHttpFactory": false,
+          "parseToPlainText": false,
+          "ignoreRequestBody": true,
+          "enableProxy": false,
+          "readTimeoutMs": 5000,
+          "maxParallelRequestsCount": 32,
+          "headers": {},
+          "credentials": {
+            "type": "anonymous"
+          },
+          "maxInMemoryBufferSizeInKb": 256
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Call Open-Meteo Commercial API",
+          "layoutX": 942,
+          "layoutY": 309
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "38d0b1c2-fc36-11f0-9979-9f3434877bb4"
+        },
+        "createdTime": 1769597026012,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "863ed1e0-fbbd-11f0-9979-9f3434877bb4"
+        },
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Transform Weather Data",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 1771015485041
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return {msg: msg, metadata: metadata, msgType: msgType};",
+          "tbelScript": "// Round to last full hour (UTC-based, no timezone/DST issues)\nvar now = new Date().getTime();\nvar hourMs = 3600000;\nvar ts = Math.floor(now / hourMs) * hourMs;\n\nvar newMsg = {\n    \"ts\": ts,\n    \"values\": {\n        \"outsideTemp\": msg.current.temperature_2m,\n        \"outsideMaxTemp\": msg.daily.temperature_2m_max[0],\n        \"outsideMinTemp\": msg.daily.temperature_2m_min[0],\n        \"outsideHumidity\": msg.current.relative_humidity_2m,\n        \"solarRadiation\": msg.current.shortwave_radiation,\n        \"precipitation\": msg.current.precipitation\n    }\n};\n\nreturn {msg: newMsg, metadata: metadata, msgType: \"POST_TELEMETRY_REQUEST\"};"
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Transform Open-Meteo response to telemetry format",
+          "layoutX": 942,
+          "layoutY": 402
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "38d0b1c3-fc36-11f0-9979-9f3434877bb4"
+        },
+        "createdTime": 1769597026012,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "863ed1e0-fbbd-11f0-9979-9f3434877bb4"
+        },
+        "type": "org.thingsboard.rule.engine.telemetry.TbMsgTimeseriesNode",
+        "name": "Save Telemetry",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 1769600840500
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "defaultTTL": 0,
+          "useServerTs": false,
+          "processingSettings": {
+            "type": "ON_EVERY_MESSAGE"
+          }
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Save weather data as telemetry on Project",
+          "layoutX": 942,
+          "layoutY": 505
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "38d0b1c4-fc36-11f0-9979-9f3434877bb4"
+        },
+        "createdTime": 1769597026012,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "863ed1e0-fbbd-11f0-9979-9f3434877bb4"
+        },
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "Log API Error",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return 'Error: ' + msg;",
+          "tbelScript": "return '[Open-Meteo] API call failed for ' + metadata.originatorName + ': ' + metadata.error;"
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Log when Open-Meteo API call fails",
+          "layoutX": 1200,
+          "layoutY": 309
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "38d0b1c5-fc36-11f0-9979-9f3434877bb4"
+        },
+        "createdTime": 1769597026012,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "863ed1e0-fbbd-11f0-9979-9f3434877bb4"
+        },
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "Log Missing Coordinates",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return 'Error: ' + msg;",
+          "tbelScript": "return '[Open-Meteo] Missing latitude/longitude for Project: ' + metadata.originatorName;"
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Log when Project has no coordinates",
+          "layoutX": 626,
+          "layoutY": 309
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "38d0d8d0-fc36-11f0-9979-9f3434877bb4"
+        },
+        "createdTime": 1769597026013,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "863ed1e0-fbbd-11f0-9979-9f3434877bb4"
+        },
+        "type": "org.thingsboard.rule.engine.action.TbCreateAlarmNode",
+        "name": "Create Weather API Alarm",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "alarmType": "weatherApiError",
+          "severity": "WARNING",
+          "alarmDetailsBuildJs": "return details;",
+          "alarmDetailsBuildTbel": "var details = {};\ndetails.message = 'Open-Meteo API call failed';\ndetails.project = metadata.originatorName;\ndetails.error = metadata.error;\nreturn details;",
+          "useMessageAlarmData": false,
+          "scriptLang": "TBEL",
+          "propagate": false,
+          "propagateToOwner": true,
+          "propagateToTenant": false
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Create alarm when API fails (retry happens on next scheduled run)",
+          "layoutX": 1200,
+          "layoutY": 402
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "38d0d8d1-fc36-11f0-9979-9f3434877bb4"
+        },
+        "createdTime": 1769597026013,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "863ed1e0-fbbd-11f0-9979-9f3434877bb4"
+        },
+        "type": "org.thingsboard.rule.engine.transform.TbDuplicateMsgToGroupByNameNode",
+        "name": "Duplicate to Projects",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "searchEntityGroupForTenantOnly": false,
+          "considerMessageOriginatorAsAGroupOwner": true,
+          "groupType": "ASSET",
+          "groupName": "Projects"
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 306,
+          "layoutY": 196
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "38d0ffe0-fc36-11f0-9979-9f3434877bb4"
+        },
+        "createdTime": 1769597026014,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "863ed1e0-fbbd-11f0-9979-9f3434877bb4"
+        },
+        "type": "org.thingsboard.rule.engine.deduplication.TbMsgDeduplicationNode",
+        "name": "Deduplication",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "interval": 60,
+          "strategy": "FIRST",
+          "outMsgType": null,
+          "maxPendingMsgs": 100,
+          "maxRetries": 3
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 311,
+          "layoutY": 290
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "a870d9c0-0914-11f1-96e2-33b9bcf3ddd0"
+        },
+        "createdTime": 1771011975516,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "863ed1e0-fbbd-11f0-9979-9f3434877bb4"
+        },
+        "type": "org.thingsboard.rule.engine.debug.TbMsgGeneratorNode",
+        "name": "test",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1771015575513
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 2,
+        "configuration": {
+          "msgCount": 3,
+          "periodInSeconds": 1,
+          "scriptLang": "TBEL",
+          "jsScript": "var msg = { temp: 42, humidity: 77 };\nvar metadata = { data: 40 };\nvar msgType = \"POST_TELEMETRY_REQUEST\";\n\nreturn { msg: msg, metadata: metadata, msgType: msgType };",
+          "tbelScript": "var msg = {};\nvar metadata = {};\nvar msgType = \"POST_ATTRIBUTES_REQUEST\";\n\nreturn { msg: msg, metadata: metadata, msgType: msgType };",
+          "originatorId": null,
+          "originatorType": "RULE_NODE"
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 35,
+          "layoutY": 245
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "910827b0-0915-11f1-96e2-33b9bcf3ddd0"
+        },
+        "createdTime": 1771012365739,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "863ed1e0-fbbd-11f0-9979-9f3434877bb4"
+        },
+        "type": "org.thingsboard.rule.engine.metadata.TbGetTenantAttributeNode",
+        "name": "Get Tenant API Key",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "dataToFetch": "ATTRIBUTES",
+          "dataMapping": {
+            "openMeteoApiKey": "openMeteoApiKey"
+          },
+          "fetchTo": "METADATA"
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Fetch Open-Meteo Commercial API key from tenant attributes",
+          "layoutX": 940,
+          "layoutY": 255
+        }
+      }
+    ],
+    "connections": [
+      {
+        "fromIndex": 0,
+        "toIndex": 9,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 1,
+        "toIndex": 2,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 1,
+        "toIndex": 7,
+        "type": "Failure"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 12,
+        "type": "active"
+      },
+      {
+        "fromIndex": 3,
+        "toIndex": 4,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 3,
+        "toIndex": 6,
+        "type": "Failure"
+      },
+      {
+        "fromIndex": 4,
+        "toIndex": 5,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 6,
+        "toIndex": 8,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 9,
+        "toIndex": 10,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 10,
+        "toIndex": 1,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 11,
+        "toIndex": 0,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 12,
+        "toIndex": 3,
+        "type": "Success"
+      }
+    ],
+    "ruleChainConnections": null
+  }
+}

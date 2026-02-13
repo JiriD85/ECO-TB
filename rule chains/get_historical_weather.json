@@ -1,0 +1,422 @@
+{
+  "ruleChain": {
+    "name": "Get Historical Weather",
+    "type": "CORE",
+    "firstRuleNodeId": {
+      "entityType": "RULE_NODE",
+      "id": "50a49e30-fc34-11f0-9fc4-33b9bcf3ddd0"
+    },
+    "root": false,
+    "debugMode": false,
+    "configuration": null,
+    "additionalInfo": {
+      "description": "Fetches historical weather data from Open-Meteo Commercial Archive API to fill gaps. Triggered by setting fetch_history_from and fetch_history_to shared attributes on a Project."
+    }
+  },
+  "metadata": {
+    "ruleChainId": {
+      "entityType": "RULE_CHAIN",
+      "id": "774a5500-fbc3-11f0-9979-9f3434877bb4"
+    },
+    "version": 22,
+    "firstNodeIndex": 0,
+    "nodes": [
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "50a49e30-fc34-11f0-9fc4-33b9bcf3ddd0"
+        },
+        "createdTime": 1769596206995,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "774a5500-fbc3-11f0-9979-9f3434877bb4"
+        },
+        "type": "org.thingsboard.rule.engine.metadata.TbGetAttributesNode",
+        "name": "Get Project Attributes",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "tellFailureIfAbsent": true,
+          "fetchTo": "METADATA",
+          "clientAttributeNames": [],
+          "sharedAttributeNames": [],
+          "serverAttributeNames": [
+            "latitude",
+            "longitude",
+            "fetch_history_from",
+            "fetch_history_to"
+          ],
+          "latestTsKeyNames": [],
+          "getLatestValueWithTs": false
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Fetch coordinates and date range from Project",
+          "layoutX": 110,
+          "layoutY": 282
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "50a49e31-fc34-11f0-9fc4-33b9bcf3ddd0"
+        },
+        "createdTime": 1769596206995,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "774a5500-fbc3-11f0-9979-9f3434877bb4"
+        },
+        "type": "org.thingsboard.rule.engine.filter.TbJsFilterNode",
+        "name": "Validate Input",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return true;",
+          "tbelScript": "var hasCoords = metadata.ss_latitude != null && metadata.ss_longitude != null;\nvar hasDates = metadata.ss_fetch_history_from != null && metadata.ss_fetch_history_to != null;\nreturn hasCoords && hasDates;"
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Check that coordinates and date range are present",
+          "layoutX": 373,
+          "layoutY": 151
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "50a49e32-fc34-11f0-9fc4-33b9bcf3ddd0"
+        },
+        "createdTime": 1769596206995,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "774a5500-fbc3-11f0-9979-9f3434877bb4"
+        },
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Split into 7-day Chunks",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 1769599877140
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return {msg: msg, metadata: metadata, msgType: msgType};",
+          "tbelScript": "var fromTs = parseLong(metadata.ss_fetch_history_from);\nvar toTs = parseLong(metadata.ss_fetch_history_to);\nvar dayMs = 86400000;\nvar maxDays = 7;\n\nvar result = [];\nvar chunkStart = fromTs;\n\nwhile (chunkStart <= toTs) {\n    var chunkEnd = chunkStart + (maxDays - 1) * dayMs;\n    if (chunkEnd > toTs) {\n        chunkEnd = toTs;\n    }\n    \n    var m = {};\n    m.ss_latitude = metadata.ss_latitude;\n    m.ss_longitude = metadata.ss_longitude;\n    m.ss_fetch_history_from = '' + chunkStart;\n    m.ss_fetch_history_to = '' + chunkEnd;\n    m.originatorName = metadata.originatorName;\n    m.originatorType = metadata.originatorType;\n    m.tenantId = metadata.tenantId;\n    \n    result.add({msg: {}, metadata: m, msgType: msgType});\n    \n    chunkStart = chunkEnd + dayMs;\n}\n\nreturn result;"
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Split date range into max 7-day chunks, returns multiple messages",
+          "layoutX": 476,
+          "layoutY": 329
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "50a49e33-fc34-11f0-9fc4-33b9bcf3ddd0"
+        },
+        "createdTime": 1769596206995,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "774a5500-fbc3-11f0-9979-9f3434877bb4"
+        },
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Convert Timestamps to Dates",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 1769599882388
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return {msg: msg, metadata: metadata, msgType: msgType};",
+          "tbelScript": "var fromVal = metadata.ss_fetch_history_from;\nvar toVal = metadata.ss_fetch_history_to;\n\n// Convert timestamp (ms) to YYYY-MM-DD\n// TBEL getMonth() returns 1-12\nvar d1 = new Date(parseLong(fromVal));\nvar m1 = d1.getMonth();\nvar day1 = d1.getDate();\nmetadata.ss_fetch_history_from = d1.getFullYear() + '-' + (m1 < 10 ? '0' + m1 : m1) + '-' + (day1 < 10 ? '0' + day1 : day1);\n\nvar d2 = new Date(parseLong(toVal));\nvar m2 = d2.getMonth();\nvar day2 = d2.getDate();\nmetadata.ss_fetch_history_to = d2.getFullYear() + '-' + (m2 < 10 ? '0' + m2 : m2) + '-' + (day2 < 10 ? '0' + day2 : day2);\n\nreturn {msg: msg, metadata: metadata, msgType: msgType};"
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Convert chunk timestamps to YYYY-MM-DD for API",
+          "layoutX": 479,
+          "layoutY": 420
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "50a49e34-fc34-11f0-9fc4-33b9bcf3ddd0"
+        },
+        "createdTime": 1769596206995,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "774a5500-fbc3-11f0-9979-9f3434877bb4"
+        },
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "Open-Meteo Archive API",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 1769599892651
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 3,
+        "configuration": {
+          "restEndpointUrlPattern": "https://customer-archive-api.open-meteo.com/v1/archive?latitude=${ss_latitude}&longitude=${ss_longitude}&start_date=${ss_fetch_history_from}&end_date=${ss_fetch_history_to}&hourly=temperature_2m,relative_humidity_2m,precipitation,shortwave_radiation&daily=temperature_2m_max,temperature_2m_min&timezone=auto&apikey=${openMeteoApiKey}",
+          "requestMethod": "GET",
+          "useSimpleClientHttpFactory": false,
+          "parseToPlainText": false,
+          "ignoreRequestBody": true,
+          "enableProxy": false,
+          "readTimeoutMs": 30000,
+          "maxParallelRequestsCount": 8,
+          "headers": {},
+          "credentials": {
+            "type": "anonymous"
+          },
+          "maxInMemoryBufferSizeInKb": 1024
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Call Open-Meteo Commercial Archive API for historical hourly + daily data",
+          "layoutX": 717,
+          "layoutY": 357
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "50a4c540-fc34-11f0-9fc4-33b9bcf3ddd0"
+        },
+        "createdTime": 1769596206996,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "774a5500-fbc3-11f0-9979-9f3434877bb4"
+        },
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Transform to Telemetry Array",
+        "debugSettings": {
+          "failuresEnabled": true,
+          "allEnabled": false,
+          "allEnabledUntil": 1769599892651
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return {msg: msg, metadata: metadata, msgType: msgType};",
+          "tbelScript": "var hourly = msg.hourly;\nvar times = hourly.time;\nvar temps = hourly.temperature_2m;\nvar humidity = hourly.relative_humidity_2m;\nvar precip = hourly.precipitation;\nvar solar = hourly.shortwave_radiation;\n\n// Build daily max/min lookup (date string -> values)\nvar dailyTimes = msg.daily.time;\nvar dailyMax = msg.daily.temperature_2m_max;\nvar dailyMin = msg.daily.temperature_2m_min;\nvar dailyMap = {};\nfor (var d = 0; d < dailyTimes.length; d++) {\n    dailyMap[dailyTimes[d]] = {\"max\": dailyMax[d], \"min\": dailyMin[d]};\n}\n\nvar telemetryArray = [];\n\nfor (var i = 0; i < times.length; i++) {\n    var ts = parseLong(new Date(times[i]).getTime());\n    var values = {\n        \"outsideTemp\": temps[i],\n        \"outsideHumidity\": humidity[i],\n        \"solarRadiation\": solar[i],\n        \"precipitation\": precip[i]\n    };\n    // Add daily max/min at midnight (first hour of each day)\n    var dateStr = times[i].substring(0, 10);\n    if (times[i].endsWith(\"T00:00\") && dailyMap[dateStr] != null) {\n        values.outsideMaxTemp = dailyMap[dateStr].max;\n        values.outsideMinTemp = dailyMap[dateStr].min;\n    }\n    telemetryArray.push({\"ts\": ts, \"values\": values});\n}\n\nreturn {msg: telemetryArray, metadata: metadata, msgType: \"POST_TELEMETRY_REQUEST\"};"
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Transform hourly arrays to telemetry array with timestamps",
+          "layoutX": 990,
+          "layoutY": 363
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "50a4c541-fc34-11f0-9fc4-33b9bcf3ddd0"
+        },
+        "createdTime": 1769596206996,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "774a5500-fbc3-11f0-9979-9f3434877bb4"
+        },
+        "type": "org.thingsboard.rule.engine.telemetry.TbMsgTimeseriesNode",
+        "name": "Save Historical Telemetry",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "defaultTTL": 0,
+          "useServerTs": false,
+          "processingSettings": {
+            "type": "ON_EVERY_MESSAGE"
+          }
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Save historical data with original timestamps",
+          "layoutX": 989,
+          "layoutY": 444
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "50a4c542-fc34-11f0-9fc4-33b9bcf3ddd0"
+        },
+        "createdTime": 1769596206996,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "774a5500-fbc3-11f0-9979-9f3434877bb4"
+        },
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "Log Success",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return 'Success';",
+          "tbelScript": "return '[Historical Weather] Fetched chunk for ' + metadata.originatorName + ' from ' + metadata.ss_fetch_history_from + ' to ' + metadata.ss_fetch_history_to;"
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Log successful chunk fetch",
+          "layoutX": 992,
+          "layoutY": 539
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "50a4c543-fc34-11f0-9fc4-33b9bcf3ddd0"
+        },
+        "createdTime": 1769596206996,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "774a5500-fbc3-11f0-9979-9f3434877bb4"
+        },
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "Log Missing Data",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return 'Error';",
+          "tbelScript": "return '[Historical Weather] Missing coordinates or date range for ' + metadata.originatorName;"
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Log when validation fails",
+          "layoutX": 213,
+          "layoutY": 466
+        }
+      },
+      {
+        "id": {
+          "entityType": "RULE_NODE",
+          "id": "50a4c544-fc34-11f0-9fc4-33b9bcf3ddd0"
+        },
+        "createdTime": 1769596206996,
+        "ruleChainId": {
+          "entityType": "RULE_CHAIN",
+          "id": "774a5500-fbc3-11f0-9979-9f3434877bb4"
+        },
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "Log API Error",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return 'Error';",
+          "tbelScript": "return '[Historical Weather] Archive API failed for ' + metadata.originatorName + ': ' + metadata.error;"
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Log when Archive API call fails",
+          "layoutX": 713,
+          "layoutY": 526
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.metadata.TbGetTenantAttributeNode",
+        "name": "Get Tenant API Key",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "dataToFetch": "ATTRIBUTES",
+          "dataMapping": {
+            "openMeteoApiKey": "openMeteoApiKey"
+          },
+          "fetchTo": "METADATA"
+        },
+        "externalId": null,
+        "additionalInfo": {
+          "description": "Fetch Open-Meteo Commercial API key from tenant attributes",
+          "layoutX": 600,
+          "layoutY": 420
+        }
+      }
+    ],
+    "connections": [
+      {
+        "fromIndex": 0,
+        "toIndex": 1,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 0,
+        "toIndex": 8,
+        "type": "Failure"
+      },
+      {
+        "fromIndex": 1,
+        "toIndex": 2,
+        "type": "True"
+      },
+      {
+        "fromIndex": 1,
+        "toIndex": 8,
+        "type": "False"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 3,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 3,
+        "toIndex": 10,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 10,
+        "toIndex": 4,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 4,
+        "toIndex": 5,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 4,
+        "toIndex": 9,
+        "type": "Failure"
+      },
+      {
+        "fromIndex": 5,
+        "toIndex": 6,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 6,
+        "toIndex": 7,
+        "type": "Success"
+      }
+    ],
+    "ruleChainConnections": null
+  }
+}
