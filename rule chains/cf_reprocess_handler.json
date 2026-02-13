@@ -18,7 +18,7 @@
       "entityType": "RULE_CHAIN",
       "id": "1df62e50-0386-11f1-9b0a-33b9bcf3ddd0"
     },
-    "version": 90,
+    "version": 107,
     "firstNodeIndex": 0,
     "nodes": [
       {
@@ -68,7 +68,7 @@
         "debugSettings": {
           "failuresEnabled": false,
           "allEnabled": false,
-          "allEnabledUntil": 1770316351625
+          "allEnabledUntil": 1770902398519
         },
         "singletonMode": false,
         "queueName": null,
@@ -81,8 +81,8 @@
         "externalId": null,
         "additionalInfo": {
           "description": "Extract reprocess params and prepare login",
-          "layoutX": 283,
-          "layoutY": 292
+          "layoutX": 347,
+          "layoutY": 378
         }
       },
       {
@@ -143,7 +143,7 @@
         "debugSettings": {
           "failuresEnabled": true,
           "allEnabled": false,
-          "allEnabledUntil": 1770575264303
+          "allEnabledUntil": 1770902398519
         },
         "singletonMode": false,
         "queueName": null,
@@ -151,13 +151,13 @@
         "configuration": {
           "scriptLang": "TBEL",
           "jsScript": "",
-          "tbelScript": "metadata.jwtToken = msg.token;\n\nvar entityIdObj = { entityType: 'ASSET', id: metadata.assetId };\nvar outputObj = { name: '', type: 'TIME_SERIES' };\nvar args = {};\nvar expression = '';\n\nif (metadata.cfType == 'basic') {\n    args['Vdot_m3h'] = { refEntityKey: { key: 'Vdot_m3h', type: 'TS_LATEST' }, defaultValue: '' };\n    args['P_th_kW'] = { refEntityKey: { key: 'P_th_kW', type: 'TS_LATEST' }, defaultValue: '' };\n    args['T_flow_C'] = { refEntityKey: { key: 'T_flow_C', type: 'TS_LATEST' }, defaultValue: '' };\n    args['T_return_C'] = { refEntityKey: { key: 'T_return_C', type: 'TS_LATEST' }, defaultValue: '' };\n    args['flowOnThreshold'] = { refEntityKey: { key: 'flowOnThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '0.05' };\n    args['designPower'] = { refEntityKey: { key: 'designPower', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '' };\n    args['designDeltaT'] = { refEntityKey: { key: 'designDeltaT', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '' };\n    expression = 'var vdot = Vdot_m3h; var pth = P_th_kW; var tFlow = T_flow_C; var tReturn = T_return_C; if (vdot == null) { return {}; } var dt = null; if (tFlow != null && tReturn != null) { dt = tFlow - tReturn; } var threshold = flowOnThreshold; if (threshold == null) { threshold = 0.1; } var result = {}; if (vdot > threshold) { result[\"is_on\"] = true; } else { result[\"is_on\"] = false; } if (dt != null) { result[\"dT_K\"] = Math.round(dt * 100) / 100; } if (pth != null && designPower != null && designPower > 0) { var loadPct = (pth / designPower) * 100; if (loadPct < 30) { result[\"load_class\"] = \"low\"; } else if (loadPct < 60) { result[\"load_class\"] = \"mid\"; } else { result[\"load_class\"] = \"high\"; } } if (dt != null && designDeltaT != null && designDeltaT > 0 && result[\"load_class\"] != null) { var dTRatio = dt / designDeltaT; if (result[\"load_class\"] == \"low\") { if (dTRatio >= 0.3) { result[\"dT_flag\"] = \"ok\"; } else { result[\"dT_flag\"] = \"warn\"; } } else { if (dTRatio >= 0.5) { result[\"dT_flag\"] = \"ok\"; } else { result[\"dT_flag\"] = \"warn\"; } } } result[\"data_quality\"] = \"ok\"; return result;';\n} else if (metadata.cfType == 'power') {\n    args['Vdot_m3h'] = { refEntityKey: { key: 'Vdot_m3h', type: 'TS_LATEST' }, defaultValue: '' };\n    args['P_th_kW'] = { refEntityKey: { key: 'P_th_kW', type: 'TS_LATEST' }, defaultValue: '' };\n    args['T_flow_C'] = { refEntityKey: { key: 'T_flow_C', type: 'TS_LATEST' }, defaultValue: '' };\n    args['T_return_C'] = { refEntityKey: { key: 'T_return_C', type: 'TS_LATEST' }, defaultValue: '' };\n    args['calculatePower'] = { refEntityKey: { key: 'calculatePower', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: 'false' };\n    args['fluidType'] = { refEntityKey: { key: 'fluidType', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: 'water' };\n    expression = 'var vdot = Vdot_m3h; var tFlow = T_flow_C; var tReturn = T_return_C; var pth = P_th_kW; if (calculatePower != true || vdot == null || tFlow == null || tReturn == null) { return {}; } var dt = tFlow - tReturn; var result = {}; var cp = 4.18; var rho = 998; if (fluidType == \"glycol20\") { cp = 3.95; rho = 1032; } else if (fluidType == \"glycol30\") { cp = 3.74; rho = 1045; } else if (fluidType == \"glycol40\") { cp = 3.55; rho = 1058; } var P_calc = rho * cp * vdot * dt / 3600; result[\"P_th_calc_kW\"] = P_calc; if (pth != null && P_calc > 0.1) { var deviation = ((pth - P_calc) / P_calc) * 100; result[\"P_deviation_pct\"] = deviation; var absDeviation = deviation; if (deviation < 0) { absDeviation = -deviation; } if (absDeviation < 10) { result[\"P_sensor_flag\"] = \"ok\"; } else if (absDeviation < 25) { result[\"P_sensor_flag\"] = \"warn\"; } else { result[\"P_sensor_flag\"] = \"error\"; } } return result;';\n} else if (metadata.cfType == 'schedule') {\n    args['Vdot_m3h'] = { refEntityKey: { key: 'Vdot_m3h', type: 'TS_LATEST' }, defaultValue: '' };\n    args['flowOnThreshold'] = { refEntityKey: { key: 'flowOnThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '0.05' };\n    args['weeklySchedule'] = { refEntityKey: { key: 'weeklySchedule', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: 'null' };\n    expression = 'var vdot = Vdot_m3h; if (vdot == null) { return {}; } var threshold = flowOnThreshold; if (threshold == null) { threshold = 0.1; } var isOn = (vdot > threshold); if (weeklySchedule == null || weeklySchedule == \"\") { return {}; } var schedule = isMap(weeklySchedule) ? weeklySchedule : JSON.parse(weeklySchedule); if (schedule == null) { return {}; } var tzOffset = 60; if (schedule[\"timezoneOffset\"] != null) { tzOffset = toInt(schedule[\"timezoneOffset\"]); } var ts = ctx.latestTs; var msPerDay = 86400000; var localTs = ts + tzOffset * 60000; var dayIndex = (toInt(localTs / msPerDay) + 4) % 7; var dayNames = [\"sunday\", \"monday\", \"tuesday\", \"wednesday\", \"thursday\", \"friday\", \"saturday\"]; var dayName = dayNames[dayIndex]; var msInDay = localTs % msPerDay; var currentMinutes = toInt(msInDay / 60000); var isWithinSchedule = false; var todayValue = schedule[dayName]; if (todayValue != null) { var todayStr = \"\" + todayValue; if (todayStr == \"true\") { isWithinSchedule = true; } else if (todayStr != \"false\") { var enabled = todayValue[\"enabled\"]; if ((\"\" + enabled) == \"true\") { var startStr = todayValue[\"start\"]; var endStr = todayValue[\"end\"]; if (startStr != null && endStr != null) { var startH = toInt(parseLong(startStr.substring(0, 2))); var startM = toInt(parseLong(startStr.substring(3, 5))); var startMinutes = startH * 60 + startM; var endH = toInt(parseLong(endStr.substring(0, 2))); var endM = toInt(parseLong(endStr.substring(3, 5))); var endMinutes = endH * 60 + endM; if (currentMinutes >= startMinutes && currentMinutes <= endMinutes) { isWithinSchedule = true; } } else { isWithinSchedule = true; } } } } var scheduleViolation = false; if (isOn == true && !isWithinSchedule) { scheduleViolation = true; } return { \"schedule_violation\": scheduleViolation };';\n} else if (metadata.cfType == 'oscillation') {\n    args['P_th_kW'] = { refEntityKey: { key: 'P_th_kW', type: 'TS_ROLLING' }, limit: 60, timeWindow: 900000 };\n    args['Vdot_m3h'] = { refEntityKey: { key: 'Vdot_m3h', type: 'TS_ROLLING' }, limit: 60, timeWindow: 900000 };\n    args['flowOnThreshold'] = { refEntityKey: { key: 'flowOnThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '0.05' };\n    args['oscillationThreshold'] = { refEntityKey: { key: 'oscillationThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '8' };\n    expression = 'var countPower = P_th_kW.count(); if (countPower < 10) { return {}; } var flowThreshold = flowOnThreshold; if (flowThreshold == null) { flowThreshold = 0.1; } var onCount = 0; foreach(v: Vdot_m3h) { if (v.value > flowThreshold) { onCount = onCount + 1; } } var runtimePct = (onCount / Vdot_m3h.count()) * 100; if (runtimePct < 80) { return {}; } var avgPower = P_th_kW.mean(); if (avgPower < 1.0) { return {}; } var threshold = oscillationThreshold; if (threshold == null) { threshold = 8; } var directionChanges = 0; var prevValue = null; var prevDirection = null; foreach(v: P_th_kW) { if (prevValue != null) { var diff = v.value - prevValue; var currentDirection = 0; if (diff > 0.1) { currentDirection = 1; } else if (diff < -0.1) { currentDirection = -1; } if (prevDirection != null && currentDirection != 0 && prevDirection != currentDirection) { directionChanges = directionChanges + 1; } if (currentDirection != 0) { prevDirection = currentDirection; } } prevValue = v.value; } var oscillationFlag = false; if (directionChanges > threshold) { oscillationFlag = true; } return { \"oscillation_count\": directionChanges, \"oscillation_flag\": oscillationFlag };';\n} else if (metadata.cfType == 'dt_collapse') {\n    args['T_flow_C'] = { refEntityKey: { key: 'T_flow_C', type: 'TS_ROLLING' }, limit: 100, timeWindow: 900000 };\n    args['T_return_C'] = { refEntityKey: { key: 'T_return_C', type: 'TS_ROLLING' }, limit: 100, timeWindow: 900000 };\n    args['collapseThreshold'] = { refEntityKey: { key: 'collapseThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '0.5' };\n    expression = 'var countFlow = T_flow_C.count(); var countReturn = T_return_C.count(); if (countFlow < 3 || countReturn < 3) { return {}; } var currentDT = T_flow_C.last() - T_return_C.last(); var sumDT = 0; var dtCount = 0; var minCount = countFlow < countReturn ? countFlow : countReturn; foreach(v: T_flow_C) { var idx = dtCount; if (idx < countReturn) { sumDT = sumDT + (v.value - T_return_C.last()); dtCount = dtCount + 1; } } var avgDT = currentDT; if (dtCount > 0) { avgDT = (T_flow_C.mean() - T_return_C.mean()); } if (avgDT == 0) { return {}; } var threshold = collapseThreshold; if (threshold == null) { threshold = 0.5; } var collapsed = false; if (currentDT < avgDT * threshold) { collapsed = true; } return { \"dT_collapse_flag\": collapsed };';\n} else if (metadata.cfType == 'flow_spike') {\n    args['Vdot_m3h'] = { refEntityKey: { key: 'Vdot_m3h', type: 'TS_ROLLING' }, limit: 50, timeWindow: 300000 };\n    args['spikeThreshold'] = { refEntityKey: { key: 'spikeThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '2.0' };\n    expression = 'var currentFlow = Vdot_m3h.last(); var avgFlow = Vdot_m3h.mean(); var countFlow = Vdot_m3h.count(); if (countFlow < 3 || avgFlow == 0) { return {}; } var threshold = spikeThreshold; if (threshold == null) { threshold = 2.0; } var spiked = false; if (currentFlow > avgFlow * threshold) { spiked = true; } return { \"flow_spike_flag\": spiked };';\n} else if (metadata.cfType == 'power_stability') {\n    args['P_th_kW'] = { refEntityKey: { key: 'P_th_kW', type: 'TS_ROLLING' }, limit: 50, timeWindow: 900000 };\n    args['Vdot_m3h'] = { refEntityKey: { key: 'Vdot_m3h', type: 'TS_ROLLING' }, limit: 50, timeWindow: 900000 };\n    args['flowOnThreshold'] = { refEntityKey: { key: 'flowOnThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '0.05' };\n    args['stabilityThreshold'] = { refEntityKey: { key: 'stabilityThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '0.5' };\n    expression = 'var avgPower = P_th_kW.mean(); var stdPower = P_th_kW.std(); var countPower = P_th_kW.count(); if (countPower < 5) { return {}; } if (avgPower < 1.0) { return {}; } var flowThreshold = flowOnThreshold; if (flowThreshold == null) { flowThreshold = 0.1; } var onCount = 0; foreach(v: Vdot_m3h) { if (v.value > flowThreshold) { onCount = onCount + 1; } } var runtimePct = (onCount / Vdot_m3h.count()) * 100; if (runtimePct < 80) { return {}; } var threshold = stabilityThreshold; if (threshold == null) { threshold = 0.5; } var stability = stdPower / avgPower; var isUnstable = false; if (stability > threshold) { isUnstable = true; } return { \"power_stability\": Math.round(stability * 1000) / 1000, \"power_unstable_flag\": isUnstable };';\n} else if (metadata.cfType == 'runtime_pct') {\n    args['Vdot_m3h'] = { refEntityKey: { key: 'Vdot_m3h', type: 'TS_ROLLING' }, limit: 200, timeWindow: 3600000 };\n    args['flowOnThreshold'] = { refEntityKey: { key: 'flowOnThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '0.05' };\n    expression = 'var countAll = Vdot_m3h.count(); if (countAll < 2) { return {}; } var flowThreshold = flowOnThreshold; if (flowThreshold == null) { flowThreshold = 0.1; } var onCount = 0; foreach(v: Vdot_m3h) { if (v.value > flowThreshold) { onCount = onCount + 1; } } var runtimePct = (onCount / countAll) * 100; return { \"runtime_pct\": Math.round(runtimePct * 10) / 10 };';\n} else if (metadata.cfType == 'cycling') {\n    args['Vdot_m3h'] = { refEntityKey: { key: 'Vdot_m3h', type: 'TS_ROLLING' }, limit: 200, timeWindow: 1800000 };\n    args['flowOnThreshold'] = { refEntityKey: { key: 'flowOnThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '0.05' };\n    args['cyclingThreshold'] = { refEntityKey: { key: 'cyclingThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '5' };\n    expression = 'var countAll = Vdot_m3h.count(); if (countAll < 3) { return {}; } var flowThreshold = flowOnThreshold; if (flowThreshold == null) { flowThreshold = 0.1; } var threshold = cyclingThreshold; if (threshold == null) { threshold = 6; } var transitions = 0; var prevIsOn = null; foreach(v: Vdot_m3h) { var isOn = (v.value > flowThreshold); if (prevIsOn != null && prevIsOn != isOn) { transitions = transitions + 1; } prevIsOn = isOn; } var isCycling = false; if (transitions > threshold) { isCycling = true; } return { \"cycling_flag\": isCycling, \"cycle_count\": transitions };';\n} else {\n    return { msg: {}, metadata: metadata, msgType: msgType };\n}\n\nvar configInner = { type: 'SCRIPT', arguments: args, expression: expression, output: outputObj };\nvar cfDef = { entityId: entityIdObj, type: 'SCRIPT', name: metadata.cfName, configurationVersion: 0, configuration: configInner };\nreturn { msg: cfDef, metadata: metadata, msgType: msgType };"
+          "tbelScript": "metadata.jwtToken = msg.token;\n\nvar entityIdObj = { entityType: 'ASSET', id: metadata.assetId };\nvar outputObj = { name: '', type: 'TIME_SERIES' };\nvar args = {};\nvar expression = '';\n\nif (metadata.cfType == 'basic') {\n    args['Vdot_m3h'] = { refEntityKey: { key: 'Vdot_m3h', type: 'TS_LATEST' }, defaultValue: '' };\n    args['P_th_kW'] = { refEntityKey: { key: 'P_th_kW', type: 'TS_LATEST' }, defaultValue: '' };\n    args['T_flow_C'] = { refEntityKey: { key: 'T_flow_C', type: 'TS_LATEST' }, defaultValue: '' };\n    args['T_return_C'] = { refEntityKey: { key: 'T_return_C', type: 'TS_LATEST' }, defaultValue: '' };\n    args['flowOnThreshold'] = { refEntityKey: { key: 'flowOnThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '0.05' };\n    args['designPower'] = { refEntityKey: { key: 'designPower', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '' };\n    args['designDeltaT'] = { refEntityKey: { key: 'designDeltaT', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '' };\n    expression = 'var vdot = Vdot_m3h; var pth = P_th_kW; var tFlow = T_flow_C; var tReturn = T_return_C; if (vdot == null) { return {}; } var dt = null; if (tFlow != null && tReturn != null) { dt = tFlow - tReturn; } var threshold = flowOnThreshold; if (threshold == null) { threshold = 0.1; } var result = {}; if (vdot > threshold) { result[\"is_on\"] = true; } else { result[\"is_on\"] = false; } if (dt != null) { result[\"dT_K\"] = Math.round(dt * 100) / 100; } if (pth != null && designPower != null && designPower > 0) { var loadPct = (pth / designPower) * 100; if (loadPct < 30) { result[\"load_class\"] = \"low\"; } else if (loadPct < 60) { result[\"load_class\"] = \"mid\"; } else { result[\"load_class\"] = \"high\"; } } if (dt != null && designDeltaT != null && designDeltaT > 0 && result[\"load_class\"] != null) { var dTRatio = dt / designDeltaT; if (result[\"load_class\"] == \"low\") { if (dTRatio >= 0.3) { result[\"dT_flag\"] = \"ok\"; } else { result[\"dT_flag\"] = \"warn\"; } } else { if (dTRatio >= 0.5) { result[\"dT_flag\"] = \"ok\"; } else { result[\"dT_flag\"] = \"warn\"; } } } result[\"data_quality\"] = \"ok\"; return result;';\n} else if (metadata.cfType == 'power') {\n    args['Vdot_m3h'] = { refEntityKey: { key: 'Vdot_m3h', type: 'TS_LATEST' }, defaultValue: '' };\n    args['P_th_measured_kW'] = { refEntityKey: { key: 'P_th_measured_kW', type: 'TS_LATEST' }, defaultValue: '' };\n    args['T_flow_C'] = { refEntityKey: { key: 'T_flow_C', type: 'TS_LATEST' }, defaultValue: '' };\n    args['T_return_C'] = { refEntityKey: { key: 'T_return_C', type: 'TS_LATEST' }, defaultValue: '' };\n    args['calculatePower'] = { refEntityKey: { key: 'calculatePower', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: 'false' };\n    args['fluidType'] = { refEntityKey: { key: 'fluidType', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: 'water' };\n    expression = 'var vdot = Vdot_m3h; var tFlow = T_flow_C; var tReturn = T_return_C; var pthMeas = P_th_measured_kW; var result = {}; if (calculatePower == true && vdot != null && tFlow != null && tReturn != null) { var dt = tFlow - tReturn; var cp = 4.18; var rho = 998; if (fluidType == \"glycol20\") { cp = 3.95; rho = 1032; } else if (fluidType == \"glycol30\") { cp = 3.74; rho = 1045; } else if (fluidType == \"glycol40\") { cp = 3.55; rho = 1058; } var P_calc = rho * cp * vdot * dt / 3600; result[\"P_th_kW\"] = Math.round(P_calc * 1000.0) / 1000.0; if (pthMeas != null && P_calc > 0.1) { var deviation = ((pthMeas - P_calc) / P_calc) * 100; result[\"P_deviation_pct\"] = Math.round(deviation * 10.0) / 10.0; var absDeviation = deviation; if (deviation < 0) { absDeviation = -deviation; } if (absDeviation < 10) { result[\"P_sensor_flag\"] = \"ok\"; } else if (absDeviation < 25) { result[\"P_sensor_flag\"] = \"warn\"; } else { result[\"P_sensor_flag\"] = \"error\"; } } } else if (pthMeas != null) { result[\"P_th_kW\"] = pthMeas; } if (result[\"P_th_kW\"] == null) { return {}; } return result;';\n} else if (metadata.cfType == 'power_prep') {\n    args['P_th_kW'] = { refEntityKey: { key: 'P_th_kW', type: 'TS_LATEST' }, defaultValue: '' };\n    expression = 'var pth = P_th_kW; if (pth == null) { return {}; } return { \"P_th_measured_kW\": pth };';\n} else if (metadata.cfType == 'schedule') {\n    args['Vdot_m3h'] = { refEntityKey: { key: 'Vdot_m3h', type: 'TS_LATEST' }, defaultValue: '' };\n    args['flowOnThreshold'] = { refEntityKey: { key: 'flowOnThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '0.05' };\n    args['weeklySchedule'] = { refEntityKey: { key: 'weeklySchedule', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: 'null' };\n    expression = 'var vdot = Vdot_m3h; if (vdot == null) { return {}; } var threshold = flowOnThreshold; if (threshold == null) { threshold = 0.1; } var isOn = (vdot > threshold); if (weeklySchedule == null || weeklySchedule == \"\") { return {}; } var schedule = isMap(weeklySchedule) ? weeklySchedule : JSON.parse(weeklySchedule); if (schedule == null) { return {}; } var tzOffset = 60; if (schedule[\"timezoneOffset\"] != null) { tzOffset = toInt(schedule[\"timezoneOffset\"]); } var ts = ctx.latestTs; var msPerDay = 86400000; var localTs = ts + tzOffset * 60000; var dayIndex = (toInt(localTs / msPerDay) + 4) % 7; var dayNames = [\"sunday\", \"monday\", \"tuesday\", \"wednesday\", \"thursday\", \"friday\", \"saturday\"]; var dayName = dayNames[dayIndex]; var msInDay = localTs % msPerDay; var currentMinutes = toInt(msInDay / 60000); var isWithinSchedule = false; var todayValue = schedule[dayName]; if (todayValue != null) { var todayStr = \"\" + todayValue; if (todayStr == \"true\") { isWithinSchedule = true; } else if (todayStr != \"false\") { var enabled = todayValue[\"enabled\"]; if ((\"\" + enabled) == \"true\") { var startStr = todayValue[\"start\"]; var endStr = todayValue[\"end\"]; if (startStr != null && endStr != null) { var startH = toInt(parseLong(startStr.substring(0, 2))); var startM = toInt(parseLong(startStr.substring(3, 5))); var startMinutes = startH * 60 + startM; var endH = toInt(parseLong(endStr.substring(0, 2))); var endM = toInt(parseLong(endStr.substring(3, 5))); var endMinutes = endH * 60 + endM; if (currentMinutes >= startMinutes && currentMinutes <= endMinutes) { isWithinSchedule = true; } } else { isWithinSchedule = true; } } } } var scheduleViolation = false; if (isOn == true && !isWithinSchedule) { scheduleViolation = true; } return { \"schedule_violation\": scheduleViolation };';\n} else if (metadata.cfType == 'oscillation') {\n    args['P_th_kW'] = { refEntityKey: { key: 'P_th_kW', type: 'TS_ROLLING' }, limit: 60, timeWindow: 900000 };\n    args['Vdot_m3h'] = { refEntityKey: { key: 'Vdot_m3h', type: 'TS_ROLLING' }, limit: 60, timeWindow: 900000 };\n    args['flowOnThreshold'] = { refEntityKey: { key: 'flowOnThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '0.05' };\n    args['oscillationThreshold'] = { refEntityKey: { key: 'oscillationThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '8' };\n    expression = 'var countPower = P_th_kW.count(); if (countPower < 10) { return {}; } var flowThreshold = flowOnThreshold; if (flowThreshold == null) { flowThreshold = 0.1; } var onCount = 0; foreach(v: Vdot_m3h) { if (v.value > flowThreshold) { onCount = onCount + 1; } } var runtimePct = (onCount / Vdot_m3h.count()) * 100; if (runtimePct < 80) { return {}; } var avgPower = P_th_kW.mean(); if (avgPower < 1.0) { return {}; } var threshold = oscillationThreshold; if (threshold == null) { threshold = 8; } var directionChanges = 0; var prevValue = null; var prevDirection = null; foreach(v: P_th_kW) { if (prevValue != null) { var diff = v.value - prevValue; var currentDirection = 0; if (diff > 0.1) { currentDirection = 1; } else if (diff < -0.1) { currentDirection = -1; } if (prevDirection != null && currentDirection != 0 && prevDirection != currentDirection) { directionChanges = directionChanges + 1; } if (currentDirection != 0) { prevDirection = currentDirection; } } prevValue = v.value; } var oscillationFlag = false; if (directionChanges > threshold) { oscillationFlag = true; } return { \"oscillation_count\": directionChanges, \"oscillation_flag\": oscillationFlag };';\n} else if (metadata.cfType == 'dt_collapse') {\n    args['T_flow_C'] = { refEntityKey: { key: 'T_flow_C', type: 'TS_ROLLING' }, limit: 100, timeWindow: 900000 };\n    args['T_return_C'] = { refEntityKey: { key: 'T_return_C', type: 'TS_ROLLING' }, limit: 100, timeWindow: 900000 };\n    args['collapseThreshold'] = { refEntityKey: { key: 'collapseThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '0.5' };\n    expression = 'var countFlow = T_flow_C.count(); var countReturn = T_return_C.count(); if (countFlow < 3 || countReturn < 3) { return {}; } var currentDT = T_flow_C.last() - T_return_C.last(); var sumDT = 0; var dtCount = 0; var minCount = countFlow < countReturn ? countFlow : countReturn; foreach(v: T_flow_C) { var idx = dtCount; if (idx < countReturn) { sumDT = sumDT + (v.value - T_return_C.last()); dtCount = dtCount + 1; } } var avgDT = currentDT; if (dtCount > 0) { avgDT = (T_flow_C.mean() - T_return_C.mean()); } if (avgDT == 0) { return {}; } var threshold = collapseThreshold; if (threshold == null) { threshold = 0.5; } var collapsed = false; if (currentDT < avgDT * threshold) { collapsed = true; } return { \"dT_collapse_flag\": collapsed };';\n} else if (metadata.cfType == 'flow_spike') {\n    args['Vdot_m3h'] = { refEntityKey: { key: 'Vdot_m3h', type: 'TS_ROLLING' }, limit: 50, timeWindow: 300000 };\n    args['spikeThreshold'] = { refEntityKey: { key: 'spikeThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '2.0' };\n    expression = 'var currentFlow = Vdot_m3h.last(); var avgFlow = Vdot_m3h.mean(); var countFlow = Vdot_m3h.count(); if (countFlow < 3 || avgFlow == 0) { return {}; } var threshold = spikeThreshold; if (threshold == null) { threshold = 2.0; } var spiked = false; if (currentFlow > avgFlow * threshold) { spiked = true; } return { \"flow_spike_flag\": spiked };';\n} else if (metadata.cfType == 'power_stability') {\n    args['P_th_kW'] = { refEntityKey: { key: 'P_th_kW', type: 'TS_ROLLING' }, limit: 50, timeWindow: 900000 };\n    args['Vdot_m3h'] = { refEntityKey: { key: 'Vdot_m3h', type: 'TS_ROLLING' }, limit: 50, timeWindow: 900000 };\n    args['flowOnThreshold'] = { refEntityKey: { key: 'flowOnThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '0.05' };\n    args['stabilityThreshold'] = { refEntityKey: { key: 'stabilityThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '0.5' };\n    expression = 'var avgPower = P_th_kW.mean(); var stdPower = P_th_kW.std(); var countPower = P_th_kW.count(); if (countPower < 5) { return {}; } if (avgPower < 1.0) { return {}; } var flowThreshold = flowOnThreshold; if (flowThreshold == null) { flowThreshold = 0.1; } var onCount = 0; foreach(v: Vdot_m3h) { if (v.value > flowThreshold) { onCount = onCount + 1; } } var runtimePct = (onCount / Vdot_m3h.count()) * 100; if (runtimePct < 80) { return {}; } var threshold = stabilityThreshold; if (threshold == null) { threshold = 0.5; } var stability = stdPower / avgPower; var isUnstable = false; if (stability > threshold) { isUnstable = true; } return { \"power_stability\": Math.round(stability * 1000) / 1000, \"power_unstable_flag\": isUnstable };';\n} else if (metadata.cfType == 'runtime_pct') {\n    args['Vdot_m3h'] = { refEntityKey: { key: 'Vdot_m3h', type: 'TS_ROLLING' }, limit: 200, timeWindow: 3600000 };\n    args['flowOnThreshold'] = { refEntityKey: { key: 'flowOnThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '0.05' };\n    expression = 'var countAll = Vdot_m3h.count(); if (countAll < 2) { return {}; } var flowThreshold = flowOnThreshold; if (flowThreshold == null) { flowThreshold = 0.1; } var onCount = 0; foreach(v: Vdot_m3h) { if (v.value > flowThreshold) { onCount = onCount + 1; } } var runtimePct = (onCount / countAll) * 100; return { \"runtime_pct\": Math.round(runtimePct * 10) / 10 };';\n} else if (metadata.cfType == 'energy') {\n    args['P_th_kW'] = { refEntityKey: { key: 'P_th_kW', type: 'TS_ROLLING' }, limit: 2, timeWindow: 300000 };\n    expression = 'var count = P_th_kW.count(); if (count < 2) { return {}; } var prevVal = null; var prevTs = null; var currVal = null; var currTs = null; foreach(v: P_th_kW) { prevVal = currVal; prevTs = currTs; currVal = v.value; currTs = v.ts; } if (prevVal == null || currVal == null || prevTs == null) { return {}; } var dt_ms = currTs - prevTs; if (dt_ms <= 0 || dt_ms > 600000) { return {}; } var dt_hours = dt_ms / 3600000.0; var P_avg = (prevVal + currVal) / 2.0; var E_delta = P_avg * dt_hours; return { \"E_th_delta_kWh\": Math.round(E_delta * 10000.0) / 10000.0 };';\n} else if (metadata.cfType == 'cycling') {\n    args['Vdot_m3h'] = { refEntityKey: { key: 'Vdot_m3h', type: 'TS_ROLLING' }, limit: 200, timeWindow: 1800000 };\n    args['flowOnThreshold'] = { refEntityKey: { key: 'flowOnThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '0.05' };\n    args['cyclingThreshold'] = { refEntityKey: { key: 'cyclingThreshold', type: 'ATTRIBUTE', scope: 'SERVER_SCOPE' }, defaultValue: '5' };\n    expression = 'var countAll = Vdot_m3h.count(); if (countAll < 3) { return {}; } var flowThreshold = flowOnThreshold; if (flowThreshold == null) { flowThreshold = 0.1; } var threshold = cyclingThreshold; if (threshold == null) { threshold = 6; } var transitions = 0; var prevIsOn = null; foreach(v: Vdot_m3h) { var isOn = (v.value > flowThreshold); if (prevIsOn != null && prevIsOn != isOn) { transitions = transitions + 1; } prevIsOn = isOn; } var isCycling = false; if (transitions > threshold) { isCycling = true; } return { \"cycling_flag\": isCycling, \"cycle_count\": transitions };';\n} else {\n    return { msg: {}, metadata: metadata, msgType: msgType };\n}\n\nvar configInner = { type: 'SCRIPT', arguments: args, expression: expression, output: outputObj };\nvar cfDef = { entityId: entityIdObj, type: 'SCRIPT', name: metadata.cfName, configurationVersion: 0, configuration: configInner };\nreturn { msg: cfDef, metadata: metadata, msgType: msgType };"
         },
         "externalId": null,
         "additionalInfo": {
           "description": "Build CF definition",
-          "layoutX": 569,
-          "layoutY": 302
+          "layoutX": 602,
+          "layoutY": 76
         }
       },
       {
@@ -219,7 +219,7 @@
         "debugSettings": {
           "failuresEnabled": false,
           "allEnabled": false,
-          "allEnabledUntil": 1770316351625
+          "allEnabledUntil": 1770902398519
         },
         "singletonMode": false,
         "queueName": null,
@@ -231,6 +231,7 @@
         },
         "externalId": null,
         "additionalInfo": {
+          "description": null,
           "layoutX": 801,
           "layoutY": 303
         }
@@ -292,7 +293,7 @@
         "debugSettings": {
           "failuresEnabled": false,
           "allEnabled": false,
-          "allEnabledUntil": 1770316351625
+          "allEnabledUntil": 1770902398519
         },
         "singletonMode": false,
         "queueName": null,
@@ -304,8 +305,9 @@
         },
         "externalId": null,
         "additionalInfo": {
-          "layoutX": 1593,
-          "layoutY": 207
+          "description": null,
+          "layoutX": 1560,
+          "layoutY": 228
         }
       },
       {
@@ -346,8 +348,8 @@
         },
         "externalId": null,
         "additionalInfo": {
-          "layoutX": 1950,
-          "layoutY": 200
+          "layoutX": 1821,
+          "layoutY": 192
         }
       },
       {
@@ -524,16 +526,16 @@
           "id": "1df62e50-0386-11f1-9b0a-33b9bcf3ddd0"
         },
         "type": "org.thingsboard.rule.engine.delay.TbMsgDelayNode",
-        "name": "Wait 30s (2)",
+        "name": "Wait 60s (2)",
         "debugSettings": null,
         "singletonMode": false,
         "queueName": null,
         "configurationVersion": 0,
         "configuration": {
-          "periodInSeconds": 30,
-          "maxPendingMsgs": 1000,
+          "useMetadataPeriodInSecondsPatterns": false,
+          "periodInSeconds": 60,
           "periodInSecondsPattern": null,
-          "useMetadataPeriodInSecondsPatterns": false
+          "maxPendingMsgs": 1000
         },
         "externalId": null,
         "additionalInfo": {
@@ -625,16 +627,16 @@
           "id": "1df62e50-0386-11f1-9b0a-33b9bcf3ddd0"
         },
         "type": "org.thingsboard.rule.engine.delay.TbMsgDelayNode",
-        "name": "Wait 30s (3)",
+        "name": "Wait 60s (3)",
         "debugSettings": null,
         "singletonMode": false,
         "queueName": null,
         "configurationVersion": 0,
         "configuration": {
-          "periodInSeconds": 30,
-          "maxPendingMsgs": 1000,
+          "useMetadataPeriodInSecondsPatterns": false,
+          "periodInSeconds": 60,
           "periodInSecondsPattern": null,
-          "useMetadataPeriodInSecondsPatterns": false
+          "maxPendingMsgs": 1000
         },
         "externalId": null,
         "additionalInfo": {
@@ -730,7 +732,7 @@
         "debugSettings": {
           "failuresEnabled": true,
           "allEnabled": false,
-          "allEnabledUntil": 0
+          "allEnabledUntil": 1770902335267
         },
         "singletonMode": false,
         "queueName": null,
@@ -738,13 +740,13 @@
         "configuration": {
           "scriptLang": "TBEL",
           "jsScript": "",
-          "tbelScript": "metadata.origMsgStr = JSON.stringify(msg);\nreturn {msg: {\"reprocessing\": true}, metadata: metadata, msgType: msgType};"
+          "tbelScript": "metadata.origMsgStr = JSON.stringify(msg);\nreturn {msg: {\"reprocessing\": true}, metadata: metadata, msgType: \"POST_ATTRIBUTES_REQUEST\"};"
         },
         "externalId": null,
         "additionalInfo": {
           "description": "Save original msg to metadata, set msg to reprocessing=true for Save Attributes",
-          "layoutX": 130,
-          "layoutY": 350
+          "layoutX": 0,
+          "layoutY": 327
         }
       },
       {
@@ -779,8 +781,8 @@
         "externalId": null,
         "additionalInfo": {
           "description": "Save reprocessing=true as SERVER_SCOPE attribute on Measurement asset",
-          "layoutX": 130,
-          "layoutY": 460
+          "layoutX": 77,
+          "layoutY": 430
         }
       },
       {
@@ -798,7 +800,7 @@
         "debugSettings": {
           "failuresEnabled": true,
           "allEnabled": false,
-          "allEnabledUntil": 0
+          "allEnabledUntil": 1770902398519
         },
         "singletonMode": false,
         "queueName": null,
@@ -811,8 +813,8 @@
         "externalId": null,
         "additionalInfo": {
           "description": "Restore original message from metadata after saving reprocessing flag",
-          "layoutX": 283,
-          "layoutY": 460
+          "layoutX": 310,
+          "layoutY": 547
         }
       },
       {
@@ -830,7 +832,7 @@
         "debugSettings": {
           "failuresEnabled": true,
           "allEnabled": false,
-          "allEnabledUntil": 0
+          "allEnabledUntil": 1770902538089
         },
         "singletonMode": false,
         "queueName": null,
@@ -838,7 +840,7 @@
         "configuration": {
           "scriptLang": "TBEL",
           "jsScript": "",
-          "tbelScript": "return {msg: {\"reprocessing\": false}, metadata: metadata, msgType: msgType};"
+          "tbelScript": "return {msg: {\"reprocessing\": false}, metadata: metadata, msgType: \"POST_ATTRIBUTES_REQUEST\"};"
         },
         "externalId": null,
         "additionalInfo": {
@@ -879,8 +881,8 @@
         "externalId": null,
         "additionalInfo": {
           "description": "Save reprocessing=false as SERVER_SCOPE attribute on Measurement asset",
-          "layoutX": 2150,
-          "layoutY": 310
+          "layoutX": 2179,
+          "layoutY": 371
         }
       }
     ],

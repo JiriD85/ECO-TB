@@ -5371,7 +5371,7 @@ export function openEditProjectDialog(widgetContext, projectId, projectName, pro
   assetService.getAsset(projectId.id).subscribe(function(project) {
     // Load project attributes
     attributeService.getEntityAttributes(projectId, 'SERVER_SCOPE',
-      ['latitude', 'longitude', 'address', 'postalCode', 'city', 'projectPicture', 'progress', 'startTimeMs', 'endTimeMs']
+      ['latitude', 'longitude', 'address', 'postalCode', 'city', 'projectPicture', 'progress', 'startTimeMs', 'endTimeMs', 'normOutdoorTemp', 'hddHeatingLimit', 'hddIndoorTemp', 'hddReference', 'energyPrice', 'demandCharge']
     ).subscribe(function(attributes) {
       const attrMap = {};
       attributes.forEach(function(a) { attrMap[a.key] = a.value; });
@@ -5572,6 +5572,55 @@ mat-toolbar.eco-dialog-header,
         <mat-hint *ngIf="natLookupInfo">{{ natLookupInfo }}</mat-hint>
       </mat-form-field>
     </div>
+    </div>
+
+    <!-- HDD Settings Section -->
+    <div class="section-card">
+      <div class="section-header">
+        <mat-icon>thermostat</mat-icon>
+        <span>HDD Settings</span>
+      </div>
+      <div class="section-body">
+        <div class="flex gap-2">
+          <mat-form-field appearance="fill" style="flex: 1;">
+            <mat-label>Heating Limit</mat-label>
+            <input matInput formControlName="hddHeatingLimit" type="number" step="0.5">
+            <span matSuffix>&deg;C</span>
+          </mat-form-field>
+          <mat-form-field appearance="fill" style="flex: 1;">
+            <mat-label>Indoor Temperature</mat-label>
+            <input matInput formControlName="hddIndoorTemp" type="number" step="0.5">
+            <span matSuffix>&deg;C</span>
+          </mat-form-field>
+        </div>
+        <mat-form-field appearance="fill" class="w-full">
+          <mat-label>Reference HDD (Kd/a)</mat-label>
+          <input matInput formControlName="hddReference" type="number" step="1">
+          <span matSuffix>Kd/a</span>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Energy Costs Section -->
+    <div class="section-card">
+      <div class="section-header">
+        <mat-icon>payments</mat-icon>
+        <span>Energy Costs</span>
+      </div>
+      <div class="section-body">
+        <div class="flex gap-2">
+          <mat-form-field appearance="fill" style="flex: 1;">
+            <mat-label>Energy Price</mat-label>
+            <input matInput formControlName="energyPrice" type="number" step="0.01">
+            <span matSuffix>EUR/kWh</span>
+          </mat-form-field>
+          <mat-form-field appearance="fill" style="flex: 1;">
+            <mat-label>Demand Charge</mat-label>
+            <input matInput formControlName="demandCharge" type="number" step="0.01">
+            <span matSuffix>EUR/kW/a</span>
+          </mat-form-field>
+        </div>
+      </div>
     </div>
 
     <!-- Status Section -->
@@ -5779,7 +5828,13 @@ mat-toolbar.eco-dialog-header,
         postalCode: [attrMap.postalCode || ''],
         city: [attrMap.city || ''],
         latitude: [attrMap.latitude || ''],
-        longitude: [attrMap.longitude || '']
+        longitude: [attrMap.longitude || ''],
+        normOutdoorTemp: [attrMap.normOutdoorTemp || null],
+        hddHeatingLimit: [attrMap.hddHeatingLimit !== undefined ? attrMap.hddHeatingLimit : 12],
+        hddIndoorTemp: [attrMap.hddIndoorTemp !== undefined ? attrMap.hddIndoorTemp : 20],
+        hddReference: [attrMap.hddReference || null],
+        energyPrice: [attrMap.energyPrice || null],
+        demandCharge: [attrMap.demandCharge || null]
       });
 
       // Auto-set start/end time when progress changes
@@ -5990,6 +6045,27 @@ mat-toolbar.eco-dialog-header,
 
           if (formValues.projectPicture) {
             attributesArray.push({ key: 'projectPicture', value: formValues.projectPicture });
+          }
+
+          // HDD Settings
+          if (formValues.normOutdoorTemp !== null && formValues.normOutdoorTemp !== '') {
+            attributesArray.push({ key: 'normOutdoorTemp', value: formValues.normOutdoorTemp });
+          }
+          if (formValues.hddHeatingLimit !== null && formValues.hddHeatingLimit !== '') {
+            attributesArray.push({ key: 'hddHeatingLimit', value: formValues.hddHeatingLimit });
+          }
+          if (formValues.hddIndoorTemp !== null && formValues.hddIndoorTemp !== '') {
+            attributesArray.push({ key: 'hddIndoorTemp', value: formValues.hddIndoorTemp });
+          }
+          if (formValues.hddReference !== null && formValues.hddReference !== '') {
+            attributesArray.push({ key: 'hddReference', value: formValues.hddReference });
+          }
+          // Energy Costs
+          if (formValues.energyPrice !== null && formValues.energyPrice !== '') {
+            attributesArray.push({ key: 'energyPrice', value: formValues.energyPrice });
+          }
+          if (formValues.demandCharge !== null && formValues.demandCharge !== '') {
+            attributesArray.push({ key: 'demandCharge', value: formValues.demandCharge });
           }
 
           attributeService.saveEntityAttributes(projectId, 'SERVER_SCOPE', attributesArray).subscribe(function() {
@@ -6223,6 +6299,23 @@ export function openAddProjectDialog(widgetContext, callback) {
     '</mat-form-field>' +
     '<div class="nat-info" [class.success]="natLookupInfo" *ngIf="natLookupInfo">{{ natLookupInfo }}</div>' +
     '</div></div>' +
+    '<div class="section-card">' +
+    '<div class="section-header"><mat-icon>thermostat</mat-icon><span>HDD Settings</span></div>' +
+    '<div class="section-body">' +
+    '<div class="flex gap-2">' +
+    '<mat-form-field appearance="fill" style="flex: 1;"><mat-label>Heating Limit</mat-label><input matInput formControlName="hddHeatingLimit" type="number" step="0.5"><span matSuffix>&deg;C</span></mat-form-field>' +
+    '<mat-form-field appearance="fill" style="flex: 1;"><mat-label>Indoor Temperature</mat-label><input matInput formControlName="hddIndoorTemp" type="number" step="0.5"><span matSuffix>&deg;C</span></mat-form-field>' +
+    '</div>' +
+    '<mat-form-field appearance="fill" class="w-full"><mat-label>Reference HDD (Kd/a)</mat-label><input matInput formControlName="hddReference" type="number" step="1"><span matSuffix>Kd/a</span></mat-form-field>' +
+    '</div></div>' +
+    '<div class="section-card">' +
+    '<div class="section-header"><mat-icon>payments</mat-icon><span>Energy Costs</span></div>' +
+    '<div class="section-body">' +
+    '<div class="flex gap-2">' +
+    '<mat-form-field appearance="fill" style="flex: 1;"><mat-label>Energy Price</mat-label><input matInput formControlName="energyPrice" type="number" step="0.01"><span matSuffix>EUR/kWh</span></mat-form-field>' +
+    '<mat-form-field appearance="fill" style="flex: 1;"><mat-label>Demand Charge</mat-label><input matInput formControlName="demandCharge" type="number" step="0.01"><span matSuffix>EUR/kW/a</span></mat-form-field>' +
+    '</div>' +
+    '</div></div>' +
     '</div>' +
     '<div class="dialog-footer">' +
     '<button mat-button (click)="cancel()" type="button">Cancel</button>' +
@@ -6252,7 +6345,12 @@ export function openAddProjectDialog(widgetContext, callback) {
       city: [''],
       latitude: [''],
       longitude: [''],
-      normOutdoorTemp: [null]
+      normOutdoorTemp: [null],
+      hddHeatingLimit: [12],
+      hddIndoorTemp: [20],
+      hddReference: [null],
+      energyPrice: [null],
+      demandCharge: [null]
     });
 
     // Address search state
@@ -6513,6 +6611,24 @@ export function openAddProjectDialog(widgetContext, callback) {
 
       if (formValues.projectPicture) {
         attributesArray.push({ key: 'projectPicture', value: formValues.projectPicture });
+      }
+
+      // HDD Settings
+      if (formValues.hddHeatingLimit !== null && formValues.hddHeatingLimit !== '') {
+        attributesArray.push({ key: 'hddHeatingLimit', value: formValues.hddHeatingLimit });
+      }
+      if (formValues.hddIndoorTemp !== null && formValues.hddIndoorTemp !== '') {
+        attributesArray.push({ key: 'hddIndoorTemp', value: formValues.hddIndoorTemp });
+      }
+      if (formValues.hddReference !== null && formValues.hddReference !== '') {
+        attributesArray.push({ key: 'hddReference', value: formValues.hddReference });
+      }
+      // Energy Costs
+      if (formValues.energyPrice !== null && formValues.energyPrice !== '') {
+        attributesArray.push({ key: 'energyPrice', value: formValues.energyPrice });
+      }
+      if (formValues.demandCharge !== null && formValues.demandCharge !== '') {
+        attributesArray.push({ key: 'demandCharge', value: formValues.demandCharge });
       }
 
       return attributeService.saveEntityAttributes(entityId, 'SERVER_SCOPE', attributesArray);
