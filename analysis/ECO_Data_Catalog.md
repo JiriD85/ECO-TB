@@ -79,6 +79,23 @@ Tenant (ECO Energy Group)
 | `viewerUserGroupId` | string | ID der Viewer User Group |
 | `viewerAssetGroupId` | string | ID der Viewer Asset Group |
 
+### Heizgradtage (HDD)
+
+| Attribut | Typ | Einheit | Beschreibung |
+|----------|-----|---------|--------------|
+| `hddHeatingLimit` | number | °C | Heizgrenze (Standard: 12°C) |
+| `hddIndoorTemp` | number | °C | Innentemperatur (Standard: 20°C) |
+| `hddReference` | number | Kd/a | Referenz-Heizgradtage aus OIB-RL 6 |
+
+### Energiewirtschaft & ESG
+
+| Attribut | Typ | Einheit | Beschreibung |
+|----------|-----|---------|--------------|
+| `energyPrice` | number | EUR/kWh | Energiepreis |
+| `demandCharge` | number | EUR/kW/a | Leistungsentgelt |
+| `co2Factor` | number | kg CO₂/kWh | CO2-Emissionsfaktor für ESG-Reports |
+| `primaryEnergyFactor` | number | fPE | Primärenergiefaktor (dimensionslos) |
+
 ---
 
 ## 5. Measurement Attribute
