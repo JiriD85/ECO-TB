@@ -80,13 +80,24 @@ export function getProgressHtml(progress) {
         bgColor,
         label
     } = getProgressColor(progress);
+    var icon;
+    switch (progress) {
+        case "in preparation": case "planned": icon = "schedule"; break;
+        case "active": icon = "play_circle"; break;
+        case "finished": icon = "check_circle"; break;
+        case "aborted": icon = "cancel"; break;
+        default: icon = "help_outline"; break;
+    }
     return (
         '<div ' +
-        'style="display:inline-block;padding:4px 8px;border-radius:8px;' +
-        'line-height:20px;font-size:14px;font-weight:500;' +
-        'letter-spacing:0.25px;color:' + color + ';' +
+        'style="display:inline-flex;align-items:center;gap:4px;' +
+        'padding:3px 8px;border-radius:12px;' +
+        'font-size:12px;font-weight:500;height:24px;box-sizing:border-box;' +
+        'color:' + color + ';' +
         'background-color:' + bgColor + ';">' +
-        label +
+        '<span class="material-icons" style="font-size:14px;width:14px;height:14px;line-height:14px;overflow:hidden;flex-shrink:0;">' +
+        icon + '</span>' +
+        '<span>' + label + '</span>' +
         '</div>'
     );
 }
@@ -160,11 +171,11 @@ export function getMeasurementTypeHtml(measurementType) {
         label
     } = getMeasurementTypeStyle(measurementType);
     return (
-        '<div style="display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:8px;' +
-        'line-height:20px;font-size:14px;font-weight:500;letter-spacing:0.25px;' +
+        '<div style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;' +
+        'font-size:12px;font-weight:500;height:24px;box-sizing:border-box;' +
         'color:' + color + ';background-color:' +
         bgColor + ';">' +
-        '<span class="material-icons" style="font-size:16px;">' +
+        '<span class="material-icons" style="font-size:14px;width:14px;height:14px;line-height:14px;overflow:hidden;flex-shrink:0;">' +
         icon + '</span>' +
         '<span>' + label + '</span>' +
         '</div>'
@@ -565,11 +576,13 @@ export function getDateBadgeHtml(timestampMs, type) {
         "rgba(47, 128, 237, 0.12)";
 
     return (
-        '<span class="status-badge" style="background:' +
-        bgColor + ";color:" + color + ';">' +
-        '<mat-icon class="badge-icon">' + icon +
-        "</mat-icon>" +
-        "<span>" + formatted + "</span></span>"
+        '<span style="display:inline-flex;align-items:center;gap:4px;' +
+        'padding:3px 8px;border-radius:12px;font-size:12px;font-weight:500;' +
+        'height:24px;box-sizing:border-box;' +
+        'background:' + bgColor + ';color:' + color + ';">' +
+        '<mat-icon style="display:flex;align-items:center;justify-content:center;font-size:14px;width:14px;height:14px;flex-shrink:0;">' + icon +
+        '</mat-icon>' +
+        '<span>' + formatted + '</span></span>'
     );
 }
 
@@ -585,10 +598,10 @@ export function getDateBadgeHtml(timestampMs, type) {
 export function createBadgeHtml(icon, label, color,
 bgColor) {
     return (
-        '<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:8px;' +
-        'line-height:20px;font-size:12px;font-weight:500;color:' +
+        '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;' +
+        'font-size:12px;font-weight:500;height:24px;box-sizing:border-box;color:' +
         color + ";background-color:" + bgColor + ';">' +
-        '<mat-icon style="font-size:14px;width:14px;height:14px;">' +
+        '<mat-icon style="display:flex;align-items:center;justify-content:center;font-size:14px;width:14px;height:14px;flex-shrink:0;">' +
         icon + "</mat-icon>" +
         "<span>" + label + "</span></span>"
     );
@@ -618,7 +631,7 @@ export function createAlarmBadgeHtml(state, totalAlarms, elementId) {
         var idAttr = elementId ? 'id="' + elementId + '"' : '';
         return '<div ' + idAttr + ' class="state-alarm-card" style="' +
             'display:inline-flex;align-items:center;gap:12px;' +
-            'padding:8px 14px;border-radius:8px;cursor:pointer;' +
+            'padding:6px 12px;border-radius:12px;cursor:pointer;' +
             'background:' + stateStyle.bgColor + ';' +
             'transition:all 0.2s ease;">' +
             // State text (colored, no icon)
@@ -642,7 +655,7 @@ export function createAlarmBadgeHtml(state, totalAlarms, elementId) {
         var idAttr = elementId ? 'id="' + elementId + '"' : '';
         return '<div ' + idAttr + ' class="state-alarm-card" style="' +
             'display:inline-flex;align-items:center;gap:12px;' +
-            'padding:8px 14px;border-radius:8px;cursor:pointer;' +
+            'padding:6px 12px;border-radius:12px;cursor:pointer;' +
             'background:' + stateStyle.bgColor + ';' +
             'transition:all 0.2s ease;">' +
             // State text (colored)
